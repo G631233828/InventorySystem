@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:include="public/public_css::pub_css"></head>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link th:href="@{/plugs/bootstrap-fileinput/css/fileinput.css}"
+	media="all" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+	<!-- Preloader -->
+	<div id="preloader">
+		<div id="status">&nbsp;</div>
+	</div>
+	<!-- TOP NAVBAR -->
+	<div th:replace="public/public::top"></div>
+	<!-- /END OF TOP NAVBAR -->
+
+	<!-- SIDE MENU -->
+	<div th:replace="public/public::left(activeUri='website')"></div>
+	<!-- END OF SIDE MENU -->
+
+	<!--  PAPER WRAP -->
+	<div class="wrap-fluid">
+		<div class="container-fluid paper-wrap bevel tlbr">
+
+
+			<!-- CONTENT -->
+			<!--TITLE -->
+			<div th:replace="public/public::title"></div>
+			<!--/ TITLE -->
+
+			<!-- BREADCRUMB -->
+			<div th:replace="public/public::menu"></div>
+			<!-- END OF BREADCRUMB -->
+
+			<div class="content-wrap">
+				<div class="row">
+
+
+					<div class="col-sm-12">
+						<!-- BLANK PAGE-->
+
+						<div style="margin: -20px 15px;" class="nest" id="Blank_PageClose">
+							<div class="title-alt">
+								<h6>合作伙伴</h6>
+								<div class="titleClose">
+									<a class="gone" href="#Blank_PageClose"> <span
+										class="entypo-cancel"></span>
+									</a>
+								</div>
+								<div class="titleToggle">
+									<a class="nav-toggle-alt" href="#Blank_Page_Content"> <span
+										class="entypo-up-open"></span>
+									</a>
+								</div>
+
+							</div>
+
+
+							<div class="body-nest" id="Blank_Page_Content">
+								<div class="row">
+									<!-- edit form column -->
+									<div class="col-md-12 personal-info">
+										<form class="form-horizontal" enctype="multipart/form-data"
+											id="cooperativeParnerForm" name="cooperativeParnerForm" th:action="@{cooperativeParner}"
+											method="post">
+
+
+
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label">合作伙伴图片：</label>
+												<div class="col-lg-6">
+													<input id="file" name="parners" type="file" multiple>
+												</div>
+											</div>
+											<input type="hidden" name="id"
+												th:value="${cooperativeParner!=null}?${cooperativeParner.id}">
+
+
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label"></label>
+												<div class="col-md-8">
+													<button type="submit" class="btn btn-success"
+														th:text="${honor!=null?'修改':'添加'}"></button>
+													<span></span> <input th:if="${cooperativeParner} eq null"
+														class="btn btn-default" value="重置" type="reset">
+												</div>
+											</div>
+										</form>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- END OF BLANK PAGE -->
+
+				</div>
+			</div>
+
+			<!--/row-->
+
+		</div>
+	</div>
+	<!--  END OF PAPER WRAP -->
+	<!-- 右侧隐藏菜单start -->
+	<div th:replace="public/public::right"></div>
+	<!-- 右侧隐藏菜单end-->
+	<!-- 底部js -->
+	<div th:replace="public/public_js::pub_js"></div>
+
+
+	<div th:replace="public/public_js::public_script"></div>
+	<div th:replace="public/public::footer"></div>
+	<script th:src="@{/plugs/bootstrap-fileinput/js/fileinput.js}"
+		type="text/javascript"></script>
+	<!-- Jquery Validate -->
+	<script type="text/javascript"
+		th:src="@{/plugs/validate/jquery.validate.min.js}"></script>
+	<script type="text/javascript"
+		th:src="@{/plugs/validate/messages_zh.min.js}"></script>
+	<script type="text/javascript" th:inline="javascript"
+		th:src="@{/js/admin/cooperativeParner/cooperativeParner.js}"></script>
+	<script type="text/javascript" th:inline="javascript">
+	<div th:replace="public/public_js::validator"></div>
+	var list = null;
+	var pics ='';
+	var path = "";
+	/* <![CDATA[ */
+		path = [[@{/}]];
+	 list = [[${cooperativeParner!=null}?${cooperativeParner.listbanana}:null]];
+	 if(list!=null){
+		 for(var i = 0 ;i<list.length;i++){
+				
+				pics = pics+"<div class='file-preview-frame' id='"+list[i].id+"'><div class='kv-file-content' ><img src='"+path+list[i].savePath+"/"+list[i].generateName+"' class='kv-preview-data file-preview-image' title='"+list[i].originalName+"' alt='"+list[i].originalName+"' style='width:150px;height:150px;'></div>"+
+				 "<div class='file-thumbnail-footer'>"+
+				 "<div class='file-footer-caption' title='"+list[i].originalName+"'>"+list[i].originalName+"</div>"+
+				 "<div class='file-thumb-progress hide'><div class='progress '></div></div>"+
+				 "<div class='file-actions'>"+
+				 "<div class='file-footer-buttons'>"+
+				 "<button type='button' class='kv-file-remove btn btn-xs btn-default' onclick=deleteImg('"+list[i].id+"'); title='Remove file'>"+
+				 "<i class='glyphicon glyphicon-trash text-danger'></i></button></div>"+ 
+				 "<div class='clearfix'></div></div></div></div>"
+			}
+	 }
+	
+/* ]]> */
+
+	
+	
+		$('#file').fileinput({
+			language : 'zh',
+			uploadUrl : '#',
+			allowedFileExtensions : [ 'jpg', 'png', 'gif', 'jpeg', 'bmp' ],
+			dropZoneTitle : "上传图片！",
+			showUpload : false,// 是否显示上传按钮
+			showCaption : true,// 是否显示标题
+			showPreview : true,// 显示预览
+			dropZoneEnabled : true,//是否显示拖拽区域
+			maxFileSize : 1024 * 10, // 单位为kb，如果为0表示不限制文件大小
+			// browseClass : "btn btn-primary btn-lg",//上传选择按钮样式
+			overwriteInitial : false,
+			initialPreviewAsData : false, // 配置上传后是否显示预览
+			maxFileCount : 20, // 表示允许同时上传的最大文件个数
+
+			initialPreview : [
+				pics
+			],
+			// 解决上传图片大小不一
+			previewSettings : {
+				image : {
+					width : "100px",
+					height : "140px"
+				},
+			},
+			// 去掉图片上的缩略图按钮
+			layoutTemplates : {
+				actionDelete : '', //去除上传预览的缩略图中的删除图标
+				actionUpload : '',//去除上传预览缩略图中的上传图片；
+				actionZoom : '' //去除上传预览缩略图中的查看详情预览的缩略图标。
+			},
+
+		})
+		
+		
+	
+function deleteImg(id){
+	if(id!=null){
+		$.ajax({
+			type : 'POST',
+			url : "deleteCooperativeParner",
+			data : "id=" + id,
+			dataType : "json",
+			success : function(data) {
+				$("#"+id).remove();
+			
+			}
+		});
+	}
+		}
+		
+	</script>
+</body>
+
+</html>

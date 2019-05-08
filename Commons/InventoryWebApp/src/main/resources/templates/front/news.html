@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;"
+	name="viewport" />
+<head th:include="/front/public/public_css::pub_css"></head>
+<body>
+	<!--导航-->
+	<div th:replace="/front/public/public::menu"></div>
+	<!--导航-->
+	<!-- banner -->
+	<!-- 	<div class="swiper-container about_banner">
+		<div class="swiper-wrapper">
+			<div class="swiper-slide"
+				style="background-image: url(assets/img/news_banner.png)"></div>
+		</div>
+	</div> -->
+	<!-- main -->
+	<div class="wrapper tab_wrapper news_wrapper">
+		<div class="container">
+			<div class="tab_box" style="margin-top: 50px;">
+				<div class="tab_details on">
+					<ul class="list-unstyled">
+						<li class=" wow fadeInUp" th:each="news:${pageList?.datas}"><a
+							href="javascript:;"
+							th:onclick="|return newsDetails('${news.id}')|">
+								<div class="imgPic">
+									<img
+										th:src="|@{/}${news?.newsImg?.savePath}${news?.newsImg?.compressPicName}|"
+										height="145" width="225">
+								</div>
+								<div class="listInfo">
+									<div class="nTitile" th:text="${news?.title}"></div>
+									<p th:text="${news.description}"></p>
+									<div class="n_bottom">
+										<div class="pull-left">
+											<button class="btn" href="#">查看详情&gt;&gt;</button>
+										</div>
+										<div class="pull-right">
+											<span><i class="icon iconfont">&#xe629;</i>
+												[[${#dates.format(news?.createTime,'yyyy-MM-dd')}]]</span>
+											 <span> <i class="icon iconfont">&#xe605;</i> [[${news?.views}]]</span>
+										</div>
+									</div>
+								</div>
+						</a></li>
+
+					</ul>
+				</div>
+			</div>
+			<div class="page">
+				<dl class="list-inline">
+					<dd>
+						<a
+							th:class="${pageList.pageNo } eq 1 ?'pager-prev disabled':'pager-prev'"
+							th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{news?pageNo=}+${pageList.upPage}">上一页</a>
+					</dd>
+					<dd th:each="page:${pageList.navigatepageNums}" 	>
+						<a th:class="${page  == pageList.pageNo}?active:''"
+							th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{news?pageNo=}+${page}">[[${page}]]</a>
+					</dd>
+					<dd>
+						<a
+							th:class="${pageList.pageNo eq pageList.totalPage}?'disabled pager-next':'pager-next'"
+							th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{news?pageNo=}+${pageList.nextPage}">下一页
+						</a>
+					</dd>
+				</dl>
+			</div>
+		</div>
+	</div>
+	<!-- 底部 -->
+	<div th:replace="/front/public/public::footer"></div>
+	<!-- 底部js -->
+	<div th:replace="/front/public/public_js::pub_js"></div>
+
+	<script type="text/javascript">
+		function newsDetails(o) {
+			window.location.href = "newsDetails/" + o;
+		}
+	</script>
+</body>
+</html>

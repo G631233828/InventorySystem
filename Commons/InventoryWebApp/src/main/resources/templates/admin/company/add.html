@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:include="public/public_css::pub_css"></head>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link th:href="@{/plugs/bootstrap-fileinput/css/fileinput.css}"
+	media="all" rel="stylesheet" type="text/css" />
+</head>
+
+<body>
+	<!-- Preloader -->
+	<div id="preloader">
+		<div id="status">&nbsp;</div>
+	</div>
+	<!-- TOP NAVBAR -->
+	<div th:replace="public/public::top"></div>
+	<!-- /END OF TOP NAVBAR -->
+
+	<!-- SIDE MENU -->
+	<div th:replace="public/public::left(activeUri='website')"></div>
+	<!-- END OF SIDE MENU -->
+
+	<!--  PAPER WRAP -->
+	<div class="wrap-fluid">
+		<div class="container-fluid paper-wrap bevel tlbr">
+
+
+			<!-- CONTENT -->
+			<!--TITLE -->
+			<div th:replace="public/public::title"></div>
+			<!--/ TITLE -->
+
+			<!-- BREADCRUMB -->
+			<div th:replace="public/public::menu"></div>
+			<!-- END OF BREADCRUMB -->
+
+			<div class="content-wrap">
+				<div class="row">
+
+
+					<div class="col-sm-12">
+						<!-- BLANK PAGE-->
+
+						<div style="margin: -20px 15px;" class="nest" id="Blank_PageClose">
+							<div class="title-alt">
+								<h6>企业信息</h6>
+								<div class="titleClose">
+									<a class="gone" href="#Blank_PageClose"> <span
+										class="entypo-cancel"></span>
+									</a>
+								</div>
+								<div class="titleToggle">
+									<a class="nav-toggle-alt" href="#Blank_Page_Content"> <span
+										class="entypo-up-open"></span>
+									</a>
+								</div>
+
+							</div>
+
+
+							<div class="body-nest" id="Blank_Page_Content">
+								<div class="row">
+									<!-- edit form column -->
+									<div class="col-md-12 personal-info">
+										<form class="form-horizontal" enctype="multipart/form-data"
+											id="companyForm" name="companyForm"
+											th:action="@{/editcompany}" method="post">
+
+											<input type="hidden" th:value="${company?.id}" name="id">
+											<div class="form-group">
+												<label class="col-lg-1 control-label">企业名称：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="companyName"
+														placeholder="企业名称" name="companyName"
+														th:value="${company?.companyName}" required="required">
+												</div>
+											</div>
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label">企业邮箱：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="email" placeholder="企业邮箱"
+														name="email" th:value="${company?.email}"
+														required="required">
+												</div>
+											</div>
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label">企业地址：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="address" placeholder="企业地址"
+														name="address" th:value="${company?.address}"
+														required="required">
+												</div>
+											</div>
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label">联系电话：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="phone" placeholder="联系电话"
+														name="phone" th:value="${company?.phone}"
+														required="required">
+												</div>
+											</div>
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label">邮编：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="zipCode" placeholder="邮编"
+														name="zipCode" th:value="${company?.zipCode}"
+														required="required">
+												</div>
+											</div>
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label">京备案号：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="recordNumber"
+														placeholder="京备案号" name="recordNumber"
+														th:value="${company?.recordNumber}" required="required">
+												</div>
+											</div>
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label">沪备案号：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="shanghaiRecoredNumber"
+														placeholder="沪备案号" name="shanghaiRecoredNumber"
+														th:value="${company?.shanghaiRecoredNumber}"
+														required="required">
+												</div>
+											</div>
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label">版权：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="copyright" placeholder="版权"
+														name="copyright" th:value="${company?.copyright}"
+														required="required">
+												</div>
+											</div>
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label">二维码：</label>
+												<div class="col-lg-6" id="qRcodefile">
+													<input id="file" name="file" type="file">
+												</div>
+											</div>
+											<input type="hidden" th:value="${company?.qrCode?.id}"
+												name="oldQrCode" id="oldQrCode">
+
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label"></label>
+												<div class="col-md-8">
+													<button type="submit" class="btn btn-success"
+														th:text="${company!=null?'修改':'添加'}"></button>
+													<span></span> <input th:if="${company} eq null"
+														class="btn btn-default" value="重置" type="reset">
+												</div>
+											</div>
+										</form>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- END OF BLANK PAGE -->
+
+				</div>
+			</div>
+
+			<!--/row-->
+
+		</div>
+	</div>
+	<!--  END OF PAPER WRAP -->
+	<!-- 右侧隐藏菜单start -->
+	<div th:replace="public/public::right"></div>
+	<!-- 右侧隐藏菜单end-->
+	<!-- 底部js -->
+	<div th:replace="public/public_js::pub_js"></div>
+
+
+	<div th:replace="public/public_js::public_script"></div>
+	<div th:replace="public/public::footer"></div>
+	<script th:src="@{/plugs/bootstrap-fileinput/js/fileinput.js}"
+		type="text/javascript"></script>
+	<!-- Jquery Validate -->
+	<script type="text/javascript"
+		th:src="@{/plugs/validate/jquery.validate.min.js}"></script>
+	<script type="text/javascript"
+		th:src="@{/plugs/validate/messages_zh.min.js}"></script>
+	<script type="text/javascript" th:inline="javascript"
+		th:src="@{/js/admin/settings/settings.js}"></script>
+	<div th:replace="public/public_js::validator"></div>
+	<script type="text/javascript" th:inline="javascript">
+
+	var path ="";
+	var qRcode = "";
+	var picqRcode;
+	/* <![CDATA[ */
+	   path = [[@{/}]];
+	   qRcode = [[${company?.qrCode}]];
+	   if(qRcode!=null){
+		   picqRcode = "<img src='"+path+qRcode.savePath+"/"+qRcode.generateName
+		+"' class='file-preview-image' style='width:auto;height:160px;'>";
+	   }
+/* ]]> */
+
+		$("#file").fileinput({
+			maxFileCount : 1, //表示允许同时上传的最大文件个数
+			allowedFileExtensions : [ 'jpg', 'gif', 'png', 'jpeg' ],//接收的文件后缀
+			showUpload: false,
+			showCaption: false,
+			showPreview : true,//显示预览
+			browseClass: "btn btn-primary btn-lg",
+			fileType: "any",
+     	    previewFileIcon: "<i class='glyphicon glyphicon-king'></i>",
+      	    initialPreview : [
+      	    	picqRcode,
+			],
+	});
+	
+	
+		//点击删除按钮之后将图片所在input清空
+		$("#qRcodefile .fileinput-remove-button").click(function(e){
+		 	$("#oldqRcode").val(""); 
+		})
+		//点击删除按钮之后将图片所在input清空
+		$("#qRcodefile .fileinput-remove").click(function(e){
+			 $("#oldQrCode").val("");
+		})
+		
+		
+		
+		
+		
+
+	
+		
+	</script>
+</body>
+
+</html>

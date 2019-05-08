@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:include="public/public_css::pub_css"></head>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+
+<body>
+	<!-- Preloader -->
+	<div id="preloader">
+		<div id="status">&nbsp;</div>
+	</div>
+	<!-- TOP NAVBAR -->
+	<div th:replace="public/public::top"></div>
+	<!-- /END OF TOP NAVBAR -->
+
+	<!-- SIDE MENU -->
+	<div th:replace="public/public::left(activeUri='website')"></div>
+	<!-- END OF SIDE MENU -->
+
+	<!--  PAPER WRAP -->
+	<div class="wrap-fluid">
+		<div class="container-fluid paper-wrap bevel tlbr">
+
+
+			<!-- CONTENT -->
+			<!--TITLE -->
+			<div th:replace="public/public::title"></div>
+			<!--/ TITLE -->
+
+			<!-- BREADCRUMB -->
+			<div th:replace="public/public::menu"></div>
+			<!-- END OF BREADCRUMB -->
+
+			<div class="content-wrap">
+				<div class="row">
+
+
+					<div class="col-sm-12">
+						<!-- BLANK PAGE-->
+
+						<div style="margin: -20px 15px;" class="nest" id="Blank_PageClose">
+							<div class="title-alt">
+								<h6>网站菜单配置</h6>
+								<div class="titleClose">
+									<a class="gone" href="#Blank_PageClose"> <span
+										class="entypo-cancel"></span>
+									</a>
+								</div>
+								<div class="titleToggle">
+									<a class="nav-toggle-alt" href="#Blank_Page_Content"> <span
+										class="entypo-up-open"></span>
+									</a>
+								</div>
+
+							</div>
+
+
+							<div class="body-nest" id="Blank_Page_Content">
+								<div class="row">
+									<!-- edit form column -->
+									<div class="col-md-12 personal-info">
+										<form class="form-horizontal" enctype="multipart/form-data"
+											id="webMenuForm" th:action="@{/webmenu}" method="post">
+											<input type="hidden" name="_method" value="put"
+												th:if="${webmenu!=null}" /> <input type="hidden"
+												id="webmenuId" name="id" 
+												th:value="${webmenu?.id}">
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label">菜单名称：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="name" placeholder="请输入菜单名称"
+														name="name" th:value="${webmenu?.name}"
+														required="required">
+												</div>
+											</div>
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label">菜单Url：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="resUrl"
+														placeholder="请输入菜单权限Url" name="resUrl"
+														th:value="${webmenu?.resUrl}"
+														required="required">
+												</div>
+											</div>
+											
+											<div class="form-group">
+												<label class="col-lg-1 control-label">排序：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="sort" type="number"
+														placeholder="请输入菜单排序" name="sort"
+														th:value="${webmenu?.sort}"
+														required="required">
+												</div>
+											</div>
+
+
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label">菜单类别：</label>
+												<div class="col-lg-6">
+													<div class="ui-select">
+														<select name="type" id="type"
+															onchange="return changeType()" class="form-control"
+															required>
+															<option value="1"
+																th:selected="${webmenu?.type == '1'}">一级菜单</option>
+															<option value="2"
+																th:selected="${webmenu?.type == '2'}">二级菜单</option>
+															<option value="3"
+																th:selected="${webmenu?.type == '3'}">三级菜单</option>
+														</select>
+													</div>
+												</div>
+											</div>
+
+
+
+											<div class="form-group" id="parentmenu"
+												th:style="${webmenu!=null&&webmenu.parentId!= '0'} ?'display:block;':'display:none;'">
+												<label class="col-lg-1 control-label">所属菜单：</label>
+												<div class="col-lg-6">
+													<div class="ui-select">
+														<select name="parentId" id="parentId" class="form-control"
+															required>
+															<option value="">----选择菜单----</option>
+															<option th:value="${res.id}" th:each="res:${listmenus}"
+																th:selected="${res.id  == webmenu.parentId}"
+																th:text="${res.name}">
+														</select>
+													</div>
+												</div>
+											</div>
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label">使用状态：</label>
+												<div class="col-lg-6">
+													<div class="ui-select">
+														<select name="isDisable" id="isDisable"
+															class="form-control" required>
+															<option value="false"
+																th:selected="${webmenu?.isDisable eq false}">启用中</option>
+															<option value="true"
+																th:selected="${webmenu?.isDisable eq true}">禁用中</option>
+														</select>
+													</div>
+												</div>
+											</div>
+
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label">描述：</label>
+												<div class="col-lg-6">
+
+													<textarea rows="5" id="description" class="col-lg-12"
+														name="description" placeholder="描述"
+														th:text="${webmenu?.description }">
+													</textarea>
+												</div>
+											</div>
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label"></label>
+												<div class="col-md-8">
+													<button type="submit" class="btn btn-success"
+														th:text="${webmenu!=null?'修改':'添加'}"></button>
+													<span></span> <input th:if="${webmenu} eq null"
+														class="btn btn-default" value="重置" type="reset">
+												</div>
+											</div>
+										</form>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- END OF BLANK PAGE -->
+
+				</div>
+			</div>
+
+			<!--/row-->
+
+		</div>
+	</div>
+	<!--  END OF PAPER WRAP -->
+	<!-- 右侧隐藏菜单start -->
+	<div th:replace="public/public::right"></div>
+	<!-- 右侧隐藏菜单end-->
+	<!-- 底部js -->
+	<div th:replace="public/public_js::pub_js"></div>
+	<div th:replace="public/public_js::public_script"></div>
+	<div th:replace="public/public::footer"></div>
+	<!-- Jquery Validate -->
+	<script type="text/javascript"
+		th:src="@{/plugs/validate/jquery.validate.min.js}"></script>
+	<script type="text/javascript"
+		th:src="@{/plugs/validate/messages_zh.min.js}"></script>
+	<script type="text/javascript" th:inline="javascript"
+		th:src="@{/js/admin/webmenu/webmenu.js}"></script>
+	<div th:replace="public/public_js::validator"></div>
+
+</body>
+
+</html>

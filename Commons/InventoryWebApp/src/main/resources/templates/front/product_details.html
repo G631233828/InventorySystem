@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;"
+	name="viewport" />
+<head th:include="/front/public/public_css::pub_css"></head>
+</head>
+<body>
+
+	<!--导航-->
+	<div th:replace="/front/public/public::menu"></div>
+	<!--导航-->
+	<!-- banner -->
+	<!-- <div class="swiper-container about_banner">
+		<div class="swiper-wrapper">
+			<div class="swiper-slide"
+				style="background-image: url(assets/img/news_banner.png)"></div>
+		</div>
+	</div> -->
+	<!-- main -->
+	<div class="news_details">
+		<div class="container">
+			<div class="title">
+				<h1 class="tc">[[${product.name}]]</h1>
+				<div class="tc">
+			  <span><i class="icon iconfont">&#xe629;</i> [[${#dates.format(product.createTime,'yyyy-MM-dd')}]]</span>
+              <span><i class="icon iconfont">&#xe605;</i> [[${product.browseVolume}]]</span>
+				</div>
+			</div>
+			<div class="text_box" th:utext="${product.content}">
+			</div>
+			<div class="tc article_btn">
+				<div class="pull-left">
+					<a th:href="|@{/website/productDetails/}${up.id}|" th:text="|上一篇：${up != null?up.name:'无'}|"></a>
+				</div>
+				<div class="pull-right">
+					<a th:href="|@{/website/productDetails/}${next.id}|" th:text="|下一篇：${next != null?next.name:'无'}|"></a>
+				</div>
+			</div>
+		</div>
+	</div>
+<!-- 底部 -->
+	<div th:replace="/front/public/public::footer"></div>
+	<!-- 底部js -->
+	<div th:replace="/front/public/public_js::pub_js"></div>
+
+
+</body>
+</html>

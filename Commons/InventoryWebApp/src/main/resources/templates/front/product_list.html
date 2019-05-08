@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;"
+	name="viewport" />
+<!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+<title>案例</title>
+<!-- Bootstrap -->
+<link th:href="@{/assets/zhongchi/front/assets/css/bootstrap.min.css}"
+	rel="stylesheet">
+<link th:href="@{/assets/zhongchi/front/assets/css/bootstrap-me.css}"
+	rel="stylesheet">
+<link th:href="@{assets/zhongchi/front/assets/css/animate.css}"
+	rel="stylesheet">
+<link th:href="@{/assets/zhongchi/front/assets/css/style.css}"
+	rel="stylesheet">
+<link th:href="@{/assets/zhongchi/front/assets/css/swiper.min.css}"
+	rel="stylesheet">
+
+<!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+      <script src="../../../../../cdn.bootcss.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+      <script src="../../../../../cdn.bootcss.com/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+
+
+	<!--导航-->
+	<div th:replace="/front/public/public::menu"></div>
+	<!--导航-->
+	<!-- banner -->
+	<!-- 	<div class="swiper-container about_banner">
+		<div class="swiper-wrapper">
+			<div class="swiper-slide" id="case_modal"
+				style="background-image: url(/assets/zhongchi/front/assets/img/case_banner.png)"></div>
+		</div>
+	</div>
+ -->
+	<!-- main -->
+	<div class="wrapper case_wrapper tab_wrapper">
+		<div class="container_2">
+			<div align="center" class="tab_nav">
+				<ul class="list-inline tab">
+					<li th:class="${caseTypeId!=null?'':'cur'}"><a
+						href="products">全部</a></li>
+					<li th:class="${caseTypeId eq caseType.id ?'cur':''}"
+						th:each="caseType:${caseTypes}"><a
+						th:href="|@{products?caseTypeId=}${caseType.id}|"
+						th:text="${caseType.name}"></a></li>
+
+					<!-- <li class="last"><a href="#">品牌&平面</a></li> -->
+				</ul>
+			</div>
+			<div class="tab_box col-sm-12">
+				<div class="tab_details on">
+					<div class="row">
+
+						<div class="col-sm-4 wow fadeInUp"
+							th:each="product:${pageList.datas}">
+							<a href="javascript:;" th:onclick="|return productDetails('${product.id}')|">
+								<div class="main">
+									<div class="main_box">
+										<img class="img-responsive"
+											th:src="@{/assets/zhongchi/front/assets/img/notebook.png}"
+											alt="">
+										<div class="img_box">
+											<img  style="width: 400px;height:251px; "
+												th:src="@{/}+${product?.media?.savePath}+${product?.media?.compressPicName}"
+												alt="">
+										</div>
+										<div class="cover">
+											<h4 th:text="${product.name}"></h4>
+										</div>
+									</div>
+									<p class="tc name visible-xs"
+										th:text="${product.name}"></p>
+								</div>
+							</a>
+						</div>
+
+					</div>
+				</div>
+			</div>
+			<div class="page">
+				<dl class="list-inline">
+					<dd>
+						<a
+							th:class="${pageList.pageNo } eq 1 ?'pager-prev disabled':'pager-prev'"
+							th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{product?pageNo=}+${pageList.upPage}+'&caseTypeId='+${caseTypeId}">上一页</a>
+					</dd>
+					<dd th:each="page:${pageList.navigatepageNums}">
+						<a th:class="${page  == pageList.pageNo}?active:''"
+							th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{product?pageNo=}+${page}+'&caseTypeId='+${caseTypeId}">[[${page}]]</a>
+					</dd>
+					<dd>
+						<a
+							th:class="${pageList.pageNo eq pageList.totalPage}?'disabled pager-next':'pager-next'"
+							th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{product?pageNo=}+${pageList.nextPage}+'&caseTypeId='+${caseTypeId}">下一页
+						</a>
+					</dd>
+				</dl>
+			</div>
+		</div>
+	</div>
+	<!-- 底部 -->
+	<div th:replace="/front/public/public::footer"></div>
+	<!-- 底部js -->
+	<div th:replace="/front/public/public_js::pub_js"></div>
+
+	<script type="text/javascript">
+		function productDetails(o) {
+			window.location.href = "productDetails/" + o;
+		}
+	</script>
+</body>
+</html>

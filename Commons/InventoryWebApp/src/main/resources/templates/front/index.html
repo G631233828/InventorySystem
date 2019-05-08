@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;"
+	name="viewport" />
+<head th:include="/front/public/public_css::pub_css"></head>
+</head>
+<body id="lala">
+
+	<!--导航-->
+	<div th:replace="/front/public/public::menu"></div>
+	<!--导航-->
+	<!-- Swiper banner -->
+	<div class="swiper-container wow fadeIn hidden-lg"
+		style="margin-top: 5px;">
+		<div class="swiper-wrapper">
+
+			<th:block th:each="banana:${session.settings.listBanana}">
+				<div class="swiper-slide"
+					th:style="|background-image: url(@{/}${banana.savePath}${banana.generateName})|"></div>
+			</th:block>
+
+
+		</div>
+		<div class="swiper-pagination swiper-pagination-white"></div>
+	</div>
+
+	<!-- banner 大分辩显示 -->
+	<div class="wrap_banner visible-lg">
+
+		<div class="bpic" style="opacity: 1;">
+			<!-- <div  th:each="banana:${session.settings?.listBanana}">
+				<a href="#"><img th:src="|@{/}${banana.savePath}${banana.generateName}|"></a>
+			</div> -->
+		</div>
+
+		<div class="b1 scroll">
+			<ul class="list-unstyled" style="left: 0px;">
+
+				<li th:each="banana:${session.settings?.listBanana}"><img
+					th:src="|@{/}${banana.savePath}${banana.generateName}|">
+					<div>
+						<a href="#"><img
+							th:src="|@{/}${banana.savePath}${banana.generateName}|"></a>
+					</div></li>
+
+
+			</ul>
+		</div>
+	</div>
+	<!-- 我们可以做的更好 -->
+	<div class="do_well">
+		<div class="container">
+			<div class="index_titlebox">
+				<h3 class="index_title">我们的业务</h3>
+				<p class="index_intro">为广大中小学幼儿园提供品质服务！</p>
+			</div>
+			<div class="box index_box">
+				<ul class="list-inline">
+					<li class="col-sm-3 col-xs-3 wow bounceInLeft">
+						<div>
+							<img class="img-responsive img1"
+								th:src="@{/assets/zhongchi/front/assets/img/index (3).png}"
+								alt=""> <img class="img-responsive img2"
+								src="assets/img/index (3).png" alt="">
+						</div>
+						<p class="p1">网站/管理系统定制开发</p>
+					</li>
+					<li class="col-sm-3 col-xs-3 wow bounceInLeft">
+						<div>
+							<img class="img-responsive img1"
+								th:src="@{/assets/zhongchi/front/assets/img/index (5).png}"
+								alt=""> <img class="img-responsive img2"
+								src="assets/img/index (5).png" alt="">
+						</div>
+						<p class="p2">图书馆建设/智慧校园建设</p>
+					</li>
+					<li class="col-sm-3 col-xs-3 wow bounceInRight">
+						<div>
+							<img class="img-responsive img1"
+								th:src="@{/assets/zhongchi/front/assets/img/index (4).png}"
+								alt=""> <img class="img-responsive img2"
+								src="assets/img/index (4).png" alt="">
+						</div>
+						<p class="p3">图书出版/教育培训</p>
+					</li>
+					<li class="col-sm-3 col-xs-3 wow bounceInRight">
+						<div>
+							<img class="img-responsive img1"
+								th:src="@{/assets/zhongchi/front/assets/img/index (2).png}"
+								alt=""> <img class="img-responsive img2"
+								src="assets/img/index (2).png" alt="">
+						</div>
+						<p class="p4">APP项目定制开发</p>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<!-- 我们的成功案例 -->
+	<div class="do_well">
+		<div class="container">
+			<div class="index_titlebox">
+				<h3 class="index_title">我们的成功案例</h3>
+				<p class="index_intro">专业的团队，为您提供专业的服务</p>
+			</div>
+			<div class="box">
+				<div class="items-container">
+
+					<div class="item col-sm-4 col-xs-6 wow fadeInDown"
+						th:each="case:${listcase}">
+						<div class="image01">
+							<img width="360px;" height="226px;"
+								th:src="@{/}+${case?.media?.savePath}+${case?.media?.compressPicName}"
+								alt="">
+							<div class="title">[[${case.name}]]</div>
+							<div class="ovrly"></div>
+							<div class="buttons">
+								<p>[[${case.name}]]</p>
+								<div class="tc">
+									<i class="icon iconfont"
+										th:onclick="|return caseDetails('${case.id}')|">&#xe605;</i>
+								</div>
+							</div>
+						</div>
+					</div>
+
+
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 我们是设计师、工程师、梦想缔造者 也是您的互联网服务保障 -->
+	<div class="waist_line">
+		<h2 class="tc wow fadeInDown">
+			为学校提供优质服务，客户的需求至上</br>提供一站式服务
+		</h2>
+		<div align="center" class="tc index_button wow fadeInUp">
+			<a class="btn" href="javascript:;" onclick="return tomore();">了解更多</a> <a class="btn" href="javascript:;" onclick="return contactUs();">联系我们</a>
+		</div>
+	</div>
+	<!-- 我们的服务品质 -->
+	<div class="do_well">
+		<div class="container">
+			<div class="index_titlebox">
+				<h3 class="index_title">我们的服务</h3>
+				<p class="index_intro"></p>
+			</div>
+			<div class="box hidden-xs">
+				<div class="col-sm-4">
+					<div class="he_3DFlipY">
+						<div class="he_3DFlipY_inner">
+							<div class="he_3DFlipY_img">
+								<span>微信开发</span>
+								<p class="p2">
+									专业定制微信公众号、微信小程序、<br/>企业号、服务号、订阅号，微官网、微商城、<br/>微信支付功能、微信接口等开发定制。
+								</p>
+							</div>
+							<div class="he_3DFlipY_caption">
+								<span>微信开发</span>
+								<p>
+									专业定制微信公众号、微信小程序、<br/>企业号、服务号、订阅号，微官网、微商城、<br/>微信支付功能、微信接口等开发定制。
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-4">
+					<div class="he_3DFlipY">
+						<div class="he_3DFlipY_inner">
+							<div class="he_3DFlipY_img">
+								<span>网站建设</span>
+								<p class="p2">
+									专业开发定制各类网站，<br/>包括企业官网、品牌官网设计、行业门户网站<br/>电商网站、营销型网站、集团网站等。
+								</p>
+							</div>
+							<div class="he_3DFlipY_caption">
+								<span>网站建设</span>
+								<p>
+									专业开发定制各类网站，<br/>包括企业官网、品牌官网设计、行业门户网站<br/>电商网站、营销型网站、集团网站等。
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="col-sm-4">
+					<div class="he_3DFlipY">
+						<div class="he_3DFlipY_inner">
+							<div class="he_3DFlipY_img">
+								<span>软件定制开发</span>
+								<p>
+									专业定制各类软件，<br/>包括OA办公系统、CRM系统、<br/>ERP系统、设备管理、库存管理、<br/>教育培训、物流系统、人事管理系统等。
+								</p>
+							</div>
+							<div class="he_3DFlipY_caption">
+										<span>软件定制开发</span>
+								<p>
+										专业定制各类软件，<br/>包括OA办公系统、CRM系统、<br/>ERP系统、设备管理、库存管理、<br/>教育培训、物流系统、人事管理系统等。
+							
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- 新闻中心 -->
+	<div class="do_well index_news wow fadeInDown">
+		<div class="container">
+			<div class="index_titlebox">
+				<h3 class="index_title">新闻中心</h3>
+				<p class="index_intro">实时关注我们的动态，每天都有新发现！</p>
+			</div>
+			<div class="box">
+
+				<div class="col-sm-6  wow fadeInUp" th:each="news:${listnews}">
+					<a  href="javascript:;" th:onclick="|return newsDetails('${news?.id}')|">
+						<div class="media">
+							<div class="media-left">
+								<p >
+									<span class="month"
+										th:text="|${#dates.format(news?.createTime,'M')}月|"></span></br> <span
+										class="day" th:text="${#dates.format(news?.createTime,'dd')}"></span>
+								</p>
+							</div>
+							<div class="media-body">
+								<h4 class="media-heading" th:text="${news?.title}"></h4>
+								<p th:text="|${#strings.length(news?.description)>60?#strings.substring(news?.description, 0, 60):news?.description}...|"></p>
+							</div>
+						</div>
+					</a>
+				</div>
+
+
+			</div>
+		</div>
+	</div>
+	<!-- 底部 -->
+	<div th:replace="/front/public/public::footer"></div>
+	<!-- 底部js -->
+	<div th:replace="/front/public/public_js::pub_js"></div>
+
+
+
+	<script>
+		function caseDetails(o) {
+			window.location.href = "caseDetails/" + o;
+		}
+		function newsDetails(o) {
+			window.location.href = "newsDetails/" + o;
+		}
+		
+		function tomore(){
+			window.location.href = "casePresentation";
+		}
+		function contactUs(){
+			window.location.href = "contactUs";
+		}
+		
+		
+
+		var swiper = new Swiper('.swiper-container', {
+			spaceBetween : 30,
+			effect : 'fade',
+			centeredSlides : true,
+			autoplay : {
+				delay : 3500,
+				disableOnInteraction : false,
+			},
+			pagination : {
+				el : '.swiper-pagination',
+				clickable : true,
+			},
+		});
+	</script>
+</body>
+</html>
