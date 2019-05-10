@@ -5,14 +5,13 @@ import java.util.Date;
 
 import org.springframework.data.annotation.Id;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.Singular;
-import lombok.ToString;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Setter
-@Getter
-@ToString
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class GeneralBean<T> implements Serializable{
 
 	/**

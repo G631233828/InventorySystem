@@ -38,9 +38,8 @@ public class MongoDBRealm extends AuthorizingRealm {
 				User user = (User) session.getAttribute(Contents.USER_SESSION);
 
 				if (user != null) {
-
 					User u = this.userService.findUserById(user.getId());
-
+						
 					// 学校的session
 //
 					//session.setAttribute(Contents.SCHOOL_SESSION, s);

@@ -3,10 +3,10 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>zhongchiedu.com</groupId>
-		<artifactId>SystemFunctions</artifactId>
+		<artifactId>SystemInventorys</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<artifactId>SystemFunction-Service</artifactId>
+	<artifactId>SystemInventory-Service</artifactId>
 
 	<dependencies>
 		<dependency>
@@ -22,7 +22,7 @@
 		</dependency>
 		<dependency>
 			<groupId>zhongchiedu.com</groupId>
-			<artifactId>SystemFunction-pojo</artifactId>
+			<artifactId>SystemInventory-pojo</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -36,7 +36,9 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 			<scope>provided</scope>
 		</dependency>
+
 	</dependencies>
+
 
 
 

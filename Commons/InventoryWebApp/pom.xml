@@ -10,6 +10,11 @@
 	<dependencies>
 		<dependency>
 			<groupId>zhongchiedu.com</groupId>
+			<artifactId>MongodbFramework</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>zhongchiedu.com</groupId>
 			<artifactId>Common-Utils</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -26,6 +31,11 @@
 		<dependency>
 			<groupId>zhongchiedu.com</groupId>
 			<artifactId>SystemFunction-Service</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>zhongchiedu.com</groupId>
+			<artifactId>SystemInventory-Service</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

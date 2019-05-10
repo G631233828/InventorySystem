@@ -3,19 +3,17 @@ package zhongchiedu.general.pojo;
 import java.util.List;
 
 import org.springframework.data.mongodb.core.mapping.DBRef;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 import zhongchiedu.framework.pojo.GeneralBean;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(callSuper=true)
 public class User extends GeneralBean<User> {
 
 	/**
@@ -35,7 +33,6 @@ public class User extends GeneralBean<User> {
 	private List<Resource> resource;
 	@DBRef
 	private Role role;
-	
 	
 
 	

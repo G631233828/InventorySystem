@@ -204,5 +204,6 @@
 		<module>Commons</module>
 		<module>MongodbFramework</module>
 		<module>SystemFunctions</module>
+		<module>SystemInventorys</module>
 	</modules>
 </project>
