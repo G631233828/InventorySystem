@@ -22,11 +22,11 @@ import com.google.gson.Gson;
 
 import zhongchiedu.common.utils.Common;
 import zhongchiedu.common.utils.Contents;
+import zhongchiedu.general.pojo.User;
 import zhongchiedu.log.annotation.SystemControllerLog;
 import zhongchiedu.log.annotation.SystemServiceLog;
 import zhongchiedu.log.dao.LogDaoImpl;
 import zhongchiedu.log.pojo.Log;
-import zhongchiedu.log.pojo.User;
 
 @Aspect    
 @Component  

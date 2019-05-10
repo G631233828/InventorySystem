@@ -41,15 +41,12 @@ public class ShiroConfig {
 		filterChainDefinitionMap.put("/assets/**", "anon");
 		filterChainDefinitionMap.put("/init/**", "anon");
 		filterChainDefinitionMap.put("/tologin", "anon");
-		filterChainDefinitionMap.put("/toindex", "anon");
 		filterChainDefinitionMap.put("/img/**", "anon");
 		filterChainDefinitionMap.put("/wechat/**", "anon");
 		filterChainDefinitionMap.put("/Templates/**", "anon");
 		filterChainDefinitionMap.put("/upload/**", "anon");
 		filterChainDefinitionMap.put("/news/view/**", "anon");
 		filterChainDefinitionMap.put("/ueditor/**", "anon");
-		filterChainDefinitionMap.put("/weixin/**", "anon");
-		filterChainDefinitionMap.put("/website/**", "anon");
 		// 配置退出 过滤器,其中的具体的退出代码Shiro已经替我们实现了
 		// filterChainDefinitionMap.put("/loginout", "loginout");
 		// <!-- 过滤链定义，从上向下顺序执行，一般将/**放在最为下边 -->:这是一个坑呢，一不小心代码就不好使了;
@@ -57,8 +54,8 @@ public class ShiroConfig {
 		filterChainDefinitionMap.put("/**", "authc");
 		// 如果不设置默认会自动寻找Web工程根目录下的"/login.jsp"页面
 		// 登录成功后要跳转的链接
-		// shiroFilterFactoryBean.setSuccessUrl("/website/index");
-		shiroFilterFactoryBean.setLoginUrl("/tologin");
+		//shiroFilterFactoryBean.setSuccessUrl("/website/index");
+//		shiroFilterFactoryBean.setLoginUrl("/tologin");
 		// // 登录成功后要跳转的链接
 		shiroFilterFactoryBean.setSuccessUrl("/toindex");
 		// 未授权界面;
@@ -68,11 +65,15 @@ public class ShiroConfig {
 
 	}
 
+
 	@Bean
 	public MongoDBRealm mongoDBRealm() {
 		MongoDBRealm mongoDBRealm = new MongoDBRealm();
 		return mongoDBRealm;
 	}
+
+	
+	
 
 	/**
 	 * 密码匹配凭证管理器
@@ -120,40 +121,18 @@ public class ShiroConfig {
 
 	}
 
+
 	@Bean
 	public SecurityManager securityManager() {
 		DefaultWebSecurityManager securityManager = new DefaultWebSecurityManager();
 		securityManager.setRealm(mongoDBRealm());
 		// 注入缓存管理器;
 		securityManager.setCacheManager(ehCacheManager());// 这个如果执行多次，也是同样的一个对象;
-		securityManager.setRememberMeManager(rememberMeManager());
+
 		return securityManager;
 	}
-
-	@Bean
-	public SimpleCookie rememberMeCookie() {
-		// 这个参数是cookie的名称，对应前端的checkbox的name=rememberMe
-		SimpleCookie simpleCookie = new SimpleCookie("rememberMe");
-		// 记住我 cookie 生效时间为30天
-		simpleCookie.setMaxAge(30 * 24 * 24);
-		simpleCookie.setHttpOnly(true);
-		return simpleCookie;
-	}
-
-	/**
-	 * cookie管理对象;
-	 * rememberMeManager()方法是生成rememberMe管理器，而且要将这个rememberMe管理器设置到securityManager中
-	 * 
-	 * @return rememberMeManager
-	 */
-	@Bean
-	public CookieRememberMeManager rememberMeManager() {
-		CookieRememberMeManager cookieRememberMeManager = new CookieRememberMeManager();
-		cookieRememberMeManager.setCookie(rememberMeCookie());
-		// rememberMe cookie 加密的密钥 建议每个项目都不一样 默认的算法AES算法 密钥长度128 256 512
-		cookieRememberMeManager.setCipherKey(Base64.decode("2AvVhdsgUs0FSA3SDFAdag=="));
-		return cookieRememberMeManager;
-
-	}
+	
+	
+	
 
 }

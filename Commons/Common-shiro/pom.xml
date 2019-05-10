@@ -7,7 +7,7 @@
   </parent>
   <artifactId>Common-shiro</artifactId>
   
-  <dependencies>
+ <dependencies>
 		<!-- https://mvnrepository.com/artifact/org.apache.shiro/shiro-core -->
 		<dependency>
 			<groupId>org.apache.shiro</groupId>
@@ -23,12 +23,12 @@
 			<groupId>org.apache.shiro</groupId>
 			<artifactId>shiro-spring</artifactId>
 		</dependency>
-		 <dependency>
+		<dependency>
 			<groupId>zhongchiedu.com</groupId>
-			<artifactId>SystemFunction-Service</artifactId>
+			<artifactId>SystemFunction-service</artifactId>
 			<version>${project.version}</version>
 			<scope>provided</scope>
-		</dependency> 
+		</dependency>
 		<dependency>
 			<groupId>zhongchiedu.com</groupId>
 			<artifactId>Common-log</artifactId>
@@ -51,9 +51,6 @@
 			<artifactId>shiro-ehcache</artifactId>
 		</dependency>
 	</dependencies>
-  
-  
-  
-  
+
   
 </project>

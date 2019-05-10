@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import zhongchiedu.common.utils.Common;
 import zhongchiedu.common.utils.Contents;
-import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.general.pojo.User;
 import zhongchiedu.general.service.UserService;
 
@@ -36,8 +35,6 @@ public class LoginController {
 
 	@Autowired
 	private UserService userService;
-	@Autowired
-	private FileOperateUtil fileOperateUtil;
 
 	@RequestMapping("/tologin")
 	public String login(User user, HttpServletRequest request, Map<String, Object> map, HttpSession session)

@@ -39,7 +39,6 @@ public class FileOperateUtil {
 
 	
 	
-	
 	/***
 	 * 将上传的文件进行重命名
 	 * 
@@ -51,13 +50,12 @@ public class FileOperateUtil {
 		Long random = (long) (Math.random() * now);
 		String fileName = now + "" + random;
 
-//		if (name.indexOf(".") != -1) {
-//			fileName += name.substring(0, name.lastIndexOf(".")) + name.substring(name.lastIndexOf("."));
-//		}
+		if (name.indexOf(".") != -1) {
+			fileName += name.substring(0, name.lastIndexOf(".")) + name.substring(name.lastIndexOf("."));
+		}
 		return fileName;
 
 	}
-
 	
 	
 	

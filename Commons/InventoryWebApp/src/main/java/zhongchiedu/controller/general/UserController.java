@@ -10,7 +10,6 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import zhongchiedu.common.utils.BasicDataResult;
-import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.general.pojo.Role;
 import zhongchiedu.general.pojo.User;
@@ -46,8 +44,8 @@ public class UserController {
 	@Autowired
 	private RoleServiceImpl roleService;
 
-	@Autowired
-	private FileOperateUtil fileOperateUtil;
+	/*@Autowired
+	private FileOperateUtil fileOperateUtil;*/
 	
 
 	@GetMapping("users")

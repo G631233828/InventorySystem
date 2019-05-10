@@ -11,6 +11,7 @@
 		<springboot.version>2.0.3.RELEASE</springboot.version>
 		<project.version>0.0.1-SNAPSHOT</project.version>
 		<shiro-core>1.2.3</shiro-core>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
 	<dependencyManagement>
@@ -36,6 +37,12 @@
 				<artifactId>spring-boot-starter-test</artifactId>
 				<version>${springboot.version}</version>
 				<scope>test</scope>
+			</dependency>
+			<!-- poi -->
+			<dependency>
+				<groupId>org.apache.poi</groupId>
+				<artifactId>poi-ooxml</artifactId>
+				<version>3.7</version>
 			</dependency>
 			<!-- 中文转拼音 -->
 			<dependency>
@@ -174,6 +181,7 @@
 		</dependencies>
 
 	</dependencyManagement>
+
 
 	<build>
 		<plugins>
