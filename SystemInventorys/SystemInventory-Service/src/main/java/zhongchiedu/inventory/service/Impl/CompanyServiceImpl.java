@@ -1,23 +1,25 @@
 package zhongchiedu.inventory.service.Impl;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
-import org.bson.types.ObjectId;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
+import lombok.extern.slf4j.Slf4j;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.Common;
+import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralServiceImpl;
 import zhongchiedu.inventory.pojo.Companys;
 import zhongchiedu.inventory.service.CompanyService;
 
 @Service
+@Slf4j
 public class CompanyServiceImpl extends GeneralServiceImpl<Companys> implements CompanyService {
 
 	@Override
@@ -58,26 +60,71 @@ public class CompanyServiceImpl extends GeneralServiceImpl<Companys> implements 
 		return this.find(query, Companys.class);
 	}
 
+	private Lock lock = new ReentrantLock();
+
 	@Override
 	public String delete(String id) {
 		try {
+			lock.lock();
 			List<String> ids = Arrays.asList(id.split(","));
-//			List<Update> listUp = new ArrayList<Update>();
-//			
-//			Update update = null;
-//			for (String edid : ids) {
-//				listUp.add(Update.update("id", edid).set("isDelete", true));
-//			}
-			
-		Update update = Update.update("_id", new ObjectId("5cd53b10a60d65d40c8fb65f")).set("isDelete", true);
-			
-			
-			this.updateAllByQuery(new Query(),update, Companys.class);
+			for (String edid : ids) {
+				Companys comp = this.findOneById(edid, Companys.class);
+				comp.setIsDelete(true);
+				this.save(comp);
+			}
 			return "success";
 		} catch (Exception e) {
 			e.printStackTrace();
+		} finally {
+			lock.unlock();
 		}
 		return "error";
+	}
+
+	@Override
+	public Pagination<Companys> findpagination(Integer pageNo, Integer pageSize) {
+		// 分页查询数据
+		Pagination<Companys> pagination = null;
+		try {
+			Query query = new Query();
+			query.addCriteria(Criteria.where("isDelete").is(false));
+			pagination = this.findPaginationByQuery(query, pageNo, pageSize, Companys.class);
+			if (pagination == null)
+				pagination = new Pagination<Companys>();
+			return pagination;
+		} catch (Exception e) {
+			log.info("查询所有企业信息失败——————————》" + e.toString());
+			e.printStackTrace();
+		}
+		return pagination;
+	}
+
+	@Override
+	public BasicDataResult ajaxgetRepletes(String name) {
+		if (Common.isNotEmpty(name)) {
+			Query query = new Query();
+			query.addCriteria(Criteria.where("name").is(name));
+			Companys companys = this.findOneByQuery(query, Companys.class);
+			 return companys != null ?BasicDataResult.build(206,"当前企业已经存在，请检查", null): BasicDataResult.ok();
+		}
+		return BasicDataResult.build(400,"未能获取到请求的信息", null);
+	}
+
+	@Override
+	public BasicDataResult todisable(String id) {
+		
+		if(Common.isEmpty(id)){
+			return BasicDataResult.build(400, "无法禁用，请求出现问题，请刷新界面!", null);
+		}
+		Companys companys = this.findOneById(id, Companys.class);
+		if(companys == null){
+			return BasicDataResult.build(400, "无法获取到企业信息，该用户可能已经被删除", null);
+		}
+		companys.setIsDisable(companys.getIsDisable().equals(true)?false:true);
+		this.save(companys);
+		
+		return BasicDataResult.build(200, companys.getIsDisable().equals(true)?"企业禁用成功":"企业启用成功",companys.getIsDisable());
+		
 	}
 
 }

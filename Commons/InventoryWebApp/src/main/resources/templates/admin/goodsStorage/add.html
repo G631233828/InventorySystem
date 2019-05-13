@@ -16,7 +16,7 @@
 	<!-- /END OF TOP NAVBAR -->
 
 	<!-- SIDE MENU -->
-	<div th:replace="public/public::left(activeUri='website')"></div>
+	<div th:replace="public/public::left(activeUri='basic')"></div>
 	<!-- END OF SIDE MENU -->
 
 	<!--  PAPER WRAP -->
@@ -42,7 +42,7 @@
 
 						<div style="margin: -20px 15px;" class="nest" id="Blank_PageClose">
 							<div class="title-alt">
-								<h6>网站菜单配置</h6>
+								<h6>企业管理</h6>
 								<div class="titleClose">
 									<a class="gone" href="#Blank_PageClose"> <span
 										class="entypo-cancel"></span>
@@ -62,79 +62,56 @@
 									<!-- edit form column -->
 									<div class="col-md-12 personal-info">
 										<form class="form-horizontal" enctype="multipart/form-data"
-											id="webMenuForm" th:action="@{/webmenu}" method="post">
+											id="goodsStorageForm" th:action="@{/goodsStorage}" method="post">
 											<input type="hidden" name="_method" value="put"
-												th:if="${webmenu!=null}" /> <input type="hidden"
-												id="webmenuId" name="id" 
-												th:value="${webmenu?.id}">
+												th:if="${goodsStorage!=null}" /> <input type="hidden" name="id"
+												th:if="${goodsStorage!=null}" th:value="${goodsStorage.id}">
+
 
 											<div class="form-group">
-												<label class="col-lg-1 control-label">菜单名称：</label>
+												<label class="col-lg-1 control-label">货架地址：</label>
 												<div class="col-lg-6">
-													<input class="form-control" id="name" placeholder="请输入菜单名称"
-														name="name" th:value="${webmenu?.name}"
+													<input class="form-control" id="address" placeholder="请输入货架地址"
+														name="address" th:value="${goodsStorage?.address}"
+														required="required">
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-lg-1 control-label">货架号：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="shelfNumber" placeholder="请输入货架号"
+														name="shelfNumber" th:value="${goodsStorage?.shelfNumber}"
+														required="required">
+												</div>
+											</div>
+
+											
+											<div class="form-group">
+												<label class="col-lg-1 control-label">货架层：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="selflevel" placeholder="请输入货架层"
+														name="selflevel" th:value="${goodsStorage?.selflevel}"
 														required="required">
 												</div>
 											</div>
 
 											<div class="form-group">
-												<label class="col-lg-1 control-label">菜单Url：</label>
-												<div class="col-lg-6">
-													<input class="form-control" id="resUrl"
-														placeholder="请输入菜单权限Url" name="resUrl"
-														th:value="${webmenu?.resUrl}"
-														required="required">
+												<label class="col-lg-3 control-label">所属企业：</label>
+												<div class="col-lg-8">
+													<div class="ui-select">
+														<select id="companyId" name="company.id"
+															class="form-control">
+															<option value="">---请选择所属企业---</option>
+															<option th:if="${company!=null}" th:value="${company.id}"
+																th:text="${company.name}"
+																th:selected="${company!=null&&goodsStorage!==null}?${goodsStorage.companys.id}==${company.id}"
+																th:each="company:${companys}">
+														</select>
+													</div>
 												</div>
 											</div>
 											
-											<div class="form-group">
-												<label class="col-lg-1 control-label">排序：</label>
-												<div class="col-lg-6">
-													<input class="form-control" id="sort" type="number"
-														placeholder="请输入菜单排序" name="sort"
-														th:value="${webmenu?.sort}"
-														required="required">
-												</div>
-											</div>
-
-
-
-											<div class="form-group">
-												<label class="col-lg-1 control-label">菜单类别：</label>
-												<div class="col-lg-6">
-													<div class="ui-select">
-														<select name="type" id="type"
-															onchange="return changeType()" class="form-control"
-															required>
-															<option value="1"
-																th:selected="${webmenu?.type == '1'}">一级菜单</option>
-															<option value="2"
-																th:selected="${webmenu?.type == '2'}">二级菜单</option>
-															<option value="3"
-																th:selected="${webmenu?.type == '3'}">三级菜单</option>
-														</select>
-													</div>
-												</div>
-											</div>
-
-
-
-											<div class="form-group" id="parentmenu"
-												th:style="${webmenu!=null&&webmenu.parentId!= '0'} ?'display:block;':'display:none;'">
-												<label class="col-lg-1 control-label">所属菜单：</label>
-												<div class="col-lg-6">
-													<div class="ui-select">
-														<select name="parentId" id="parentId" class="form-control"
-															required>
-															<option value="">----选择菜单----</option>
-															<option th:value="${res.id}" th:each="res:${listmenus}"
-																th:selected="${res.id  == webmenu.parentId}"
-																th:text="${res.name}">
-														</select>
-													</div>
-												</div>
-											</div>
-
+											
 											<div class="form-group">
 												<label class="col-lg-1 control-label">使用状态：</label>
 												<div class="col-lg-6">
@@ -142,9 +119,9 @@
 														<select name="isDisable" id="isDisable"
 															class="form-control" required>
 															<option value="false"
-																th:selected="${webmenu?.isDisable eq false}">启用中</option>
+																th:selected="${goodsStorage?.isDisable eq false}">启用中</option>
 															<option value="true"
-																th:selected="${webmenu?.isDisable eq true}">禁用中</option>
+																th:selected="${goodsStorage?.isDisable eq true}">禁用中</option>
 														</select>
 													</div>
 												</div>
@@ -152,22 +129,11 @@
 
 
 											<div class="form-group">
-												<label class="col-lg-1 control-label">描述：</label>
-												<div class="col-lg-6">
-
-													<textarea rows="5" id="description" class="col-lg-12"
-														name="description" placeholder="描述"
-														th:text="${webmenu?.description }">
-													</textarea>
-												</div>
-											</div>
-
-											<div class="form-group">
 												<label class="col-lg-1 control-label"></label>
 												<div class="col-md-8">
 													<button type="submit" class="btn btn-success"
-														th:text="${webmenu!=null?'修改':'添加'}"></button>
-													<span></span> <input th:if="${webmenu} eq null"
+														th:text="${goodsStorage!=null?'修改':'添加'}"></button>
+													<span></span> <input th:if="${goodsStorage} eq null"
 														class="btn btn-default" value="重置" type="reset">
 												</div>
 											</div>
@@ -192,6 +158,9 @@
 	<!-- 右侧隐藏菜单end-->
 	<!-- 底部js -->
 	<div th:replace="public/public_js::pub_js"></div>
+
+
+
 	<div th:replace="public/public_js::public_script"></div>
 	<div th:replace="public/public::footer"></div>
 	<!-- Jquery Validate -->
@@ -200,8 +169,9 @@
 	<script type="text/javascript"
 		th:src="@{/plugs/validate/messages_zh.min.js}"></script>
 	<script type="text/javascript" th:inline="javascript"
-		th:src="@{/js/admin/webmenu/webmenu.js}"></script>
+		th:src="@{/js/admin/goodsStorage/goodsStorage.js}"></script>
 	<div th:replace="public/public_js::validator"></div>
+
 
 </body>
 

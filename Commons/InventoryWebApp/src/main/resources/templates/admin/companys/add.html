@@ -16,7 +16,7 @@
 	<!-- /END OF TOP NAVBAR -->
 
 	<!-- SIDE MENU -->
-	<div th:replace="public/public::left(activeUri='website')"></div>
+	<div th:replace="public/public::left(activeUri='basic')"></div>
 	<!-- END OF SIDE MENU -->
 
 	<!--  PAPER WRAP -->
@@ -42,7 +42,7 @@
 
 						<div style="margin: -20px 15px;" class="nest" id="Blank_PageClose">
 							<div class="title-alt">
-								<h6>案例类别</h6>
+								<h6>企业管理</h6>
 								<div class="titleClose">
 									<a class="gone" href="#Blank_PageClose"> <span
 										class="entypo-cancel"></span>
@@ -62,36 +62,21 @@
 									<!-- edit form column -->
 									<div class="col-md-12 personal-info">
 										<form class="form-horizontal" enctype="multipart/form-data"
-											id="caseTypeForm" th:action="@{/caseType}" method="post">
+											id="companyForm" th:action="@{/company}" method="post">
 											<input type="hidden" name="_method" value="put"
-												th:if="${caseType!=null}" /> <input type="hidden" name="id"
-												th:if="${caseType!=null}" th:value="${caseType.id}">
+												th:if="${company!=null}" /> <input type="hidden" name="id"
+												th:if="${company!=null}" th:value="${company.id}">
 
 
 											<div class="form-group">
-												<label class="col-lg-1 control-label">分类名称：</label>
+												<label class="col-lg-1 control-label">企业名称：</label>
 												<div class="col-lg-6">
-													<input class="form-control" id="name" placeholder="请输入分类名称"
-														name="name" th:value="${caseType?.name}"
+													<input class="form-control" id="name" placeholder="请输入企业名称"
+														name="name" th:value="${company?.name}"
 														required="required">
 												</div>
 											</div>
 
-											<div class="form-group">
-												<label class="col-lg-1 control-label">分类类型：</label>
-												<div class="col-lg-6">
-													<div class="ui-select">
-														<select name="type" id="type"
-															class="form-control" required>
-															<option value="CASE"
-																th:selected="${caseType?.type eq T(zhongchiedu.website.pojo.CaseType.Type).CASE}">案例</option>
-															<option value="PRODUCT"
-																th:selected="${caseType?.type eq T(zhongchiedu.website.pojo.CaseType.Type).PRODUCT}">产品</option>
-														</select>
-													</div>
-												</div>
-											</div>
-											
 											
 											<div class="form-group">
 												<label class="col-lg-1 control-label">使用状态：</label>
@@ -100,9 +85,9 @@
 														<select name="isDisable" id="isDisable"
 															class="form-control" required>
 															<option value="false"
-																th:selected="${caseType?.isDisable eq false}">启用中</option>
+																th:selected="${company?.isDisable eq false}">启用中</option>
 															<option value="true"
-																th:selected="${caseType?.isDisable eq true}">禁用中</option>
+																th:selected="${company?.isDisable eq true}">禁用中</option>
 														</select>
 													</div>
 												</div>
@@ -113,8 +98,8 @@
 												<label class="col-lg-1 control-label"></label>
 												<div class="col-md-8">
 													<button type="submit" class="btn btn-success"
-														th:text="${caseType!=null?'修改':'添加'}"></button>
-													<span></span> <input th:if="${caseType} eq null"
+														th:text="${company!=null?'修改':'添加'}"></button>
+													<span></span> <input th:if="${company} eq null"
 														class="btn btn-default" value="重置" type="reset">
 												</div>
 											</div>
@@ -150,7 +135,7 @@
 	<script type="text/javascript"
 		th:src="@{/plugs/validate/messages_zh.min.js}"></script>
 	<script type="text/javascript" th:inline="javascript"
-		th:src="@{/js/admin/caseType/caseType.js}"></script>
+		th:src="@{/js/admin/company/company.js}"></script>
 	<div th:replace="public/public_js::validator"></div>
 
 
