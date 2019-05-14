@@ -1,5 +1,7 @@
 package zhongchiedu.controller.inventory;
 
+import java.util.List;
+
 import javax.servlet.http.HttpSession;
 
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -22,6 +24,7 @@ import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.inventory.pojo.Companys;
 import zhongchiedu.inventory.pojo.GoodsStorage;
+import zhongchiedu.inventory.service.Impl.CompanyServiceImpl;
 import zhongchiedu.inventory.service.Impl.GoodsStorageServiceImpl;
 import zhongchiedu.log.annotation.SystemControllerLog;
 
@@ -31,6 +34,9 @@ public class GoodsStorageController {
 
 	@Autowired
 	private GoodsStorageServiceImpl goodsStorageService;
+
+	@Autowired
+	private CompanyServiceImpl companyService;
 
 	@GetMapping("goodsStorages")
 	@RequiresPermissions(value = "goodsStorage:list")
@@ -47,21 +53,20 @@ public class GoodsStorageController {
 	 */
 	@GetMapping("/goodsStorage")
 	@RequiresPermissions(value = "goodsStorage:add")
-	public String addPage() {
+	public String addPage(Model model) {
+		List<Companys> list = this.companyService.findAllCompany(false);
+		model.addAttribute("companys", list);
 		return "admin/goodsStorage/add";
 	}
 
-	
 	@PostMapping("/goodsStorage")
 	@RequiresPermissions(value = "goodsStorage:add")
 	@SystemControllerLog(description = "添加货架")
 	public String addUser(@ModelAttribute("goodsStorage") GoodsStorage goodsStorage) {
 		this.goodsStorageService.saveOrUpdate(goodsStorage);
-		return "redirect:users";
+		return "redirect:goodsStorages";
 	}
-	
-	
-	
+
 	@PutMapping("/goodsStorage")
 	@RequiresPermissions(value = "goodsStorage:edit")
 	@SystemControllerLog(description = "修改货架信息")
@@ -81,6 +86,8 @@ public class GoodsStorageController {
 	public String toeditPage(@PathVariable String id, Model model) {
 		GoodsStorage goodsStorage = this.goodsStorageService.findOneById(id, GoodsStorage.class);
 		model.addAttribute("goodsStorage", goodsStorage);
+		List<Companys> list = this.companyService.findAllCompany(false);
+		model.addAttribute("companys", list);
 		return "admin/goodsStorage/add";
 
 	}
@@ -92,7 +99,7 @@ public class GoodsStorageController {
 		log.info("删除货架" + id);
 		this.goodsStorageService.delete(id);
 		log.info("删除货架" + id + "成功");
-		return "redirect:/goodsStorage";
+		return "redirect:/goodsStorages";
 	}
 
 	/**

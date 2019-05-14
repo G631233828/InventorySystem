@@ -20,7 +20,7 @@
 	<!-- /END OF TOP NAVBAR -->
 
 	<!-- SIDE MENU -->
-	<div th:replace="public/public::left(activeUri='basic')"></div>
+	<div th:replace="public/public::left(activeUri='website')"></div>
 	<!-- END OF SIDE MENU -->
 
 	<!--  PAPER WRAP -->
@@ -47,23 +47,23 @@
 						<div class="nest" id="tableStaticClose">
 							<div class="title-alt">
 								<div>
-									<!-- <shiro:hasPermission name="goodsStorage:add"> -->
+									<!-- <shiro:hasPermission name="casePresentation:add"> -->
 										<button class="btn btn-default btn-sm"
-											th:onclick="|window.location.href='@{/goodsStorage}'|">
+											th:onclick="|window.location.href='@{/casePresentation}'|">
 											<i class="glyphicon glyphicon-plus"> </i> 添加
 										</button>
 									<!-- </shiro:hasPermission> -->
 
-									<!-- <shiro:hasPermission name="goodsStorage:edit"> -->
+									<!-- <shiro:hasPermission name="casePresentation:edit"> -->
 										<button class="btn btn-primary btn-sm"
-											onclick="return toeditPage('','goodsStorage')">
+											onclick="return toeditPage('','casePresentation')">
 											<i class="fa fa-edit"> </i>编辑
 										</button>
 									<!-- </shiro:hasPermission> -->
 
-									<!-- <shiro:hasPermission name="goodsStorage:delete"> -->
+									<!-- <shiro:hasPermission name="casePresentation:delete"> -->
 										<button class="btn btn-danger btn-sm"
-											th:onclick="|return del('','@{/goodsStorage/}')|">
+											th:onclick="|return del('','@{/casePresentation/}')|">
 											<i class="fa fa-trash-o"> </i>删除
 										</button>
 									<!-- </shiro:hasPermission> -->
@@ -97,41 +97,51 @@
 															for="checkall"></label>
 													</div>
 												</th>
-												<th class="numeric">货架地址</th>
-												<th class="numeric">货架号</th>
-												<th class="numeric">货架层</th>
+												<th class="numeric">案例名称</th>
+												<th class="numeric">案例分类</th>
+												<th class="numeric">发布时间</th>
+												<th class="numeric">浏览量</th>
+												<th class="numeric">首页显示</th>
 												<th class="numeric">使用状态</th>
 												<th class="numeric">操作</th>
 											</tr>
 										</thead>
 										<tbody>
 											<!-- 目录 -->
-											<th:block th:each="goodsStorage:${pageList.datas}">
+											<th:block th:each="casePresentation:${pageList.datas}">
 												<tr>
 													<td class="numeric">
 														<div class="checkbox checkbox-inline"
 															style="margin-top: 0px;">
-															<input type="checkbox" name="ids" th:id="${goodsStorage.id}"
-																class="numeric" th:value="${goodsStorage.id}"> <label
-																th:for="${goodsStorage.id}"></label>
+															<input type="checkbox" name="ids" th:id="${casePresentation.id}"
+																class="numeric" th:value="${casePresentation.id}"> <label
+																th:for="${casePresentation.id}"></label>
 														</div>
 													</td>
 													
-													<td class="numeric">[[${goodsStorage.address}]]</td>
-													<td class="numeric">[[${goodsStorage.shelfNumber}]]</td>
-													<td class="numeric">[[${goodsStorage.shelflevel}]]</td>
-													<td class="numeric" th:id="disBtn+${goodsStorage.id}"
-														th:utext="${goodsStorage.isDisable eq true }?|<button type='button' onclick=toDisable('${goodsStorage.id}','goodsStorage') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${goodsStorage.id}','goodsStorage') class='btn btn-success'>启用</button>|"></td>
-													<td class="numeric"><!-- <shiro:hasPermission
-															name="goodsStorage:edit"> -->
+													<td class="numeric">[[${casePresentation.name}]]</td>
+													<td class="numeric">
+													<th:block th:each="type:${casePresentation.caseTypes}">
+															[[${type.name}]]&nbsp;&nbsp;
+													</th:block>
+
+													</td>
+													<td class="numeric" th:text="${#dates.format(casePresentation.createTime,'yyyy-MM-dd hh:mm:ss')}"></td>
+													<td class="numeric">[[${casePresentation.browseVolume}]]</td>
+													<td class="numeric" th:id="topBtn+${casePresentation.id}"
+														th:utext="${casePresentation.top eq true }?|<button type='button' onclick=toTop('${casePresentation.id}','casePresentation') class='btn btn-danger'>显示</button>|:|<button type='button' onclick=toTop('${casePresentation.id}','casePresentation') class='btn btn-success'>不显示</button>|"></td>
+													<td class="numeric" th:id="disBtn+${casePresentation.id}"
+														th:utext="${casePresentation.isDisable eq true }?|<button type='button' onclick=toDisable('${casePresentation.id}','casePresentation') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${casePresentation.id}','casePresentation') class='btn btn-success'>启用</button>|"></td>
+													<td class="numeric">
+													<!-- <shiro:hasPermission
+															name="casePresentation:edit"> -->
 															<button class="btn btn-primary btn-xs"
-																th:onclick="|return toeditPage('${goodsStorage.id}','goodsStorage')|">
+																th:onclick="|return toeditPage('${casePresentation.id}','casePresentation')|">
 																<i class="fa fa-edit"> </i>编辑
 															</button>
-
-														<!-- </shiro:hasPermission> <shiro:hasPermission name="goodsStorage:delete"> -->
+														<!-- </shiro:hasPermission> <shiro:hasPermission name="casePresentation:delete"> -->
 															<button class="btn btn-danger btn-xs"
-																th:onclick="|return del('@{/goodsStorage/}${goodsStorage.id}','')|">
+																th:onclick="|return del('@{/casePresentation/}${casePresentation.id}','')|">
 																<i class="fa fa-trash-o"> </i>删除
 															</button>
 														<!-- </shiro:hasPermission></td> -->
@@ -160,16 +170,16 @@
 												<ul class="pagination pagination-split pull-right"
 													style="margin-top: 0px;">
 													<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
-														th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/goodsStorages?pageNo=}+${pageList.upPage}">上一页</a>
+														th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/findcasePresentation?pageNo=}+${pageList.upPage}">上一页</a>
 													</li>
 													<li th:each="page:${pageList.navigatepageNums}"
 														th:class="${page  == pageList.pageNo}?active:''"><a
-														th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/goodsStorages?pageNo=}+${page}">[[${page}]]</a>
+														th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/findcasePresentation?pageNo=}+${page}">[[${page}]]</a>
 													</li>
 													<li
 														th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
 														<a
-														th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/goodsStorages?pageNo=}+${pageList.nextPage}">下一页</a>
+														th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/findcasePresentation?pageNo=}+${pageList.nextPage}">下一页</a>
 													</li>
 												</ul>
 											</div>
@@ -189,6 +199,48 @@
 
 				</div>
 			</div>
+
+<script type="text/javascript">
+
+//禁用按钮通用
+function toTop(id, path) {
+	// 需要通过ajax加载对应的菜单列表
+	$
+			.ajax({
+				type : 'POST',
+				url : getRootPath() + "/" + path + "/toTop",
+				data : "id=" + id,
+				dataType : "json",
+				success : function(data) {
+					if (data.status == 200) {
+						var flag = data.data;
+						var btn;
+						if (flag == true) {
+							btn = "<button type='button'  onclick=toTop('"
+									+ id
+									+ "','"
+									+ path
+									+ "') class='btn btn-danger'>显示</button>"
+						} else {
+							btn = "<button type='button' onclick=toTop('"
+									+ id
+									+ "','"
+									+ path
+									+ "') class='btn btn-success'>不显示</button>"
+						}
+						$("#topBtn" + id).html(btn)
+					}
+					$("#modalbody").text(data.msg);
+					$("#myModal").modal('show');
+				}
+			});
+
+}
+
+</script>
+
+
+
 
 	<div th:replace="public/public::myModal"></div>
 		</div>

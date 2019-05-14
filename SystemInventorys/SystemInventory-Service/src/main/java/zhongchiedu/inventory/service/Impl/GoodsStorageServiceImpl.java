@@ -26,6 +26,11 @@ public class GoodsStorageServiceImpl extends GeneralServiceImpl<GoodsStorage> im
 	@Override
 	public void saveOrUpdate(GoodsStorage goodsStorage) {
 		if (Common.isNotEmpty(goodsStorage)) {
+			//检查是否存在
+			BasicDataResult rs = ajaxgetRepletes(goodsStorage.getAddress(),goodsStorage.getShelfNumber(),goodsStorage.getShelflevel());
+			if(rs.getStatus() == 206){
+				goodsStorage.setShelflevel(goodsStorage.getShelflevel()+"(2)");
+			}
 			if (Common.isNotEmpty(goodsStorage.getId())) {
 				// update
 				GoodsStorage ed = this.findOneById(goodsStorage.getId(), GoodsStorage.class);
@@ -105,6 +110,7 @@ public class GoodsStorageServiceImpl extends GeneralServiceImpl<GoodsStorage> im
 		if (Common.isNotEmpty(address)&&Common.isNotEmpty(shelfNumber)&&Common.isNotEmpty(shelflevel)) {
 			Query query = new Query();
 			query.addCriteria(Criteria.where("address").is(address)).addCriteria(Criteria.where("shelfNumber").is(shelfNumber)).addCriteria(Criteria.where("shelflevel").is(shelflevel));
+			query.addCriteria(Criteria.where("isDelete").is(false));
 			GoodsStorage goodsStorage = this.findOneByQuery(query, GoodsStorage.class);
 			 return goodsStorage != null ?BasicDataResult.build(206,"当前货架信息已经存在，请检查", null): BasicDataResult.ok();
 		}
@@ -124,7 +130,7 @@ public class GoodsStorageServiceImpl extends GeneralServiceImpl<GoodsStorage> im
 		goodsStorage.setIsDisable(goodsStorage.getIsDisable().equals(true)?false:true);
 		this.save(goodsStorage);
 		
-		return BasicDataResult.build(200, goodsStorage.getIsDisable().equals(true)?"企业禁用成功":"企业启用成功",goodsStorage.getIsDisable());
+		return BasicDataResult.build(200, goodsStorage.getIsDisable().equals(true)?"禁用成功":"启用成功",goodsStorage.getIsDisable());
 		
 	}
 

@@ -47,23 +47,23 @@
 						<div class="nest" id="tableStaticClose">
 							<div class="title-alt">
 								<div>
-									<!-- <shiro:hasPermission name="goodsStorage:add"> -->
+									<!-- <shiro:hasPermission name="category:add"> -->
 										<button class="btn btn-default btn-sm"
-											th:onclick="|window.location.href='@{/goodsStorage}'|">
+											th:onclick="|window.location.href='@{/category}'|">
 											<i class="glyphicon glyphicon-plus"> </i> 添加
 										</button>
 									<!-- </shiro:hasPermission> -->
 
-									<!-- <shiro:hasPermission name="goodsStorage:edit"> -->
+									<!-- <shiro:hasPermission name="category:edit"> -->
 										<button class="btn btn-primary btn-sm"
-											onclick="return toeditPage('','goodsStorage')">
+											onclick="return toeditPage('','category')">
 											<i class="fa fa-edit"> </i>编辑
 										</button>
 									<!-- </shiro:hasPermission> -->
 
-									<!-- <shiro:hasPermission name="goodsStorage:delete"> -->
+									<!-- <shiro:hasPermission name="category:delete"> -->
 										<button class="btn btn-danger btn-sm"
-											th:onclick="|return del('','@{/goodsStorage/}')|">
+											th:onclick="|return del('','@{/category/}')|">
 											<i class="fa fa-trash-o"> </i>删除
 										</button>
 									<!-- </shiro:hasPermission> -->
@@ -97,41 +97,37 @@
 															for="checkall"></label>
 													</div>
 												</th>
-												<th class="numeric">货架地址</th>
-												<th class="numeric">货架号</th>
-												<th class="numeric">货架层</th>
+												<th class="numeric">类目名称</th>
 												<th class="numeric">使用状态</th>
 												<th class="numeric">操作</th>
 											</tr>
 										</thead>
 										<tbody>
 											<!-- 目录 -->
-											<th:block th:each="goodsStorage:${pageList.datas}">
+											<th:block th:each="category:${pageList.datas}">
 												<tr>
 													<td class="numeric">
 														<div class="checkbox checkbox-inline"
 															style="margin-top: 0px;">
-															<input type="checkbox" name="ids" th:id="${goodsStorage.id}"
-																class="numeric" th:value="${goodsStorage.id}"> <label
-																th:for="${goodsStorage.id}"></label>
+															<input type="checkbox" name="ids" th:id="${category.id}"
+																class="numeric" th:value="${category.id}"> <label
+																th:for="${category.id}"></label>
 														</div>
 													</td>
 													
-													<td class="numeric">[[${goodsStorage.address}]]</td>
-													<td class="numeric">[[${goodsStorage.shelfNumber}]]</td>
-													<td class="numeric">[[${goodsStorage.shelflevel}]]</td>
-													<td class="numeric" th:id="disBtn+${goodsStorage.id}"
-														th:utext="${goodsStorage.isDisable eq true }?|<button type='button' onclick=toDisable('${goodsStorage.id}','goodsStorage') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${goodsStorage.id}','goodsStorage') class='btn btn-success'>启用</button>|"></td>
+													<td class="numeric">[[${category.name}]]</td>
+													<td class="numeric" th:id="disBtn+${category.id}"
+														th:utext="${category.isDisable eq true }?|<button type='button' onclick=toDisable('${category.id}','category') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${category.id}','category') class='btn btn-success'>启用</button>|"></td>
 													<td class="numeric"><!-- <shiro:hasPermission
-															name="goodsStorage:edit"> -->
+															name="category:edit"> -->
 															<button class="btn btn-primary btn-xs"
-																th:onclick="|return toeditPage('${goodsStorage.id}','goodsStorage')|">
+																th:onclick="|return toeditPage('${category.id}','category')|">
 																<i class="fa fa-edit"> </i>编辑
 															</button>
 
-														<!-- </shiro:hasPermission> <shiro:hasPermission name="goodsStorage:delete"> -->
+														<!-- </shiro:hasPermission> <shiro:hasPermission name="category:delete"> -->
 															<button class="btn btn-danger btn-xs"
-																th:onclick="|return del('@{/goodsStorage/}${goodsStorage.id}','')|">
+																th:onclick="|return del('@{/category/}${category.id}','')|">
 																<i class="fa fa-trash-o"> </i>删除
 															</button>
 														<!-- </shiro:hasPermission></td> -->
@@ -160,16 +156,16 @@
 												<ul class="pagination pagination-split pull-right"
 													style="margin-top: 0px;">
 													<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
-														th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/goodsStorages?pageNo=}+${pageList.upPage}">上一页</a>
+														th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/categorys?pageNo=}+${pageList.upPage}">上一页</a>
 													</li>
 													<li th:each="page:${pageList.navigatepageNums}"
 														th:class="${page  == pageList.pageNo}?active:''"><a
-														th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/goodsStorages?pageNo=}+${page}">[[${page}]]</a>
+														th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/categorys?pageNo=}+${page}">[[${page}]]</a>
 													</li>
 													<li
 														th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
 														<a
-														th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/goodsStorages?pageNo=}+${pageList.nextPage}">下一页</a>
+														th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/categorys?pageNo=}+${pageList.nextPage}">下一页</a>
 													</li>
 												</ul>
 											</div>

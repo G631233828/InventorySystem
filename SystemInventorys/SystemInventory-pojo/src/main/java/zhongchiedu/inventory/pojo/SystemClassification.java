@@ -1,5 +1,7 @@
 package zhongchiedu.inventory.pojo;
 
+import java.util.List;
+
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import lombok.AllArgsConstructor;
@@ -12,16 +14,14 @@ import zhongchiedu.framework.pojo.GeneralBean;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class GoodsStorage extends GeneralBean<GoodsStorage> {
+public class SystemClassification extends GeneralBean<SystemClassification> {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 438213240034833925L;
-	private String address;
-	private String shelfNumber;
-	private String shelflevel;
+	private static final long serialVersionUID = 910155958381461814L;
+	private String name;
 	@DBRef
-	private Companys companys;
+	private List<Category> categorys;
 
 }

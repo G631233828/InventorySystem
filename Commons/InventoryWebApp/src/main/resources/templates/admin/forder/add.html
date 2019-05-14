@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:include="public/public_css::pub_css"></head>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link th:href="@{/plugs/bootstrap-fileinput/css/fileinput.css}"
+	media="all" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" th:href="@{/assets/css/bootstrap-select.css}">
+<script type="text/javascript" charset="utf-8"
+	th:src="@{/plugs/ueditor/ueditor.config.js}"> </script>
+<script type="text/javascript" charset="utf-8"
+	th:src="@{/plugs/ueditor/ueditor.all.min.js}"></script>
+<script type="text/javascript" charset="utf-8"
+	th:src="@{/plugs/ueditor/lang/zh-cn/zh-cn.js}"></script>
+
+
+</head>
+
+<body>
+	<!-- Preloader -->
+	<div id="preloader">
+		<div id="status">&nbsp;</div>
+	</div>
+	<!-- TOP NAVBAR -->
+	<div th:replace="public/public::top"></div>
+	<!-- /END OF TOP NAVBAR -->
+
+	<!-- SIDE MENU -->
+	<div th:replace="public/public::left(activeUri='website')"></div>
+	<!-- END OF SIDE MENU -->
+
+	<!--  PAPER WRAP -->
+	<div class="wrap-fluid">
+		<div class="container-fluid paper-wrap bevel tlbr">
+
+
+			<!-- CONTENT -->
+			<!--TITLE -->
+			<div th:replace="public/public::title"></div>
+			<!--/ TITLE -->
+
+			<!-- BREADCRUMB -->
+			<div th:replace="public/public::menu"></div>
+			<!-- END OF BREADCRUMB -->
+
+			<div class="content-wrap">
+				<div class="row">
+
+
+					<div class="col-sm-12">
+						<!-- BLANK PAGE-->
+
+						<div style="margin: -20px 15px;" class="nest" id="Blank_PageClose">
+							<div class="title-alt">
+								<h6>新闻发布</h6>
+								<div class="titleClose">
+									<a class="gone" href="#Blank_PageClose"> <span
+										class="entypo-cancel"></span>
+									</a>
+								</div>
+								<div class="titleToggle">
+									<a class="nav-toggle-alt" href="#Blank_Page_Content"> <span
+										class="entypo-up-open"></span>
+									</a>
+								</div>
+
+							</div>
+
+
+							<div class="body-nest" id="Blank_Page_Content">
+								<div class="row">
+									<!-- edit form column -->
+									<div class="col-md-12 personal-info">
+										<form class="form-horizontal" enctype="multipart/form-data"
+											id="casePresentationForm" th:action="@{/casePresentation}"
+											method="post">
+											<input type="hidden" name="_method" value="put"
+												th:if="${casePresentation!=null}" /> <input type="hidden"
+												name="id" th:if="${casePresentation!=null}"
+												th:value="${casePresentation.id}">
+
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label">案例名称：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="name" placeholder="请输入案例名称"
+														name="name" th:value="${casePresentation?.name}"
+														required="required">
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-lg-1 control-label">所属分类：</label>
+												<div class="col-lg-6">
+													<select multiple class="selectpicker form-control"
+														id="number-multiple" data-container="body" name="types"
+														data-live-search="false" title="请选择所属分类（支持最多3个分类）"
+														data-hide-disabled="true" data-actions-box="false"
+														data-virtual-scroll="false" data-max-options="3"  ></select>
+												</div>
+											</div>
+											<div class="form-group"></div>
+											<div class="form-group">
+												<label class="col-lg-1 control-label">案例图片：</label>
+												<div class="col-lg-6" id="mediafile">
+													<input id="filemedia" name="filemedia" type="file">
+												</div>
+											</div>
+
+											<input type="hidden"
+												th:value="${casePresentation?.media?.id}" name="oldMedia"
+												id="oldMedia">
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label">使用状态：</label>
+												<div class="col-lg-6">
+													<div class="ui-select">
+														<select name="isDisable" id="isDisable"
+															class="form-control" required>
+															<option value="false"
+																th:selected="${casePresentation?.isDisable eq false}">启用中</option>
+															<option value="true"
+																th:selected="${casePresentation?.isDisable eq true}">禁用中</option>
+														</select>
+													</div>
+												</div>
+											</div>
+
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label">排序：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="sort" placeholder="排序"
+														name="sort" th:value="${casePresentation?.sort}">
+												</div>
+											</div>
+
+											<!-- 
+											<div class="form-group">
+												<label class="col-lg-1 control-label">首页显示：</label>
+												<div class="col-lg-6">
+													<div class="ui-select">
+														<select name="isDisable" id="isDisable"
+															class="form-control" required>
+															<option value="false"
+																th:selected="${casePresentation?.top eq false}">不显示</option>
+															<option value="true"
+																th:selected="${casePresentation?.top eq true}">显示</option>
+														</select>
+													</div>
+												</div>
+											</div> -->
+
+
+
+
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label">描述：</label>
+												<div class="col-lg-6">
+													<script id="editor" type="text/plain"
+														style="width: 1024px; height: 500px;"></script>
+												</div>
+											</div>
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label"></label>
+												<div class="col-md-8">
+													<button type="submit" class="btn btn-success"
+														th:text="${casePresentation!=null?'修改':'添加'}"></button>
+													<span></span> <input th:if="${casePresentation} eq null"
+														class="btn btn-default" value="重置" type="reset">
+												</div>
+											</div>
+										</form>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- END OF BLANK PAGE -->
+
+				</div>
+			</div>
+
+			<!--/row-->
+
+		</div>
+	</div>
+	<!--  END OF PAPER WRAP -->
+	<!-- 右侧隐藏菜单start -->
+	<div th:replace="public/public::right"></div>
+	<!-- 右侧隐藏菜单end-->
+	<!-- 底部js -->
+	<div th:replace="public/public_js::pub_js"></div>
+
+	<script th:src="@{/plugs/bootstrap-fileinput/js/fileinput.js}"
+		type="text/javascript"></script>
+
+	<script th:src="@{/assets/js/select/bootstrap-select.js}"
+		type="text/javascript"></script>
+
+	<script type="text/javascript" th:inline="javascript">
+
+	$(function(){
+		var options = [], _options;
+	/* <![CDATA[ */
+		 var data = [[${types}]]
+		 /*]]>*/
+		  for (var i = 0; i < data.length; i++) {
+		    var option = '<option value="' + data[i].id + '">' + data[i].name + '</option>';
+		    options.push(option);
+		  }
+		  _options = options.join('');
+		  $('#number-multiple')[0].innerHTML = _options;
+				var a = /* <![CDATA[ */ [[${caseTypes}]] /*]]>*/
+				     $("#number-multiple").selectpicker('val',a);
+					  $("#number-multiple").selectpicker('refresh');
+				  $('#number-multiple').selectpicker('render')
+			  
+		  
+	})
+	 
+</script>
+
+
+
+
+	<script type="text/javascript" th:inline="javascript">
+	
+	var path = "";
+	var img ;
+	var mediaImg;
+	/* <![CDATA[ */
+		path = [[@{/}]];
+			mediaImg = [[${casePresentation?.media}]];
+			   if(mediaImg!=null){
+				 img = "<img src='"+path+mediaImg.savePath+"/"+mediaImg.generateName
+				+"' class='file-preview-image' style='width:auto;height:160px;'>";
+			   }
+			   /*]]>*/
+				$("#filemedia").fileinput({
+					maxFileCount : 1, //表示允许同时上传的最大文件个数
+					allowedFileExtensions : [ 'jpg', 'gif', 'png', 'jpeg' ],//接收的文件后缀
+					showUpload: false,
+					showCaption: false,
+					showPreview : true,//显示预览
+					browseClass: "btn btn-primary btn-lg",
+					fileType: "any",
+		     	    previewFileIcon: "<i class='glyphicon glyphicon-king'></i>",
+		      	    initialPreview : [
+		      	  		 	img,
+					],
+			});
+	
+	
+				//点击删除按钮之后将图片所在input清空
+				$("#mediafile .fileinput-remove-button").click(function(e){
+					$("#oldMedia").val(""); 
+				})
+				//点击删除按钮之后将图片所在input清空
+				$("#mediafile .fileinput-remove").click(function(e){
+				$("#oldMedia").val("");
+				})
+	
+	
+</script>
+
+
+
+
+	<script type="text/javascript" th:inline="javascript">
+ 
+  /*<![CDATA[*/
+  var content = [[${casePresentation?.content}]];
+  /*]]>*/
+  //实例化编辑器
+  //建议使用工厂方法getEditor创建和引用编辑器实例，如果在某个闭包下引用该编辑器，直接调用UE.getEditor('editor')就能拿到相关的实例
+  var ue = UE.getEditor('editor');
+
+  function setContent(isAppendTo) {
+      UE.getEditor('editor').setContent(content, isAppendTo);
+  }
+ 
+  
+	</script>
+
+	<script type="text/javascript">
+  $(function(){
+	  setTimeout(function(){
+		  setContent(false);
+	  },500);
+  })
+ 
+  </script>
+
+
+
+
+
+
+
+
+	<div th:replace="public/public_js::public_script"></div>
+	<div th:replace="public/public::footer"></div>
+	<!-- Jquery Validate -->
+	<script type="text/javascript"
+		th:src="@{/plugs/validate/jquery.validate.min.js}"></script>
+	<script type="text/javascript"
+		th:src="@{/plugs/validate/messages_zh.min.js}"></script>
+	<script type="text/javascript" th:inline="javascript"
+		th:src="@{/js/admin/casePresentation/casePresentation.js}"></script>
+	<div th:replace="public/public_js::validator"></div>
+
+</body>
+
+</html>
