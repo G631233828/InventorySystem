@@ -1,7 +1,7 @@
 package zhongchiedu.controller.inventory;
 
-import java.util.List;
-
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -18,11 +18,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import lombok.extern.slf4j.Slf4j;
 import zhongchiedu.common.utils.BasicDataResult;
+import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.framework.pagination.Pagination;
-import zhongchiedu.inventory.pojo.Companys;
 import zhongchiedu.inventory.pojo.Category;
 import zhongchiedu.inventory.service.Impl.CategoryServiceImpl;
 import zhongchiedu.log.annotation.SystemControllerLog;
@@ -39,10 +41,14 @@ public class CategoryController {
 	@RequiresPermissions(value = "category:list")
 	@SystemControllerLog(description = "查询所有货架信息")
 	public String list(@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
-			@RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize, HttpSession session) {
+			@RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize, HttpSession session,
+			@ModelAttribute("errorImport") String errorImport) {
+		
+		
+			model.addAttribute("errorImport", errorImport);
 		Pagination<Category> pagination = this.categoryStorageService.findpagination(pageNo, pageSize);
 		model.addAttribute("pageList", pagination);
-		return "admin/Category/list";
+		return "admin/category/list";
 	}
 
 	/**
@@ -86,7 +92,7 @@ public class CategoryController {
 	}
 
 	@DeleteMapping("/category/{id}")
-	@RequiresPermissions(value = "company:delete")
+	@RequiresPermissions(value = "category:delete")
 	@SystemControllerLog(description = "删除货架")
 	public String delete(@PathVariable String id) {
 		log.info("删除货架" + id);
@@ -114,5 +120,62 @@ public class CategoryController {
 	public BasicDataResult toDisable(@RequestParam(value = "id", defaultValue = "") String id) {
 		return this.categoryStorageService.todisable(id);
 	}
+	
+	
+	
+	/**
+	 * 模版下载
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/category/download")
+	@SystemControllerLog(description = "下载类目信息导入模版")
+	public ModelAndView download(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		String storeName = "类目管理模版.xlsx";
+		String contentType = "application/octet-stream";
+		String UPLOAD = "Templates/";
+		FileOperateUtil.download(request, response, storeName, contentType, UPLOAD);
+		return null;
+	}
+	
+	/***
+	 * 文件上传
+	 * 
+	 * @param request
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/category/upload")
+	@SystemControllerLog(description = "批量导入类目信息")
+	@RequiresPermissions(value = "category:batch")
+	public ModelAndView upload( HttpServletRequest request, HttpSession session,RedirectAttributes attr) {
+		log.info("开始上传文件");
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.setViewName("redirect:/categorys");
+		String error = this.categoryStorageService.upload(request, session);
+		attr.addFlashAttribute("errorImport", error);
+		return modelAndView;
+
+	}
+
+	/**
+	 * process 获取进度
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/category/uploadprocess")
+	@ResponseBody
+	public Object process(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		return this.categoryStorageService.findproInfo(request);
+	}
+	
+	
+	
 
 }

@@ -47,26 +47,32 @@
 						<div class="nest" id="tableStaticClose">
 							<div class="title-alt">
 								<div>
-									<!-- <shiro:hasPermission name="category:add"> -->
+									<shiro:hasPermission name="category:add">
 										<button class="btn btn-default btn-sm"
 											th:onclick="|window.location.href='@{/category}'|">
 											<i class="glyphicon glyphicon-plus"> </i> 添加
 										</button>
-									<!-- </shiro:hasPermission> -->
+									</shiro:hasPermission>
 
-									<!-- <shiro:hasPermission name="category:edit"> -->
+									<shiro:hasPermission name="category:edit">
 										<button class="btn btn-primary btn-sm"
 											onclick="return toeditPage('','category')">
 											<i class="fa fa-edit"> </i>编辑
 										</button>
-									<!-- </shiro:hasPermission> -->
+									</shiro:hasPermission>
 
-									<!-- <shiro:hasPermission name="category:delete"> -->
+									<shiro:hasPermission name="category:delete">
 										<button class="btn btn-danger btn-sm"
 											th:onclick="|return del('','@{/category/}')|">
 											<i class="fa fa-trash-o"> </i>删除
 										</button>
-									<!-- </shiro:hasPermission> -->
+									</shiro:hasPermission>
+
+									<shiro:hasPermission name="category:batch">
+										<button class="btn btn-success" onclick="return batchImput()">
+											<i class="fontawesome-upload"> </i>批量导入
+										</button>
+									</shiro:hasPermission>
 
 								</div>
 
@@ -114,23 +120,21 @@
 																th:for="${category.id}"></label>
 														</div>
 													</td>
-													
+
 													<td class="numeric">[[${category.name}]]</td>
 													<td class="numeric" th:id="disBtn+${category.id}"
 														th:utext="${category.isDisable eq true }?|<button type='button' onclick=toDisable('${category.id}','category') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${category.id}','category') class='btn btn-success'>启用</button>|"></td>
-													<td class="numeric"><!-- <shiro:hasPermission
+													<td class="numeric">
+														<!-- <shiro:hasPermission
 															name="category:edit"> -->
-															<button class="btn btn-primary btn-xs"
-																th:onclick="|return toeditPage('${category.id}','category')|">
-																<i class="fa fa-edit"> </i>编辑
-															</button>
-
-														<!-- </shiro:hasPermission> <shiro:hasPermission name="category:delete"> -->
-															<button class="btn btn-danger btn-xs"
-																th:onclick="|return del('@{/category/}${category.id}','')|">
-																<i class="fa fa-trash-o"> </i>删除
-															</button>
-														<!-- </shiro:hasPermission></td> -->
+														<button class="btn btn-primary btn-xs"
+															th:onclick="|return toeditPage('${category.id}','category')|">
+															<i class="fa fa-edit"> </i>编辑
+														</button> <!-- </shiro:hasPermission> <shiro:hasPermission name="category:delete"> -->
+														<button class="btn btn-danger btn-xs"
+															th:onclick="|return del('@{/category/}${category.id}','')|">
+															<i class="fa fa-trash-o"> </i>删除
+														</button> <!-- </shiro:hasPermission></td> -->
 												</tr>
 												<!-- 菜单 -->
 											</th:block>
@@ -186,10 +190,16 @@
 				</div>
 			</div>
 
-	<div th:replace="public/public::myModal"></div>
+			<div th:replace="public/public::myModal"></div>
+			<div th:replace="admin/category/batch::mybatch"></div>
 		</div>
 	</div>
+	<!-- 引入categorylist.js -->
+	<script type="text/javascript" th:inline="javascript"
+		th:src="@{/js/admin/category/categorylist.js}"></script>
 	<!--  END OF PAPER WRAP -->
+	<script type="text/javascript"
+		th:src="@{/plugs/prettyfile/bootstrap-prettyfile.js}"></script>
 	<!-- 右侧隐藏菜单start -->
 	<div th:replace="public/public::right"></div>
 	<!-- 右侧隐藏菜单end-->
@@ -199,8 +209,6 @@
 	<div th:replace="public/public::footer"></div>
 	<!-- Sweet alert -->
 	<script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
-
-
 
 
 </body>

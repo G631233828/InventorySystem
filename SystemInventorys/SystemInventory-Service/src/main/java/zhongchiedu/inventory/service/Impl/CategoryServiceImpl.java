@@ -1,9 +1,16 @@
 package zhongchiedu.inventory.service.Impl;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -13,10 +20,12 @@ import org.springframework.stereotype.Service;
 import lombok.extern.slf4j.Slf4j;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.Common;
+import zhongchiedu.common.utils.ExcelReadUtil;
+import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralServiceImpl;
 import zhongchiedu.inventory.pojo.Category;
-import zhongchiedu.inventory.pojo.GoodsStorage;
+import zhongchiedu.inventory.pojo.ProcessInfo;
 import zhongchiedu.inventory.service.CategoryService;
 
 @Service
@@ -135,7 +144,127 @@ public class CategoryServiceImpl extends GeneralServiceImpl<Category> implements
 		return BasicDataResult.build(200, category.getIsDisable().equals(true)?"禁用成功":"启用成功",category.getIsDisable());
 		
 	}
+	
+	
+	
+	public String  BatchImport(File file, int row, HttpSession session) {
+		String error = "";
+		String[][] resultexcel = null;
+		try {
+			resultexcel = ExcelReadUtil.readExcel(file, row);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		int rowLength = resultexcel.length;
+		ProcessInfo pri = new ProcessInfo();
+		pri.allnum = rowLength;
+		for (int i = 0; i < rowLength; i++) {
+			Query query = new Query();
+			Category importCategory = new Category();
 
+			pri.nownum = i;
+			pri.lastnum = rowLength - i;
+			session.setAttribute("proInfo", pri);
+			int j = 0;
+			try {
+				importCategory.setName(resultexcel[i][j]);
+				
+				query.addCriteria(Criteria.where("name").is(importCategory.getName()));
+				// 通过类目名称是否存在该信息
+				Category category = this.findOneByQuery(query, Category.class);
+				if(Common.isNotEmpty(category)){
+					error += "<span class='entypo-attention'></span>导入文件过程中出现已经存在的类目信息，第<b>&nbsp&nbsp" + (i + 2)
+							+ "&nbsp&nbsp</b>行出现重复内容为<b>&nbsp&nbsp导入类目名称为:" + category.getName()
+							+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
+					continue;
+				}else{
+					this.insert(importCategory);
+				}
+				// 捕捉批量导入过程中遇到的错误，记录错误行数继续执行下去
+			} catch (Exception e) {
+				log.debug("导入文件过程中出现错误第" + (i + 2) + "行出现错误" + e);
+				String aa = e.getLocalizedMessage();
+				String b = aa.substring(aa.indexOf(":") + 1, aa.length()).replaceAll("\"", "");
+				error += "<span class='entypo-attention'></span>导入文件过程中出现错误第<b>&nbsp&nbsp" + (i + 2)
+						+ "&nbsp&nbsp</b>行出现错误内容为<b>&nbsp&nbsp" + b + "&nbsp&nbsp</b></br>";
+				if ((i + 1) < rowLength) {
+					continue;
+				}
 
+			}
+		}
+		log.info(error);
+		return error;
+	}
+
+	
+	
+/**
+ * 执行上传文件，返回错误消息	
+ */
+public String upload( HttpServletRequest request, HttpSession session){
+	String error = "";
+	try {
+		Map<String, Object> map = new HashMap<String, Object>();
+		// 别名
+		String upname = File.separator + "FileUpload" + File.separator + "category";
+
+		// 可以上传的文件格式
+		log.info("准备上传类目数据");
+		String filetype[] = { "xls,xlsx" };
+		List<Map<String, Object>> result = FileOperateUtil.upload(request, upname, filetype);
+		log.info("上传文件成功");
+		boolean has = (Boolean) result.get(0).get("hassuffix");
+
+		if (has != false) {
+			// 获得上传的xls文件路径
+			String path = (String) result.get(0).get("savepath");
+			File file = new File(path);
+			// 知道导入返回导入结果
+			error = this.BatchImport(file, 1,session);
+		}
+	} catch (Exception e) {
+		return e.toString();
+	}
+	return error;
+	
+}
+	
+
+public static void main(String[] args) {
+	String aa="H:/project/InventoryManagementSystem/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/wtpwebapps/InventoryWebApp/WEB-INF/FileUpload/category/类目管理模版.xlsx";
+		File f = new File(aa);
+		ExcelReadUtil ee = new ExcelReadUtil();
+		
+		String[][] resultexcel;
+		try {
+			resultexcel = ee.readExcel(f, 1);
+			System.out.println(resultexcel);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	
+}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	/**
+	 * 上传进度
+	 */
+	@Override
+	public ProcessInfo findproInfo(HttpServletRequest request) {
+
+		return (ProcessInfo) request.getSession().getAttribute("proInfo");
+
+	}
+	
 
 }
