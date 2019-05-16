@@ -11,7 +11,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
@@ -301,6 +306,14 @@ public class ExcelReadUtil {
 	        }    
 	        return wb;    
 	    }   
+     
+     
+     
+    
+     
+     
+     
+     
      
 //     public static void main(String[] args) {
 //    		String aa="H:/project/InventoryManagementSystem/.metadata/.plugins/org.eclipse.wst.server.core/tmp0/wtpwebapps/InventoryWebApp/WEB-INF/FileUpload/category/类目管理模版.xlsx";

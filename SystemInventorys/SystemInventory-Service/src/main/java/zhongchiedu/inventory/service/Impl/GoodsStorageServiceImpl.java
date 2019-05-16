@@ -28,11 +28,6 @@ public class GoodsStorageServiceImpl extends GeneralServiceImpl<GoodsStorage> im
 	@Override
 	public void saveOrUpdate(GoodsStorage goodsStorage) {
 		if (Common.isNotEmpty(goodsStorage)) {
-			//检查是否存在
-			BasicDataResult rs = ajaxgetRepletes(goodsStorage.getAddress(),goodsStorage.getShelfNumber(),goodsStorage.getShelflevel());
-			if(rs.getStatus() == 206){
-				goodsStorage.setShelflevel(goodsStorage.getShelflevel()+"(2)");
-			}
 			if (Common.isNotEmpty(goodsStorage.getId())) {
 				// update
 				GoodsStorage ed = this.findOneById(goodsStorage.getId(), GoodsStorage.class);
