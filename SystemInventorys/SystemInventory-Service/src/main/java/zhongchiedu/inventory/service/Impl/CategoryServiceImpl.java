@@ -164,6 +164,7 @@ public class CategoryServiceImpl extends GeneralServiceImpl<Category> implements
 				importCategory.setName(resultexcel[i][j]);
 				
 				query.addCriteria(Criteria.where("name").is(importCategory.getName()));
+				query.addCriteria(Criteria.where("isDelete").is(false));
 				// 通过类目名称是否存在该信息
 				Category category = this.findOneByQuery(query, Category.class);
 				if(Common.isNotEmpty(category)){
@@ -233,6 +234,25 @@ public String upload( HttpServletRequest request, HttpSession session){
 
 		return (ProcessInfo) request.getSession().getAttribute("proInfo");
 
+	}
+
+	
+	/**
+	 * 根据类目名车查找类目，如果没有则创建一个
+	 */
+	@Override
+	public Category findByName(String name) {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("name").is(name));
+		query.addCriteria(Criteria.where("isDelete").is(false));
+		Category category = this.findOneByQuery(query, Category.class);
+		if(Common.isEmpty(category)){
+			Category ca = new Category();
+			ca.setName(name);
+			this.insert(ca);
+			return ca;
+		}
+		return category;
 	}
 	
 

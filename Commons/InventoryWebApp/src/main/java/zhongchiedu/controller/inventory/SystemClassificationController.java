@@ -1,5 +1,7 @@
 package zhongchiedu.controller.inventory;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -25,13 +27,15 @@ import lombok.extern.slf4j.Slf4j;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.framework.pagination.Pagination;
+import zhongchiedu.inventory.pojo.Category;
 import zhongchiedu.inventory.pojo.SystemClassification;
+import zhongchiedu.inventory.service.Impl.CategoryServiceImpl;
 import zhongchiedu.inventory.service.Impl.SystemClassificationServiceImpl;
 import zhongchiedu.log.annotation.SystemControllerLog;
 
-
 /**
  * 系统分类
+ * 
  * @author fliay
  *
  */
@@ -42,14 +46,18 @@ public class SystemClassificationController {
 	@Autowired
 	private SystemClassificationServiceImpl systemClassificationService;
 
-
+	@Autowired
+	private CategoryServiceImpl categoryServiceImpl;
+	
+	
+	
 	@GetMapping("systemClassifications")
 	@RequiresPermissions(value = "systemClassification:list")
 	@SystemControllerLog(description = "查询所有系统分类信息")
 	public String list(@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
 			@RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize, HttpSession session,
 			@ModelAttribute("errorImport") String errorImport) {
-			model.addAttribute("errorImport", errorImport);
+		model.addAttribute("errorImport", errorImport);
 		Pagination<SystemClassification> pagination = this.systemClassificationService.findpagination(pageNo, pageSize);
 		model.addAttribute("pageList", pagination);
 		return "admin/systemClassification/list";
@@ -61,22 +69,24 @@ public class SystemClassificationController {
 	@GetMapping("/systemClassification")
 	@RequiresPermissions(value = "systemClassification:add")
 	public String addPage(Model model) {
+		List<Category> list = this.categoryServiceImpl.findAllCategory(false);
+		model.addAttribute("categorys", list);
 		return "admin/systemClassification/add";
 	}
 
 	@PostMapping("/systemClassification")
 	@RequiresPermissions(value = "systemClassification:add")
-	@SystemControllerLog(description = "添加类目")
-	public String addUser(@ModelAttribute("systemClassification") SystemClassification systemClassification) {
-		this.systemClassificationService.saveOrUpdate(systemClassification);
+	@SystemControllerLog(description = "添加系统分类")
+	public String addUser(@ModelAttribute("systemClassification") SystemClassification systemClassification,String types) {
+		this.systemClassificationService.saveOrUpdate(systemClassification,types);
 		return "redirect:systemClassifications";
 	}
 
 	@PutMapping("/systemClassification")
 	@RequiresPermissions(value = "systemClassification:edit")
-	@SystemControllerLog(description = "修改类目")
-	public String edit(@ModelAttribute("systemClassification") SystemClassification systemClassification) {
-		this.systemClassificationService.saveOrUpdate(systemClassification);
+	@SystemControllerLog(description = "修改系统分类")
+	public String edit(@ModelAttribute("systemClassification") SystemClassification systemClassification,String types) {
+		this.systemClassificationService.saveOrUpdate(systemClassification,types);
 		return "redirect:systemClassifications";
 	}
 
@@ -87,27 +97,15 @@ public class SystemClassificationController {
 	 */
 	@GetMapping("/systemClassification{id}")
 	@RequiresPermissions(value = "systemClassification:edit")
-	@SystemControllerLog(description = "编辑类目")
+	@SystemControllerLog(description = "编辑系统分类")
 	public String toeditPage(@PathVariable String id, Model model) {
-		SystemClassification systemClassification = this.systemClassificationService.findOneById(id, SystemClassification.class);
+		SystemClassification systemClassification = this.systemClassificationService.findOneById(id,
+				SystemClassification.class);
 		model.addAttribute("systemClassification", systemClassification);
-		
-		
-		//获得选中的类目集合放到selectCategorys中
-//		List<CaseType> listc = casePresentation.getCaseTypes();
-//		if (Common.isNotEmpty(listc)) {
-//			List<String> lists = new ArrayList<>();
-//			for (int i = 0; i < listc.size(); i++) {
-//				lists.add(listc.get(i).getId());
-//			}
-//			caseTypes = lists.toArray();
-//			model.addAttribute("caseTypes", caseTypes);
-//		}
-		
-		
-		
-		
-		
+		Object[] selectcategorys = this.systemClassificationService.categorys(systemClassification);
+		model.addAttribute("selectcategorys", selectcategorys);
+		List<Category> list = this.categoryServiceImpl.findAllCategory(false);
+		model.addAttribute("categorys", list);
 		return "admin/systemClassification/add";
 
 	}
@@ -131,8 +129,7 @@ public class SystemClassificationController {
 	 */
 	@RequestMapping(value = "/systemClassification/ajaxgetRepletes", method = RequestMethod.POST)
 	@ResponseBody
-	public BasicDataResult ajaxgetRepletes(@RequestParam(value = "name", defaultValue = "") String name
-		) {
+	public BasicDataResult ajaxgetRepletes(@RequestParam(value = "name", defaultValue = "") String name) {
 		return this.systemClassificationService.ajaxgetRepletes(name);
 	}
 
@@ -141,9 +138,7 @@ public class SystemClassificationController {
 	public BasicDataResult toDisable(@RequestParam(value = "id", defaultValue = "") String id) {
 		return this.systemClassificationService.todisable(id);
 	}
-	
-	
-	
+
 	/**
 	 * 模版下载
 	 * 
@@ -153,7 +148,7 @@ public class SystemClassificationController {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/systemClassification/download")
-	@SystemControllerLog(description = "下载类目信息导入模版")
+	@SystemControllerLog(description = "下载系统分类信息导入模版")
 	public ModelAndView download(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		String storeName = "系统分类模版.xlsx";
 		String contentType = "application/octet-stream";
@@ -161,7 +156,7 @@ public class SystemClassificationController {
 		FileOperateUtil.download(request, response, storeName, contentType, UPLOAD);
 		return null;
 	}
-	
+
 	/***
 	 * 文件上传
 	 * 
@@ -170,9 +165,9 @@ public class SystemClassificationController {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/systemClassification/upload")
-	@SystemControllerLog(description = "批量导入类目信息")
+	@SystemControllerLog(description = "批量导入系统分类信息")
 	@RequiresPermissions(value = "systemClassification:batch")
-	public ModelAndView upload( HttpServletRequest request, HttpSession session,RedirectAttributes attr) {
+	public ModelAndView upload(HttpServletRequest request, HttpSession session, RedirectAttributes attr) {
 		log.info("开始上传文件");
 		ModelAndView modelAndView = new ModelAndView();
 		modelAndView.setViewName("redirect:/systemClassifications");
@@ -195,8 +190,5 @@ public class SystemClassificationController {
 	public Object process(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		return this.systemClassificationService.findproInfo(request);
 	}
-	
-	
-	
 
 }

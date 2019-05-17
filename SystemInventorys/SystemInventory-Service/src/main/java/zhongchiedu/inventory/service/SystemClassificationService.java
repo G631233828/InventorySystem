@@ -9,6 +9,7 @@ import javax.servlet.http.HttpSession;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralService;
+import zhongchiedu.inventory.pojo.Category;
 import zhongchiedu.inventory.pojo.ProcessInfo;
 import zhongchiedu.inventory.pojo.SystemClassification;
 
@@ -16,7 +17,7 @@ public interface SystemClassificationService extends GeneralService<SystemClassi
 	
 	public Pagination<SystemClassification> findpagination(Integer pageNo,Integer pageSize);
 	
-	public void saveOrUpdate(SystemClassification systemClassification);
+	public void saveOrUpdate(SystemClassification systemClassification,String types);
 	
 	public BasicDataResult disable(String id);
 	
@@ -33,4 +34,9 @@ public interface SystemClassificationService extends GeneralService<SystemClassi
 	public String BatchImport(File file, int row, HttpSession session);
 	
 	public String upload( HttpServletRequest request, HttpSession session);
+	
+	public Object[] categorys(SystemClassification systemClassification);
+	
+	public SystemClassification findByName(String name);
+	
 }

@@ -33,4 +33,18 @@ public interface CategoryService extends GeneralService<Category> {
 	public String BatchImport(File file, int row, HttpSession session);
 	
 	public String upload( HttpServletRequest request, HttpSession session);
+	
+	public Category findByName(String name);
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }

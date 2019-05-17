@@ -30,36 +30,22 @@ $().ready(function() {
 						}
 					}
 				},
+				upload : {
+					required : true
+				}
 			},
 			messages : {
 				name : {
-					required : a + "请输入系统分类名称",
-					minlength : a + "系统分类名称长度至少是2个",
-					remote : a + "当前系统分类已经存在！"
+					required : a + "请输入分类名称",
+					minlength : a + "分类名称长度至少是2个",
+					remote : a + "当前分类已经存在！"
 				},
+				upload : {
+					required : a+ "导入文件不能为空！"
+				}
 				
 			}
 		});
-		
-		
-		
-		var options = [], _options;
-		/* <![CDATA[ */
-			 var data = [[${categorys}]]
-			 /*]]>*/
-			  for (var i = 0; i < data.length; i++) {
-			    var option = '<option value="' + data[i].id + '">' + data[i].name + '</option>';
-			    options.push(option);
-			  }
-			  _options = options.join('');
-			  $('#number-multiple')[0].innerHTML = _options;
-					var a = /* <![CDATA[ */ [[${selectCategorys}]] /*]]>*/
-					     $("#number-multiple").selectpicker('val',a);
-						  $("#number-multiple").selectpicker('refresh');
-					  $('#number-multiple').selectpicker('render')
-				  
-			  
-		
 		
 		
 		
