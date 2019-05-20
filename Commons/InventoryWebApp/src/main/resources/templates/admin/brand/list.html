@@ -54,28 +54,28 @@
 						<div class="nest" id="tableStaticClose">
 							<div class="title-alt">
 								<div>
-									<shiro:hasPermission name="systemClassification:add">
+									<shiro:hasPermission name="brand:add">
 										<button class="btn btn-default btn-sm"
-											th:onclick="|window.location.href='@{/systemClassification}'|">
+											th:onclick="|window.location.href='@{/brand}'|">
 											<i class="glyphicon glyphicon-plus"> </i> 添加
 										</button>
 									</shiro:hasPermission>
 
-									<shiro:hasPermission name="systemClassification:edit">
+									<shiro:hasPermission name="brand:edit">
 										<button class="btn btn-primary btn-sm"
-											onclick="return toeditPage('','systemClassification')">
+											onclick="return toeditPage('','brand')">
 											<i class="fa fa-edit"> </i>编辑
 										</button>
 									</shiro:hasPermission>
 
-									<shiro:hasPermission name="systemClassification:delete">
+									<shiro:hasPermission name="brand:delete">
 										<button class="btn btn-danger btn-sm"
-											th:onclick="|return del('','@{/systemClassification/}')|">
+											th:onclick="|return del('','@{/brand/}')|">
 											<i class="fa fa-trash-o"> </i>删除
 										</button>
 									</shiro:hasPermission>
 
-									<shiro:hasPermission name="systemClassification:batch">
+									<shiro:hasPermission name="brand:batch">
 										<button class="btn btn-success" onclick="return batchImput()">
 											<i class="fontawesome-upload"> </i>批量导入
 										</button>
@@ -136,43 +136,36 @@
 															for="checkall"></label>
 													</div>
 												</th>
-												<th class="numeric">分类名称</th>
-												<th class="numeric">包含类目</th>
+												<th class="numeric">名称</th>
 												<th class="numeric">使用状态</th>
 												<th class="numeric">操作</th>
 											</tr>
 										</thead>
 										<tbody>
 											<!-- 目录 -->
-											<th:block th:each="systemClassification:${pageList.datas}">
+											<th:block th:each="brand:${pageList.datas}">
 												<tr>
 													<td class="numeric">
 														<div class="checkbox checkbox-inline"
 															style="margin-top: 0px;">
-															<input type="checkbox" name="ids" th:id="${systemClassification.id}"
-																class="numeric" th:value="${systemClassification.id}"> <label
-																th:for="${systemClassification.id}"></label>
+															<input type="checkbox" name="ids" th:id="${brand.id}"
+																class="numeric" th:value="${brand.id}"> <label
+																th:for="${brand.id}"></label>
 														</div>
 													</td>
 
-													<td class="numeric">[[${systemClassification.name}]]</td>
-													<td class="numeric">
-													<th:block th:each="category:${systemClassification.categorys}">
-															[[${category.isDelete eq false}?${category.name}+'&nbsp;&nbsp;':'']]
-													</th:block>
-
-													</td>
-													<td class="numeric" th:id="disBtn+${systemClassification.id}"
-														th:utext="${systemClassification.isDisable eq true }?|<button type='button' onclick=toDisable('${systemClassification.id}','systemClassification') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${systemClassification.id}','systemClassification') class='btn btn-success'>启用</button>|"></td>
+													<td class="numeric">[[${brand.name}]]</td>
+													<td class="numeric" th:id="disBtn+${brand.id}"
+														th:utext="${brand.isDisable eq true }?|<button type='button' onclick=toDisable('${brand.id}','brand') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${brand.id}','brand') class='btn btn-success'>启用</button>|"></td>
 													<td class="numeric">
 														<!-- <shiro:hasPermission
-															name="systemClassification:edit"> -->
+															name="brand:edit"> -->
 														<button class="btn btn-primary btn-xs"
-															th:onclick="|return toeditPage('${systemClassification.id}','systemClassification')|">
+															th:onclick="|return toeditPage('${brand.id}','brand')|">
 															<i class="fa fa-edit"> </i>编辑
-														</button> <!-- </shiro:hasPermission> <shiro:hasPermission name="systemClassification:delete"> -->
+														</button> <!-- </shiro:hasPermission> <shiro:hasPermission name="brand:delete"> -->
 														<button class="btn btn-danger btn-xs"
-															th:onclick="|return del('@{/systemClassification/}${systemClassification.id}','')|">
+															th:onclick="|return del('@{/brand/}${brand.id}','')|">
 															<i class="fa fa-trash-o"> </i>删除
 														</button> <!-- </shiro:hasPermission></td> -->
 												</tr>
@@ -200,16 +193,16 @@
 												<ul class="pagination pagination-split pull-right"
 													style="margin-top: 0px;">
 													<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
-														th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/systemClassifications?pageNo=}+${pageList.upPage}">上一页</a>
+														th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/brands?pageNo=}+${pageList.upPage}">上一页</a>
 													</li>
 													<li th:each="page:${pageList.navigatepageNums}"
 														th:class="${page  == pageList.pageNo}?active:''"><a
-														th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/systemClassifications?pageNo=}+${page}">[[${page}]]</a>
+														th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/brands?pageNo=}+${page}">[[${page}]]</a>
 													</li>
 													<li
 														th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
 														<a
-														th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/systemClassifications?pageNo=}+${pageList.nextPage}">下一页</a>
+														th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/brands?pageNo=}+${pageList.nextPage}">下一页</a>
 													</li>
 												</ul>
 											</div>
@@ -231,12 +224,12 @@
 			</div>
 
 			<div th:replace="public/public::myModal"></div>
-			<div th:replace="admin/systemClassification/batch::mybatch"></div>
+			<div th:replace="admin/brand/batch::mybatch"></div>
 		</div>
 	</div>
-	<!-- 引入systemClassificationlist.js -->
+	<!-- 引入brandlist.js -->
 	<script type="text/javascript" th:inline="javascript"
-		th:src="@{/js/admin/systemClassification/systemClassificationlist.js}"></script>
+		th:src="@{/js/admin/brand/brandlist.js}"></script>
 	<!--  END OF PAPER WRAP -->
 	<script type="text/javascript"
 		th:src="@{/plugs/prettyfile/bootstrap-prettyfile.js}"></script>

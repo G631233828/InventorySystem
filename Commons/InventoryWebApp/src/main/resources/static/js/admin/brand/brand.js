@@ -2,13 +2,12 @@
 $().ready(function() {
 		$("#commentForm").validate();
 		var a = "<i class='fa fa-times-circle'></i> ";
-		$("#categoryForm").validate({
+		$("#brandForm").validate({
 			rules : {
 				name : {
 					required : true,
-					minlength : 2,
 					remote : {
-						url : getRootPath() + "/category/ajaxgetRepletes",
+						url : getRootPath() + "/brand/ajaxgetRepletes",
 						type : "POST",
 						data : {
 							name : function() {
@@ -36,9 +35,8 @@ $().ready(function() {
 			},
 			messages : {
 				name : {
-					required : a + "请输入类目名称",
-					minlength : a + "类目名称长度至少是2个",
-					remote : a + "当前类目已经存在！"
+					required : a + "请输入单位名称",
+					remote : a + "当前单位名称已经存在！"
 				},
 				upload : {
 					required : a+ "导入文件不能为空！"
