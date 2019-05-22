@@ -1,14 +1,15 @@
 package zhongchiedu.inventory.pojo;
 
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import zhongchiedu.framework.pojo.GeneralBean;
 
-
 /**
- * 单位管理
+ * 显示列
  * @author fliay
  *
  */
@@ -16,15 +17,15 @@ import zhongchiedu.framework.pojo.GeneralBean;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class Unit extends GeneralBean<Unit> {
+public class Column extends GeneralBean<Column> {
+
 	
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = -2850255059042387892L;
-	/**
-	 * 
-	 */
-	private String name;
-
+	private static final long serialVersionUID = 1L;
+	private String name;//集合名称
+	private List<String> columns;//显示的列
+	
+	
 }

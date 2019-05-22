@@ -200,16 +200,6 @@ public class SystemClassificationServiceImpl extends GeneralServiceImpl<SystemCl
 					importSystemClassification.setCategorys(list);
 					this.insert(importSystemClassification);
 				}
-				
-				
-//				if (Common.isNotEmpty(systemClassification)) {
-//					error += "<span class='entypo-attention'></span>导入文件过程中出现已经存在的类目信息，第<b>&nbsp&nbsp" + (i + 2)
-//							+ "&nbsp&nbsp</b>行出现重复内容为<b>&nbsp&nbsp导入类目名称为:" + systemClassification.getName()
-//							+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
-//					continue;
-//				} else {
-//					this.insert(importSystemClassification);
-//				}
 				// 捕捉批量导入过程中遇到的错误，记录错误行数继续执行下去
 			} catch (Exception e) {
 				log.debug("导入文件过程中出现错误第" + (i + 2) + "行出现错误" + e);
@@ -284,13 +274,23 @@ public class SystemClassificationServiceImpl extends GeneralServiceImpl<SystemCl
 		return categorys;
 	}
 
+	/**
+	 * 根据系统分类名称来查找，如果不存在则创建一个
+	 */
 	@Override
 	public SystemClassification findByName(String name) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		query.addCriteria(Criteria.where("name").is(name));
-		// 通过系統分类名称查询是否存在系统分类
-		return this.findOneByQuery(query, SystemClassification.class);
+		SystemClassification systemClassification = this.findOneByQuery(query, SystemClassification.class);
+		if(Common.isEmpty(systemClassification)){
+			SystemClassification ca = new SystemClassification();
+			ca.setName(name);
+			ca.setCategorys(new ArrayList<Category>());
+			this.insert(ca);
+			return ca;
+		}
+		return systemClassification; 
 	}
 
 }

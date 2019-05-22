@@ -6,22 +6,23 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import com.fasterxml.jackson.databind.introspect.TypeResolutionContext.Basic;
+
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralService;
-import zhongchiedu.inventory.pojo.Category;
 import zhongchiedu.inventory.pojo.ProcessInfo;
-import zhongchiedu.inventory.pojo.Brand;
+import zhongchiedu.inventory.pojo.Supplier;
 
-public interface BrandService extends GeneralService<Brand> {
+public interface SupplierService extends GeneralService<Supplier> {
 	
-	public Pagination<Brand> findpagination(Integer pageNo,Integer pageSize);
+	public Pagination<Supplier> findpagination(Integer pageNo,Integer pageSize);
 	
-	public void saveOrUpdate(Brand brand);
+	public void saveOrUpdate(Supplier supplier, String types);
 	
 	public BasicDataResult disable(String id);
 	
-	public List<Brand> findAllBrand(boolean isdisable);
+	public List<Supplier> findAllSupplier(boolean isdisable);
 	
 	public String delete(String id);
 	
@@ -35,7 +36,9 @@ public interface BrandService extends GeneralService<Brand> {
 	
 	public String upload( HttpServletRequest request, HttpSession session);
 	
-	public Brand findByName(String name);
+	public Supplier findByName(String name);
+	
+	public Object[] categorys(Supplier supplier);
 	
 	
 	

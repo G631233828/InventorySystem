@@ -17,7 +17,10 @@ public class GoodsStorage extends GeneralBean<GoodsStorage> {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 438213240034833925L;
+	private static final long serialVersionUID = -6757367985024169272L;
+	/**
+	 * 
+	 */
 	private String address;
 	private String shelfNumber;
 	private String shelflevel;

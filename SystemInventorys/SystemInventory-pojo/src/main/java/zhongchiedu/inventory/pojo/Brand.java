@@ -21,7 +21,10 @@ public class Brand extends GeneralBean<Brand> {
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1432846969158838995L;
+	private static final long serialVersionUID = -3667587084298879810L;
+	/**
+	 * 
+	 */
 	private String name;
 
 }

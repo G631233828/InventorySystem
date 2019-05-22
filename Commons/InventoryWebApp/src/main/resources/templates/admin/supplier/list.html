@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+
+<head th:include="public/public_css::pub_css"></head>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" type="text/css"
+	th:href="@{/assets/js/progress-bar/number-pb.css}">
+<link th:href="@{/plugs/sweetalert/sweetalert.css}" rel="stylesheet">
+</head>
+
+<body>
+	<!-- Preloader -->
+	<div id="preloader">
+		<div id="status">&nbsp;</div>
+	</div>
+	<!-- TOP NAVBAR -->
+	<div th:replace="public/public::top"></div>
+	<!-- /END OF TOP NAVBAR -->
+
+	<!-- SIDE MENU -->
+	<div th:replace="public/public::left(activeUri='basic')"></div>
+	<!-- END OF SIDE MENU -->
+
+	<!--  PAPER WRAP -->
+	<div class="wrap-fluid">
+		<div class="container-fluid paper-wrap bevel tlbr">
+
+
+			<!-- CONTENT -->
+			<!--TITLE -->
+			<div th:replace="public/public::title"></div>
+			<!--/ TITLE -->
+
+			<!-- BREADCRUMB -->
+			<div th:replace="public/public::menu"></div>
+			<!-- END OF BREADCRUMB -->
+
+
+			<div class="content-wrap">
+				<div class="row">
+
+
+					<div class="col-sm-12">
+						<div class="body-nest" id="alert" th:if="${errorImport!=''}">
+							<div class="alert alert-danger">
+								<button data-dismiss="alert" class="close" type="button">×</button>
+								<th:block th:utext="${errorImport}">
+								</th:block>
+							</div>
+
+						</div>
+						<div class="nest" id="tableStaticClose">
+
+							<div class="title-alt">
+								<div class="row">
+									<div class="col-sm-6">
+										<shiro:hasPermission name="supplier:add">
+											<button class="btn btn-default btn-sm"
+												th:onclick="|window.location.href='@{/supplier}'|">
+												<i class="glyphicon glyphicon-plus"> </i> 添加
+											</button>
+										</shiro:hasPermission>
+
+										<shiro:hasPermission name="supplier:edit">
+											<button class="btn btn-primary btn-sm"
+												onclick="return toeditPage('','supplier')">
+												<i class="fa fa-edit"> </i>编辑
+											</button>
+										</shiro:hasPermission>
+
+										<shiro:hasPermission name="supplier:delete">
+											<button class="btn btn-danger btn-sm"
+												th:onclick="|return del('','@{/supplier/}')|">
+												<i class="fa fa-trash-o"> </i>删除
+											</button>
+										</shiro:hasPermission>
+
+										<shiro:hasPermission name="supplier:batch">
+											<button class="btn btn-success" onclick="return batchImput()">
+												<i class="fontawesome-upload"> </i>批量导入
+											</button>
+										</shiro:hasPermission>
+																						
+										<button class="btn btn-default" onclick="return showColumn()">
+												<i class="fontawesome-upload"> </i>显示列
+											</button>
+
+
+									</div>
+									<div class="col-sm-6"></div>
+
+								</div>
+
+
+							</div>
+
+							<!-- 搜索  下拉  start-->
+							<!-- 	<div class="mail_header">
+								<div class="col-sm-6">
+									<div class="row" style="margin-bottom: 10px;">
+									
+										<div class="col-sm-2">
+										<select class="filter-status form-control">
+												<option value="10">10
+												<option value="25">25
+												<option value="50">50
+												<option value="100">100
+											</select>
+										</div>
+										<div class="col-sm-3">
+											<input class="form-control" id="filter"
+												placeholder="查找类目..." type="text">
+										
+											
+										</div>
+									</div>
+								</div>
+							</div> -->
+							<!-- 搜索  下拉  end-->
+
+
+
+							<div class="body-nest" id="tableStatic">
+
+								<section id="flip-scroll">
+									<div
+										style="overflow-y: auto; overflow-x: auto; white-space: nowrap; text-overflow: ellipsis;">
+										<table
+											class="table table-bordered table-striped cf text-nowrap ">
+											<thead class="cf">
+												<tr>
+													<th class="numeric" style="width: 20px;">
+														<div class="checkbox checkbox-inline"
+															style="margin-top: 0px;">
+															<input type="checkbox" id="checkall" name="checkall" />
+															<label for="checkall"></label>
+														</div>
+													</th>
+													<th class="numeric name"  th:style="${#lists.contains(listColums,'name')}?'':'display:none;'" >供应商名称</th>
+													<th class="numeric systemClassification" th:style="${#lists.contains(listColums,'systemClassification')}?'':'display:none;'">系统分类</th>
+													<th class="numeric categorys" th:style="${#lists.contains(listColums,'categorys')}?'':'display:none;'">系统类目</th>
+													<th class="numeric brand" th:style="${#lists.contains(listColums,'brand')}?'':'display:none;'">品牌</th>
+													<th class="numeric contact" th:style="${#lists.contains(listColums,'contact')}?'':'display:none;'">联系人</th>
+													<th class="numeric contactNumber" th:style="${#lists.contains(listColums,'contactNumber')}?'':'display:none;'">联系电话</th>
+													<th class="numeric qq" th:style="${#lists.contains(listColums,'qq')}?'':'display:none;'">qq</th>
+													<th class="numeric wechat" th:style="${#lists.contains(listColums,'wechat')}">微信</th>
+													<th class="numeric email" th:style="${#lists.contains(listColums,'email')}?'':'display:none;'">邮箱</th>
+													<th class="numeric address" th:style="${#lists.contains(listColums,'address')}?'':'display:none;'">供应商地址</th>
+													<th class="numeric introducer" th:style="${#lists.contains(listColums,'introducer')}?'':'display:none;'">介绍人</th>
+													<th class="numeric productQuality" th:style="${#lists.contains(listColums,'productQuality')}?'':'display:none;'">产品质量</th>
+													<th class="numeric price" th:style="${#lists.contains(listColums,'price')}?'':'display:none;'">价格</th>
+													<th class="numeric supplyPeriod" th:style="${#lists.contains(listColums,'supplyPeriod')}?'':'display:none;'">供货期</th>
+													<th class="numeric payMent" th:style="${#lists.contains(listColums,'payMent')}?'':'display:none;'">付款条件</th>
+													<th class="numeric afterSaleService" th:style="${#lists.contains(listColums,'afterSaleService')}?'':'display:none;'">售后服务</th>
+													<th class="numeric">使用状态</th>
+													<th class="numeric">操作</th>
+												</tr>
+											</thead>
+											<tbody>
+												<!-- 目录 -->
+												<th:block th:each="supplier:${pageList.datas}">
+													<tr>
+														<td class="numeric">
+															<div class="checkbox checkbox-inline"
+																style="margin-top: 0px;">
+																<input type="checkbox" name="ids" th:id="${supplier.id}"
+																	class="numeric" th:value="${supplier.id}"> <label
+																	th:for="${supplier.id}"></label>
+															</div>
+														</td>
+
+														<td class="numeric" id="name" th:style="${#lists.contains(listColums,'name')}?'':'display:none;'">[[${supplier.name}]]</td>
+														<td class="numeric" id="systemClassification" th:if="${#lists.contains(listColums,'systemClassification')}?'':'display:none;'">[[${supplier.systemClassification.name}]]</td>
+														<td class="numeric" id="categorys" th:style="${#lists.contains(listColums,'categorys')}"><th:block
+																th:each="category:${supplier.categorys}">
+															[[${category.isDelete eq false}?${category.name}+'&nbsp;&nbsp;':'']]
+													</th:block></td>
+														<td class="numeric" id="brand" th:style="${#lists.contains(listColums,'brand')}?'':'display:none;'">[[${supplier.brand.name}]]</td>
+														<td class="numeric" id="contact" th:style="${#lists.contains(listColums,'contact')}?'':'display:none;'">[[${supplier.contact}]]</td>
+														<td class="numeric" id="contactNumber" th:style="${#lists.contains(listColums,'contactNumber')}?'':'display:none;'">[[${supplier.contactNumber}]]</td>
+														<td class="numeric" id="qq" th:style="${#lists.contains(listColums,'qq')}?'':'display:none;'">[[${supplier.qq}]]</td>
+														<td class="numeric" id="wechat" th:style="${#lists.contains(listColums,'wechat')}?'':'display:none;'">[[${supplier.wechat}]]</td>
+														<td class="numeric" id="email" th:style="${#lists.contains(listColums,'email')}?'':'display:none;'">[[${supplier.email}]]</td>
+														<td class="numeric" id="address" th:style="${#lists.contains(listColums,'address')}?'':'display:none;'">[[${supplier.address}]]</td>
+														<td class="numeric" id="introducer" th:style="${#lists.contains(listColums,'introducer')}?'':'display:none;'">[[${supplier.introducer}]]</td>
+														<td class="numeric" id="productQuality" th:style="${#lists.contains(listColums,'productQuality')}?'':'display:none;'">[[${supplier.productQuality}]]</td>
+														<td class="numeric" id="price" th:style="${#lists.contains(listColums,'price')}?'':'display:none;'">[[${supplier.price}]]</td>
+														<td class="numeric" id="supplyPeriod" th:style="${#lists.contains(listColums,'supplyPeriod')}?'':'display:none;'">[[${supplier.supplyPeriod}]]</td>
+														<td class="numeric" id="payMent" th:style="${#lists.contains(listColums,'payMent')}?'':'display:none;'">[[${supplier.payMent}]]</td>
+														<td class="numeric" id="afterSaleService" th:style="${#lists.contains(listColums,'afterSaleService')}?'':'display:none;'">[[${supplier.afterSaleService}]]</td>
+														<td class="numeric" th:id="disBtn+${supplier.id}"
+															th:utext="${supplier.isDisable eq true }?|<button type='button' onclick=toDisable('${supplier.id}','supplier') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${supplier.id}','supplier') class='btn btn-success'>启用</button>|"></td>
+														<td class="numeric">
+															<!-- <shiro:hasPermission
+															name="supplier:edit"> -->
+															<button class="btn btn-primary btn-xs"
+																th:onclick="|return toeditPage('${supplier.id}','supplier')|">
+																<i class="fa fa-edit"> </i>编辑
+															</button> <!-- </shiro:hasPermission> <shiro:hasPermission name="supplier:delete"> -->
+															<button class="btn btn-danger btn-xs"
+																th:onclick="|return del('@{/supplier/}${supplier.id}','')|">
+																<i class="fa fa-trash-o"> </i>删除
+															</button> <!-- </shiro:hasPermission></td> -->
+													</tr>
+													<!-- 菜单 -->
+												</th:block>
+
+
+											</tbody>
+										</table>
+									</div>
+									<form method="post" id="deleteForm">
+										<input name="_method" value="delete" type="hidden">
+									</form>
+
+									<div class="row">
+
+										<div class="col-md-12">
+											<div class="col-md-6">
+												<div class="dataTables_info hidden-xs"
+													style="margin-top: 0px;" role="status" aria-live="polite"
+													th:text="|每页显示${pageList.pageSize}行
+										－ 当前页${pageList.pageNo}页 － 共${pageList.totalPage}页|"></div>
+											</div>
+											<div class="col-md-6">
+												<ul class="pagination pagination-split pull-right"
+													style="margin-top: 0px;">
+													<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
+														th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/suppliers?pageNo=}+${pageList.upPage}">上一页</a>
+													</li>
+													<li th:each="page:${pageList.navigatepageNums}"
+														th:class="${page  == pageList.pageNo}?active:''"><a
+														th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/suppliers?pageNo=}+${page}">[[${page}]]</a>
+													</li>
+													<li
+														th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
+														<a
+														th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/suppliers?pageNo=}+${pageList.nextPage}">下一页</a>
+													</li>
+												</ul>
+											</div>
+										</div>
+
+										<!-- 分页结束 -->
+									</div>
+
+								</section>
+
+							</div>
+
+						</div>
+
+
+					</div>
+
+				</div>
+			</div>
+
+			<div th:replace="public/public::myModal"></div>
+			<div th:replace="admin/supplier/batch::mybatch"></div>
+			<div th:replace="admin/supplier/column::mycolumn"></div>
+		</div>
+	</div>
+	<!-- 引入supplierlist.js -->
+	<script type="text/javascript" th:inline="javascript"
+		th:src="@{/js/admin/supplier/supplierlist.js}"></script>
+	<!--  END OF PAPER WRAP -->
+	<script type="text/javascript"
+		th:src="@{/plugs/prettyfile/bootstrap-prettyfile.js}"></script>
+	<!-- 右侧隐藏菜单start -->
+	<div th:replace="public/public::right"></div>
+	<!-- 右侧隐藏菜单end-->
+	<!-- 底部js -->
+	<div th:replace="public/public_js::pub_js"></div>
+	<div th:replace="public/public_js::public_script"></div>
+	<div th:replace="public/public::footer"></div>
+	<!-- Sweet alert -->
+	<script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
+
+
+</body>
+
+</html>
