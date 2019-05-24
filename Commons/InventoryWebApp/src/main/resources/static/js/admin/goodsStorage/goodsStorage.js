@@ -20,7 +20,7 @@ $().ready(function() {
 					url : getRootPath() + "/goodsStorage/ajaxgetRepletes",
 					type : "POST",
 					data : {
-						companys : function() {
+						"companys.id" : function() {
 							return $("#companys").val();
 						},
 						address : function() {
@@ -50,7 +50,7 @@ $().ready(function() {
 			},
 		},
 		messages : {
-			companys : {
+			"companys.id" : {
 				required : a + "请选择货架所属企业",
 			},
 			address : {

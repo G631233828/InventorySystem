@@ -10,7 +10,7 @@ public interface ColumnService extends GeneralService<Column> {
 	
 	public List<String> findColumns(String name);
 	
-	public BasicDataResult editColumns(String name,String showcolumn);
+	public BasicDataResult editColumns(String name,String showcolumn,boolean flag);
 	
 	
 	

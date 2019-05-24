@@ -145,7 +145,7 @@
 													<th class="numeric contact" th:style="${#lists.contains(listColums,'contact')}?'':'display:none;'">联系人</th>
 													<th class="numeric contactNumber" th:style="${#lists.contains(listColums,'contactNumber')}?'':'display:none;'">联系电话</th>
 													<th class="numeric qq" th:style="${#lists.contains(listColums,'qq')}?'':'display:none;'">qq</th>
-													<th class="numeric wechat" th:style="${#lists.contains(listColums,'wechat')}">微信</th>
+													<th class="numeric wechat" th:style="${#lists.contains(listColums,'wechat')}?'':'display:none;'">微信</th>
 													<th class="numeric email" th:style="${#lists.contains(listColums,'email')}?'':'display:none;'">邮箱</th>
 													<th class="numeric address" th:style="${#lists.contains(listColums,'address')}?'':'display:none;'">供应商地址</th>
 													<th class="numeric introducer" th:style="${#lists.contains(listColums,'introducer')}?'':'display:none;'">介绍人</th>
@@ -171,25 +171,25 @@
 															</div>
 														</td>
 
-														<td class="numeric" id="name" th:style="${#lists.contains(listColums,'name')}?'':'display:none;'">[[${supplier.name}]]</td>
-														<td class="numeric" id="systemClassification" th:if="${#lists.contains(listColums,'systemClassification')}?'':'display:none;'">[[${supplier.systemClassification.name}]]</td>
-														<td class="numeric" id="categorys" th:style="${#lists.contains(listColums,'categorys')}"><th:block
+														<td class="numeric name" id="name" th:style="${#lists.contains(listColums,'name')}?'':'display:none;'">[[${supplier?.name}]]</td>
+														<td class="numeric systemClassification" id="systemClassification" th:style="${#lists.contains(listColums,'systemClassification')}?'':'display:none;'">[[${supplier?.systemClassification?.name}]]</td>
+														<td class="numeric categorys" id="categorys" th:style="${#lists.contains(listColums,'categorys')}?'':'display:none;'"><th:block
 																th:each="category:${supplier.categorys}">
 															[[${category.isDelete eq false}?${category.name}+'&nbsp;&nbsp;':'']]
 													</th:block></td>
-														<td class="numeric" id="brand" th:style="${#lists.contains(listColums,'brand')}?'':'display:none;'">[[${supplier.brand.name}]]</td>
-														<td class="numeric" id="contact" th:style="${#lists.contains(listColums,'contact')}?'':'display:none;'">[[${supplier.contact}]]</td>
-														<td class="numeric" id="contactNumber" th:style="${#lists.contains(listColums,'contactNumber')}?'':'display:none;'">[[${supplier.contactNumber}]]</td>
-														<td class="numeric" id="qq" th:style="${#lists.contains(listColums,'qq')}?'':'display:none;'">[[${supplier.qq}]]</td>
-														<td class="numeric" id="wechat" th:style="${#lists.contains(listColums,'wechat')}?'':'display:none;'">[[${supplier.wechat}]]</td>
-														<td class="numeric" id="email" th:style="${#lists.contains(listColums,'email')}?'':'display:none;'">[[${supplier.email}]]</td>
-														<td class="numeric" id="address" th:style="${#lists.contains(listColums,'address')}?'':'display:none;'">[[${supplier.address}]]</td>
-														<td class="numeric" id="introducer" th:style="${#lists.contains(listColums,'introducer')}?'':'display:none;'">[[${supplier.introducer}]]</td>
-														<td class="numeric" id="productQuality" th:style="${#lists.contains(listColums,'productQuality')}?'':'display:none;'">[[${supplier.productQuality}]]</td>
-														<td class="numeric" id="price" th:style="${#lists.contains(listColums,'price')}?'':'display:none;'">[[${supplier.price}]]</td>
-														<td class="numeric" id="supplyPeriod" th:style="${#lists.contains(listColums,'supplyPeriod')}?'':'display:none;'">[[${supplier.supplyPeriod}]]</td>
-														<td class="numeric" id="payMent" th:style="${#lists.contains(listColums,'payMent')}?'':'display:none;'">[[${supplier.payMent}]]</td>
-														<td class="numeric" id="afterSaleService" th:style="${#lists.contains(listColums,'afterSaleService')}?'':'display:none;'">[[${supplier.afterSaleService}]]</td>
+														<td class="numeric brand" id="brand" th:style="${#lists.contains(listColums,'brand')}?'':'display:none;'">[[${supplier?.brand?.name}]]</td>
+														<td class="numeric contact" id="contact" th:style="${#lists.contains(listColums,'contact')}?'':'display:none;'">[[${supplier?.contact}]]</td>
+														<td class="numeric contactNumber" id="contactNumber" th:style="${#lists.contains(listColums,'contactNumber')}?'':'display:none;'">[[${supplier?.contactNumber}]]</td>
+														<td class="numeric qq" id="qq" th:style="${#lists.contains(listColums,'qq')}?'':'display:none;'">[[${supplier?.qq}]]</td>
+														<td class="numeric wechat" id="wechat" th:style="${#lists.contains(listColums,'wechat')}?'':'display:none;'">[[${supplier?.wechat}]]</td>
+														<td class="numeric email" id="email" th:style="${#lists.contains(listColums,'email')}?'':'display:none;'">[[${supplier?.email}]]</td>
+														<td class="numeric address" id="address" th:style="${#lists.contains(listColums,'address')}?'':'display:none;'">[[${supplier?.address}]]</td>
+														<td class="numeric introducer" id="introducer" th:style="${#lists.contains(listColums,'introducer')}?'':'display:none;'">[[${supplier?.introducer}]]</td>
+														<td class="numeric productQuality" id="productQuality" th:style="${#lists.contains(listColums,'productQuality')}?'':'display:none;'">[[${supplier?.productQuality}]]</td>
+														<td class="numeric price" id="price" th:style="${#lists.contains(listColums,'price')}?'':'display:none;'">[[${supplier?.price}]]</td>
+														<td class="numeric supplyPeriod" id="supplyPeriod" th:style="${#lists.contains(listColums,'supplyPeriod')}?'':'display:none;'">[[${supplier?.supplyPeriod}]]</td>
+														<td class="numeric payMent" id="payMent" th:style="${#lists.contains(listColums,'payMent')}?'':'display:none;'">[[${supplier?.payMent}]]</td>
+														<td class="numeric afterSaleService" id="afterSaleService" th:style="${#lists.contains(listColums,'afterSaleService')}?'':'display:none;'">[[${supplier?.afterSaleService}]]</td>
 														<td class="numeric" th:id="disBtn+${supplier.id}"
 															th:utext="${supplier.isDisable eq true }?|<button type='button' onclick=toDisable('${supplier.id}','supplier') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${supplier.id}','supplier') class='btn btn-success'>启用</button>|"></td>
 														<td class="numeric">

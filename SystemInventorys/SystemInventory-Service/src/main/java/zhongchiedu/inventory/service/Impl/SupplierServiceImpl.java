@@ -179,7 +179,13 @@ public class SupplierServiceImpl extends GeneralServiceImpl<Supplier> implements
 			try {
 				SystemClassification systemClassification = null;//系统分类
 				Brand brand = null;//品牌
-				importSupplier.setName(resultexcel[i][j]); //供应商名称
+				String name = resultexcel[i][j];//供应商名称
+				if(Common.isEmpty(name)){
+					error += "<span class='entypo-attention'></span>导入文件过程中出现供应商名称为空，第<b>&nbsp&nbsp" + (i + 2)
+							+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
+					continue;
+				}
+				importSupplier.setName(name); //供应商名称
 				//根据供应商名称查看是否存在，如果不存在则创建一个
 				Supplier supplier = this.findByName(importSupplier.getName());
 				//系统分类
@@ -189,7 +195,7 @@ public class SupplierServiceImpl extends GeneralServiceImpl<Supplier> implements
 					importSupplier.setSystemClassification(systemClassification);
 				}
 				//类目
-				List<String> categorys = Arrays.asList(resultexcel[i][j+2].split(","));
+				List<String> categorys = Arrays.asList(resultexcel[i][j+2].split("[,，、|/]"));
 				//品牌
 				String brandName =  resultexcel[i][j+3];
 				if(Common.isNotEmpty(brandName)){
@@ -303,7 +309,7 @@ public String upload( HttpServletRequest request, HttpSession session){
 
 	
 	/**
-	 * 根据单位名称查找单位，如果没有则创建一个
+	 * 根据单位名称查找单位
 	 */
 	@Override
 	public Supplier findByName(String name) {
@@ -337,5 +343,13 @@ public String upload( HttpServletRequest request, HttpSession session){
 		return categorys;
 	}
 	
+	
+	public static void main(String[] args) {
+		String s = "aa,bb，cc，dd|ee、ff";
+		List<String> list = Arrays.asList(s.trim().split("[,，、|]"));
+		for(String a:list){
+			System.out.println(a);
+		}
+	}
 
 }

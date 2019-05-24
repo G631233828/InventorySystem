@@ -32,51 +32,51 @@
                                         <tbody>
                                             <tr>
                                                 <td class="numeric">供应商名称</td>
-                                                <td class="numeric" onclick="return selectColumn('name');"><input type="checkbox" th:if="${#lists.contains(listColums,'name')}?'checked':''" id="ch_name"></td>
+                                                <td class="numeric" onclick="return selectColumn('name');"><input type="checkbox" th:checked="${#lists.contains(listColums,'name')}?'checked':'false'" id="ch_name"></td>
 												<td class="numeric">系统分类</td>
-												<td class="numeric" onclick="return selectColumn('systemClassification');"><input type="checkbox" id="ch_systemClassification"></td>
+												<td class="numeric" onclick="return selectColumn('systemClassification');"><input type="checkbox" th:checked="${#lists.contains(listColums,'systemClassification')}?'checked':'false'" id="ch_systemClassification"></td>
                                             </tr>
                                             <tr>
                                                 <td class="numeric">系统类目</td>
-                                             	<td class="numeric" onclick="return selectColumn('categorys');"><input type="checkbox" id="ch_categorys"></td>
+                                             	<td class="numeric" onclick="return selectColumn('categorys');"><input type="checkbox" th:checked="${#lists.contains(listColums,'categorys')}?'checked':'false'" id="ch_categorys"></td>
 												<td class="numeric">品牌</td>
-												<td class="numeric" onclick="return selectColumn('brand');"><input type="checkbox" id="ch_brand"></td>
+												<td class="numeric" onclick="return selectColumn('brand');"><input type="checkbox" th:checked="${#lists.contains(listColums,'brand')}?'checked':'false'" id="ch_brand"></td>
                                             </tr>
                                             <tr>
                                                 <td class="numeric">联系人</td>
-                                           	    <td class="numeric" onclick="return selectColumn('contact');"><input type="checkbox" id="ch_contact"></td>
+                                           	    <td class="numeric" onclick="return selectColumn('contact');"><input type="checkbox" th:checked="${#lists.contains(listColums,'contact')}?'checked':'false'" id="ch_contact"></td>
 												<td class="numeric">联系电话</td>
-												<td class="numeric" onclick="return selectColumn('contactNumber');"><input type="checkbox" id="ch_contactNumber"></td>
+												<td class="numeric" onclick="return selectColumn('contactNumber');"><input type="checkbox" th:checked="${#lists.contains(listColums,'contactNumber')}?'checked':'false'" id="ch_contactNumber"></td>
                                             </tr>
                                             <tr>
                                                 <td class="numeric">qq</td>
-                                                <td class="numeric" onclick="return selectColumn('qq');"><input type="checkbox" id="ch_qq"></td>
+                                                <td class="numeric" onclick="return selectColumn('qq');"><input type="checkbox" th:checked="${#lists.contains(listColums,'qq')}?'checked':'false'" id="ch_qq"></td>
 												<td class="numeric">微信</td>
-												<td class="numeric" onclick="return selectColumn('wechat');"><input type="checkbox" id="ch_wechat"></td>
+												<td class="numeric" onclick="return selectColumn('wechat');"><input type="checkbox" th:checked="${#lists.contains(listColums,'wechat')}?'checked':'false'" id="ch_wechat"></td>
                                             </tr>
                                             <tr>
                                                 <td class="numeric">邮箱</td>
-                                                <td class="numeric" onclick="return selectColumn('email');"><input type="checkbox" id="ch_email"></td>
+                                                <td class="numeric" onclick="return selectColumn('email');"><input type="checkbox" th:checked="${#lists.contains(listColums,'email')}?'checked':'false'" id="ch_email"></td>
 												<td class="numeric">供应商地址</td>
-												<td class="numeric" onclick="return selectColumn('address');"><input type="checkbox" id="ch_address"></td>
+												<td class="numeric" onclick="return selectColumn('address');"><input type="checkbox" th:checked="${#lists.contains(listColums,'address')}?'checked':'false'" id="ch_address"></td>
                                             </tr>
                                             <tr>
                                                 <td class="numeric">介绍人</td>
-                                                <td class="numeric" onclick="return selectColumn('introducer');"><input type="checkbox" id="ch_introducer"></td>
+                                                <td class="numeric" onclick="return selectColumn('introducer');"><input type="checkbox" th:checked="${#lists.contains(listColums,'introducer')}?'checked':'false'" id="ch_introducer"></td>
 												<td class="numeric">产品质量</td>
-												<td class="numeric" onclick="return selectColumn('productQuality');"><input type="checkbox" id="ch_productQuality"></td>
+												<td class="numeric" onclick="return selectColumn('productQuality');"><input type="checkbox" th:checked="${#lists.contains(listColums,'productQuality')}?'checked':'false'" id="ch_productQuality"></td>
                                             </tr>
                                             <tr>
                                                 <td class="numeric">价格</td>
-                                                <td class="numeric" onclick="return selectColumn('price');"><input type="checkbox" id="ch_price"></td>
+                                                <td class="numeric" onclick="return selectColumn('price');"><input type="checkbox" th:checked="${#lists.contains(listColums,'price')}?'checked':'false'" id="ch_price"></td>
 												<td class="numeric">供货期</td>
-												<td class="numeric" onclick="return selectColumn('supplyPeriod');"><input type="checkbox" id="ch_supplyPeriod"></td>
+												<td class="numeric" onclick="return selectColumn('supplyPeriod');"><input type="checkbox" th:checked="${#lists.contains(listColums,'supplyPeriod')}?'checked':'false'" id="ch_supplyPeriod"></td>
                                             </tr>
                                             <tr>
                                                 <td class="numeric">付款条件</td>
-                                                <td class="numeric" onclick="return selectColumn('payMent');"><input type="checkbox" id="ch_payMent"></td>
+                                                <td class="numeric" onclick="return selectColumn('payMent');"><input type="checkbox" th:checked="${#lists.contains(listColums,'payMent')}?'checked':'false'" id="ch_payMent"></td>
 												<td class="numeric">售后服务</td>
-												<td class="numeric" onclick="return selectColumn('afterSaleService');"><input type="checkbox" id="ch_afterSaleService"></td>
+												<td class="numeric" onclick="return selectColumn('afterSaleService');"><input type="checkbox" th:checked="${#lists.contains(listColums,'afterSaleService')}?'checked':'false'" id="ch_afterSaleService"></td>
                                             </tr>
                                            
                                         </tbody>

@@ -41,7 +41,7 @@ public class ColumnTest {
 //		private List<String> showColumns;//显示列
 
 		
-		BasicDataResult result = this.columnService.editColumns("supplier", "name");
+		BasicDataResult result = this.columnService.editColumns("supplier", "name",true);
 		
 	}
 

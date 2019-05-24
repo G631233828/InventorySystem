@@ -18,17 +18,16 @@ function selectColumn(o) {
 	var th = "."+o;
 	var flag = $(td).is(':checked');
 	flag = flag == false ? true : false;
+	$(td).prop("checked", flag);
 
-	alert(flag)
-	
-		$.ajax({
+	$.ajax({
 		type : 'GET',
 		url : 'supplier/columns',
-		data :  "column=" + o,
+		data :  "column=" + o+"&flag="+flag,
 		dataType : 'json',
 		success : function(data) {
 				if(data.status == 200){
-					$(td).prop("checked", flag);
+					//$(td).attr("checked":flag);
 					if(flag){
 						$(th).show();
 					}else{
@@ -36,7 +35,8 @@ function selectColumn(o) {
 					}
 				}
 			}
-		}
+		})
+		
 	
 
 }

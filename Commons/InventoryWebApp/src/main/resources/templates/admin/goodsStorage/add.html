@@ -73,7 +73,7 @@
 												<label class="col-lg-1 control-label">所属企业：</label>
 												<div class="col-lg-6">
 													<div class="ui-select">
-														<select id="companys" name="companys.id"
+														<select id="companys" name="companys.id" required="required"
 															class="form-control">
 															<option value="">---请选择所属企业---</option>
 															<option th:if="${company!=null}" th:value="${company.id}"
@@ -103,7 +103,7 @@
 												</div>
 											</div>
 	
-											<input type="text" id="oldshelflevel" th:value="${goodsStorage?.shelflevel}">
+											<input type="hidden" id="oldshelflevel" th:value="${goodsStorage?.shelflevel}">
 											<div class="form-group">
 												<label class="col-lg-1 control-label">货架层：</label>
 												<div class="col-lg-6">

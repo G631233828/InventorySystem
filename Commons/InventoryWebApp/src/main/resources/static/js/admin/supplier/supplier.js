@@ -2,13 +2,12 @@
 $().ready(function() {
 		$("#commentForm").validate();
 		var a = "<i class='fa fa-times-circle'></i> ";
-		$("#systemClassificationForm").validate({
+		$("#supplierForm").validate({
 			rules : {
 				name : {
 					required : true,
-					minlength : 2,
 					remote : {
-						url : getRootPath() + "/systemClassification/ajaxgetRepletes",
+						url : getRootPath() + "/supplier/ajaxgetRepletes",
 						type : "POST",
 						data : {
 							name : function() {
@@ -32,16 +31,21 @@ $().ready(function() {
 				},
 				upload : {
 					required : true
+				},
+				"systemClassification.id" : {
+					required : true
 				}
 			},
 			messages : {
 				name : {
-					required : a + "请输入分类名称",
-					minlength : a + "分类名称长度至少是2个",
-					remote : a + "当前分类已经存在！"
+					required : a + "请输入供应商名称",
+					remote : a + "当前供应商已经存在！"
 				},
 				upload : {
 					required : a+ "导入文件不能为空！"
+				},
+				"systemClassification.id" : {
+					required : a+ "请选择系统分类"
 				}
 				
 			}

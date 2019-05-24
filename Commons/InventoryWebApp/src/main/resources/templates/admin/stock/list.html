@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+
+<head th:include="public/public_css::pub_css"></head>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" type="text/css"
+	th:href="@{/assets/js/progress-bar/number-pb.css}">
+<link th:href="@{/plugs/sweetalert/sweetalert.css}" rel="stylesheet">
+</head>
+
+<body>
+	<!-- Preloader -->
+	<div id="preloader">
+		<div id="status">&nbsp;</div>
+	</div>
+	<!-- TOP NAVBAR -->
+	<div th:replace="public/public::top"></div>
+	<!-- /END OF TOP NAVBAR -->
+
+	<!-- SIDE MENU -->
+	<div th:replace="public/public::left(activeUri='stock')"></div>
+	<!-- END OF SIDE MENU -->
+
+	<!--  PAPER WRAP -->
+	<div class="wrap-fluid">
+		<div class="container-fluid paper-wrap bevel tlbr">
+
+
+			<!-- CONTENT -->
+			<!--TITLE -->
+			<div th:replace="public/public::title"></div>
+			<!--/ TITLE -->
+
+			<!-- BREADCRUMB -->
+			<div th:replace="public/public::menu"></div>
+			<!-- END OF BREADCRUMB -->
+
+
+			<div class="content-wrap">
+				<div class="row">
+
+
+					<div class="col-sm-12">
+						<div class="body-nest" id="alert" th:if="${errorImport!=''}">
+							<div class="alert alert-danger">
+								<button data-dismiss="alert" class="close" type="button">×</button>
+								<th:block th:utext="${errorImport}">
+								</th:block>
+							</div>
+
+						</div>
+						<div class="nest" id="tableStaticClose">
+
+							<div class="title-alt">
+								<div class="row">
+									<div class="col-sm-6">
+										<shiro:hasPermission name="stock:add">
+											<button class="btn btn-default btn-sm"
+												th:onclick="|window.location.href='@{/stock}'|">
+												<i class="glyphicon glyphicon-plus"> </i> 添加
+											</button>
+										</shiro:hasPermission>
+
+										<shiro:hasPermission name="stock:edit">
+											<button class="btn btn-primary btn-sm"
+												onclick="return toeditPage('','stock')">
+												<i class="fa fa-edit"> </i>编辑
+											</button>
+										</shiro:hasPermission>
+
+										<shiro:hasPermission name="stock:delete">
+											<button class="btn btn-danger btn-sm"
+												th:onclick="|return del('','@{/stock/}')|">
+												<i class="fa fa-trash-o"> </i>删除
+											</button>
+										</shiro:hasPermission>
+
+										<shiro:hasPermission name="stock:batch">
+											<button class="btn btn-success" onclick="return batchImput()">
+												<i class="fontawesome-upload"> </i>批量导入
+											</button>
+										</shiro:hasPermission>
+																						
+										<button class="btn btn-default" onclick="return showColumn()">
+												<i class="fontawesome-upload"> </i>显示列
+											</button>
+
+
+									</div>
+									<div class="col-sm-6"></div>
+
+								</div>
+
+
+							</div>
+
+							<!-- 搜索  下拉  start-->
+							<!-- 	<div class="mail_header">
+								<div class="col-sm-6">
+									<div class="row" style="margin-bottom: 10px;">
+									
+										<div class="col-sm-2">
+										<select class="filter-status form-control">
+												<option value="10">10
+												<option value="25">25
+												<option value="50">50
+												<option value="100">100
+											</select>
+										</div>
+										<div class="col-sm-3">
+											<input class="form-control" id="filter"
+												placeholder="查找类目..." type="text">
+										
+											
+										</div>
+									</div>
+								</div>
+							</div> -->
+							<!-- 搜索  下拉  end-->
+
+
+
+							<div class="body-nest" id="tableStatic">
+
+								<section id="flip-scroll">
+									<div
+										style="overflow-y: auto; overflow-x: auto; white-space: nowrap; text-overflow: ellipsis;">
+										<table
+											class="table table-bordered table-striped cf text-nowrap ">
+											<thead class="cf">
+												<tr>
+													<th class="numeric" style="width: 20px;">
+														<div class="checkbox checkbox-inline"
+															style="margin-top: 0px;">
+															<input type="checkbox" id="checkall" name="checkall" />
+															<label for="checkall"></label>
+														</div>
+													</th>
+													<th class="numeric name"  th:style="${#lists.contains(listColums,'name')}?'':'display:none;'" >设备名称</th>
+													<th class="numeric model" th:style="${#lists.contains(listColums,'model')}?'':'display:none;'">设备型号</th>
+													<th class="numeric scope" th:style="${#lists.contains(listColums,'scope')}?'':'display:none;'">使用范围</th>
+													<th class="numeric brand" th:style="${#lists.contains(listColums,'brand')}?'':'display:none;'">品牌</th>
+													<th class="numeric goodsStorage" th:style="${#lists.contains(listColums,'goodsStorage')}?'':'display:none;'">货架号/层</th>
+													<th class="numeric price" th:style="${#lists.contains(listColums,'price')}?'':'display:none;'">单价</th>
+													<th class="numeric maintenance" th:style="${#lists.contains(listColums,'maintenance')}?'':'display:none;'">维保</th>
+													<th class="numeric supplier" th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'">供应商</th>
+													<th class="numeric inventory" th:style="${#lists.contains(listColums,'inventory')}?'':'display:none;'">库存量</th>
+													<th class="numeric">使用状态</th>
+													<th class="numeric">操作</th>
+												</tr>
+											</thead>
+											<tbody>
+												<!-- 目录 -->
+												<th:block th:each="stock:${pageList.datas}">
+													<tr>
+														<td class="numeric">
+															<div class="checkbox checkbox-inline"
+																style="margin-top: 0px;">
+																<input type="checkbox" name="ids" th:id="${stock.id}"
+																	class="numeric" th:value="${stock.id}"> <label
+																	th:for="${stock.id}"></label>
+															</div>
+														</td>
+
+														<td class="numeric name" id="name" th:style="${#lists.contains(listColums,'name')}?'':'display:none;'">[[${stock?.name}]]</td>
+														<td class="numeric model" id="model" th:style="${#lists.contains(listColums,'model')}?'':'display:none;'">[[${stock?.model}]]</td>
+														<td class="numeric scope" id="scope" th:style="${#lists.contains(listColums,'scope')}?'':'display:none;'">[[${stock?.scope}]]</td>
+														<td class="numeric goodsStorage" id="goodsStorage" th:style="${#lists.contains(listColums,'goodsStorage')}?'':'display:none;'">[[${stock?.goodsStorage?.shelfNumber}/${stock?.goodsStorage?.shelflevel}]]</td>
+														<td class="numeric price" id="price" th:style="${#lists.contains(listColums,'price')}?'':'display:none;'">[[${stock?.price}]]</td>
+														<td class="numeric maintenance" id="maintenance" th:style="${#lists.contains(listColums,'maintenance')}?'':'display:none;'">[[${stock?.maintenance}]]</td>
+														<td class="numeric supplier" id="supplier" th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'">[[${stock?.supplier?.name}]]</td>
+														<td class="numeric email" id="email" th:style="${#lists.contains(listColums,'email')}?'':'display:none;'">[[${stock?.email}]]</td>
+														<td class="numeric inventory" id="inventory" th:style="${#lists.contains(listColums,'inventory')}?'':'display:none;'">[[${stock?.inventory}]]</td>
+														<td class="numeric" th:id="disBtn+${stock.id}"
+															th:utext="${stock.isDisable eq true }?|<button type='button' onclick=toDisable('${stock.id}','stock') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${stock.id}','stock') class='btn btn-success'>启用</button>|"></td>
+														<td class="numeric">
+															<!-- <shiro:hasPermission
+															name="stock:edit"> -->
+															<button class="btn btn-primary btn-xs"
+																th:onclick="|return toeditPage('${stock.id}','stock')|">
+																<i class="fa fa-edit"> </i>编辑
+															</button> <!-- </shiro:hasPermission> <shiro:hasPermission name="stock:delete"> -->
+															<button class="btn btn-danger btn-xs"
+																th:onclick="|return del('@{/stock/}${stock.id}','')|">
+																<i class="fa fa-trash-o"> </i>删除
+															</button> <!-- </shiro:hasPermission></td> -->
+													</tr>
+													<!-- 菜单 -->
+												</th:block>
+
+
+											</tbody>
+										</table>
+									</div>
+									<form method="post" id="deleteForm">
+										<input name="_method" value="delete" type="hidden">
+									</form>
+
+									<div class="row">
+
+										<div class="col-md-12">
+											<div class="col-md-6">
+												<div class="dataTables_info hidden-xs"
+													style="margin-top: 0px;" role="status" aria-live="polite"
+													th:text="|每页显示${pageList.pageSize}行
+										－ 当前页${pageList.pageNo}页 － 共${pageList.totalPage}页|"></div>
+											</div>
+											<div class="col-md-6">
+												<ul class="pagination pagination-split pull-right"
+													style="margin-top: 0px;">
+													<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
+														th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/stocks?pageNo=}+${pageList.upPage}">上一页</a>
+													</li>
+													<li th:each="page:${pageList.navigatepageNums}"
+														th:class="${page  == pageList.pageNo}?active:''"><a
+														th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/stocks?pageNo=}+${page}">[[${page}]]</a>
+													</li>
+													<li
+														th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
+														<a
+														th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/stocks?pageNo=}+${pageList.nextPage}">下一页</a>
+													</li>
+												</ul>
+											</div>
+										</div>
+
+										<!-- 分页结束 -->
+									</div>
+
+								</section>
+
+							</div>
+
+						</div>
+
+
+					</div>
+
+				</div>
+			</div>
+
+			<div th:replace="public/public::myModal"></div>
+			<div th:replace="admin/stock/batch::mybatch"></div>
+			<div th:replace="admin/stock/column::mycolumn"></div>
+		</div>
+	</div>
+	<!-- 引入stocklist.js -->
+	<script type="text/javascript" th:inline="javascript"
+		th:src="@{/js/admin/stock/stocklist.js}"></script>
+	<!--  END OF PAPER WRAP -->
+	<script type="text/javascript"
+		th:src="@{/plugs/prettyfile/bootstrap-prettyfile.js}"></script>
+	<!-- 右侧隐藏菜单start -->
+	<div th:replace="public/public::right"></div>
+	<!-- 右侧隐藏菜单end-->
+	<!-- 底部js -->
+	<div th:replace="public/public_js::pub_js"></div>
+	<div th:replace="public/public_js::public_script"></div>
+	<div th:replace="public/public::footer"></div>
+	<!-- Sweet alert -->
+	<script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
+
+
+</body>
+
+</html>

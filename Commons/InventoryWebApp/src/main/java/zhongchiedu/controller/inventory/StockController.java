@@ -29,90 +29,85 @@ import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.inventory.pojo.Brand;
 import zhongchiedu.inventory.pojo.Category;
+import zhongchiedu.inventory.pojo.GoodsStorage;
+import zhongchiedu.inventory.pojo.Stock;
 import zhongchiedu.inventory.pojo.Supplier;
 import zhongchiedu.inventory.pojo.SystemClassification;
 import zhongchiedu.inventory.service.Impl.BrandServiceImpl;
 import zhongchiedu.inventory.service.Impl.CategoryServiceImpl;
 import zhongchiedu.inventory.service.Impl.ColumnServiceImpl;
+import zhongchiedu.inventory.service.Impl.GoodsStorageServiceImpl;
+import zhongchiedu.inventory.service.Impl.StockServiceImpl;
 import zhongchiedu.inventory.service.Impl.SupplierServiceImpl;
 import zhongchiedu.inventory.service.Impl.SystemClassificationServiceImpl;
 import zhongchiedu.log.annotation.SystemControllerLog;
 
 /**
- * 供应商
+ * 设备
  * 
  * @author fliay
  *
  */
 @Controller
 @Slf4j
-public class SupplierController {
+public class StockController {
 
 	
-	private @Autowired SupplierServiceImpl supplierService;
-
+	private @Autowired StockServiceImpl stockService;
 	
-	private @Autowired CategoryServiceImpl categoryServiceImpl;
-	
-	
-	private @Autowired SystemClassificationServiceImpl systemClassificationService;
-	
-	private @Autowired BrandServiceImpl brandService;
-
 	private @Autowired ColumnServiceImpl columnService;
 	
+	private @Autowired GoodsStorageServiceImpl goodsStorageService;
+	
+	private @Autowired SupplierServiceImpl supplierService;
 	
 	
 	
 	
-	@GetMapping("suppliers")
-	@RequiresPermissions(value = "supplier:list")
-	@SystemControllerLog(description = "查询所有供应商信息")
+	@GetMapping("stocks")
+	@RequiresPermissions(value = "stock:list")
+	@SystemControllerLog(description = "查询所有设备信息")
 	public String list(@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
 			@RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize, HttpSession session,
 			@ModelAttribute("errorImport") String errorImport) {
 		model.addAttribute("errorImport", errorImport);
-		Pagination<Supplier> pagination = this.supplierService.findpagination(pageNo, pageSize);
+		Pagination<Stock> pagination = this.stockService.findpagination(pageNo, pageSize);
 		model.addAttribute("pageList", pagination);
-		List<String> listColums = this.columnService.findColumns("supplier");
+		List<String> listColums = this.columnService.findColumns("stock");
 		model.addAttribute("listColums",listColums);
 		
-		return "admin/supplier/list";
+		return "admin/stock/list";
 	}
 
 	/**
 	 * 跳转到添加页面
 	 */
-	@GetMapping("/supplier")
-	@RequiresPermissions(value = "supplier:add")
+	@GetMapping("/stock")
+	@RequiresPermissions(value = "stock:add")
 	public String addPage(Model model) {
-		List<Category> list = this.categoryServiceImpl.findAllCategory(false);
-		model.addAttribute("categorys", list);
-		
-		//所有系统分类
-		List<SystemClassification> syslist = this.systemClassificationService.findAllSystemClassification(false);
+		//所有货架
+		List<GoodsStorage> list = this.goodsStorageService.findAllGoodsStorage(false);
+		model.addAttribute("goodsStorages", list);
+		//所有供应商
+		List<Supplier> syslist = this.supplierService.findAllSupplier(false);
 		model.addAttribute("systemClassifications", syslist);
-		//所有品牌
-		List<Brand> brandlist = this.brandService.findAllBrand(false);
-		model.addAttribute("brands", brandlist);
-		
-		return "admin/supplier/add";
+		return "admin/stock/add";
 	}
 
-	@PostMapping("/supplier")
-	@RequiresPermissions(value = "supplier:add")
-	@SystemControllerLog(description = "添加供应商")
-	public String addUser(@ModelAttribute("supplier") Supplier supplier,String types) {
-		this.supplierService.saveOrUpdate(supplier,types);
-		return "redirect:suppliers";
+	@PostMapping("/stock")
+	@RequiresPermissions(value = "stock:add")
+	@SystemControllerLog(description = "添加设备")
+	public String addUser(@ModelAttribute("stock") Stock stock) {
+		this.stockService.saveOrUpdate(stock);
+		return "redirect:stocks";
 	}
 
-	@PutMapping("/supplier")
-	@RequiresPermissions(value = "supplier:edit")
-	@SystemControllerLog(description = "修改供应商")
-	public String edit(@ModelAttribute("supplier") Supplier supplier,String types) {
-		this.supplierService.saveOrUpdate(supplier,types);
-		return "redirect:suppliers";
+	@PutMapping("/stock")
+	@RequiresPermissions(value = "stock:edit")
+	@SystemControllerLog(description = "修改设备")
+	public String edit(@ModelAttribute("stock") Stock stock) {
+		this.stockService.saveOrUpdate(stock);
+		return "redirect:stocks";
 	}
 
 	/**
@@ -120,36 +115,31 @@ public class SupplierController {
 	 * 
 	 * @return
 	 */
-	@GetMapping("/supplier{id}")
-	@RequiresPermissions(value = "supplier:edit")
-	@SystemControllerLog(description = "编辑供应商")
+	@GetMapping("/stock{id}")
+	@RequiresPermissions(value = "stock:edit")
+	@SystemControllerLog(description = "编辑设备")
 	public String toeditPage(@PathVariable String id, Model model) {
-		Supplier supplier = this.supplierService.findOneById(id,
-				Supplier.class);
-		model.addAttribute("supplier", supplier);
-		Object[] selectcategorys = this.supplierService.categorys(supplier);
-		model.addAttribute("selectcategorys", selectcategorys);
-		List<Category> list = this.categoryServiceImpl.findAllCategory(false);
-		model.addAttribute("categorys", list);
-		//所有系统分类
-		List<SystemClassification> syslist = this.systemClassificationService.findAllSystemClassification(false);
+		Stock stock = this.stockService.findOneById(id, Stock.class);
+		model.addAttribute("stock", stock);
+		//所有货架
+		List<GoodsStorage> list = this.goodsStorageService.findAllGoodsStorage(false);
+		model.addAttribute("goodsStorages", list);
+		//所有供应商
+		List<Supplier> syslist = this.supplierService.findAllSupplier(false);
 		model.addAttribute("systemClassifications", syslist);
-		//所有品牌
-		List<Brand> brandlist = this.brandService.findAllBrand(false);
-		model.addAttribute("brands", brandlist);
 		
-		return "admin/supplier/add";
+		return "admin/stock/add";
 
 	}
 
-	@DeleteMapping("/supplier/{id}")
-	@RequiresPermissions(value = "supplier:delete")
-	@SystemControllerLog(description = "删除供应商")
+	@DeleteMapping("/stock/{id}")
+	@RequiresPermissions(value = "stock:delete")
+	@SystemControllerLog(description = "删除设备")
 	public String delete(@PathVariable String id) {
-		log.info("删除供应商" + id);
-		this.supplierService.delete(id);
-		log.info("删除供应商" + id + "成功");
-		return "redirect:/suppliers";
+		log.info("删除设备" + id);
+		this.stockService.delete(id);
+		log.info("删除设备" + id + "成功");
+		return "redirect:/stocks";
 	}
 
 	/**
@@ -159,16 +149,16 @@ public class SupplierController {
 	 * @param session
 	 * @param response
 	 */
-	@RequestMapping(value = "/supplier/ajaxgetRepletes", method = RequestMethod.POST)
+	@RequestMapping(value = "/stock/ajaxgetRepletes", method = RequestMethod.POST)
 	@ResponseBody
 	public BasicDataResult ajaxgetRepletes(@RequestParam(value = "name", defaultValue = "") String name) {
-		return this.supplierService.ajaxgetRepletes(name);
+		return this.stockService.ajaxgetRepletes(name);
 	}
 
-	@RequestMapping(value = "/supplier/disable", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@RequestMapping(value = "/stock/disable", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public BasicDataResult toDisable(@RequestParam(value = "id", defaultValue = "") String id) {
-		return this.supplierService.todisable(id);
+		return this.stockService.todisable(id);
 	}
 
 	/**
@@ -179,10 +169,10 @@ public class SupplierController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/supplier/download")
-	@SystemControllerLog(description = "下载供应商信息导入模版")
+	@RequestMapping(value = "/stock/download")
+	@SystemControllerLog(description = "下载设备信息导入模版")
 	public ModelAndView download(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		String storeName = "供应商信息模版.xlsx";
+		String storeName = "设备信息模版.xlsx";
 		String contentType = "application/octet-stream";
 		String UPLOAD = "Templates/";
 		FileOperateUtil.download(request, response, storeName, contentType, UPLOAD);
@@ -196,14 +186,14 @@ public class SupplierController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/supplier/upload")
-	@SystemControllerLog(description = "批量导入供应商信息")
-	@RequiresPermissions(value = "supplier:batch")
+	@RequestMapping(value = "/stock/upload")
+	@SystemControllerLog(description = "批量导入设备信息")
+	@RequiresPermissions(value = "stock:batch")
 	public ModelAndView upload(HttpServletRequest request, HttpSession session, RedirectAttributes attr) {
 		log.info("开始上传文件");
 		ModelAndView modelAndView = new ModelAndView();
-		modelAndView.setViewName("redirect:/suppliers");
-		String error = this.supplierService.upload(request, session);
+		modelAndView.setViewName("redirect:/stocks");
+		String error = this.stockService.upload(request, session);
 		attr.addFlashAttribute("errorImport", error);
 		return modelAndView;
 
@@ -217,19 +207,19 @@ public class SupplierController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/supplier/uploadprocess")
+	@RequestMapping(value = "/stock/uploadprocess")
 	@ResponseBody
 	public Object process(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		return this.supplierService.findproInfo(request);
+		return this.stockService.findproInfo(request);
 	}
 	
 	
 	
-	@RequestMapping(value = "/supplier/columns", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+	@RequestMapping(value = "/stock/columns", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public BasicDataResult editColumns(@RequestParam(value = "column", defaultValue = "") String column,@RequestParam(value = "flag", defaultValue = "") boolean flag) {
 		//TODO请求没有提交过来明天debug一下
-		return this.columnService.editColumns("supplier", column,flag);
+		return this.columnService.editColumns("stock", column,flag);
 	}
 	
 	

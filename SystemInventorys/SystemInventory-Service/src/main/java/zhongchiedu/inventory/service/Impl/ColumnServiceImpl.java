@@ -21,12 +21,20 @@ public class ColumnServiceImpl extends GeneralServiceImpl<Column> implements Col
 	public List<String> findColumns(String name) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("name").is(name));
-		List<String> list = this.findOneByQuery(query, Column.class).getColumns();
-		return list;
+		Column column = this.findOneByQuery(query, Column.class);
+		if(Common.isNotEmpty(column)){
+			return column.getColumns();
+		}else{
+			List<String> list = new ArrayList();
+			list.add("name");
+			return list;
+		}
+		
+		
 	}
 
 	@Override
-	public BasicDataResult editColumns(String name,String showcolumn) {
+	public BasicDataResult editColumns(String name,String showcolumn,boolean flag) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("name").is(name));
 		Column column = this.findOneByQuery(query, Column.class);
@@ -43,9 +51,12 @@ public class ColumnServiceImpl extends GeneralServiceImpl<Column> implements Col
 			//更新
 			List<String> list = column.getColumns();
 			if(list.contains(showcolumn)){
-				return BasicDataResult.build(200, "修改成功", showcolumn);
+				if(!flag){
+					list.remove(showcolumn);
+				}
+			}else{
+				list.add(showcolumn);
 			}
-			list.add(showcolumn);
 			column.setColumns(list);
 			this.save(column);
 			return BasicDataResult.build(200, "修改成功", showcolumn);
