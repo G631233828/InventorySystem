@@ -54,6 +54,10 @@
 												<td class="numeric">库存量</td>
 												<td class="numeric" onclick="return selectColumn('inventory');"><input type="checkbox" th:checked="${#lists.contains(listColums,'inventory')}?'checked':'false'" id="ch_inventory"></td>
                                             </tr>
+                                            <tr>
+                                                <td class="numeric">计量单位</td>
+                                                <td class="numeric" onclick="return selectColumn('unit');"><input type="checkbox" th:checked="${#lists.contains(listColums,'unit')}?'checked':'false'" id="ch_unit"></td>
+                                            </tr>
                                            
                                         </tbody>
                                     </table>

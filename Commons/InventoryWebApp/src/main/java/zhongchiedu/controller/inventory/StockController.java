@@ -27,19 +27,15 @@ import lombok.extern.slf4j.Slf4j;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.framework.pagination.Pagination;
-import zhongchiedu.inventory.pojo.Brand;
-import zhongchiedu.inventory.pojo.Category;
 import zhongchiedu.inventory.pojo.GoodsStorage;
 import zhongchiedu.inventory.pojo.Stock;
 import zhongchiedu.inventory.pojo.Supplier;
-import zhongchiedu.inventory.pojo.SystemClassification;
-import zhongchiedu.inventory.service.Impl.BrandServiceImpl;
-import zhongchiedu.inventory.service.Impl.CategoryServiceImpl;
+import zhongchiedu.inventory.pojo.Unit;
 import zhongchiedu.inventory.service.Impl.ColumnServiceImpl;
 import zhongchiedu.inventory.service.Impl.GoodsStorageServiceImpl;
 import zhongchiedu.inventory.service.Impl.StockServiceImpl;
 import zhongchiedu.inventory.service.Impl.SupplierServiceImpl;
-import zhongchiedu.inventory.service.Impl.SystemClassificationServiceImpl;
+import zhongchiedu.inventory.service.Impl.UnitServiceImpl;
 import zhongchiedu.log.annotation.SystemControllerLog;
 
 /**
@@ -61,12 +57,14 @@ public class StockController {
 	
 	private @Autowired SupplierServiceImpl supplierService;
 	
+	private @Autowired UnitServiceImpl unitService;
+	
 	
 	
 	
 	@GetMapping("stocks")
 	@RequiresPermissions(value = "stock:list")
-	@SystemControllerLog(description = "查询所有设备信息")
+	@SystemControllerLog(description = "查询所有库存管理")
 	public String list(@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
 			@RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize, HttpSession session,
 			@ModelAttribute("errorImport") String errorImport) {
@@ -75,7 +73,6 @@ public class StockController {
 		model.addAttribute("pageList", pagination);
 		List<String> listColums = this.columnService.findColumns("stock");
 		model.addAttribute("listColums",listColums);
-		
 		return "admin/stock/list";
 	}
 
@@ -90,7 +87,12 @@ public class StockController {
 		model.addAttribute("goodsStorages", list);
 		//所有供应商
 		List<Supplier> syslist = this.supplierService.findAllSupplier(false);
-		model.addAttribute("systemClassifications", syslist);
+		model.addAttribute("suppliers", syslist);
+		//计量单位
+		List<Unit> listUnits = this.unitService.findAllUnit(false);
+		model.addAttribute("units", listUnits);
+		
+		
 		return "admin/stock/add";
 	}
 
@@ -126,8 +128,10 @@ public class StockController {
 		model.addAttribute("goodsStorages", list);
 		//所有供应商
 		List<Supplier> syslist = this.supplierService.findAllSupplier(false);
-		model.addAttribute("systemClassifications", syslist);
-		
+		model.addAttribute("suppliers", syslist);
+		//计量单位
+		List<Unit> listUnits = this.unitService.findAllUnit(false);
+		model.addAttribute("units", listUnits);
 		return "admin/stock/add";
 
 	}
@@ -170,9 +174,9 @@ public class StockController {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/stock/download")
-	@SystemControllerLog(description = "下载设备信息导入模版")
+	@SystemControllerLog(description = "下载库存管理导入模版")
 	public ModelAndView download(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		String storeName = "设备信息模版.xlsx";
+		String storeName = "库存管理模版.xlsx";
 		String contentType = "application/octet-stream";
 		String UPLOAD = "Templates/";
 		FileOperateUtil.download(request, response, storeName, contentType, UPLOAD);
@@ -187,7 +191,7 @@ public class StockController {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/stock/upload")
-	@SystemControllerLog(description = "批量导入设备信息")
+	@SystemControllerLog(description = "批量导入库存管理")
 	@RequiresPermissions(value = "stock:batch")
 	public ModelAndView upload(HttpServletRequest request, HttpSession session, RedirectAttributes attr) {
 		log.info("开始上传文件");
@@ -235,3 +239,7 @@ public class StockController {
 	
 
 }
+
+
+
+

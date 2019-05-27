@@ -22,7 +22,7 @@ function selectColumn(o) {
 
 	$.ajax({
 		type : 'GET',
-		url : 'supplier/columns',
+		url : 'stock/columns',
 		data :  "column=" + o+"&flag="+flag,
 		dataType : 'json',
 		success : function(data) {
@@ -54,7 +54,7 @@ $(document)
 												$
 														.ajax({
 															type : 'GET',
-															url : 'supplier/uploadprocess',
+															url : 'stock/uploadprocess',
 															data : {},
 															dataType : 'json',
 															success : function(

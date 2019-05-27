@@ -4,7 +4,7 @@
 <head th:include="public/public_css::pub_css"></head>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<link rel="stylesheet" th:href="@{/assets/css/bootstrap-select.css}">
+<!-- <link rel="stylesheet" th:href="@{/assets/css/bootstrap-select.css}"> -->
 </head>
 
 <body>
@@ -17,7 +17,7 @@
 	<!-- /END OF TOP NAVBAR -->
 
 	<!-- SIDE MENU -->
-	<div th:replace="public/public::left(activeUri='basic')"></div>
+	<div th:replace="public/public::left(activeUri='stock')"></div>
 	<!-- END OF SIDE MENU -->
 
 	<!--  PAPER WRAP -->
@@ -63,19 +63,21 @@
 									<!-- edit form column -->
 									<div class="col-md-12 personal-info">
 										<form class="form-horizontal" enctype="multipart/form-data"
-											id="supplierForm" th:action="@{/supplier}" method="post">
+											id="stockForm" th:action="@{/stock}" method="post">
 											<input type="hidden" name="_method" value="put"
-												th:if="${supplier!=null}" /> <input type="hidden" name="id"
-												th:if="${supplier!=null}" th:value="${supplier.id}">
-											<input type="hidden" id="oldname"
-												th:value="${supplier?.name}">
+												th:if="${stock!=null}" /> <input type="hidden" name="id"
+												th:if="${stock!=null}" th:value="${stock.id}"> <input
+												type="hidden" id="oldname" th:value="${stock?.name}">
+
+
+
+
 
 											<div class="form-group">
 												<label class="col-lg-1 control-label">设备名称：</label>
 												<div class="col-lg-6">
 													<input class="form-control" id="name" placeholder="请输入设备名称"
-														name="name" th:value="${stock?.name}"
-														required="required">
+														name="name" th:value="${stock?.name}" required="required">
 												</div>
 											</div>
 											<div class="form-group">
@@ -103,10 +105,10 @@
 														class="form-control" required="required">
 														<option value="">---请选择存放货架---</option>
 														<option
-															th:selected="${stock!=null && stock.goodsStorage !=null}?${stock.goodsStorage.id}==${stock.id}"
+															th:selected="${stock!=null && stock?.goodsStorage !=null}?${stock?.goodsStorage?.id}==${goodsStorage?.id}"
 															th:each="goodsStorage:${goodsStorages}"
-															th:value="${goodsStorage.id}"
-															th:text="${goodsStorage.shelfNumber}/${goodsStorage.shelflevel}"></option>
+															th:value="${goodsStorage?.id}"
+															th:text="|${goodsStorage?.shelfNumber}/${goodsStorage?.shelflevel}|"></option>
 													</select>
 												</div>
 											</div>
@@ -120,15 +122,30 @@
 														th:value="${stock?.price}" required="required">
 												</div>
 											</div>
-											
+											 
 											<div class="form-group">
-												<label class="col-lg-1 control-label">剩余库存：</label>
+												<label class="col-lg-1 control-label">计量单位：</label>
 												<div class="col-lg-6">
-													<input class="form-control"  disabled="disabled"
-														th:value="${stock?.inventory}">
+													<select id="unit" name="unit.id"
+														class="form-control" required="required">
+														<option value="">---请选择设备计量单位---</option>
+														<option
+															th:selected="${stock!=null && stock?.unit !=null}?${stock?.unit?.id}==${unit?.id}"
+															th:each="unit:${units}"
+															th:value="${unit?.id}" th:text="${unit?.name}"></option>
+													</select>
 												</div>
 											</div>
 											
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label">剩余库存：</label>
+												<div class="col-lg-6">
+													<input class="form-control" disabled="disabled"
+														th:value="${stock?.inventory}">
+												</div>
+											</div>
+
 											<div class="form-group">
 												<label class="col-lg-1 control-label">维保：</label>
 												<div class="col-lg-6">
@@ -139,34 +156,35 @@
 											</div>
 
 
-										<div class="form-group">
-												<label class="col-lg-1 control-label">货架号/层：</label>
+											<div class="form-group">
+												<label class="col-lg-1 control-label">供应商：</label>
 												<div class="col-lg-6">
-													<select id="goodsStorage" name="goodsStorage.id"
+													<select id="supplier" name="supplier.id"
 														class="form-control" required="required">
-														<option value="">---请选择存放货架---</option>
+														<option value="">---请选择设备供应商---</option>
 														<option
-															th:selected="${stock!=null && stock.supplier !=null}?${stock.supplier.id}==${stock.id}"
+															th:selected="${stock!=null && stock?.supplier !=null}?${stock?.supplier?.id}==${supplier?.id}"
 															th:each="supplier:${suppliers}"
-															th:value="${supplier.id}"
-															th:text="${supplier.name}"></option>
+															th:value="${supplier?.id}" th:text="${supplier?.name}"></option>
 													</select>
 												</div>
 											</div>
 
 
-										<div class="form-group">
+
+
+											<div class="form-group">
 												<label class="col-lg-1 control-label">状态：</label>
 												<div class="col-lg-6">
 													<div class="ui-select">
-															<select name="isDisable" id="isDisable"
-																class="form-control" required>
-																<option value="false"
-																	th:selected="${supplier?.isDisable eq false}">启用中</option>
-																<option value="true"
-																	th:selected="${supplier?.isDisable eq true}">禁用中</option>
-															</select>
-														</div>
+														<select name="isDisable" id="isDisable"
+															class="form-control" required>
+															<option value="false"
+																th:selected="${stock?.isDisable eq false}">启用中</option>
+															<option value="true"
+																th:selected="${stock?.isDisable eq true}">禁用中</option>
+														</select>
+													</div>
 												</div>
 											</div>
 
@@ -179,8 +197,8 @@
 												<label class="col-lg-1 control-label"></label>
 												<div class="col-md-8">
 													<button type="submit" class="btn btn-success"
-														th:text="${supplier!=null?'修改':'添加'}"></button>
-													<span></span> <input th:if="${supplier} eq null"
+														th:text="${stock!=null?'修改':'添加'}"></button>
+													<span></span> <input th:if="${stock} eq null"
 														class="btn btn-default" value="重置" type="reset">
 												</div>
 											</div>
@@ -207,8 +225,8 @@
 	<div th:replace="public/public_js::pub_js"></div>
 
 
-	<script th:src="@{/assets/js/select/bootstrap-select.js}"
-		type="text/javascript"></script>
+	<!-- <script th:src="@{/assets/js/select/bootstrap-select.js}"
+		type="text/javascript"></script> -->
 	<div th:replace="public/public_js::public_script"></div>
 	<div th:replace="public/public::footer"></div>
 	<!-- Jquery Validate -->
@@ -218,10 +236,10 @@
 		th:src="@{/plugs/validate/messages_zh.min.js}"></script>
 
 	<script type="text/javascript" th:inline="javascript"
-		th:src="@{/js/admin/supplier/supplier.js}"></script>
+		th:src="@{/js/admin/stock/stock.js}"></script>
 
 	<div th:replace="public/public_js::validator"></div>
-	<script type="text/javascript" th:inline="javascript">
+	<!-- 	<script type="text/javascript" th:inline="javascript">
 
 $(function(){
 var options = [], _options;
@@ -241,7 +259,7 @@ var options = [], _options;
 })	  
 	  
 
-</script>
+</script> -->
 
 </body>
 

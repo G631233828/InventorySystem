@@ -2,7 +2,6 @@ package zhongchiedu.inventory.service.Impl;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -26,12 +25,10 @@ import zhongchiedu.common.utils.ExcelReadUtil;
 import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralServiceImpl;
-import zhongchiedu.inventory.pojo.Brand;
-import zhongchiedu.inventory.pojo.Category;
 import zhongchiedu.inventory.pojo.ProcessInfo;
 import zhongchiedu.inventory.pojo.Stock;
 import zhongchiedu.inventory.pojo.Supplier;
-import zhongchiedu.inventory.pojo.SystemClassification;
+import zhongchiedu.inventory.pojo.Unit;
 import zhongchiedu.inventory.service.StockService;
 
 @Service
@@ -39,6 +36,8 @@ import zhongchiedu.inventory.service.StockService;
 public class StockServiceImpl extends GeneralServiceImpl<Stock> implements StockService {
 
 	private @Autowired SupplierServiceImpl supplierService;
+	
+	private @Autowired UnitServiceImpl unitService;
 	
 	
 	@Override
@@ -171,24 +170,32 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				
 				Stock stock = null; //库存信息
 				Supplier supplier = null;
-				String name = resultexcel[i][j];//设备名称
+				Unit unit = null;
+				String name = resultexcel[i][j].trim();//设备名称
 				if(Common.isEmpty(name)){
 					error += "<span class='entypo-attention'></span>导入文件过程中出现设备名称为空，第<b>&nbsp&nbsp" + (i + 2)
 							+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
 					continue;
 				}
 				importStock.setName(name); //设备名称
-				String model = resultexcel[i][j+1];
+				String model = resultexcel[i][j+1].trim();
 				if(Common.isEmpty(name)){
 					error += "<span class='entypo-attention'></span>导入文件过程中出现设备型号为空，第<b>&nbsp&nbsp" + (i + 2)
 							+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
 					continue;
 				}
 				importStock.setModel(model);//设备型号
-				importStock.setScope(resultexcel[i][j+2]);//使用范围
-				importStock.setPrice(resultexcel[i][j+3]);//价格
-				importStock.setMaintenance(resultexcel[i][j+4]);//维保
-				String supplierName = resultexcel[i][j+5].trim();//供应商名称
+				importStock.setScope(resultexcel[i][j+2].trim());//使用范围
+				importStock.setPrice(resultexcel[i][j+3].trim());//价格
+				
+				String unitName = resultexcel[i][j+4].trim();
+				if(Common.isNotEmpty(unitName)){
+					//根据供应商名称查找，看供应商是否存在
+					unit = this.unitService.findByName(unitName);
+				}
+				importStock.setUnit(unit);
+				importStock.setMaintenance(resultexcel[i][j+5].trim());//维保
+				String supplierName = resultexcel[i][j+6].trim();//供应商名称
 				if(Common.isNotEmpty(supplierName)){
 					//根据供应商名称查找，看供应商是否存在
 					supplier = this.supplierService.findByName(supplierName);

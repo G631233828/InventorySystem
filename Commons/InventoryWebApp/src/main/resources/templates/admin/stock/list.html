@@ -51,6 +51,8 @@
 							</div>
 
 						</div>
+						
+						
 						<div class="nest" id="tableStaticClose">
 
 							<div class="title-alt">
@@ -82,47 +84,43 @@
 												<i class="fontawesome-upload"> </i>批量导入
 											</button>
 										</shiro:hasPermission>
-																						
+
 										<button class="btn btn-default" onclick="return showColumn()">
-												<i class="fontawesome-upload"> </i>显示列
-											</button>
+											<i class="fontawesome-upload"> </i>显示列
+										</button>
 
 
 									</div>
 									<div class="col-sm-6"></div>
 
+
 								</div>
-
-
 							</div>
 
-							<!-- 搜索  下拉  start-->
-							<!-- 	<div class="mail_header">
-								<div class="col-sm-6">
-									<div class="row" style="margin-bottom: 10px;">
-									
-										<div class="col-sm-2">
-										<select class="filter-status form-control">
-												<option value="10">10
-												<option value="25">25
-												<option value="50">50
-												<option value="100">100
-											</select>
-										</div>
-										<div class="col-sm-3">
-											<input class="form-control" id="filter"
-												placeholder="查找类目..." type="text">
-										
-											
-										</div>
-									</div>
-								</div>
-							</div> -->
-							<!-- 搜索  下拉  end-->
-
-
-
 							<div class="body-nest" id="tableStatic">
+							
+							<div class="row" style="margin-bottom:10px;">
+									 <div class="col-sm-1">
+                                        <select class="filter-status form-control">
+                                            <option value="10">10
+                                            <option value="20">20
+                                            <option value="50">50
+                                            <option value="100">100
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <input class="form-control" id="serach" placeholder="模糊匹配" type="text">
+                                    </div>
+                                   
+                                    <div class="col-sm-6">
+
+
+
+                                    </div>
+
+                                </div>
+							
+							
 
 								<section id="flip-scroll">
 									<div
@@ -138,15 +136,26 @@
 															<label for="checkall"></label>
 														</div>
 													</th>
-													<th class="numeric name"  th:style="${#lists.contains(listColums,'name')}?'':'display:none;'" >设备名称</th>
-													<th class="numeric model" th:style="${#lists.contains(listColums,'model')}?'':'display:none;'">设备型号</th>
-													<th class="numeric scope" th:style="${#lists.contains(listColums,'scope')}?'':'display:none;'">使用范围</th>
-													<th class="numeric brand" th:style="${#lists.contains(listColums,'brand')}?'':'display:none;'">品牌</th>
-													<th class="numeric goodsStorage" th:style="${#lists.contains(listColums,'goodsStorage')}?'':'display:none;'">货架号/层</th>
-													<th class="numeric price" th:style="${#lists.contains(listColums,'price')}?'':'display:none;'">单价</th>
-													<th class="numeric maintenance" th:style="${#lists.contains(listColums,'maintenance')}?'':'display:none;'">维保</th>
-													<th class="numeric supplier" th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'">供应商</th>
-													<th class="numeric inventory" th:style="${#lists.contains(listColums,'inventory')}?'':'display:none;'">库存量</th>
+													<th class="numeric name"
+														th:style="${#lists.contains(listColums,'name')}?'':'display:none;'">设备名称</th>
+													<th class="numeric model"
+														th:style="${#lists.contains(listColums,'model')}?'':'display:none;'">设备型号</th>
+													<th class="numeric scope"
+														th:style="${#lists.contains(listColums,'scope')}?'':'display:none;'">使用范围</th>
+													<th class="numeric brand"
+														th:style="${#lists.contains(listColums,'brand')}?'':'display:none;'">品牌</th>
+													<th class="numeric goodsStorage"
+														th:style="${#lists.contains(listColums,'goodsStorage')}?'':'display:none;'">货架号/层</th>
+													<th class="numeric price"
+														th:style="${#lists.contains(listColums,'price')}?'':'display:none;'">单价</th>
+													<th class="numeric unit"
+														th:style="${#lists.contains(listColums,'unit')}?'':'display:none;'">计量单位</th>
+													<th class="numeric maintenance"
+														th:style="${#lists.contains(listColums,'maintenance')}?'':'display:none;'">维保</th>
+													<th class="numeric supplier"
+														th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'">供应商</th>
+													<th class="numeric inventory"
+														th:style="${#lists.contains(listColums,'inventory')}?'':'display:none;'">库存量</th>
 													<th class="numeric">使用状态</th>
 													<th class="numeric">操作</th>
 												</tr>
@@ -164,15 +173,27 @@
 															</div>
 														</td>
 
-														<td class="numeric name" id="name" th:style="${#lists.contains(listColums,'name')}?'':'display:none;'">[[${stock?.name}]]</td>
-														<td class="numeric model" id="model" th:style="${#lists.contains(listColums,'model')}?'':'display:none;'">[[${stock?.model}]]</td>
-														<td class="numeric scope" id="scope" th:style="${#lists.contains(listColums,'scope')}?'':'display:none;'">[[${stock?.scope}]]</td>
-														<td class="numeric goodsStorage" id="goodsStorage" th:style="${#lists.contains(listColums,'goodsStorage')}?'':'display:none;'">[[${stock?.goodsStorage?.shelfNumber}/${stock?.goodsStorage?.shelflevel}]]</td>
-														<td class="numeric price" id="price" th:style="${#lists.contains(listColums,'price')}?'':'display:none;'">[[${stock?.price}]]</td>
-														<td class="numeric maintenance" id="maintenance" th:style="${#lists.contains(listColums,'maintenance')}?'':'display:none;'">[[${stock?.maintenance}]]</td>
-														<td class="numeric supplier" id="supplier" th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'">[[${stock?.supplier?.name}]]</td>
-														<td class="numeric email" id="email" th:style="${#lists.contains(listColums,'email')}?'':'display:none;'">[[${stock?.email}]]</td>
-														<td class="numeric inventory" id="inventory" th:style="${#lists.contains(listColums,'inventory')}?'':'display:none;'">[[${stock?.inventory}]]</td>
+														<td class="numeric name" id="name"
+															th:style="${#lists.contains(listColums,'name')}?'':'display:none;'">[[${stock?.name}]]</td>
+														<td class="numeric model" id="model"
+															th:style="${#lists.contains(listColums,'model')}?'':'display:none;'">[[${stock?.model}]]</td>
+														<td class="numeric scope" id="scope"
+															th:style="${#lists.contains(listColums,'scope')}?'':'display:none;'">[[${stock?.scope}]]</td>
+														<td class="numeric goodsStorage" id="goodsStorage"
+															th:style="${#lists.contains(listColums,'goodsStorage')}?'':'display:none;'"
+															th:text="|${stock?.goodsStorage?.shelfNumber}/${stock?.goodsStorage?.shelflevel}|"></td>
+														<td class="numeric price" id="price"
+															th:style="${#lists.contains(listColums,'price')}?'':'display:none;'">[[${stock?.price}]]</td>
+														<td class="numeric unit" id="unit"
+															th:style="${#lists.contains(listColums,'unit')}?'':'display:none;'">[[${stock?.unit?.name}]]</td>
+														<td class="numeric maintenance" id="maintenance"
+															th:style="${#lists.contains(listColums,'maintenance')}?'':'display:none;'">[[${stock?.maintenance}]]</td>
+														<td class="numeric supplier" id="supplier"
+															th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'">[[${stock?.supplier?.name}]]</td>
+														<td class="numeric email" id="email"
+															th:style="${#lists.contains(listColums,'email')}?'':'display:none;'">[[${stock?.supplier?.email}]]</td>
+														<td class="numeric inventory" id="inventory"
+															th:style="${#lists.contains(listColums,'inventory')}?'':'display:none;'">[[${stock?.inventory}]]</td>
 														<td class="numeric" th:id="disBtn+${stock.id}"
 															th:utext="${stock.isDisable eq true }?|<button type='button' onclick=toDisable('${stock.id}','stock') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${stock.id}','stock') class='btn btn-success'>启用</button>|"></td>
 														<td class="numeric">
