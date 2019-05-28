@@ -51,8 +51,8 @@
 							</div>
 
 						</div>
-						
-						
+
+
 						<div class="nest" id="tableStaticClose">
 
 							<div class="title-alt">
@@ -98,29 +98,27 @@
 							</div>
 
 							<div class="body-nest" id="tableStatic">
-							
-							<div class="row" style="margin-bottom:10px;">
-									 <div class="col-sm-1">
-                                        <select class="filter-status form-control">
-                                            <option value="10">10
-                                            <option value="20">20
-                                            <option value="50">50
-                                            <option value="100">100
-                                        </select>
-                                    </div>
-                                    <div class="col-sm-2">
-                                        <input class="form-control" id="serach" placeholder="模糊匹配" type="text">
-                                    </div>
-                                   
-                                    <div class="col-sm-6">
+
+								<div class="row" style="margin-bottom: 10px;">
+									<div class="col-sm-3 form-inline" >
+										<select class="filter-status form-control" id="pageSize">
+											<option value="10" th:selected="${pageSize == 10}">10
+											<option value="20" th:selected="${pageSize == 20}">20
+											<option value="50" th:selected="${pageSize == 50}">50
+											<option value="100" th:selected="${pageSize == 100}">100
+										</select>
+										<input class="form-control" id="serach" placeholder="模糊匹配" th:value="${search}" type="text">
+										<button class="btn btn-default btn-sm" onclick="return searchVal()" >
+											<i class="entypo-search"> </i> 搜索
+										</button>
+									</div>
+									</div>
+
+									<div class="col-sm-6"></div>
+
+								</div>
 
 
-
-                                    </div>
-
-                                </div>
-							
-							
 
 								<section id="flip-scroll">
 									<div
@@ -156,6 +154,8 @@
 														th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'">供应商</th>
 													<th class="numeric inventory"
 														th:style="${#lists.contains(listColums,'inventory')}?'':'display:none;'">库存量</th>
+													<th class="numeric email"
+														th:style="${#lists.contains(listColums,'email')}?'':'display:none;'">供应商邮箱</th>
 													<th class="numeric">使用状态</th>
 													<th class="numeric">操作</th>
 												</tr>
@@ -232,16 +232,16 @@
 												<ul class="pagination pagination-split pull-right"
 													style="margin-top: 0px;">
 													<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
-														th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/stocks?pageNo=}+${pageList.upPage}">上一页</a>
+														th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/stocks(pageNo=${pageList.upPage},pageSize=${pageSize},search=${search})}">上一页</a>
 													</li>
 													<li th:each="page:${pageList.navigatepageNums}"
 														th:class="${page  == pageList.pageNo}?active:''"><a
-														th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/stocks?pageNo=}+${page}">[[${page}]]</a>
+														th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/stocks(pageNo=${page},pageSize=${pageSize},search=${search})}">[[${page}]]</a>
 													</li>
 													<li
 														th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
 														<a
-														th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/stocks?pageNo=}+${pageList.nextPage}">下一页</a>
+														th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/stocks(pageNo=${pageList.nextPage},pageSize=${pageSize},search=${search})}">下一页</a>
 													</li>
 												</ul>
 											</div>

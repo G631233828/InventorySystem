@@ -39,7 +39,7 @@ public class GeneralServiceImpl<T> implements GeneralService<T> {
 		Pagination<T> page = new Pagination<T>(pageNo, pageSize, totalCount);
 		query.skip(page.getFirstResult());// skip相当于从那条记录
 		query.limit(pageSize);// 从多少条开始,取多少条记录
-		List<T> datas = this.find(query,classes);
+		List<T> datas = this.generalDao.find(query,classes);
 		page.setDatas(datas);
 		return page;
 	}

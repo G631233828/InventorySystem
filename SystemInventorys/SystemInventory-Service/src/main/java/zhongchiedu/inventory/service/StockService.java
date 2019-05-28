@@ -14,7 +14,7 @@ import zhongchiedu.inventory.pojo.Stock;
 
 public interface StockService extends GeneralService<Stock> {
 	
-	public Pagination<Stock> findpagination(Integer pageNo,Integer pageSize);
+	public Pagination<Stock> findpagination(Integer pageNo,Integer pageSize,String search);
 	
 	public void saveOrUpdate(Stock stock);
 	

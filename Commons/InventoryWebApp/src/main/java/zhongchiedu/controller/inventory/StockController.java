@@ -66,13 +66,16 @@ public class StockController {
 	@RequiresPermissions(value = "stock:list")
 	@SystemControllerLog(description = "查询所有库存管理")
 	public String list(@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
-			@RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize, HttpSession session,
-			@ModelAttribute("errorImport") String errorImport) {
+			@RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize, HttpSession session,
+			@ModelAttribute("errorImport") String errorImport,@RequestParam(value="search",defaultValue="")String search) {
 		model.addAttribute("errorImport", errorImport);
-		Pagination<Stock> pagination = this.stockService.findpagination(pageNo, pageSize);
+		Pagination<Stock> pagination = this.stockService.findpagination(pageNo, pageSize,search);
 		model.addAttribute("pageList", pagination);
 		List<String> listColums = this.columnService.findColumns("stock");
 		model.addAttribute("listColums",listColums);
+		model.addAttribute("pageSize",pageSize);
+		model.addAttribute("search",search);
+		
 		return "admin/stock/list";
 	}
 
