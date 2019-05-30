@@ -47,26 +47,26 @@
 						<div class="nest" id="tableStaticClose">
 							<div class="title-alt">
 								<div>
-									<!-- <shiro:hasPermission name="casePresentation:add"> -->
+									 <shiro:hasPermission name="casePresentation:add"> 
 										<button class="btn btn-default btn-sm"
 											th:onclick="|window.location.href='@{/casePresentation}'|">
 											<i class="glyphicon glyphicon-plus"> </i> 添加
 										</button>
-									<!-- </shiro:hasPermission> -->
+									 </shiro:hasPermission>
 
-									<!-- <shiro:hasPermission name="casePresentation:edit"> -->
+									<shiro:hasPermission name="casePresentation:edit"> 
 										<button class="btn btn-primary btn-sm"
 											onclick="return toeditPage('','casePresentation')">
 											<i class="fa fa-edit"> </i>编辑
 										</button>
-									<!-- </shiro:hasPermission> -->
+									 </shiro:hasPermission> 
 
-									<!-- <shiro:hasPermission name="casePresentation:delete"> -->
+									 <shiro:hasPermission name="casePresentation:delete"> 
 										<button class="btn btn-danger btn-sm"
 											th:onclick="|return del('','@{/casePresentation/}')|">
 											<i class="fa fa-trash-o"> </i>删除
 										</button>
-									<!-- </shiro:hasPermission> -->
+									 </shiro:hasPermission> 
 
 								</div>
 

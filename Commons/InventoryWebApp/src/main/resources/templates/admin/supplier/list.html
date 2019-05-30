@@ -193,16 +193,16 @@
 														<td class="numeric" th:id="disBtn+${supplier.id}"
 															th:utext="${supplier.isDisable eq true }?|<button type='button' onclick=toDisable('${supplier.id}','supplier') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${supplier.id}','supplier') class='btn btn-success'>启用</button>|"></td>
 														<td class="numeric">
-															<!-- <shiro:hasPermission
-															name="supplier:edit"> -->
+															<shiro:hasPermission
+															name="supplier:edit"> 
 															<button class="btn btn-primary btn-xs"
 																th:onclick="|return toeditPage('${supplier.id}','supplier')|">
 																<i class="fa fa-edit"> </i>编辑
-															</button> <!-- </shiro:hasPermission> <shiro:hasPermission name="supplier:delete"> -->
+															</button>  </shiro:hasPermission> <shiro:hasPermission name="supplier:delete">
 															<button class="btn btn-danger btn-xs"
 																th:onclick="|return del('@{/supplier/}${supplier.id}','')|">
 																<i class="fa fa-trash-o"> </i>删除
-															</button> <!-- </shiro:hasPermission></td> -->
+															</button>  </shiro:hasPermission></td> 
 													</tr>
 													<!-- 菜单 -->
 												</th:block>

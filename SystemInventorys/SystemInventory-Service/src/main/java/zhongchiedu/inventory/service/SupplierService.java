@@ -40,7 +40,7 @@ public interface SupplierService extends GeneralService<Supplier> {
 	
 	public Object[] categorys(Supplier supplier);
 	
-	
+	public BasicDataResult findOneById(String id);
 	
 	
 	

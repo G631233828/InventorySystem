@@ -12,21 +12,82 @@ function showColumn() {
 
 }
 
+function showSupplier(o) {
+	$(".supplier2").text('');
+	$.ajax({
+		type : 'POST',
+		url : 'stock/getSupplier',
+		data : "id=" + o ,
+		dataType : 'json',
+		success : function(data) {
+			if (data.status == 200) {
+				var name = data.data.name;
+				var systemClassification = data.data.systemClassification.name;
+				var categorys='';
+				$.each(data.data.categorys,function(key,value){
+					categorys+=value.name+",  ";
+				})
+				var brand = data.data.brand.name;
+				var contact = data.data.contact;
+				var contactNumber = data.data.contactNumber;
+				var qq = data.data.qq;
+				var wechat = data.data.wechat;
+				var email = data.data.email;
+				var address = data.data.address;
+				var introducer = data.data.introducer;
+				var productQuality = data.data.productQuality;
+				var supplyPeriod = data.data.supplyPeriod;
+				var payMent = data.data.payMent;
+				var afterSaleService = data.data.afterSaleService;
+				
+				$("#supplier_name").text(name);
+				$("#supplier_systemClassification").text(systemClassification);
+				$("#supplier_categorys").text(categorys);
+				$("#supplier_brand").text(brand);
+				$("#supplier_contact").text(contact);
+				$("#supplier_contactNumber").text(contactNumber);
+				$("#supplier_qq").text(qq);
+				$("#supplier_wechat").text(wechat);
+				$("#supplier_email").text(email);
+				$("#supplier_address").text(address);
+				$("#supplier_introducer").text(introducer);
+				$("#supplier_productQuality").text(productQuality);
+				$("#supplier_").text(systemClassification);
+				$("#supplier_supplyPeriod").text(supplyPeriod);
+				$("#supplier_payMent").text(payMent);
+				$("#supplier_afterSaleService").text(afterSaleService);
+				
+			}
+		}
+	})
+	
+	
+	$("#mysupplier").modal('show');
+	
+}
+
 function searchVal() {
 
 	var pageSize = $("#pageSize").val();
 	var search = $("#serach").val();
 
-	if (search == null || search == "") {
+/*	if (search == null || search == "") {
 		swal({
 			type : "warning",
 			title : "",
 			text : "查询内容不能为空!!",
 		});
 		return ;
-	}
+	}*/
 	window.location.href="stocks?pageSize="+pageSize+"&search="+search;
 
+}
+function searchSize() {
+	
+	var pageSize = $("#pageSize").val();
+	var search = $("#serach").val();
+	window.location.href="stocks?pageSize="+pageSize+"&search="+search;
+	
 }
 
 function selectColumn(o) {

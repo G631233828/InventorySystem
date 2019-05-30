@@ -342,14 +342,20 @@ public String upload( HttpServletRequest request, HttpSession session){
 		}
 		return categorys;
 	}
-	
-	
-	public static void main(String[] args) {
-		String s = "aa,bb，cc，dd|ee、ff";
-		List<String> list = Arrays.asList(s.trim().split("[,，、|]"));
-		for(String a:list){
-			System.out.println(a);
-		}
+
+	@Override
+	public BasicDataResult findOneById(String id) {
+		Supplier supplier = this.findOneById(id, Supplier.class);
+		return BasicDataResult.build(200, "查询成功", supplier);
+		
 	}
+	
+	
+	
+	
+	
+	
+	
+	
 
 }

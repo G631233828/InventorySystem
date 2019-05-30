@@ -97,7 +97,7 @@
 							</div>
 
 							<!-- 搜索  下拉  start-->
-						<!-- 	<div class="mail_header">
+							<!-- 	<div class="mail_header">
 								<div class="col-sm-6">
 									<div class="row" style="margin-bottom: 10px;">
 									
@@ -157,17 +157,18 @@
 													<td class="numeric">[[${category.name}]]</td>
 													<td class="numeric" th:id="disBtn+${category.id}"
 														th:utext="${category.isDisable eq true }?|<button type='button' onclick=toDisable('${category.id}','category') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${category.id}','category') class='btn btn-success'>启用</button>|"></td>
-													<td class="numeric">
-														<!-- <shiro:hasPermission
-															name="category:edit"> -->
-														<button class="btn btn-primary btn-xs"
-															th:onclick="|return toeditPage('${category.id}','category')|">
-															<i class="fa fa-edit"> </i>编辑
-														</button> <!-- </shiro:hasPermission> <shiro:hasPermission name="category:delete"> -->
-														<button class="btn btn-danger btn-xs"
-															th:onclick="|return del('@{/category/}${category.id}','')|">
-															<i class="fa fa-trash-o"> </i>删除
-														</button> <!-- </shiro:hasPermission></td> -->
+													<td class="numeric"><shiro:hasPermission
+															name="category:edit">
+															<button class="btn btn-primary btn-xs"
+																th:onclick="|return toeditPage('${category.id}','category')|">
+																<i class="fa fa-edit"> </i>编辑
+															</button>
+														</shiro:hasPermission> <shiro:hasPermission name="category:delete">
+															<button class="btn btn-danger btn-xs"
+																th:onclick="|return del('@{/category/}${category.id}','')|">
+																<i class="fa fa-trash-o"> </i>删除
+															</button>
+														</shiro:hasPermission></td>
 												</tr>
 												<!-- 菜单 -->
 											</th:block>

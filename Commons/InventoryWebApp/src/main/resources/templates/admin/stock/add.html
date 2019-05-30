@@ -17,7 +17,7 @@
 	<!-- /END OF TOP NAVBAR -->
 
 	<!-- SIDE MENU -->
-	<div th:replace="public/public::left(activeUri='stock')"></div>
+	<div th:replace="public/public::left(activeUri='stockManager')"></div>
 	<!-- END OF SIDE MENU -->
 
 	<!--  PAPER WRAP -->
@@ -85,7 +85,7 @@
 												<div class="col-lg-6">
 													<input class="form-control" id="model"
 														placeholder="请输入设备型号" name="model"
-														th:value="${stock?.model}" required="required">
+														th:value="${stock?.model}" >
 												</div>
 											</div>
 
@@ -94,7 +94,7 @@
 												<div class="col-lg-6">
 													<input class="form-control" id="scope"
 														placeholder="请输入设备使用范围" name="scope"
-														th:value="${stock?.scope}" required="required">
+														th:value="${stock?.scope}">
 												</div>
 											</div>
 

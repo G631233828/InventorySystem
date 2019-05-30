@@ -112,20 +112,6 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		return "error";
 	}
 
-	/**
-	 * Criteria cr = new Criteria(); Criteria ca1 = null; Criteria ca2 = null;
-	 * ca1 = Criteria.where("name").regex(serach); ca2 =
-	 * Criteria.where("code").regex(serach);
-	 * stu.addCriteria(Criteria.where("clazz.$id").is(new
-	 * ObjectId(clazz.getId()))); stu.addCriteria(cr.orOperator(ca1, ca2));
-	 * List<Student> list = this.studentService.find(stu, Student.class); List
-	 * listids = new ArrayList(); if (list.size() > 0) { for (Student s : list)
-	 * { listids.add(new ObjectId(s.getId())); } } Criteria cr1 = new
-	 * Criteria(); Criteria ca3 = null; Criteria ca4 = null; ca3 =
-	 * Criteria.where("startLeave").regex(serach); ca4 =
-	 * Criteria.where("student.$id").in(listids);
-	 * query.addCriteria(cr1.orOperator(ca3, ca4));
-	 */
 
 	@Override
 	public Pagination<Stock> findpagination(Integer pageNo, Integer pageSize, String search) {
@@ -209,8 +195,15 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		List<Object> list = new ArrayList<>();
 		Query query = new Query();
 		Criteria ca = new Criteria();
-		query.addCriteria(ca.orOperator(Criteria.where("address").regex(search),
-				Criteria.where("shelfNumber").regex(search), Criteria.where("shelflevel").regex(search)));
+		if(search.contains("/")){
+			query.addCriteria(ca.orOperator(Criteria.where("address").regex(search),
+					Criteria.where("shelfNumber").is(search.split("/")[0]), Criteria.where("shelflevel").is(search.split("/")[1])));
+		}else{
+			query.addCriteria(ca.orOperator(Criteria.where("address").regex(search),
+					Criteria.where("shelfNumber").regex(search), Criteria.where("shelflevel").regex(search)));
+		}
+		
+	
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		List<GoodsStorage> lists = this.goodsStorageService.find(query, GoodsStorage.class);
 		for (GoodsStorage li : lists) {

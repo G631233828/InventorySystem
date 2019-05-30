@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<!-- saved from url=(0052)http://getbootstrap.com/docs/4.0/examples/dashboard/ -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<body>
+
+
+
+	<!-- 信息提示 -->
+	<div aria-labelledby="myLargeModalLabel" role="dialog" tabindex="-1"
+		class="modal fade bs-example-modal-lg" style="display: none;"
+		th:fragment="mysupplier" id="mysupplier">
+		<div class="modal-dialog modal-lg"
+			style="margin-top:10%; width: 1000px; height: 400px;">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">×</button>
+					<h4>供应商信息</h4>
+				</div>
+				<div class="content-wrap">
+				
+				<div class="body-nest" id="Blank_Page_Content">
+								<div class="row">
+									<!-- edit form column -->
+									<div class="col-md-12 personal-info">
+
+											<div class="form-group">
+												<div class="row">
+													<label class="col-lg-2 control-label text-muted">供应商名称：</label>
+													<div class="col-lg-3">
+													<p class="text-info supplier2" id="supplier_name"></p>
+													</div>
+													<label class="col-lg-2 control-label text-muted">系统分类：</label>
+													<div class="col-lg-3">
+													<p id="supplier_systemClassification" class="text-info supplier2" ></p>
+													</div>
+												</div>
+											</div>
+
+											<div class="form-group">
+												<div class="row">
+													<label class="col-lg-2 control-label text-muted">所属类目：</label>
+													<div class="col-lg-6">
+													<p id="supplier_categorys" class="text-info supplier2" ></p>
+													</div>
+												</div>
+											</div>
+
+											<div class="form-group">
+												<div class="row">
+													<label class="col-lg-2 control-label text-muted">品牌：</label>
+													<div class="col-lg-3">
+													<p id="supplier_brand" class="text-info supplier2" ></p>
+													</div>
+													<label class="col-lg-2 control-label text-muted">供应商联系人：</label>
+													<div class="col-lg-3">
+													<p id="supplier_contact" class="text-info supplier2" ></p>
+													</div>
+												</div>
+											</div>
+
+											<div class="form-group">
+												<div class="row">
+													<label class="col-lg-2 control-label text-muted">联系电话：</label>
+													<div class="col-lg-3">
+													<p id="supplier_contactNumber" class="text-info supplier2" ></p>
+													</div>
+													<label class="col-lg-2 control-label text-muted">供应商QQ：</label>
+													<div class="col-lg-3">
+													<p id="supplier_qq" class="text-info supplier2" ></p>
+													</div>
+												</div>
+											</div>
+
+											<div class="form-group">
+												<div class="row">
+													<label class="col-lg-2 control-label text-muted">供应商微信：</label>
+													<div class="col-lg-3">
+													<p id="supplier_wechat" class="text-info supplier2" ></p>
+													</div>
+													<label class="col-lg-2 control-label text-muted">供应商Email：</label>
+													<div class="col-lg-3">
+													<p id="supplier_email" class="text-info supplier2" ></p>
+													</div>
+												</div>
+											</div>
+											<div class="form-group">
+												<div class="row">
+													<label class="col-lg-2 control-label text-muted">供应商办公地址：</label>
+													<div class="col-lg-3">
+													<p id="supplier_address" class="text-info supplier2" ></p>
+													</div>
+													<label class="col-lg-2 control-label text-muted">介绍人：</label>
+													<div class="col-lg-3">
+													<p id="supplier_introducer" class="text-info supplier2" ></p>
+													</div>
+												</div>
+											</div>
+
+											<div class="form-group">
+												<div class="row">
+													<label class="col-lg-2 control-label text-muted">产品质量：</label>
+													<div class="col-lg-3">
+													<p id="supplier_productQuality" class="text-info supplier2" ></p>
+													</div>
+													<label class="col-lg-2 control-label text-muted">供货期：</label>
+													<div class="col-lg-3">
+													<p id="supplier_supplyPeriod" class="text-info supplier2" ></p>
+													</div>
+												</div>
+											</div>
+
+											<div class="form-group">
+												<div class="row">
+													
+													<label class="col-lg-2 control-label text-muted">付款条件：</label>
+													<div class="col-lg-3">
+													<p id="supplier_payMent" class="text-info supplier2" ></p>
+													</div>
+													<label class="col-lg-2 control-label text-muted">售后服务：</label>
+													<div class="col-lg-3">
+													<p id="supplier_afterSaleService" class="text-info supplier2" ></p>
+													</div>
+												</div>
+											</div>
+
+
+									</div>
+								</div>
+							</div>
+				
+				
+            </div>
+				
+
+
+			</div>
+
+		</div>
+	</div>
+</body>
+
+</html>

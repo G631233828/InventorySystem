@@ -25,6 +25,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import lombok.extern.slf4j.Slf4j;
 import zhongchiedu.common.utils.BasicDataResult;
+import zhongchiedu.common.utils.Common;
 import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.inventory.pojo.GoodsStorage;
@@ -48,34 +49,31 @@ import zhongchiedu.log.annotation.SystemControllerLog;
 @Slf4j
 public class StockController {
 
-	
 	private @Autowired StockServiceImpl stockService;
-	
+
 	private @Autowired ColumnServiceImpl columnService;
-	
+
 	private @Autowired GoodsStorageServiceImpl goodsStorageService;
-	
+
 	private @Autowired SupplierServiceImpl supplierService;
-	
+
 	private @Autowired UnitServiceImpl unitService;
-	
-	
-	
-	
+
 	@GetMapping("stocks")
 	@RequiresPermissions(value = "stock:list")
 	@SystemControllerLog(description = "查询所有库存管理")
 	public String list(@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
 			@RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize, HttpSession session,
-			@ModelAttribute("errorImport") String errorImport,@RequestParam(value="search",defaultValue="")String search) {
+			@ModelAttribute("errorImport") String errorImport,
+			@RequestParam(value = "search", defaultValue = "") String search) {
 		model.addAttribute("errorImport", errorImport);
-		Pagination<Stock> pagination = this.stockService.findpagination(pageNo, pageSize,search);
+		Pagination<Stock> pagination = this.stockService.findpagination(pageNo, pageSize, search);
 		model.addAttribute("pageList", pagination);
 		List<String> listColums = this.columnService.findColumns("stock");
-		model.addAttribute("listColums",listColums);
-		model.addAttribute("pageSize",pageSize);
-		model.addAttribute("search",search);
-		
+		model.addAttribute("listColums", listColums);
+		model.addAttribute("pageSize", pageSize);
+		model.addAttribute("search", search);
+
 		return "admin/stock/list";
 	}
 
@@ -85,17 +83,16 @@ public class StockController {
 	@GetMapping("/stock")
 	@RequiresPermissions(value = "stock:add")
 	public String addPage(Model model) {
-		//所有货架
+		// 所有货架
 		List<GoodsStorage> list = this.goodsStorageService.findAllGoodsStorage(false);
 		model.addAttribute("goodsStorages", list);
-		//所有供应商
+		// 所有供应商
 		List<Supplier> syslist = this.supplierService.findAllSupplier(false);
 		model.addAttribute("suppliers", syslist);
-		//计量单位
+		// 计量单位
 		List<Unit> listUnits = this.unitService.findAllUnit(false);
 		model.addAttribute("units", listUnits);
-		
-		
+
 		return "admin/stock/add";
 	}
 
@@ -126,13 +123,13 @@ public class StockController {
 	public String toeditPage(@PathVariable String id, Model model) {
 		Stock stock = this.stockService.findOneById(id, Stock.class);
 		model.addAttribute("stock", stock);
-		//所有货架
+		// 所有货架
 		List<GoodsStorage> list = this.goodsStorageService.findAllGoodsStorage(false);
 		model.addAttribute("goodsStorages", list);
-		//所有供应商
+		// 所有供应商
 		List<Supplier> syslist = this.supplierService.findAllSupplier(false);
 		model.addAttribute("suppliers", syslist);
-		//计量单位
+		// 计量单位
 		List<Unit> listUnits = this.unitService.findAllUnit(false);
 		model.addAttribute("units", listUnits);
 		return "admin/stock/add";
@@ -219,30 +216,18 @@ public class StockController {
 	public Object process(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		return this.stockService.findproInfo(request);
 	}
-	
-	
-	
+
 	@RequestMapping(value = "/stock/columns", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public BasicDataResult editColumns(@RequestParam(value = "column", defaultValue = "") String column,@RequestParam(value = "flag", defaultValue = "") boolean flag) {
-		//TODO请求没有提交过来明天debug一下
-		return this.columnService.editColumns("stock", column,flag);
+	public BasicDataResult editColumns(@RequestParam(value = "column", defaultValue = "") String column,
+			@RequestParam(value = "flag", defaultValue = "") boolean flag) {
+		return this.columnService.editColumns("stock", column, flag);
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
+	@RequestMapping(value = "/stock/getSupplier", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public BasicDataResult getSupplier(@RequestParam(value = "id", defaultValue = "") String id) {
+		return this.supplierService.findOneById(id);
+	}
 
 }
-
-
-
-

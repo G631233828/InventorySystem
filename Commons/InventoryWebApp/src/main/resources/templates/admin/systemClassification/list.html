@@ -165,16 +165,16 @@
 													<td class="numeric" th:id="disBtn+${systemClassification.id}"
 														th:utext="${systemClassification.isDisable eq true }?|<button type='button' onclick=toDisable('${systemClassification.id}','systemClassification') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${systemClassification.id}','systemClassification') class='btn btn-success'>启用</button>|"></td>
 													<td class="numeric">
-														<!-- <shiro:hasPermission
-															name="systemClassification:edit"> -->
+														 <shiro:hasPermission
+															name="systemClassification:edit"> 
 														<button class="btn btn-primary btn-xs"
 															th:onclick="|return toeditPage('${systemClassification.id}','systemClassification')|">
 															<i class="fa fa-edit"> </i>编辑
-														</button> <!-- </shiro:hasPermission> <shiro:hasPermission name="systemClassification:delete"> -->
+														</button>  </shiro:hasPermission> <shiro:hasPermission name="systemClassification:delete">
 														<button class="btn btn-danger btn-xs"
 															th:onclick="|return del('@{/systemClassification/}${systemClassification.id}','')|">
 															<i class="fa fa-trash-o"> </i>删除
-														</button> <!-- </shiro:hasPermission></td> -->
+														</button>  </shiro:hasPermission></td>
 												</tr>
 												<!-- 菜单 -->
 											</th:block>

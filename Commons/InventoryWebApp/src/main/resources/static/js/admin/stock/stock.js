@@ -32,12 +32,12 @@ $().ready(function() {
 				upload : {
 					required : true
 				},
-				model : {
+			/*	model : {
 					required : true
-				},
-				scope : {
+				},*/
+			/*	scope : {
 					required : true
-				},
+				},*/
 				"goodsStorage.id" : {
 					required : true
 				},
@@ -62,14 +62,14 @@ $().ready(function() {
 				upload : {
 					required : a+ "导入文件不能为空！"
 				},
-				model : {
+			/*	model : {
 					required : a+ "请输入设备型号"
-				},
-				scope : {
+				},*/
+			/*	scope : {
 					required : a+ "请输入设备使用范围"
-				},
+				},*/
 				"goodsStorage.id" : {
-					required : a+ "请选择系统分类"
+					required : a+ "请选择存放货架位置"
 				},
 				price : {
 					required : a+ "请输入设备单价"
