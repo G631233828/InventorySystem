@@ -56,11 +56,10 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		String id = stockStatistics.getStock().getId();// 获取库存设备id
 		Stock stock = this.stockService.findOneById(id, Stock.class);
 		if (Common.isNotEmpty(stock)) {
-			User user =null;// (User) session.getAttribute(Contents.USER_SESSION);
+			User user = (User) session.getAttribute(Contents.USER_SESSION);
 			stockStatistics.setStorageTime(new Date());
 			stockStatistics.setUser(user);
 			stockStatistics.setRevoke(false);
-			synchronized (id) { // 对当前id进行锁定
 				if (stockStatistics.isInOrOut()) {
 					// true == 入库
 						// 更新库存中的库存
@@ -79,7 +78,6 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 					lockInsert(stockStatistics);
 					return BasicDataResult.build(200, "商品出库成功", null);
 				}
-			}
 		} else {
 			// 未能找到库存的信息，反馈界面入库失败
 			return BasicDataResult.build(400, "未能找到库存商品", null);

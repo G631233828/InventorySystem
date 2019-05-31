@@ -206,7 +206,7 @@
 													<td class="numeric">
 													<shiro:hasPermission name="stock:in">
 															<button class="btn source btn-xs"
-																th:onclick="|return toIn('${stock.id}')|">
+																th:onclick="|return showStockStatistics('${stock.id}')|">
 																<i class="entypo-download"> </i>入库
 															</button>
 													</shiro:hasPermission>
@@ -287,11 +287,14 @@
 		<div th:replace="admin/stock/batch::mybatch"></div>
 		<div th:replace="admin/stock/column::mycolumn"></div>
 		<div th:replace="admin/stock/supplier::mysupplier"></div>
+		<div th:replace="admin/stock/in::mystockStatistics"></div>
 	</div>
 	</div>
 	<!-- 引入stocklist.js -->
 	<script type="text/javascript" th:inline="javascript"
 		th:src="@{/js/admin/stock/stocklist.js}"></script>
+	<script type="text/javascript" th:inline="javascript"
+		th:src="@{/js/admin/stock/in.js}"></script>
 	<!--  END OF PAPER WRAP -->
 	<script type="text/javascript"
 		th:src="@{/plugs/prettyfile/bootstrap-prettyfile.js}"></script>
@@ -302,10 +305,19 @@
 	<div th:replace="public/public_js::pub_js"></div>
 	<div th:replace="public/public_js::public_script"></div>
 	<div th:replace="public/public::footer"></div>
+		<!-- Jquery Validate -->
+	<script type="text/javascript"
+		th:src="@{/plugs/validate/jquery.validate.min.js}"></script>
+	<script type="text/javascript"
+		th:src="@{/plugs/validate/messages_zh.min.js}"></script>
 	<!-- Sweet alert -->
 	<script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
+<script type="text/javascript">
 
 
+
+
+</script>
 </body>
 
 </html>

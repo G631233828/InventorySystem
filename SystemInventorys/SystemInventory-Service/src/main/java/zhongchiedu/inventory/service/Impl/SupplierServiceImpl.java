@@ -346,8 +346,7 @@ public String upload( HttpServletRequest request, HttpSession session){
 	@Override
 	public BasicDataResult findOneById(String id) {
 		Supplier supplier = this.findOneById(id, Supplier.class);
-		return BasicDataResult.build(200, "查询成功", supplier);
-		
+		return Common.isNotEmpty(supplier)?BasicDataResult.build(200, "查询成功", supplier):BasicDataResult.build(400, "查询失败", null);
 	}
 	
 	

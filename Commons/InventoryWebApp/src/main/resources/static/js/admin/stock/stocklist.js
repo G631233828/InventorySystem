@@ -7,9 +7,41 @@ function batchImput() {
 	$("#mybatchUpload").modal('show');
 
 }
+
 function showColumn() {
 	$("#mycolumn").modal('show');
+}
 
+
+/**
+ * 查找设备信息
+ * @param o
+ * @returns
+ */
+function showStockStatistics(o) {
+	$(".stockval").val('');
+	$(".stockval").text('');
+	
+	$.ajax({
+		type : 'POST',
+		url : 'stockStatistics/findStock',
+		data : "id=" + o ,
+		dataType : 'json',
+		success : function(data) {
+			if (data.status == 200) {
+				var datas = data.data;
+				var name = datas.name;
+				var inventory = datas.inventory;
+				var stockid = datas.id;
+				
+				$("#stockId").val(stockid);
+				$("#stockName").text(name);
+				$("#loadinventory").text(inventory);
+				
+			}
+		}
+	})
+	$("#mystockStatistics").modal('show');
 }
 
 function showSupplier(o) {
@@ -66,6 +98,12 @@ function showSupplier(o) {
 	
 }
 
+
+
+
+
+
+
 function searchVal() {
 
 	var pageSize = $("#pageSize").val();
@@ -117,9 +155,7 @@ function selectColumn(o) {
 
 }
 
-$(document)
-		.ready(
-				function() {
+$(document).ready( function() {
 					if ($("#upload").val() != "") {
 
 						$('#submit')
@@ -172,4 +208,34 @@ $(document)
 
 					}
 
+					
+					
+					
+					
+
+					
+					
+					
+					
 				});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

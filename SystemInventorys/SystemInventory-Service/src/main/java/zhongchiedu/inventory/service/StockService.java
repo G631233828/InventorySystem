@@ -36,7 +36,7 @@ public interface StockService extends GeneralService<Stock> {
 	
 	public Stock findByName(String name,String model);
 	
-	
+	public BasicDataResult findOneById(String id);
 	
 	
 	

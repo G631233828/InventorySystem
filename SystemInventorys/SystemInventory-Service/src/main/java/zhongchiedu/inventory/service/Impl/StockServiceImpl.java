@@ -433,4 +433,10 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		return stock;
 	}
 
+	public BasicDataResult findOneById(String id) {
+		Stock stock = this.findOneById(id, Stock.class);
+		
+		return Common.isNotEmpty(stock)?BasicDataResult.build(200, "查询成功", stock):BasicDataResult.build(400, "查询失败", null);
+	}
+
 }
