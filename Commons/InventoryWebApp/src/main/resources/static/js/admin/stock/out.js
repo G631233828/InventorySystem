@@ -3,19 +3,18 @@ $().ready(function() {
 
 		$("#commentForm").validate();
 		var a = "<i class='fa fa-times-circle'></i> ";
-		$("#stockStatisticsForm").validate({
-			
+		$("#OutstockStatisticsForm").validate({
 			submitHandler:function(form){
 				// 校验通过后通过ajax的方式提交
 				$.ajax({
 					dataType:"json",
 					type:"POST",
-					url: getRootPath() + "/stockStatistics/in",
-					data:$("#stockStatisticsForm").serialize(),
+					url: getRootPath() + "/stockStatistics/out",
+					data:$("#OutstockStatisticsForm").serialize(),
 					success:function(data){
 						if(data.status == 200){
 							var  newInventory = data.data.newNum;
-							var id = $("#stockId").val();
+							var id = $("#stockIdOut").val();
 							if(newInventory > 5){
 								$("#inventory_"+id).css("color","green");
 							}else if(newInventory ==0){
@@ -25,7 +24,7 @@ $().ready(function() {
 							}
 							
 							$("#inventory_"+id).text(newInventory);
-							$("#mystockStatistics").modal('hide');
+							$("#mystockStatistics2").modal('hide');
 							
 							// 判断是否已存在，如果已存在则直接显示
 							jqueryAlert({
@@ -55,7 +54,7 @@ $().ready(function() {
 			},
 			messages : {
 				num : {
-					required : a + "请输入入库数量！",
+					required : a + "请输入出库数量！",
 					number : a + "请输入一个合法的数字！",
 					digits : a + "请输入整数！"
 				}
@@ -69,7 +68,17 @@ $().ready(function() {
 
 
 
-
+//
+//
+//// 检查库存是否足够
+//jQuery.validator.checkNum("checkNum", function(value, element) {
+//	var oldVal = $("#"+element).val();
+//	if(value > oldVal){
+//		return false ;
+//	} 
+//	return true ;
+//}, "出库数量不能大于当前库存数量");
+//
 
 
 

@@ -44,6 +44,48 @@ function showStockStatistics(o) {
 	$("#mystockStatistics").modal('show');
 }
 
+
+/**
+ * 出库
+ */
+function showStockStatistics2(o) {
+	$(".stockval").val('');
+	$(".stockval").text('');
+	
+	$.ajax({
+		type : 'POST',
+		url : 'stockStatistics/findStock',
+		data : "id=" + o ,
+		dataType : 'json',
+		success : function(data) {
+			if (data.status == 200) {
+				var datas = data.data;
+				var name = datas.name;
+				var inventory = datas.inventory;
+				var stockid = datas.id;
+				
+				$("#stockIdOut").val(stockid);
+				$("#stockNameOut").text(name);
+				$("#loadinventoryOut").text(inventory);
+				
+			}
+		}
+	})
+	$("#mystockStatistics2").modal('show');
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 function showSupplier(o) {
 	$(".supplier2").text('');
 	$.ajax({

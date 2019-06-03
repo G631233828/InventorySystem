@@ -7,6 +7,8 @@
 <link rel="stylesheet" type="text/css"
 	th:href="@{/assets/js/progress-bar/number-pb.css}">
 <link th:href="@{/plugs/sweetalert/sweetalert.css}" rel="stylesheet">
+<link th:href="@{/plugs/alert/css/alert.css}" rel="stylesheet">
+<script type="text/javascript" th:src="@{/plugs/alert/js/alert.js}"></script>
 </head>
 
 <body>
@@ -57,7 +59,7 @@
 							<div class="title-alt">
 								<div class="row">
 									<div class="col-sm-6">
-									
+
 										<shiro:hasPermission name="stock:add">
 											<button class="btn btn-default btn-sm"
 												th:onclick="|window.location.href='@{/stock}'|">
@@ -104,9 +106,13 @@
 										<select class="filter-status form-control" id="pageSize"
 											onchange="return searchSize()">
 											<option value="10" th:selected="${pageSize == 10}">10
+											
 											<option value="20" th:selected="${pageSize == 20}">20
+											
 											<option value="50" th:selected="${pageSize == 50}">50
+											
 											<option value="100" th:selected="${pageSize == 100}">100
+											
 										</select> <input class="form-control" id="serach" placeholder="模糊匹配"
 											th:value="${search}" type="text">
 										<button class="btn btn-default btn-sm"
@@ -196,33 +202,30 @@
 														<a href="javascript:;"
 														th:onclick="|return showSupplier('${stock?.supplier?.id}')|">[[${stock?.supplier?.name}]]</a>
 													</td>
-													<td class="numeric inventory" id="inventory"
+													<td class="numeric inventory" th:id="|inventory_${stock?.id}|"
 														th:style="${#lists.contains(listColums,'inventory')}?'':'display:none;'"><label
 														th:style="${stock?.inventory > 5}?'color:green':${stock?.inventory == 0?'color:red':'color:blue'}">[[${stock?.inventory}]]</label></td>
 													<td class="numeric email" id="email"
 														th:style="${#lists.contains(listColums,'email')}?'':'display:none;'">[[${stock?.supplier?.email}]]</td>
 													<td class="numeric" th:id="disBtn+${stock.id}"
 														th:utext="${stock.isDisable eq true }?|<button type='button' onclick=toDisable('${stock.id}','stock') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${stock.id}','stock') class='btn btn-success'>启用</button>|"></td>
-													<td class="numeric">
-													<shiro:hasPermission name="stock:in">
+													<td class="numeric"><shiro:hasPermission
+															name="stock:in">
 															<button class="btn source btn-xs"
 																th:onclick="|return showStockStatistics('${stock.id}')|">
 																<i class="entypo-download"> </i>入库
 															</button>
-													</shiro:hasPermission>
-													<shiro:hasPermission name="stock:out">
+														</shiro:hasPermission> <shiro:hasPermission name="stock:out">
 															<button class="btn source btn-xs"
-																th:onclick="|return toOut('${stock.id}')|">
+																th:onclick="|return showStockStatistics2('${stock.id}')|">
 																<i class="entypo-upload"> </i>出库
 															</button>
-													</shiro:hasPermission>
-													<shiro:hasPermission name="stock:edit">
+														</shiro:hasPermission> <shiro:hasPermission name="stock:edit">
 															<button class="btn btn-primary btn-xs"
 																th:onclick="|return toeditPage('${stock.id}','stock')|">
 																<i class="fa fa-edit"> </i>编辑
 															</button>
-													</shiro:hasPermission>
-													<shiro:hasPermission name="stock:delete">
+														</shiro:hasPermission> <shiro:hasPermission name="stock:delete">
 															<button class="btn btn-danger btn-xs"
 																th:onclick="|return del('@{/stock/}${stock.id}','')|">
 																<i class="fa fa-trash-o"> </i>删除
@@ -288,13 +291,15 @@
 		<div th:replace="admin/stock/column::mycolumn"></div>
 		<div th:replace="admin/stock/supplier::mysupplier"></div>
 		<div th:replace="admin/stock/in::mystockStatistics"></div>
-	</div>
+		<div th:replace="admin/stock/out::mystockStatistics2"></div>
 	</div>
 	<!-- 引入stocklist.js -->
 	<script type="text/javascript" th:inline="javascript"
 		th:src="@{/js/admin/stock/stocklist.js}"></script>
 	<script type="text/javascript" th:inline="javascript"
 		th:src="@{/js/admin/stock/in.js}"></script>
+	<script type="text/javascript" th:inline="javascript"
+		th:src="@{/js/admin/stock/out.js}"></script>
 	<!--  END OF PAPER WRAP -->
 	<script type="text/javascript"
 		th:src="@{/plugs/prettyfile/bootstrap-prettyfile.js}"></script>
@@ -305,19 +310,16 @@
 	<div th:replace="public/public_js::pub_js"></div>
 	<div th:replace="public/public_js::public_script"></div>
 	<div th:replace="public/public::footer"></div>
-		<!-- Jquery Validate -->
+	<!-- Jquery Validate -->
 	<script type="text/javascript"
 		th:src="@{/plugs/validate/jquery.validate.min.js}"></script>
 	<script type="text/javascript"
 		th:src="@{/plugs/validate/messages_zh.min.js}"></script>
 	<!-- Sweet alert -->
 	<script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
-<script type="text/javascript">
-
-
-
-
-</script>
+	<script type="text/javascript">
+		
+	</script>
 </body>
 
 </html>

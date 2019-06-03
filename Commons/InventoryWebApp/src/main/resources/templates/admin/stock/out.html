@@ -10,14 +10,14 @@
 	<!-- 信息提示 -->
 	<div aria-labelledby="myLargeModalLabel" role="dialog" tabindex="-1"
 		class="modal fade bs-example-modal-lg" style="display: none;"
-		th:fragment="mystockStatistics" id="mystockStatistics">
+		th:fragment="mystockStatistics2" id="mystockStatistics2">
 		<div class="modal-dialog modal-lg"
 			style="margin-top: 10%; width: 800px; height: 400px;">
 			<div class="modal-content">
 
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal">×</button>
-					<h4>商品入库</h4>
+					<h4>商品出库</h4>
 				</div>
 				<div class="content-wrap">
 
@@ -27,13 +27,13 @@
 							<div class="col-md-12 personal-info">
 							
 								<form class="form-horizontal" enctype="multipart/form-data"
-									id="stockStatisticsForm">
+									id="OutstockStatisticsForm">
 									<div class="form-group">
 										<div class="row">
-											<label class="col-lg-2  text-info ">入库商品名称：</label>
+											<label class="col-lg-2  text-info ">出商品名称：</label>
 											<div class="col-lg-3">
-												<p  class="text-info stockval" id="stockName" ></p>
-												<input type="hidden" class="text-info stockval" name="stock.id" id="stockId">
+												<p  class="text-info stockval" id="stockNameOut" ></p>
+												<input type="hidden" class="text-info stockval" name="stock.id" id="stockIdOut">
 											</div>
 										</div>
 									</div>
@@ -41,25 +41,25 @@
 										<div class="row">
 											<label class="col-lg-2  text-info ">库存量：</label>
 											<div class="col-lg-3">
-												<p  class="text-info stockval"  id="loadinventory"></p>
+												<p  class="text-info stockval"  id="loadinventoryOut"></p>
 											</div>
 										</div>
 									</div>
 									
 									<div class="form-group">
 										<div class="row">
-											<label class="col-lg-2  text-info " style="margin-top: 3px;">入库数量：</label>
+											<label class="col-lg-2  text-info " style="margin-top: 3px;">出库数量：</label>
 											<div class="col-lg-3 ">
-												<input type="text" class="form-control stockval" name="num" id="num" required="required">
+												<input type="text" class="form-control stockval" name="num" id="numOut" required="required">
 											</div>
 										</div>
 									</div>
-									<input type="hidden" name="InOrOut" value="true">
+									<input type="hidden" name="InOrOut" value="false">
 
 									<div class="form-group">
 										<label class="col-lg-1 control-label"></label>
 										<div class="col-md-8">
-											<button type="submit" class="btn btn-success" >添加</button>
+											<button type="submit" class="btn btn-success" >出库</button>
 											
 										</div>
 									</div>

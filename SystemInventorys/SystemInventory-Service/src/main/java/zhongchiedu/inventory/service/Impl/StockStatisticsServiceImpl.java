@@ -66,7 +66,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 						long newNum = this.updateStock(stock,num , true);
 						stockStatistics.setNewNum(newNum);
 						lockInsert(stockStatistics);
-						return BasicDataResult.build(200, "商品入库成功", null);
+						return BasicDataResult.build(200, "商品入库成功", stockStatistics);
 				} else {
 					// 出库
 					long newNum = this.updateStock(stock,num, false);
@@ -76,7 +76,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 					}
 					stockStatistics.setNewNum(newNum);;
 					lockInsert(stockStatistics);
-					return BasicDataResult.build(200, "商品出库成功", null);
+					return BasicDataResult.build(200, "商品出库成功", stockStatistics);
 				}
 		} else {
 			// 未能找到库存的信息，反馈界面入库失败

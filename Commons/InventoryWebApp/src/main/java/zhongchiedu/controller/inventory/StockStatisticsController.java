@@ -50,15 +50,15 @@ public class StockStatisticsController {
 //	@RequiresPermissions(value = "stockStatistics:in")
 	@SystemControllerLog(description = "商品入库")
 	public BasicDataResult in(@ModelAttribute("stockStatistics") StockStatistics stockStatistics,HttpSession session) {
-		System.out.println(123);
 		return this.stockStatisticsService.inOrOutstockStatistics(stockStatistics, session);
 	}
 
 	@RequestMapping(value = "/stockStatistics/out", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	@RequiresPermissions(value = "stockStatisticss:out")
+//	@RequiresPermissions(value = "stockStatisticss:out")
 	@SystemControllerLog(description = "商品出库")
-	public BasicDataResult out(@ModelAttribute("stockStatisticss") StockStatistics stockStatistics,HttpSession session) {
+	public BasicDataResult out(@ModelAttribute("stockStatistics") StockStatistics stockStatistics,HttpSession session) {
+		System.out.println(123);
 	
 		return this.stockStatisticsService.inOrOutstockStatistics(stockStatistics, session);
 	
