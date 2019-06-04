@@ -11,7 +11,7 @@ import zhongchiedu.inventory.pojo.StockStatistics;
 public interface StockStatisticsService extends GeneralService<StockStatistics> {
 	
 	
-	public Pagination<StockStatistics> findpagination(Integer pageNo,Integer pageSize,boolean inOrOut);
+	public Pagination<StockStatistics> findpagination(Integer pageNo,Integer pageSize,String search);
 	
 	public BasicDataResult inOrOutstockStatistics(StockStatistics stockStatistics,HttpSession session);
 	

@@ -1,12 +1,18 @@
 package zhongchiedu.inventory.service.Impl;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.servlet.http.HttpSession;
 
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
@@ -18,6 +24,7 @@ import zhongchiedu.common.utils.Contents;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralServiceImpl;
 import zhongchiedu.general.pojo.User;
+import zhongchiedu.general.service.Impl.UserServiceImpl;
 import zhongchiedu.inventory.pojo.Stock;
 import zhongchiedu.inventory.pojo.StockStatistics;
 import zhongchiedu.inventory.service.StockStatisticsService;
@@ -28,14 +35,19 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 	private @Autowired StockServiceImpl stockService;
 
+	private @Autowired UserServiceImpl userServiceService;
+	
+	
 	@Override
-	public Pagination<StockStatistics> findpagination(Integer pageNo, Integer pageSize, boolean inOrOut) {
+	public Pagination<StockStatistics> findpagination(Integer pageNo, Integer pageSize,String search) {
 
 		// 分页查询数据
 		Pagination<StockStatistics> pagination = null;
 		try {
 			Query query = new Query();
-			query.addCriteria(Criteria.where("inOrOut").is(inOrOut));
+			//query.addCriteria(Criteria.where("inOrOut").is(inOrOut));
+			query = this.findbySearch(search, query);
+			query.with(new Sort(new Order(Direction.DESC, "createTime")));
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, StockStatistics.class);
 			if (pagination == null)
 				pagination = new Pagination<StockStatistics>();
@@ -45,6 +57,61 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		}
 		return pagination;
 	}
+	
+	
+	public Query findbySearch(String search, Query query) {
+		if (Common.isNotEmpty(search)) {
+			List<Object> stockId = this.findStocks(search);
+			List<Object> userId = this.findUsers(search);
+			
+			Criteria ca = new Criteria();
+			query.addCriteria(ca.orOperator(Criteria.where("stock.$id").in(stockId),
+					Criteria.where("user.$id").in(userId),Criteria.where("name").regex(search)));
+		} 
+			query.addCriteria(Criteria.where("isDelete").is(false));
+		
+		return query;
+
+	}
+	
+	
+	/**
+	 * 模糊匹配类目的Id
+	 * 
+	 * @param search
+	 * @return
+	 */
+	public List<Object> findStocks(String search) {
+		List<Object> list = new ArrayList<>();
+		Query query = new Query();
+		Criteria ca = new Criteria();
+		
+		query.addCriteria(ca.orOperator(Criteria.where("name").regex(search),Criteria.where("model").regex(search)));
+		query.addCriteria(Criteria.where("isDelete").is(false));
+		List<Stock> lists = this.stockService.find(query, Stock.class);
+		for (Stock li : lists) {
+			list.add(new ObjectId(li.getId()));
+		}
+		return list;
+	}
+	
+	
+	public List<Object> findUsers(String search) {
+		List<Object> list = new ArrayList<>();
+		Query query = new Query();
+		
+		query.addCriteria(Criteria.where("userName").regex(search));
+		query.addCriteria(Criteria.where("isDelete").is(false));
+		List<Stock> lists = this.stockService.find(query, Stock.class);
+		for (Stock li : lists) {
+			list.add(new ObjectId(li.getId()));
+		}
+		return list;
+	}
+	
+	
+	
+	
 
 	@Override
 	public BasicDataResult inOrOutstockStatistics(StockStatistics stockStatistics, HttpSession session) {
@@ -57,13 +124,13 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		Stock stock = this.stockService.findOneById(id, Stock.class);
 		if (Common.isNotEmpty(stock)) {
 			User user = (User) session.getAttribute(Contents.USER_SESSION);
-			stockStatistics.setStorageTime(new Date());
 			stockStatistics.setUser(user);
 			stockStatistics.setRevoke(false);
 				if (stockStatistics.isInOrOut()) {
 					// true == 入库
 						// 更新库存中的库存
 						long newNum = this.updateStock(stock,num , true);
+						stockStatistics.setStorageTime(new Date());
 						stockStatistics.setNewNum(newNum);
 						lockInsert(stockStatistics);
 						return BasicDataResult.build(200, "商品入库成功", stockStatistics);
@@ -74,7 +141,8 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 						//出货数量不够
 						return BasicDataResult.build(400, "货物库存数量不足", null);
 					}
-					stockStatistics.setNewNum(newNum);;
+					stockStatistics.setDepotTime(new Date());
+					stockStatistics.setNewNum(newNum);
 					lockInsert(stockStatistics);
 					return BasicDataResult.build(200, "商品出库成功", stockStatistics);
 				}
