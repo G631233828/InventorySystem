@@ -36,17 +36,16 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	private @Autowired StockServiceImpl stockService;
 
 	private @Autowired UserServiceImpl userServiceService;
-	
-	
+
 	@Override
-	public Pagination<StockStatistics> findpagination(Integer pageNo, Integer pageSize,String search) {
+	public Pagination<StockStatistics> findpagination(Integer pageNo, Integer pageSize, String search, String start,
+			String end, String type) {
 
 		// 分页查询数据
 		Pagination<StockStatistics> pagination = null;
 		try {
 			Query query = new Query();
-			//query.addCriteria(Criteria.where("inOrOut").is(inOrOut));
-			query = this.findbySearch(search, query);
+			query = this.findbySearch(search, start, end, type, query);
 			query.with(new Sort(new Order(Direction.DESC, "createTime")));
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, StockStatistics.class);
 			if (pagination == null)
@@ -57,24 +56,35 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		}
 		return pagination;
 	}
-	
-	
-	public Query findbySearch(String search, Query query) {
+
+	public Query findbySearch(String search, String start, String end, String type, Query query) {
+
+		Criteria ca = new Criteria();
+		Criteria ca1 = new Criteria();
+		Criteria ca2 = new Criteria();
+		if (type.equals("in")) {
+			query.addCriteria(Criteria.where("inOrOut").is(true));
+		} else if (type.equals("out")) {
+			query.addCriteria(Criteria.where("inOrOut").is(false));
+		}
+
 		if (Common.isNotEmpty(search)) {
 			List<Object> stockId = this.findStocks(search);
 			List<Object> userId = this.findUsers(search);
-			
-			Criteria ca = new Criteria();
-			query.addCriteria(ca.orOperator(Criteria.where("stock.$id").in(stockId),
-					Criteria.where("user.$id").in(userId),Criteria.where("name").regex(search)));
-		} 
-			query.addCriteria(Criteria.where("isDelete").is(false));
+			ca1.orOperator(Criteria.where("stock.$id").in(stockId),Criteria.where("user.$id").in(userId), Criteria.where("name").regex(search));
+		}
 		
+		if(Common.isNotEmpty(start)&&Common.isNotEmpty(end)){
+			ca2.orOperator(Criteria.where("storageTime").gte(start).lte(end),Criteria.where("depotTime").gte(start).lte(end));
+		}
+		query.addCriteria(ca.andOperator(ca1,ca2));
+		
+		query.addCriteria(Criteria.where("isDelete").is(false));
+
 		return query;
 
 	}
-	
-	
+
 	/**
 	 * 模糊匹配类目的Id
 	 * 
@@ -85,8 +95,8 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		List<Object> list = new ArrayList<>();
 		Query query = new Query();
 		Criteria ca = new Criteria();
-		
-		query.addCriteria(ca.orOperator(Criteria.where("name").regex(search),Criteria.where("model").regex(search)));
+
+		query.addCriteria(ca.orOperator(Criteria.where("name").regex(search), Criteria.where("model").regex(search)));
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		List<Stock> lists = this.stockService.find(query, Stock.class);
 		for (Stock li : lists) {
@@ -94,12 +104,11 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		}
 		return list;
 	}
-	
-	
+
 	public List<Object> findUsers(String search) {
 		List<Object> list = new ArrayList<>();
 		Query query = new Query();
-		
+
 		query.addCriteria(Criteria.where("userName").regex(search));
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		List<Stock> lists = this.stockService.find(query, Stock.class);
@@ -108,16 +117,12 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		}
 		return list;
 	}
-	
-	
-	
-	
 
 	@Override
 	public BasicDataResult inOrOutstockStatistics(StockStatistics stockStatistics, HttpSession session) {
 
 		long num = stockStatistics.getNum();
-		if(num<=0){
+		if (num <= 0) {
 			return BasicDataResult.build(400, "操作的数据有误！", null);
 		}
 		String id = stockStatistics.getStock().getId();// 获取库存设备id
@@ -126,26 +131,26 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			User user = (User) session.getAttribute(Contents.USER_SESSION);
 			stockStatistics.setUser(user);
 			stockStatistics.setRevoke(false);
-				if (stockStatistics.isInOrOut()) {
-					// true == 入库
-						// 更新库存中的库存
-						long newNum = this.updateStock(stock,num , true);
-						stockStatistics.setStorageTime(new Date());
-						stockStatistics.setNewNum(newNum);
-						lockInsert(stockStatistics);
-						return BasicDataResult.build(200, "商品入库成功", stockStatistics);
-				} else {
-					// 出库
-					long newNum = this.updateStock(stock,num, false);
-					if(newNum == -1){
-						//出货数量不够
-						return BasicDataResult.build(400, "货物库存数量不足", null);
-					}
-					stockStatistics.setDepotTime(new Date());
-					stockStatistics.setNewNum(newNum);
-					lockInsert(stockStatistics);
-					return BasicDataResult.build(200, "商品出库成功", stockStatistics);
+			if (stockStatistics.isInOrOut()) {
+				// true == 入库
+				// 更新库存中的库存
+				long newNum = this.updateStock(stock, num, true);
+				stockStatistics.setStorageTime(Common.fromDateH());
+				stockStatistics.setNewNum(newNum);
+				lockInsert(stockStatistics);
+				return BasicDataResult.build(200, "商品入库成功", stockStatistics);
+			} else {
+				// 出库
+				long newNum = this.updateStock(stock, num, false);
+				if (newNum == -1) {
+					// 出货数量不够
+					return BasicDataResult.build(400, "货物库存数量不足", null);
 				}
+				stockStatistics.setDepotTime(Common.fromDateH());
+				stockStatistics.setNewNum(newNum);
+				lockInsert(stockStatistics);
+				return BasicDataResult.build(200, "商品出库成功", stockStatistics);
+			}
 		} else {
 			// 未能找到库存的信息，反馈界面入库失败
 			return BasicDataResult.build(400, "未能找到库存商品", null);
@@ -154,39 +159,32 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 	Lock lock = new ReentrantLock();
 	Lock lockinsert = new ReentrantLock();
-	
-	
-	public void lockInsert(StockStatistics stockStatistics){
-		
+
+	public void lockInsert(StockStatistics stockStatistics) {
+
 		lockinsert.lock();
-		try{
+		try {
 			this.insert(stockStatistics);
-		}finally{
+		} finally {
 			lockinsert.unlock();
 		}
-		
-		
+
 	}
-	
-	
-	
-	
-	
 
 	public long updateStock(Stock stock, long num, boolean inOrOut) {
 		lock.lock();
 		long oldnum = stock.getInventory();
 		long newnum = 0;
 		try {
-			if(inOrOut){
-				//入库
+			if (inOrOut) {
+				// 入库
 				newnum = oldnum + num;
 				stock.setInventory(newnum);
 				this.stockService.save(stock);
 				return newnum;
-			}else{
-				//出库
-				if((oldnum - num)<0){
+			} else {
+				// 出库
+				if ((oldnum - num) < 0) {
 					return -1;
 				}
 				newnum = oldnum - num;

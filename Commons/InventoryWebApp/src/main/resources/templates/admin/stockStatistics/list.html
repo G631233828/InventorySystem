@@ -69,34 +69,36 @@
 							<div class="body-nest" id="tableStatic">
 
 								<div class="row" style="margin-bottom: 10px;">
-									<div class="col-sm-3 form-inline">
+									<div class="col-sm-8 form-inline">
 										<select class="filter-status form-control" id="pageSize"
-											onchange="return searchSize()">
+											onchange="return searchVal()">
 											<option value="10" th:selected="${pageSize == 10}">10
-
-
-											
 											<option value="20" th:selected="${pageSize == 20}">20
-
-
-											
 											<option value="50" th:selected="${pageSize == 50}">50
-
-
-											
 											<option value="100" th:selected="${pageSize == 100}">100
-
-
-											
-										</select> <input class="form-control" id="serach" placeholder="模糊匹配"
+										</select> 
+										
+										
+										<input class="form-control" id="serach" placeholder="模糊匹配"
 											th:value="${search}" type="text">
-											<input class="form-control datepicker" id="start" placeholder="开始日期"
+										<input class="form-control datepicker" readonly="readonly"  id="start" placeholder="开始日期"
 											th:value="${start}" type="text">
-											<input class="form-control datepicker" id="end" placeholder="结束日期"
+										<input class="form-control datepicker" readonly="readonly"  id="end" placeholder="结束日期"
 											th:value="${end}" type="text">
+											
+										<select class="filter-status form-control" id="type" name="type">
+											<option value="all" th:selected="${type == 'all'}">所有
+											<option value="in" th:selected="${type == 'in'}">入库
+											<option value="out" th:selected="${type == 'out'}">出库
+										</select> 	
+											
 										<button class="btn btn-default btn-sm"
 											onclick="return searchVal()">
 											<i class="entypo-search"> </i> 搜索
+										</button>
+										<button class="btn btn-default btn-sm"
+											onclick="return clearaa()">
+											<i class="entypo-search"> </i> 清空
 										</button>
 									</div>
 								</div>
@@ -147,7 +149,7 @@
 										</thead>
 										<tbody>
 											<!-- 目录 -->
-											<th:block th:each="stockStatistics:${pageList.datas}">
+											<th:block th:each="stockStatistics:${pageList?.datas}">
 												<tr>
 													<td class="numeric">
 														<div class="checkbox checkbox-inline"
@@ -165,13 +167,13 @@
 														th:style="${#lists.contains(listColums,'stockModel')}?'':'display:none;'">[[${stockStatistics?.stock?.model}]]</td>
 													<td class="numeric storageTime" id="storageTime"
 														th:style="${#lists.contains(listColums,'storageTime')}?'':'display:none;'"
-														th:text="${stockStatistics.storageTime!=null}?${#dates.format(stockStatistics?.storageTime,'yyyy-MM-dd HH:mm:ss')}:'--------'"></td>
+														th:text="${stockStatistics.storageTime!=null}?${stockStatistics?.storageTime}:'--------'"></td>
 													<td class="numeric inNum" id="inNum"
 														th:style="${#lists.contains(listColums,'inNum')}?'':'display:none;'"
 														th:text="${stockStatistics.storageTime != null}?${stockStatistics?.num}:'--------'"></td>
 													<td class="numeric depotTime" id="depotTime"
 														th:style="${#lists.contains(listColums,'depotTime')}?'':'display:none;'"
-														th:text="${stockStatistics.depotTime!=null}?${#dates.format(stockStatistics?.depotTime,'yyyy-MM-dd HH:mm:ss')}:'--------'"></td>
+														th:text="${stockStatistics.depotTime!=null}?${stockStatistics?.depotTime}:'--------'"></td>
 													<td class="numeric outNum" id="outNum"
 														th:style="${#lists.contains(listColums,'outNum')}?'':'display:none;'"
 														th:text="${stockStatistics.depotTime != null}?${stockStatistics?.num}:'--------'"></td>
@@ -182,12 +184,15 @@
 													<td class="numeric user" id="user"
 														th:style="${#lists.contains(listColums,'user')}?'':'display:none;'">[[${stockStatistics?.user?.userName}]]</td>
 													<td class="numeric revoke" id="revoke"
-														th:style="${#lists.contains(listColums,'revoke')}?'':'display:none;'">[[${stockStatistics?.revoke}]]</td>
+														th:style="${#lists.contains(listColums,'revoke')}?'':'display:none;'">
+														<label
+														th:style="${stockStatistics?.revoke == true}?'color:red':'color:green'" th:text="${stockStatistics?.revoke == true}?'已撤销':'正常'"></label>
+													</td>
 													<td class="numeric">
 														<!-- <shiro:hasPermission
 															name="stockStatistics:edit"> -->
 														<button class="btn btn-primary btn-xs"
-															th:onclick="|return toeditPage('${stockStatistics.id}','stockStatistics')|">
+															th:onclick="|return revoke('${stockStatistics?.id}')|">
 															<i class="fa fa-edit"> </i>撤销
 														</button> <!-- </shiro:hasPermission> -->
 													</td>
@@ -209,23 +214,23 @@
 										<div class="col-md-6">
 											<div class="dataTables_info hidden-xs"
 												style="margin-top: 0px;" role="status" aria-live="polite"
-												th:text="|每页显示${pageList.pageSize}行
+												th:text="|每页显示${pageList?.pageSize}行
 										－ 当前页${pageList.pageNo}页 － 共${pageList.totalPage}页|"></div>
 										</div>
 										<div class="col-md-6">
 											<ul class="pagination pagination-split pull-right"
 												style="margin-top: 0px;">
 												<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
-													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/stockStatistics(pageNo=${pageList.upPage},pageSize=${pageSize},search=${search})}">上一页</a>
+													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList.upPage},pageSize=${pageSize},search=${search})}">上一页</a>
 												</li>
 												<li th:each="page:${pageList.navigatepageNums}"
 													th:class="${page  == pageList.pageNo}?active:''"><a
-													th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/stockStatistics(pageNo=${page},pageSize=${pageSize},search=${search})}">[[${page}]]</a>
+													th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/stockStatisticss(pageNo=${page},pageSize=${pageSize},search=${search})}">[[${page}]]</a>
 												</li>
 												<li
 													th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
 													<a
-													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/stockStatistics(pageNo=${pageList.nextPage},pageSize=${pageSize},search=${search})}">下一页</a>
+													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList.nextPage},pageSize=${pageSize},search=${search})}">下一页</a>
 												</li>
 											</ul>
 										</div>
@@ -248,6 +253,7 @@
 
 		<div th:replace="public/public::myModal"></div>
 		<div th:replace="admin/stockStatistics/column::mycolumn"></div>
+		<div th:replace="admin/stockStatistics/revoke::myrevoke"></div>
 	</div>
 	<!-- 引入stockStatisticslist.js -->
 	<script type="text/javascript" th:inline="javascript"

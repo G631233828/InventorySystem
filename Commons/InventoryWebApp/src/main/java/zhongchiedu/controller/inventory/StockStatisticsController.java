@@ -47,13 +47,20 @@ public class StockStatisticsController {
 	@SystemControllerLog(description = "查询库存统计")
 	public String list(@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
 			@RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize, HttpSession session,
-			@RequestParam(value = "search", defaultValue = "") String search) {
+			@RequestParam(value = "search", defaultValue = "") String search,
+			@RequestParam(value = "start", defaultValue = "") String start,
+			@RequestParam(value = "end", defaultValue = "") String end,
+			@RequestParam(value = "type", defaultValue = "") String type
+			) {
 
-		Pagination<StockStatistics> pagination = this.stockStatisticsService.findpagination(pageNo, pageSize,search);
+		Pagination<StockStatistics> pagination = this.stockStatisticsService.findpagination(pageNo, pageSize,search,start,end,type);
 		model.addAttribute("pageList", pagination);
 		List<String> listColums = this.columnService.findColumns("stockStatistics");
 		model.addAttribute("listColums", listColums);
 		model.addAttribute("search", search);
+		model.addAttribute("start", start);
+		model.addAttribute("end", end);
+		model.addAttribute("type", type);
 		return "admin/stockStatistics/list";
 	}
 

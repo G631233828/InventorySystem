@@ -5,6 +5,33 @@ function showColumn() {
 
 
 
+function clearaa(){
+	$("#start").val('');
+	$("#end").val('');
+	$("#serach").val('');
+	
+}
+
+
+/**
+ * 撤回
+ * @param o
+ * @returns
+ */
+function revoke(o){
+	
+	$("#myrevoke").modal('show');
+	
+	
+	
+	
+	
+	
+}
+
+
+
+
 
 
 
@@ -13,7 +40,9 @@ function searchVal() {
 
 	var pageSize = $("#pageSize").val();
 	var search = $("#serach").val();
-
+	var start = $("#start").val();
+	var end = $("#end").val();
+	var type = $("#type").val();
 /*	if (search == null || search == "") {
 		swal({
 			type : "warning",
@@ -22,16 +51,20 @@ function searchVal() {
 		});
 		return ;
 	}*/
-	window.location.href="stockStatisticss?pageSize="+pageSize+"&search="+search;
+	window.location.href="stockStatisticss?pageSize="+pageSize+"&search="+search+"&start="+start+"&end="+end+"&type="+type;
+
 
 }
-function searchSize() {
-	
-	var pageSize = $("#pageSize").val();
-	var search = $("#serach").val();
-	window.location.href="stockStatisticss?pageSize="+pageSize+"&search="+search;
-	
-}
+//function searchSize() {
+//	
+//	var pageSize = $("#pageSize").val();
+//	var search = $("#serach").val();
+//	var start = $("#start").val();
+//	var end = $("#end").val();
+//	var type = $("#type").val();
+//	window.location.href="stockStatisticss?pageSize="+pageSize+"&search="+search+"&start="+start+"&end="+end+"&type="+type;
+//	
+//}
 
 function selectColumn(o) {
 
@@ -66,7 +99,7 @@ function selectColumn(o) {
 
 $(".datepicker").datepicker({
     language: "zh-CN",
-    format: "yyyy-mm-dd",
+    format: "yyyy-mm-dd 00:00:00",
     keyboardNavigation : false,
 	forceParse : false,
 	autoclose : true
