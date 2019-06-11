@@ -13,11 +13,17 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.util.CellRangeAddress;
 import org.bson.types.ObjectId;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.CriteriaDefinition;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
@@ -112,14 +118,17 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		return "error";
 	}
 
-
 	@Override
 	public Pagination<Stock> findpagination(Integer pageNo, Integer pageSize, String search) {
 		// 分页查询数据
 		Pagination<Stock> pagination = null;
 		try {
 			Query query = new Query();
-			query = this.findbySearch(search, query);
+
+			if (Common.isNotEmpty(search)) {
+				query = this.findbySearch(search, query);
+			}
+			query.addCriteria(Criteria.where("isDelete").is(false));
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, Stock.class);
 			if (pagination == null)
 				pagination = new Pagination<Stock>();
@@ -139,11 +148,10 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			List<Object> suppliersId = this.findSuppliersId(search, systemClassification, category, brand);
 			Criteria ca = new Criteria();
 			query.addCriteria(ca.orOperator(Criteria.where("goodsStorage.$id").in(goodsStorage),
-					Criteria.where("supplier.$id").in(suppliersId),Criteria.where("name").regex(search),
+					Criteria.where("supplier.$id").in(suppliersId), Criteria.where("name").regex(search),
 					Criteria.where("model").regex(search), Criteria.where("scope").regex(search)));
-		} 
-			query.addCriteria(Criteria.where("isDelete").is(false));
-		
+		}
+
 		return query;
 
 	}
@@ -195,15 +203,15 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		List<Object> list = new ArrayList<>();
 		Query query = new Query();
 		Criteria ca = new Criteria();
-		if(search.contains("/")){
+		if (search.contains("/")) {
 			query.addCriteria(ca.orOperator(Criteria.where("address").regex(search),
-					Criteria.where("shelfNumber").is(search.split("/")[0]), Criteria.where("shelflevel").is(search.split("/")[1])));
-		}else{
+					Criteria.where("shelfNumber").is(search.split("/")[0]),
+					Criteria.where("shelflevel").is(search.split("/")[1])));
+		} else {
 			query.addCriteria(ca.orOperator(Criteria.where("address").regex(search),
 					Criteria.where("shelfNumber").regex(search), Criteria.where("shelflevel").regex(search)));
 		}
-		
-	
+
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		List<GoodsStorage> lists = this.goodsStorageService.find(query, GoodsStorage.class);
 		for (GoodsStorage li : lists) {
@@ -435,8 +443,145 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 	public BasicDataResult findOneById(String id) {
 		Stock stock = this.findOneById(id, Stock.class);
-		
-		return Common.isNotEmpty(stock)?BasicDataResult.build(200, "查询成功", stock):BasicDataResult.build(400, "查询失败", null);
+
+		return Common.isNotEmpty(stock) ? BasicDataResult.build(200, "查询成功", stock)
+				: BasicDataResult.build(400, "查询失败", null);
+	}
+
+	@Override
+	public HSSFWorkbook export(String name) {
+		HSSFWorkbook wb = new HSSFWorkbook();
+
+		// 创建sheet
+		HSSFSheet sheet = wb.createSheet(name);
+		HSSFCellStyle style = createStyle(wb);
+		List<String> title = this.title();
+		this.createHead(sheet, title, style, name);
+		this.createTitle(sheet, title, style);
+		this.createStock(sheet, title, style);
+		return wb;
+	}
+
+	/**
+	 * 创建样式
+	 * 
+	 * @param wb
+	 * @return
+	 */
+	public HSSFCellStyle createStyle(HSSFWorkbook wb) {
+
+		HSSFCellStyle style = wb.createCellStyle();
+		// 设置边框
+		style.setBorderTop(HSSFCellStyle.BORDER_THIN);
+		style.setBorderBottom(HSSFCellStyle.BORDER_THIN);
+		style.setBorderLeft(HSSFCellStyle.BORDER_THIN);
+		style.setBorderRight(HSSFCellStyle.BORDER_THIN);
+		HSSFFont font = wb.createFont();
+		font.setFontName("宋体");
+		font.setFontHeightInPoints((short) 9);
+		style.setFont(font);
+		style.setAlignment(HSSFCellStyle.ALIGN_CENTER); // 水平布局：居
+		return style;
+
+	}
+
+	/**
+	 * 创建第一行
+	 * 
+	 * @param sheet
+	 */
+	public void createHead(HSSFSheet sheet, List<String> title, HSSFCellStyle style, String name) {
+		HSSFRow row = sheet.createRow(0);// 初始化excel第一行
+		for (int a = 0; a < title.size(); a++) {
+			HSSFCell cell = row.createCell(a);
+			cell.setCellValue(name);
+			sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, title.size() - 1));
+			cell.setCellStyle(style);
+		}
+	}
+
+	/**
+	 * 创建第二行 创建所有的title
+	 * 
+	 * @param sheet
+	 */
+	public void createTitle(HSSFSheet sheet, List<String> title, HSSFCellStyle style) {
+		HSSFRow row = sheet.createRow(1);
+		for (int a = 0; a < title.size(); a++) {
+			HSSFCell cell = row.createCell(a);
+			cell.setCellValue(title.get(a));
+			cell.setCellStyle(style);
+		}
+	}
+
+	/**
+	 * 创建第三行 创建数据
+	 * 
+	 * @param sheet
+	 */
+	public void createStock(HSSFSheet sheet, List<String> title, HSSFCellStyle style) {
+
+		int j = 1;
+		// 获取所有的库存
+		List<Stock> list = this.findAllStock(false);
+
+		for (Stock stock : list) {
+			// 获取所有的设备
+			HSSFRow row = sheet.createRow(j + 1);
+			HSSFCell cell = row.createCell(0);
+			cell.setCellStyle(style);
+			cell.setCellValue(stock.getName());
+
+			cell = row.createCell(1);
+			cell.setCellStyle(style);
+			cell.setCellValue(stock.getModel());
+
+			cell = row.createCell(2);
+			cell.setCellStyle(style);
+			cell.setCellValue(stock.getScope());
+
+			cell = row.createCell(3);
+			cell.setCellStyle(style);
+			if (Common.isNotEmpty(stock.getGoodsStorage())) {
+				cell.setCellValue(
+						stock.getGoodsStorage().getShelfNumber() + "/" + stock.getGoodsStorage().getShelflevel());
+			} else {
+				cell.setCellValue("-/-");
+
+			}
+			cell = row.createCell(4);
+			cell.setCellStyle(style);
+			if(Common.isNotEmpty(stock.getUnit())){
+				cell.setCellValue(stock.getUnit().getName());
+			}else{
+				cell.setCellValue("");
+			}
+			
+
+			cell = row.createCell(5);
+			cell.setCellStyle(style);
+			cell.setCellValue(stock.getInventory());
+			j++;
+		}
+
+		sheet.setDefaultColumnWidth(8);
+		sheet.autoSizeColumn(1, true);
+	}
+
+	/**
+	 * 设置title
+	 * 
+	 * @return
+	 */
+	public List<String> title() {
+		List<String> list = new ArrayList<>();
+		list.add("设备名称");
+		list.add("品名型号");
+		list.add("使用范围");
+		list.add("货架号/层");
+		list.add("计量单位 ");
+		list.add("当前库存");
+		return list;
 	}
 
 }

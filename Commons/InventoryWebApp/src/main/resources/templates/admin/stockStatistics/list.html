@@ -24,7 +24,7 @@
 
 	<!-- SIDE MENU -->
 	<div
-		th:replace="public/public::left(activeUri='stockStatisticsManager')"></div>
+		th:replace="public/public::left(activeUri='stockManager')"></div>
 	<!-- END OF SIDE MENU -->
 
 	<!--  PAPER WRAP -->
@@ -55,7 +55,7 @@
 								<div class="row">
 									<div class="col-sm-6">
 										<button class="btn btn-default" onclick="return showColumn()">
-											<i class="fontawesome-upload"> </i>显示列
+											<i class="entypo-list-add"> </i>显示列
 										</button>
 
 
@@ -100,6 +100,10 @@
 											onclick="return clearaa()">
 											<i class="entypo-search"> </i> 清空
 										</button>
+										
+										<button class="btn btn-default" onclick="return toExport()">
+											<i class="entypo-export"> </i>导出库存出入统计报表
+										</button>
 									</div>
 								</div>
 
@@ -116,13 +120,13 @@
 										class="table table-bordered table-striped cf text-nowrap  table-hover">
 										<thead class="cf">
 											<tr>
-												<th class="numeric" style="width: 20px;">
+											<!-- 	<th class="numeric" style="width: 20px;">
 													<div class="checkbox checkbox-inline"
 														style="margin-top: 0px;">
 														<input type="checkbox" id="checkall" name="checkall" /> <label
 															for="checkall"></label>
 													</div>
-												</th>
+												</th> -->
 												<th class="numeric stockName"
 													th:style="${#lists.contains(listColums,'stockName')}?'':'display:none;'">设备名称</th>
 												<th class="numeric stockModel"
@@ -151,7 +155,7 @@
 											<!-- 目录 -->
 											<th:block th:each="stockStatistics:${pageList?.datas}">
 												<tr>
-													<td class="numeric">
+													<!-- <td class="numeric">
 														<div class="checkbox checkbox-inline"
 															style="margin-top: 0px;">
 															<input type="checkbox" name="ids"
@@ -159,7 +163,7 @@
 																th:value="${stockStatistics.id}"> <label
 																th:for="${stockStatistics.id}"></label>
 														</div>
-													</td>
+													</td> -->
 
 													<td class="numeric stockName" id="stockName"
 														th:style="${#lists.contains(listColums,'stockName')}?'':'display:none;'">[[${stockStatistics?.stock?.name}]]</td>
@@ -185,13 +189,13 @@
 														th:style="${#lists.contains(listColums,'user')}?'':'display:none;'">[[${stockStatistics?.user?.userName}]]</td>
 													<td class="numeric revoke" id="revoke"
 														th:style="${#lists.contains(listColums,'revoke')}?'':'display:none;'">
-														<label
+														<label th:id="|revoke${stockStatistics?.id}|"
 														th:style="${stockStatistics?.revoke == true}?'color:red':'color:green'" th:text="${stockStatistics?.revoke == true}?'已撤销':'正常'"></label>
 													</td>
 													<td class="numeric">
 														<!-- <shiro:hasPermission
 															name="stockStatistics:edit"> -->
-														<button class="btn btn-primary btn-xs"
+														<button class="btn btn-primary btn-xs btcancle"  th:id="${stockStatistics?.id}"
 															th:onclick="|return revoke('${stockStatistics?.id}')|">
 															<i class="fa fa-edit"> </i>撤销
 														</button> <!-- </shiro:hasPermission> -->

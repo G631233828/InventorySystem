@@ -139,8 +139,13 @@ public class Common {
 	 * 
 	 * @return String
 	 */
-	public static String fromDateY() {
+	public static String fromDateYMD() {
 		DateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
+		return format1.format(new Date());
+	}
+	
+	public static String fromDateYM() {
+		DateFormat format1 = new SimpleDateFormat("yyyy年-MM月");
 		return format1.format(new Date());
 	}
 
@@ -946,26 +951,26 @@ public class Common {
     
 	
     
-    public static void main(String[] args) {
-    	
-    	String date = "2018-07-07";
-    	String date2 = "2018-07-10";
-    	
-    	DateTimeFormatter  formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-    	LocalDate local = LocalDate.parse(date, formatter);
-    	LocalDate local2 = LocalDate.parse(date2, formatter);
-    	
-    	LocalDate d = LocalDate.of(local.getYear(), local.getMonth(), local.getDayOfMonth());
-    	LocalDate d2 = LocalDate.of(local2.getYear(), local2.getMonth(), local2.getDayOfMonth());
-    	
-    	long dd = d2.toEpochDay() - d.toEpochDay();
-    	
-    	System.out.println(dd);
-    	
-    	
-
-	}
+//    public static void main(String[] args) {
+//    	
+//    	String date = "2018-07-07";
+//    	String date2 = "2018-07-10";
+//    	
+//    	DateTimeFormatter  formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+//
+//    	LocalDate local = LocalDate.parse(date, formatter);
+//    	LocalDate local2 = LocalDate.parse(date2, formatter);
+//    	
+//    	LocalDate d = LocalDate.of(local.getYear(), local.getMonth(), local.getDayOfMonth());
+//    	LocalDate d2 = LocalDate.of(local2.getYear(), local2.getMonth(), local2.getDayOfMonth());
+//    	
+//    	long dd = d2.toEpochDay() - d.toEpochDay();
+//    	
+//    	System.out.println(dd);
+//    	
+//    	
+//
+//	}
 	
 //	public static void main(String[] args) {
 //		String a ="1,2,3,4,5,6,7,8,7,8,4,3";
@@ -979,6 +984,13 @@ public class Common {
 //
 //	}
 	
+    public static void main(String[] args) {
+		
+    	String d = Common.fromDateYM();
+    	System.out.println(d);
+    	
+    	
+	}
 	
 	
 	

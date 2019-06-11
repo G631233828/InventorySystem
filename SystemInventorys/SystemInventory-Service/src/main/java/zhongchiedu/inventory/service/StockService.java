@@ -6,11 +6,14 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralService;
 import zhongchiedu.inventory.pojo.ProcessInfo;
 import zhongchiedu.inventory.pojo.Stock;
+import zhongchiedu.inventory.pojo.StockStatistics;
 
 public interface StockService extends GeneralService<Stock> {
 	
@@ -37,6 +40,8 @@ public interface StockService extends GeneralService<Stock> {
 	public Stock findByName(String name,String model);
 	
 	public BasicDataResult findOneById(String id);
+	
+	public HSSFWorkbook export(String name);
 	
 	
 	

@@ -170,6 +170,31 @@ function searchSize() {
 	
 }
 
+
+
+
+function toStatistics(o){
+	window.location.href = "stockStatisticss?id=" + o;
+	
+}
+
+function toExport(){
+	jqueryAlert({
+	    'icon'    : getRootPath() +'/plugs/alert/img/right.png',
+	    'content' : "正在导出请稍等...",
+	    'closeTime' : 5000,
+	})
+	window.location.href = "stock/export";
+	
+	
+}
+
+
+
+
+
+
+
 function selectColumn(o) {
 
 	var td = "#ch_" + o;
