@@ -296,11 +296,13 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			sheet = wb.createSheet(i);
 			HSSFCellStyle style = createStyle(wb);
 			List<String> title = this.title();
-			this.createHead(sheet, title, style, start + "-" + end + i);
+			this.createHead(sheet, title, style, start+" \t"+ end + i);
 			this.createTitle(sheet, title, style);
 			this.createStock(sheet, title, style, search, start, end, type);
+			sheet.createFreezePane(2, 0, 2, 0);
+			sheet.setDefaultColumnWidth(20);
+			sheet.autoSizeColumn(1, true);
 		}
-
 		return wb;
 	}
 
@@ -337,7 +339,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		for (int a = 0; a < title.size(); a++) {
 			HSSFCell cell = row.createCell(a);
 			cell.setCellValue(name);
-			sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 20));
+			sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 10));
 			cell.setCellStyle(style);
 		}
 	}
@@ -407,8 +409,6 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			j++;
 		}
 
-		sheet.setDefaultColumnWidth(20);
-		sheet.autoSizeColumn(1, true);
 	}
 
 	/**
@@ -420,6 +420,8 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		List<String> list = new ArrayList<>();
 		list.add("设备名称");
 		list.add("品名型号");
+		list.add("日期");
+		list.add("数量");
 		return list;
 	}
 
@@ -428,6 +430,20 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		query = this.findbySearch(search, start, end, type, query);
 		query.with(new Sort(new Order(Direction.DESC, "createTime")));
 		query.addCriteria(Criteria.where("revoke").is(false));
+		List<StockStatistics> list = this.find(query, StockStatistics.class);
+		return list;
+	}
+
+	@Override
+	public List<StockStatistics> findAllByDate(String date, boolean inOrOut) {
+		Query query = new Query();
+		if(inOrOut){
+			//true 查入库
+			query.addCriteria(Criteria.where("storageTime").regex(date)).addCriteria(Criteria.where("inOrOut").is(inOrOut));
+		}else{
+			//false 查出库
+			query.addCriteria(Criteria.where("depotTime").regex(date)).addCriteria(Criteria.where("inOrOut").is(inOrOut));
+		}
 		List<StockStatistics> list = this.find(query, StockStatistics.class);
 		return list;
 	}

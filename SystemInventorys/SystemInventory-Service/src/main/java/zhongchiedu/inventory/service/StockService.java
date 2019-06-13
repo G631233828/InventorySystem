@@ -43,6 +43,8 @@ public interface StockService extends GeneralService<Stock> {
 	
 	public HSSFWorkbook export(String name);
 	
+	public List<Stock> findLowStock(int num);
+	
 	
 	
 }

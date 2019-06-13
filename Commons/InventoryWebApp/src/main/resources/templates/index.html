@@ -5,17 +5,12 @@
 <head th:include="public/public_css::pub_css"></head>
 <head>
 <meta charset="utf-8">
-<link rel="stylesheet" type="text/css"
-	th:href="@{/assets/js/progress-bar/number-pb.css}">
-<link th:href="@{/plugs/sweetalert/sweetalert.css}" rel="stylesheet">
-
-<style type="text/css">
-canvas#canvas4 {
-	position: relative;
-	top: 20px;
-}
-</style>
-<link rel="shortcut icon" href="@{/assets/ico/minus.png}">
+<link th:href="@{/assets/js/footable/css/footable.core.css?v=2-0-1}"
+	rel="stylesheet" type="text/css">
+<link th:href="@{/assets/js/footable/css/footable.standalone.css}"
+	rel="stylesheet" type="text/css">
+<link th:href="@{/assets/js/footable/css/footable-demos.css}"
+	rel="stylesheet" type="text/css">
 </head>
 
 <body>
@@ -28,7 +23,7 @@ canvas#canvas4 {
 	<!-- /END OF TOP NAVBAR -->
 
 	<!-- SIDE MENU -->
-	<div th:replace="public/public::left(activeUri='system')"></div>
+	<div th:replace="public/public::left(activeUri='')"></div>
 	<!-- END OF SIDE MENU -->
 
 	<!--  PAPER WRAP -->
@@ -41,12 +36,176 @@ canvas#canvas4 {
 			<div th:replace="public/public::title"></div>
 			<!--/ TITLE -->
 
-			<!-- BREADCRUMB -->
-			<div th:replace="public/public::menu"></div>
+			<!-- BREADCRUMB 
+			<div th:replace="public/public::menu"></div>-->
 			<!-- END OF BREADCRUMB -->
 
 
 
+			<div class="content-wrap">
+				<div class="row">
+
+					<div class="col-lg-4">
+						<div id="RealTimeClose" class="nest">
+							<div class="title-alt">
+								<h6>
+									<span class="fontawesome-resize-horizontal"></span>&nbsp;今日入库
+								</h6>
+							</div>
+							<div class="content-wrap">
+								<div class="row">
+									<div class="col-sm-12">
+										<div class="body-nest" id="Footable">
+
+											<table class="table-striped footable-res footable metro-blue"
+												data-page-size="6" data-limit-navigation="5">
+												<thead>
+													<tr>
+														<th>设备名称1</th>
+														<th>设备型号</th>
+														<th>出库数量</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr th:each="in:${in}">
+														<td th:text="${in?.stock?.name}"></td>
+														<td th:text="${in?.stock?.model}"></td>
+														<td th:text="${in?.num}"></td>
+													</tr>
+												</tbody>
+												<tfoot th:if="${!#lists.isEmpty(in)}">
+													<tr>
+														<td colspan="5">
+															<div class="pagination pagination-centered "></div>
+														</td>
+													</tr>
+												</tfoot>
+											</table>
+
+										</div>
+
+
+									</div>
+
+								</div>
+
+
+							</div>
+						</div>
+					</div>
+					<div class="col-lg-4">
+						<div id="RealTimeClose" class="nest">
+							<div class="title-alt">
+								<h6>
+									<span class="fontawesome-resize-horizontal"></span>&nbsp;今日出库
+								</h6>
+							</div>
+							<div class="content-wrap">
+								<div class="row">
+									<div class="col-sm-12">
+										<div class="body-nest" id="Footable">
+
+											<table class="table-striped footable-res footable metro-blue"
+												data-page-size="6" data-limit-navigation="5">
+												<thead>
+													<tr>
+														<th>设备名称</th>
+														<th>设备型号</th>
+														<th>出库数量</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr th:each="out:${out}">
+														<td th:text="${out?.stock?.name}"></td>
+														<td th:text="${out?.stock?.model}"></td>
+														<td th:text="${out?.num}"></td>
+													</tr>
+
+												</tbody>
+												<tfoot>
+													<tr>
+														<td colspan="5" th:if="${!#lists.isEmpty(out)}">
+															<div class="pagination pagination-centered"></div>
+														</td>
+													</tr>
+												</tfoot>
+											</table>
+
+										</div>
+
+
+									</div>
+
+								</div>
+
+
+							</div>
+						</div>
+					</div>
+					<div class="col-lg-4">
+						<div id="RealTimeClose" class="nest">
+							<div class="title-alt">
+								<h6>
+									<span class="fontawesome-resize-horizontal"></span>&nbsp;库存报警
+								</h6>
+							</div>
+							<div class="content-wrap">
+								<div class="row">
+									<div class="col-sm-12">
+										<div class="body-nest" id="Footable">
+
+											<table class="table-striped footable-res footable metro-blue"
+												data-page-size="6" data-limit-navigation="5">
+												<thead>
+													<tr>
+														<th>设备名称</th>
+														<th>设备型号</th>
+														<th>当前库存量</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr th:each="low:${low}">
+														<td th:text="${low?.name}"></td>
+														<td th:text="${low?.model}"></td>
+														<td th:text="${low?.inventory}"></td>
+													</tr>
+
+												</tbody>
+												<tfoot>
+													<tr>
+														<td colspan="5" th:if="${!#lists.isEmpty(low)}">
+															<div class="pagination pagination-centered"></div>
+														</td>
+													</tr>
+												</tfoot>
+											</table>
+
+										</div>
+
+
+									</div>
+
+								</div>
+
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+			<div th:replace="public/public::myModal"></div>
 		</div>
 	</div>
 	<!--  END OF PAPER WRAP -->
@@ -56,11 +215,20 @@ canvas#canvas4 {
 	<!-- 底部js -->
 	<div th:replace="public/public_js::pub_js"></div>
 	<div th:replace="public/public_js::public_script"></div>
-	<div th:replace="public/public::deleteModal"></div>
 	<div th:replace="public/public::footer"></div>
 
+	<!-- GAGE -->
+	<script type="text/javascript" th:src="@{/assets/js/toggle_close.js}"></script>
+	<script th:src="@{/assets/js/footable/footable.all.min.js}"
+		type="text/javascript"></script>
 
 
+
+	<script type="text/javascript">
+		$(function() {
+			$('.footable-res').footable();
+		});
+	</script>
 
 </body>
 

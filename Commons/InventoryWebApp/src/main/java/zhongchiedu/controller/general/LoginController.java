@@ -1,6 +1,7 @@
 package zhongchiedu.controller.general;
 
 
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.Cookie;
@@ -22,12 +23,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 import zhongchiedu.common.utils.Common;
 import zhongchiedu.common.utils.Contents;
 import zhongchiedu.general.pojo.User;
 import zhongchiedu.general.service.UserService;
+import zhongchiedu.inventory.pojo.Stock;
+import zhongchiedu.inventory.pojo.StockStatistics;
+import zhongchiedu.inventory.service.Impl.StockServiceImpl;
+import zhongchiedu.inventory.service.Impl.StockStatisticsServiceImpl;
 
 @Controller
 public class LoginController {
@@ -37,7 +44,7 @@ public class LoginController {
 	private UserService userService;
 
 	@RequestMapping("/tologin")
-	public String login(User user, HttpServletRequest request, Map<String, Object> map, HttpSession session)
+	public String login(User user, HttpServletRequest request, Map<String, Object> map, HttpSession session,Model model)
 			throws Exception {
 		if(Common.isEmpty(user.getAccountName())||Common.isEmpty(user.getPassWord())){
 			return "login";
@@ -75,7 +82,7 @@ public class LoginController {
 				} catch (UnauthorizedException e) {
 					msg = "您没有得到相应的授权！" + e.getMessage();
 				} finally {
-					// attr.addFlashAttribute("msg", msg);
+					model.addAttribute("msg", msg);
 				}
 				return "login";
 			}
@@ -100,8 +107,22 @@ public class LoginController {
 		return "login";
 	}
 
+	
+	private @Autowired StockServiceImpl stockService;
+	private @Autowired StockStatisticsServiceImpl stockStatisticsService; 
+	
 	@RequestMapping(value="/toindex")
-	public String toindex(){
+	public String toindex(Model model){
+		//今日出库
+		List<StockStatistics> out = this.stockStatisticsService.findAllByDate(Common.fromDateYMD(), false);
+		//今日入库
+		List<StockStatistics> in = this.stockStatisticsService.findAllByDate(Common.fromDateYMD(), true);
+		//低库存
+		List<Stock> low = this.stockService.findLowStock(3);
+		
+		model.addAttribute("out", out);
+		model.addAttribute("in", in);
+		model.addAttribute("low", low);
 		return "index";
 	}
 	

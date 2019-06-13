@@ -23,9 +23,7 @@
 			<div class="row">
 				<div class="col-md-5 col-md-offset-4">
 					<div id="logo-login">
-						<h1>
-							中赤信息技术 (管理后台)
-						</h1>
+						<h1>中赤信息技术 (管理后台)</h1>
 					</div>
 				</div>
 
@@ -35,6 +33,11 @@
 				<div class="col-md-5 col-md-offset-4">
 					<div class="account-box">
 						<form role="form" th:action="@{/tologin}" method="post">
+
+							<div class="alert alert-danger" th:if="${msg != null}">
+								<button data-dismiss="alert" class="close" type="button">×</button>
+								<span class="entypo-attention"></span> <strong th:text="${msg}"></strong>
+							</div>
 							<div class="form-group">
 								<!--a href="#" class="pull-right label-forgot">Forgot email?</a-->
 								<label for="inputAccountName">帐号</label> <input type="text"

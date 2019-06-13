@@ -23,6 +23,9 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.bson.types.ObjectId;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
@@ -459,6 +462,8 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		this.createHead(sheet, title, style, name);
 		this.createTitle(sheet, title, style);
 		this.createStock(sheet, title, style);
+		sheet.setDefaultColumnWidth(12);
+		sheet.autoSizeColumn(1, true);
 		return wb;
 	}
 
@@ -551,12 +556,11 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			}
 			cell = row.createCell(4);
 			cell.setCellStyle(style);
-			if(Common.isNotEmpty(stock.getUnit())){
+			if (Common.isNotEmpty(stock.getUnit())) {
 				cell.setCellValue(stock.getUnit().getName());
-			}else{
+			} else {
 				cell.setCellValue("");
 			}
-			
 
 			cell = row.createCell(5);
 			cell.setCellStyle(style);
@@ -564,8 +568,6 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			j++;
 		}
 
-		sheet.setDefaultColumnWidth(8);
-		sheet.autoSizeColumn(1, true);
 	}
 
 	/**
@@ -582,6 +584,21 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		list.add("计量单位 ");
 		list.add("当前库存");
 		return list;
+	}
+
+	@Override
+	public List<Stock> findLowStock(int num) {
+
+		Query query = new Query();
+		if (num >= 0) {
+			query.addCriteria(Criteria.where("inventory").lte(num));
+			query.addCriteria(Criteria.where("isDelete").is(false));
+			query.with(new Sort(new Order(Direction.ASC, "inventory")));
+			List<Stock> list = this.find(query, Stock.class);
+			return list;
+		}
+
+		return null;
 	}
 
 }

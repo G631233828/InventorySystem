@@ -113,7 +113,7 @@
             if (info.pages.length > 0) {
                 $nav.append('<li class="footable-page-arrow"><a data-page="first" href="#first">' + ft.pageInfo.firstText + '</a>');
                 $nav.append('<li class="footable-page-arrow"><a data-page="prev" href="#prev">' + ft.pageInfo.previousText + '</a></li>');
-                $.each(info.pages, function (i, page) {
+               $.each(info.pages, function (i, page) {
                     if (page.length > 0) {
                         $nav.append('<li class="footable-page"><a data-page="' + i + '" href="#">' + (i + 1) + '</a></li>');
                     }
