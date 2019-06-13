@@ -10,6 +10,6 @@ import zhongchiedu.general.pojo.MultiMedia;
 public interface MultiMediaService extends GeneralService<MultiMedia> {
 
 	
-	 List<MultiMedia> uploadPictures(MultipartFile[] file,String dir,String path,String belong);
+	public List<MultiMedia> uploadPictures(MultipartFile[] file,String dir,String path,String belong,int width,int height);
 	
 }

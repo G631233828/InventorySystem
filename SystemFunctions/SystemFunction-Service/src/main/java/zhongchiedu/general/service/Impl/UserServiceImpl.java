@@ -3,26 +3,31 @@ package zhongchiedu.general.service.Impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.Common;
 import zhongchiedu.framework.service.GeneralServiceImpl;
+import zhongchiedu.general.pojo.MultiMedia;
 import zhongchiedu.general.pojo.Resource;
 import zhongchiedu.general.pojo.Role;
 import zhongchiedu.general.pojo.User;
 import zhongchiedu.general.service.UserService;
 
-@Repository
+@Service
 public class UserServiceImpl extends GeneralServiceImpl<User> implements UserService {
 
 
 	@Autowired
 	private RoleServiceImpl roleService;
 	
+	@Autowired
+	private MultiMediaServiceImpl multiMediaSerice;
 
 	/**
 	 * 用户添加或修改
@@ -31,14 +36,41 @@ public class UserServiceImpl extends GeneralServiceImpl<User> implements UserSer
 	 * @param roleId
 	 * @return
 	 */
-	public void saveOrUpdateUser(User user, String roleId) {
-
+	public void saveOrUpdateUser(User user, String roleId ,MultipartFile[] file ,String imgPath,String dir,String oldheadImg) {
+		User getUser = null;
+		
+		List<MultiMedia> userHead = null; 
+			userHead = this.multiMediaSerice.uploadPictures(file, dir, imgPath, "USER",105,105);
+			if(userHead.size()>0){
+				user.setPhotograph(userHead.get(0));
+			}
+		if(Common.isNotEmpty(user.getId())){
+			getUser = this.findOneById(user.getId(), User.class);
+			if(Common.isNotEmpty(getUser)){
+				user.setPhotograph(Common.isNotEmpty(oldheadImg)?getUser.getPhotograph():null);
+				user.setAccountName(getUser.getAccountName());
+			}
+		}
+		Role role = this.roleService.findRoleById(roleId);
+		user.setRole(role != null ? role : null);
+		if(Common.isNotEmpty(getUser)){
+			BeanUtils.copyProperties(user, getUser);
+			this.save(getUser);
+		}else{
+			user.setResource(new ArrayList<Resource>());
+			this.insert(user);
+		}
+		
+		
+	}
+	public void saveOrUpdateUser(User user, String roleId ) {
+		
 		if (Common.isNotEmpty(user)) {
 			
 			if (Common.isNotEmpty(user.getId())) {
 				// 执行修改操作
 				User eduser = this.findUserById(user.getId());
-
+				
 				if (eduser == null)
 					eduser = new User();
 				eduser.setCardId(user.getCardId());
@@ -47,7 +79,7 @@ public class UserServiceImpl extends GeneralServiceImpl<User> implements UserSer
 				eduser.setUserName(user.getUserName());
 				eduser.setPassWord(user.getPassWord());
 //				eduser.setSchool(school);
-				// eduser.setPhotograph(u.getPhotograph());
+				//eduser.setPhotograph(user.getPhotograph());
 				Role role = this.roleService.findRoleById(roleId);
 				// 通过hid获取角色信息，如果为null 返回null否则返回role
 				eduser.setRole(role != null ? role : null);
@@ -58,7 +90,7 @@ public class UserServiceImpl extends GeneralServiceImpl<User> implements UserSer
 				aduser.setCardId(user.getCardId());
 				aduser.setCardType(user.getCardType());
 				aduser.setIsDisable(false);
-				// aduser.setPhotograph(u.getPhotograph());
+				// aduser.setPhotograph(user.getPhotograph());
 				aduser.setUserName(user.getUserName());
 				aduser.setPassWord(user.getPassWord());
 //				aduser.setSchool(school);
@@ -70,7 +102,7 @@ public class UserServiceImpl extends GeneralServiceImpl<User> implements UserSer
 				this.insert(aduser);
 			}
 		}
-
+		
 	}
 
 	/**

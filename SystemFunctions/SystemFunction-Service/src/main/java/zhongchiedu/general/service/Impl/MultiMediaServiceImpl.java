@@ -18,7 +18,6 @@ import zhongchiedu.general.service.MultiMediaService;
 @Service
 public class MultiMediaServiceImpl  extends GeneralServiceImpl<MultiMedia> implements MultiMediaService{
 
-	
 	@Autowired
 	private FileOperateUtil fileOperateUtil;
 	
@@ -31,7 +30,7 @@ public class MultiMediaServiceImpl  extends GeneralServiceImpl<MultiMedia> imple
 	 * dir  d:/
 	 * path upload/images
 	 */
-	public List<MultiMedia> uploadPictures(MultipartFile[] file,String dir,String path,String belong){
+	public List<MultiMedia> uploadPictures(MultipartFile[] file,String dir,String path,String belong,int width,int height){
 		
 		List<MultiMedia> list = new ArrayList<MultiMedia>();
 		if(Common.isNotEmpty(file[0].getOriginalFilename())){
@@ -40,8 +39,9 @@ public class MultiMediaServiceImpl  extends GeneralServiceImpl<MultiMedia> imple
 				MultiMedia multi = new MultiMedia();
 				Map<String,Object> map = this.fileOperateUtil.upload(m, uploadPath, m.getOriginalFilename());
 				String compName =  map.get(Contents.FILENAME).toString();
-				imageTool.compressPic(uploadPath,uploadPath,compName,"comp_"+compName,640,320,true);
-				multi.setCompressPicName(compName);
+				String com_Name = "comp_"+compName;
+				imageTool.compressPic(uploadPath,uploadPath,compName,com_Name,width,height,true);
+				multi.setCompressPicName(com_Name);
 				multi.setOriginalName(m.getOriginalFilename());
 				multi.setGenerateName(map.get(Contents.FILENAME).toString());
 				multi.setSavePath(path);

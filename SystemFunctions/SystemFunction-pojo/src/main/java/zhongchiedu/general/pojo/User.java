@@ -27,7 +27,9 @@ public class User extends GeneralBean<User> {
 	private String passWord;		//登录密码
 	private String lastLoginTime;   //登录时间
 	private String lastLoginIp;		//上次登录Ip
-	private String photograph;		//用户头像
+	//private String photograph;		//用户头像
+	@DBRef
+	private MultiMedia photograph;
 	private String salt;//加密密码的盐
 	@DBRef
 	private List<Resource> resource;

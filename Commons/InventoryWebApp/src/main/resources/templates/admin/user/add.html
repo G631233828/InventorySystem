@@ -67,39 +67,32 @@ canvas#canvas4 {
 
 							</div>
 
+							<form class="form-horizontal" enctype="multipart/form-data"
+								name="example" id="userForm" th:action="@{/user}" method="post">
+								<div class="body-nest" id="Blank_Page_Content">
+									<div class="row">
+										<!-- left column -->
+										<div class="col-md-3">
+											<div class="text-center">
+											 	<img th:src="${user?.photograph}!=null?${user?.photograph?.savePath }+'/'+${user?.photograph?.generateName }:'assets/img/150.png'" id="myImg" width="150px"
+													height="150px" class="avatar img-circle" alt="avatar"> 
+												<h6>头像上传</h6>
 
-							<div class="body-nest" id="Blank_Page_Content">
-
-
-
-
-								<div class="row">
-
-
-									<!-- left column -->
-									<div class="col-md-3">
-										<div class="text-center">
-											<img src="http://placehold.it/150" class="avatar img-circle"
-												alt="avatar">
-											<h6>头像上传</h6>
-
-											<div class="form-group">
-												<input id="headImg" type="file" multiple=true>
+												<div class="form-group">
+													<input id="headImg" type="file" name="file" multiple="true">
+												</div>
+													 <input name="oldheadImg" id="oldheadImg" th:value="${user?.photograph?.id}" style="display: none;"> 
 											</div>
-
 										</div>
-									</div>
 
-									<!-- edit form column -->
-									<div class="col-md-9 personal-info">
-										<!-- 	<div class="alert alert-info alert-dismissable">
+										<!-- edit form column -->
+										<div class="col-md-9 personal-info">
+											<!-- 	<div class="alert alert-info alert-dismissable">
 											<a class="panel-close close" data-dismiss="alert">×</a> <i
 												class="fa fa-coffee"></i> This is an <strong>.alert</strong>.
 											Use this to show important messages to the user.
 										</div> -->
-										<form class="form-horizontal" enctype="multipart/form-data"
-											name="example" id="userForm" th:action="@{/user}"
-											method="post">
+
 											<input type="hidden" name="_method" value="put"
 												th:if="${user!=null}" /> <input type="hidden" name="id"
 												th:if="${user!=null}" th:value="${user.id}">
@@ -214,10 +207,14 @@ canvas#canvas4 {
 
 
 
-										</form>
+
+										</div>
 									</div>
 								</div>
-							</div>
+
+							</form>
+
+
 						</div>
 					</div>
 					<!-- END OF BLANK PAGE -->
@@ -256,6 +253,27 @@ canvas#canvas4 {
 			fileType : "any",
 			previewFileIcon : "<i class='glyphicon glyphicon-king'></i>"
 		});
+
+		var fileObj = "";
+		var imgData = "";
+
+		$("#headImg").change(function() {
+			var reader = new FileReader();
+			fileObj = $(this)[0].files[0];
+			reader.readAsDataURL(fileObj);
+			reader.onload = function() {
+				$(".text-center .file-preview").remove();
+
+				imgData = reader.result;
+				$("#myImg").attr("src", imgData);
+			}
+
+		})
+
+		$(".fileinput-remove").click(function() {
+			$("#myImg").attr("src", "assets/img/150.png");
+			$("#oldheadImg").val('');
+		})
 	</script>
 
 

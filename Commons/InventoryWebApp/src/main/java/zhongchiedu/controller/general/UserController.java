@@ -1,7 +1,7 @@
 package zhongchiedu.controller.general;
 
-
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -10,6 +10,7 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -23,8 +24,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import zhongchiedu.common.utils.BasicDataResult;
+import zhongchiedu.common.utils.Common;
+import zhongchiedu.common.utils.Contents;
+import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.general.pojo.Role;
 import zhongchiedu.general.pojo.User;
@@ -37,17 +42,20 @@ public class UserController {
 
 	private static final Logger log = LoggerFactory.getLogger(UserController.class);
 
-
 	@Autowired
 	private UserServiceImpl userService;
 
 	@Autowired
 	private RoleServiceImpl roleService;
 
-	/*@Autowired
-	private FileOperateUtil fileOperateUtil;*/
 	
+	@Value("${upload-imgpath}")
+	private String imgPath;
+	@Value("${upload-dir}")
+	private String dir;
 
+	
+	
 	@GetMapping("users")
 	@RequiresPermissions(value = "user:list")
 	@SystemControllerLog(description = "查询所有用户")
@@ -82,47 +90,31 @@ public class UserController {
 		return "admin/user/add";
 	}
 
-	
-	
-	
-	
-	
-
 	@PostMapping("/user")
 	@RequiresPermissions(value = "user:add")
 	@SystemControllerLog(description = "添加用户")
 	public String addUser(HttpServletRequest request, @ModelAttribute("user") User user,
-			@RequestParam(value = "roleId", defaultValue = "") String roleId/*,
-			@RequestParam("myfile") MultipartFile file*/) {
-		/*	Map<String, Object> map = this.fileOperateUtil.upload(file, path, file.getOriginalFilename());
-			User u = new User();
-			if (map.get(Contents.ERROR).equals(false)) {
-				u.setPhotograph((String) map.get(Contents.SAVEPATH));
-			} else {
-				u.setPhotograph("");
-			}*/
+			@RequestParam(value = "roleId", defaultValue = "") String roleId, @RequestParam("file") MultipartFile[] file,
+			@RequestParam(value = "oldheadImg", defaultValue = "") String oldheadImg) {
+		this.userService.saveOrUpdateUser(user, roleId,file,imgPath,dir,oldheadImg);
 
-		this.userService.saveOrUpdateUser(user, roleId);
-		
 		return "redirect:users";
 	}
 
-	
-	
-	
 	@PutMapping("/user")
 	@RequiresPermissions(value = "user:edit")
 	@SystemControllerLog(description = "修改用户")
-	public String editUser(@ModelAttribute("user") User user,
-			@RequestParam(value = "roleId", defaultValue = "") String roleId){
+	public String editUser(HttpServletRequest request, @ModelAttribute("user") User user,
+			@RequestParam(value = "roleId", defaultValue = "") String roleId, MultipartFile[] file,
+			@RequestParam(value = "oldheadImg", defaultValue = "") String oldheadImg) {
+
 		
-	
-		 
-		this.userService.saveOrUpdateUser(user, roleId);
+		
+		this.userService.saveOrUpdateUser(user, roleId,file,imgPath,dir,oldheadImg);
 
 		return "redirect:users";
 	}
-	
+
 	/**
 	 * 跳转到编辑界面
 	 * 
@@ -136,8 +128,7 @@ public class UserController {
 		List<Role> list = this.roleService.findAllRoleByisDisable();
 
 		model.addAttribute("roleList", list);
-		
-		
+
 		User user = this.userService.findOneById(id, User.class);
 
 		model.addAttribute("user", user);
@@ -146,21 +137,18 @@ public class UserController {
 
 	}
 
-	
-	
 	@DeleteMapping("/user/{id}")
 	@RequiresPermissions(value = "user:delete")
 	@SystemControllerLog(description = "删除用户")
-	public String delete(@PathVariable String id){
+	public String delete(@PathVariable String id) {
 		String[] strids = id.split(",");
 		for (String delids : strids) {
 			log.info("删除用户---》" + delids);
-			User rm = this.userService.findOneById(delids,User.class);
+			User rm = this.userService.findOneById(delids, User.class);
 			this.userService.remove(rm);// 删除某个id
 		}
 		return "redirect:/users";
 	}
-
 
 	/**
 	 * 通过ajax获取是否存在重复账号的信息
@@ -172,27 +160,17 @@ public class UserController {
 	@RequestMapping(value = "/user/ajaxgetRepletes", method = RequestMethod.POST)
 	@ResponseBody
 	public BasicDataResult ajaxgetRepletes(@RequestParam(value = "accountName", defaultValue = "") String accountName) {
-			
-		return	this.userService.ajaxgetRepletes(accountName);
-		
+
+		return this.userService.ajaxgetRepletes(accountName);
+
 	}
 
-	@RequestMapping(value = "/user/disable", method = RequestMethod.POST,produces = "application/json;charset=UTF-8")
+	@RequestMapping(value = "/user/disable", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public BasicDataResult userDisable(@RequestParam(value = "id", defaultValue = "") String id) {
-		
-	return this.userService.userDisable(id);
-		
+
+		return this.userService.userDisable(id);
+
 	}
-	
-	
-	
-
-	
-	
-	
-	
-	
-
 
 }

@@ -350,7 +350,7 @@ public class InitController {
 		    user.setPassWord("123456");
 		    user.setIsDisable(false);
 		    user.setLastLoginIp(null);
-		    user.setPhotograph("/user/uploadImg/aaa.jpg");
+		   // user.setPhotograph("/user/uploadImg/aaa.jpg");
 		    user.setUserName("admin");
 		   
 		    user.setResource(list);
