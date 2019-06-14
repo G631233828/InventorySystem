@@ -69,6 +69,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			if (Common.isNotEmpty(stock.getId())) {
 				// update
 				Stock ed = this.findOneById(stock.getId(), Stock.class);
+				stock.setInventory(ed.getInventory());
 				BeanUtils.copyProperties(stock, ed);
 				this.save(stock);
 			} else {
