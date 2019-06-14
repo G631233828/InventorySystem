@@ -97,7 +97,7 @@
 							</div>
 
 							<!-- 搜索  下拉  start-->
-						<!-- 	<div class="mail_header">
+							<!-- 	<div class="mail_header">
 								<div class="col-sm-6">
 									<div class="row" style="margin-bottom: 10px;">
 									
@@ -157,17 +157,18 @@
 													<td class="numeric">[[${unit.name}]]</td>
 													<td class="numeric" th:id="disBtn+${unit.id}"
 														th:utext="${unit.isDisable eq true }?|<button type='button' onclick=toDisable('${unit.id}','unit') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${unit.id}','unit') class='btn btn-success'>启用</button>|"></td>
-													<td class="numeric">
-														 <shiro:hasPermission
-															name="unit:edit"> 
-														<button class="btn btn-primary btn-xs"
-															th:onclick="|return toeditPage('${unit.id}','unit')|">
-															<i class="fa fa-edit"> </i>编辑
-														</button>  </shiro:hasPermission> <shiro:hasPermission name="unit:delete">
-														<button class="btn btn-danger btn-xs"
-															th:onclick="|return del('@{/unit/}${unit.id}','')|">
-															<i class="fa fa-trash-o"> </i>删除
-														</button>  </shiro:hasPermission></td> 
+													<td class="numeric"><shiro:hasPermission
+															name="unit:edit">
+															<button class="btn btn-primary btn-xs"
+																th:onclick="|return toeditPage('${unit.id}','unit')|">
+																<i class="fa fa-edit"> </i>编辑
+															</button>
+														</shiro:hasPermission> <shiro:hasPermission name="unit:delete">
+															<button class="btn btn-danger btn-xs"
+																th:onclick="|return del('@{/unit/}${unit.id}','')|">
+																<i class="fa fa-trash-o"> </i>删除
+															</button>
+														</shiro:hasPermission></td>
 												</tr>
 												<!-- 菜单 -->
 											</th:block>
@@ -242,8 +243,7 @@
 	<div th:replace="public/public::footer"></div>
 	<!-- Sweet alert -->
 	<script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
-
-
+	<div th:replace="public/public_js::validator"></div>
 </body>
 
 </html>

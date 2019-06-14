@@ -99,7 +99,8 @@ canvas#canvas4 {
 										<thead class="cf">
 											<tr>
 												<th class="numeric" style="width: 20px;">
-													<div class="checkbox checkbox-inline" style="margin-top: 0px;">
+													<div class="checkbox checkbox-inline"
+														style="margin-top: 0px;">
 														<input type="checkbox" id="checkall" name="checkall" /> <label
 															for="checkall"></label>
 													</div>
@@ -116,7 +117,8 @@ canvas#canvas4 {
 										<tbody>
 											<tr th:each="user:${pageList.datas}">
 												<td class="numeric">
-													<div class="checkbox checkbox-inline" style="margin-top: 0px;">
+													<div class="checkbox checkbox-inline"
+														style="margin-top: 0px;">
 														<input type="checkbox" name="ids" th:id="${user.id}"
 															class="numeric" th:value="${user.id}"> <label
 															th:for="${user.id}"></label>
@@ -127,8 +129,8 @@ canvas#canvas4 {
 												<td class="numeric"
 													th:text="${user.role!=null?user.role.roleName:''}">[[${user.role.roleName
 													}]]</td>
-												<td class="numeric"  th:id="disBtn+${user.id}"
-												th:utext="${user.isDisable eq true }?|<button type='button' onclick=toDisable('${user.id}','user') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${user.id}','user') class='btn btn-success'>启用</button>|"></td>
+												<td class="numeric" th:id="disBtn+${user.id}"
+													th:utext="${user.isDisable eq true }?|<button type='button' onclick=toDisable('${user.id}','user') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${user.id}','user') class='btn btn-success'>启用</button>|"></td>
 												<td class="numeric">[[${user.lastLoginTime }]]</td>
 												<td class="numeric">[[${user.lastLoginIp }]]</td>
 												<td class="numeric"><shiro:hasPermission
@@ -143,8 +145,7 @@ canvas#canvas4 {
 															th:onclick="|return del('@{/user/}${user.id}','')|">
 															<i class="fa fa-trash-o"> </i>删除
 														</button>
-													</shiro:hasPermission>
-													</td>
+													</shiro:hasPermission></td>
 											</tr>
 
 
@@ -199,7 +200,7 @@ canvas#canvas4 {
 
 				</div>
 			</div>
-	<div th:replace="public/public::myModal"></div>
+			<div th:replace="public/public::myModal"></div>
 
 		</div>
 	</div>
@@ -213,7 +214,7 @@ canvas#canvas4 {
 	<div th:replace="public/public::footer"></div>
 	<!-- Sweet alert -->
 	<script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
-
+	<div th:replace="public/public_js::validator"></div>
 
 
 

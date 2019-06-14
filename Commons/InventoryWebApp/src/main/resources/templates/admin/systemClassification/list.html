@@ -97,7 +97,7 @@
 							</div>
 
 							<!-- 搜索  下拉  start-->
-						<!-- 	<div class="mail_header">
+							<!-- 	<div class="mail_header">
 								<div class="col-sm-6">
 									<div class="row" style="margin-bottom: 10px;">
 									
@@ -149,32 +149,33 @@
 													<td class="numeric">
 														<div class="checkbox checkbox-inline"
 															style="margin-top: 0px;">
-															<input type="checkbox" name="ids" th:id="${systemClassification.id}"
-																class="numeric" th:value="${systemClassification.id}"> <label
+															<input type="checkbox" name="ids"
+																th:id="${systemClassification.id}" class="numeric"
+																th:value="${systemClassification.id}"> <label
 																th:for="${systemClassification.id}"></label>
 														</div>
 													</td>
 
 													<td class="numeric">[[${systemClassification.name}]]</td>
-													<td class="numeric">
-													<th:block th:each="category:${systemClassification.categorys}">
+													<td class="numeric"><th:block
+															th:each="category:${systemClassification.categorys}">
 															[[${category.isDelete eq false}?${category.name}+'&nbsp;&nbsp;':'']]
-													</th:block>
-
-													</td>
-													<td class="numeric" th:id="disBtn+${systemClassification.id}"
+													</th:block></td>
+													<td class="numeric"
+														th:id="disBtn+${systemClassification.id}"
 														th:utext="${systemClassification.isDisable eq true }?|<button type='button' onclick=toDisable('${systemClassification.id}','systemClassification') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${systemClassification.id}','systemClassification') class='btn btn-success'>启用</button>|"></td>
-													<td class="numeric">
-														 <shiro:hasPermission
-															name="systemClassification:edit"> 
-														<button class="btn btn-primary btn-xs"
-															th:onclick="|return toeditPage('${systemClassification.id}','systemClassification')|">
-															<i class="fa fa-edit"> </i>编辑
-														</button>  </shiro:hasPermission> <shiro:hasPermission name="systemClassification:delete">
-														<button class="btn btn-danger btn-xs"
-															th:onclick="|return del('@{/systemClassification/}${systemClassification.id}','')|">
-															<i class="fa fa-trash-o"> </i>删除
-														</button>  </shiro:hasPermission></td>
+													<td class="numeric"><shiro:hasPermission
+															name="systemClassification:edit">
+															<button class="btn btn-primary btn-xs"
+																th:onclick="|return toeditPage('${systemClassification.id}','systemClassification')|">
+																<i class="fa fa-edit"> </i>编辑
+															</button>
+														</shiro:hasPermission> <shiro:hasPermission name="systemClassification:delete">
+															<button class="btn btn-danger btn-xs"
+																th:onclick="|return del('@{/systemClassification/}${systemClassification.id}','')|">
+																<i class="fa fa-trash-o"> </i>删除
+															</button>
+														</shiro:hasPermission></td>
 												</tr>
 												<!-- 菜单 -->
 											</th:block>
@@ -249,7 +250,7 @@
 	<div th:replace="public/public::footer"></div>
 	<!-- Sweet alert -->
 	<script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
-
+	<div th:replace="public/public_js::validator"></div>
 
 </body>
 

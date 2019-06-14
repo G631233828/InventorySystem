@@ -42,7 +42,7 @@
 
 						<div style="margin: -20px 15px;" class="nest" id="Blank_PageClose">
 							<div class="title-alt">
-								<h6>单位管理</h6>
+								<h6>品牌管理</h6>
 								<div class="titleClose">
 									<a class="gone" href="#Blank_PageClose"> <span
 										class="entypo-cancel"></span>
@@ -72,10 +72,10 @@
 
 											<input type="hidden" id="oldname" th:value="${brand?.name}">
 											<div class="form-group">
-												<label class="col-lg-1 control-label">单位名称：</label>
+												<label class="col-lg-1 control-label">品牌名称：</label>
 												<div class="col-lg-6">
 													<input class="form-control" id="name"
-														placeholder="请输入单位名称" name="name"
+														placeholder="请输入品牌名称" name="name"
 														th:value="${brand?.name}" required="required">
 												</div>
 											</div>
@@ -127,7 +127,7 @@
 	<!-- 右侧隐藏菜单end-->
 	<!-- 底部js -->
 	<div th:replace="public/public_js::pub_js"></div>
-
+	<div th:replace="public/public::myModal"></div>
 
 
 	<div th:replace="public/public_js::public_script"></div>

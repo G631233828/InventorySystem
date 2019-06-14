@@ -35,8 +35,8 @@ $().ready(function() {
 			},
 			messages : {
 				name : {
-					required : a + "请输入单位名称",
-					remote : a + "当前单位名称已经存在！"
+					required : a + "请输入品牌名称",
+					remote : a + "当前品牌已经存在！"
 				},
 				upload : {
 					required : a+ "导入文件不能为空！"

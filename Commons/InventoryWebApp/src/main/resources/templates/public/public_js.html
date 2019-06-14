@@ -10,6 +10,10 @@
 		<script type="text/javascript" th:src="@{/assets/js/app.js}"></script>
 		<script type="text/javascript" th:src="@{/assets/js/load.js}"></script>
 		<script type="text/javascript" th:src="@{/assets/js/main.js}"></script>
+		<!-- Jquery Validate -->
+		<script type="text/javascript" th:src="@{/plugs/validate/jquery.validate.min.js}"></script>
+		<script type="text/javascript" th:src="@{/plugs/validate/messages_zh.min.js}"></script>
+		<script type="text/javascript" th:src="@{/plugs/alert/js/alert.js}"></script>
 
 	</div>
 
@@ -36,6 +40,92 @@
 				errorClass : "help-block m-b-none",
 				validClass : "help-block m-b-none"
 			});
+			$("#commentForm").validate();
+			var a = "<i class='fa fa-times-circle'></i> ";
+			$("#editPasswordForm").validate({
+				
+				submitHandler:function(form){
+					// 校验通过后通过ajax的方式提交
+					$.ajax({
+						dataType:"json",
+						type:"POST",
+						url: getRootPath() + "/user/editPassword",
+						data:$("#editPasswordForm").serialize(),
+						success:function(data){
+							if(data.status == 200){
+								// 判断是否已存在，如果已存在则直接显示
+								jqueryAlert({
+								    'icon'    : getRootPath() +'/plugs/alert/img/right.png',
+								    'content' : data.msg,
+								    'closeTime' : 2000,
+								})
+							}else{
+								// 判断是否已存在，如果已存在则直接显示
+							 jqueryAlert({
+								    'icon'    : getRootPath() +'/plugs/alert/img/error.png',
+								    'content' : data.msg,
+								    'closeTime' : 2000,
+								})
+							}
+							$("#myModal").modal('hide');
+							
+						}
+					});
+				},
+					
+				rules : {
+					oldpassword : {
+						required : true,
+						remote : {
+							url : getRootPath() + "/user/checkPassword",
+							type : "POST",
+							data : {
+								id : function() {
+									return $("#id").val();
+								},
+								password : function() {
+									return $("#oldpassword").val();
+								}
+							},
+							dataType : "json",
+							dataFilter : function(data, type) {
+								var jsondata = $.parseJSON(data);
+								if (jsondata.status == 200) {
+									return true;
+								}
+								return false;
+							}
+						}
+					},
+					password1 : {
+						required : true,
+						minlength : 5,
+						equalTo : "#password2"
+					},
+					password2 : {
+						required : true,
+						minlength : 5,
+						equalTo : "#password1"
+					},
+				},
+				messages : {
+					oldpassword : {
+						required : a + "请输入旧密码",
+						remote : a+"旧密码错误",
+					},
+					password1 : {
+						required : a + "请输入修改的密码",
+						minlength : a + "密码长度至少5位",
+						equalTo : a + "两次输入的密码不一致"
+					},
+					password2 : {
+						required : a + "请确认密码",
+						minlength : a + "密码长度至少5位",
+						equalTo : a + "两次输入的密码不一致"
+					}
+				}
+			});
+
 		</script>
 
 	</div>
@@ -211,12 +301,27 @@
 									}
 									$("#disBtn" + id).html(btn)
 								}
-								$("#modalbody").text(data.msg);
-								$("#myModal").modal('show');
+								 jqueryAlert({
+									    'icon'    : getRootPath() +'/plugs/alert/img/right.png',
+									    'content' : data.msg,
+									    'closeTime' : 2000,
+									})
+							/* 	$("#modalbody").text(data.msg);
+								$("#myModal").modal('show'); */
 							}
 						});
 
 			}
+			
+			function showEditPassword(){
+				$("#oldpassword").val('');
+				$("#password1").val('');
+				$("#password2").val('');
+				$("#myModal").modal('show');
+			}
+			
+				
+			
 		</script>
 	</div>
 

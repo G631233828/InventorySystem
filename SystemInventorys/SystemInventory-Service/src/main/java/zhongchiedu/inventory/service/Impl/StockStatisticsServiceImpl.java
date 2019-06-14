@@ -439,10 +439,10 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		Query query = new Query();
 		if(inOrOut){
 			//true 查入库
-			query.addCriteria(Criteria.where("storageTime").regex(date)).addCriteria(Criteria.where("inOrOut").is(inOrOut));
+			query.addCriteria(Criteria.where("storageTime").regex(date)).addCriteria(Criteria.where("inOrOut").is(inOrOut)).addCriteria(Criteria.where("revoke").is(false));
 		}else{
 			//false 查出库
-			query.addCriteria(Criteria.where("depotTime").regex(date)).addCriteria(Criteria.where("inOrOut").is(inOrOut));
+			query.addCriteria(Criteria.where("depotTime").regex(date)).addCriteria(Criteria.where("inOrOut").is(inOrOut)).addCriteria(Criteria.where("revoke").is(false));
 		}
 		List<StockStatistics> list = this.find(query, StockStatistics.class);
 		return list;

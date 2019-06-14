@@ -47,26 +47,26 @@
 						<div class="nest" id="tableStaticClose">
 							<div class="title-alt">
 								<div>
-									 <shiro:hasPermission name="goodsStorage:add">
+									<shiro:hasPermission name="goodsStorage:add">
 										<button class="btn btn-default btn-sm"
 											th:onclick="|window.location.href='@{/goodsStorage}'|">
 											<i class="glyphicon glyphicon-plus"> </i> 添加
 										</button>
-								 </shiro:hasPermission> 
+									</shiro:hasPermission>
 
-									 <shiro:hasPermission name="goodsStorage:edit"> 
+									<shiro:hasPermission name="goodsStorage:edit">
 										<button class="btn btn-primary btn-sm"
 											onclick="return toeditPage('','goodsStorage')">
 											<i class="fa fa-edit"> </i>编辑
 										</button>
-									 </shiro:hasPermission> 
+									</shiro:hasPermission>
 
-									<shiro:hasPermission name="goodsStorage:delete"> 
+									<shiro:hasPermission name="goodsStorage:delete">
 										<button class="btn btn-danger btn-sm"
 											th:onclick="|return del('','@{/goodsStorage/}')|">
 											<i class="fa fa-trash-o"> </i>删除
 										</button>
-									 </shiro:hasPermission> 
+									</shiro:hasPermission>
 
 								</div>
 
@@ -111,30 +111,31 @@
 													<td class="numeric">
 														<div class="checkbox checkbox-inline"
 															style="margin-top: 0px;">
-															<input type="checkbox" name="ids" th:id="${goodsStorage.id}"
-																class="numeric" th:value="${goodsStorage.id}"> <label
+															<input type="checkbox" name="ids"
+																th:id="${goodsStorage.id}" class="numeric"
+																th:value="${goodsStorage.id}"> <label
 																th:for="${goodsStorage.id}"></label>
 														</div>
 													</td>
-													
+
 													<td class="numeric">[[${goodsStorage.address}]]</td>
 													<td class="numeric">[[${goodsStorage.shelfNumber}]]</td>
 													<td class="numeric">[[${goodsStorage.shelflevel}]]</td>
 													<td class="numeric" th:id="disBtn+${goodsStorage.id}"
 														th:utext="${goodsStorage.isDisable eq true }?|<button type='button' onclick=toDisable('${goodsStorage.id}','goodsStorage') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${goodsStorage.id}','goodsStorage') class='btn btn-success'>启用</button>|"></td>
-													<td class="numeric"> <shiro:hasPermission
-															name="goodsStorage:edit"> -->
+													<td class="numeric"><shiro:hasPermission
+															name="goodsStorage:edit"> 
 															<button class="btn btn-primary btn-xs"
 																th:onclick="|return toeditPage('${goodsStorage.id}','goodsStorage')|">
 																<i class="fa fa-edit"> </i>编辑
 															</button>
 
-														 </shiro:hasPermission> <shiro:hasPermission name="goodsStorage:delete"> 
+														</shiro:hasPermission> <shiro:hasPermission name="goodsStorage:delete">
 															<button class="btn btn-danger btn-xs"
 																th:onclick="|return del('@{/goodsStorage/}${goodsStorage.id}','')|">
 																<i class="fa fa-trash-o"> </i>删除
 															</button>
-														 </shiro:hasPermission></td> 
+														</shiro:hasPermission></td>
 												</tr>
 												<!-- 菜单 -->
 											</th:block>
@@ -190,7 +191,7 @@
 				</div>
 			</div>
 
-	<div th:replace="public/public::myModal"></div>
+			<div th:replace="public/public::myModal"></div>
 		</div>
 	</div>
 	<!--  END OF PAPER WRAP -->
@@ -203,7 +204,7 @@
 	<div th:replace="public/public::footer"></div>
 	<!-- Sweet alert -->
 	<script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
-
+	<div th:replace="public/public_js::validator"></div>
 
 
 

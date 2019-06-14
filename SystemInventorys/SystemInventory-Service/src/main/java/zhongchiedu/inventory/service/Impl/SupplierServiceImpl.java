@@ -210,10 +210,10 @@ public class SupplierServiceImpl extends GeneralServiceImpl<Supplier> implements
 				importSupplier.setAddress(resultexcel[i][j+9]);
 				importSupplier.setIntroducer(resultexcel[i][j+10]);
 				importSupplier.setProductQuality(resultexcel[i][j+11]);
-				importSupplier.setPrice(resultexcel[i][j+12]);
-				importSupplier.setSupplyPeriod(resultexcel[i][j+13]);
-				importSupplier.setPayMent(resultexcel[i][j+14]);
-				importSupplier.setAfterSaleService(resultexcel[i][j+15]);
+			/*	importSupplier.setPrice(resultexcel[i][j+12]);*/
+				importSupplier.setSupplyPeriod(resultexcel[i][j+12]);
+				importSupplier.setPayMent(resultexcel[i][j+13]);
+				importSupplier.setAfterSaleService(resultexcel[i][j+14]);
 				if(Common.isNotEmpty(supplier)){
 					//供应商已存在
 					List<Category> list = supplier.getCategorys();

@@ -81,7 +81,7 @@ canvas#canvas4 {
 												<div class="form-group">
 													<input id="headImg" type="file" name="file" multiple="true">
 												</div>
-													 <input name="oldheadImg" id="oldheadImg" th:value="${user?.photograph?.id}" style="display: none;"> 
+													 <input name="oldheadImg" id="oldheadImg" th:value="${user?.photograph?.id}" style="display: none;" > 
 											</div>
 										</div>
 
@@ -235,6 +235,7 @@ canvas#canvas4 {
 	<div th:replace="public/public_js::pub_js"></div>
 	<div th:replace="public/public_js::public_script"></div>
 	<div th:replace="public/public::footer"></div>
+	<div th:replace="public/public::myModal"></div>
 	<script th:src="@{/plugs/bootstrap-fileinput/js/fileinput.js}"
 		type="text/javascript"></script>
 	<!-- Jquery Validate -->

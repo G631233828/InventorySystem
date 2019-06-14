@@ -38,12 +38,9 @@ public class UserServiceImpl extends GeneralServiceImpl<User> implements UserSer
 	 */
 	public void saveOrUpdateUser(User user, String roleId ,MultipartFile[] file ,String imgPath,String dir,String oldheadImg) {
 		User getUser = null;
-		
 		List<MultiMedia> userHead = null; 
 			userHead = this.multiMediaSerice.uploadPictures(file, dir, imgPath, "USER",105,105);
-			if(userHead.size()>0){
-				user.setPhotograph(userHead.get(0));
-			}
+	
 		if(Common.isNotEmpty(user.getId())){
 			getUser = this.findOneById(user.getId(), User.class);
 			if(Common.isNotEmpty(getUser)){
@@ -51,59 +48,60 @@ public class UserServiceImpl extends GeneralServiceImpl<User> implements UserSer
 				user.setAccountName(getUser.getAccountName());
 			}
 		}
+		if(userHead.size()>0){
+			user.setPhotograph(userHead.get(0));
+		}
 		Role role = this.roleService.findRoleById(roleId);
 		user.setRole(role != null ? role : null);
 		if(Common.isNotEmpty(getUser)){
 			BeanUtils.copyProperties(user, getUser);
-			this.save(getUser);
+			this.save(user);
 		}else{
-			user.setResource(new ArrayList<Resource>());
 			this.insert(user);
 		}
 		
-		
 	}
-	public void saveOrUpdateUser(User user, String roleId ) {
-		
-		if (Common.isNotEmpty(user)) {
-			
-			if (Common.isNotEmpty(user.getId())) {
-				// 执行修改操作
-				User eduser = this.findUserById(user.getId());
-				
-				if (eduser == null)
-					eduser = new User();
-				eduser.setCardId(user.getCardId());
-				eduser.setCardType(user.getCardType());
-				eduser.setPhotograph(user.getPhotograph());
-				eduser.setUserName(user.getUserName());
-				eduser.setPassWord(user.getPassWord());
-//				eduser.setSchool(school);
-				//eduser.setPhotograph(user.getPhotograph());
-				Role role = this.roleService.findRoleById(roleId);
-				// 通过hid获取角色信息，如果为null 返回null否则返回role
-				eduser.setRole(role != null ? role : null);
-				this.save(eduser);
-			} else {
-				User aduser = new User();
-				aduser.setAccountName(user.getAccountName());
-				aduser.setCardId(user.getCardId());
-				aduser.setCardType(user.getCardType());
-				aduser.setIsDisable(false);
-				// aduser.setPhotograph(user.getPhotograph());
-				aduser.setUserName(user.getUserName());
-				aduser.setPassWord(user.getPassWord());
-//				aduser.setSchool(school);
-				// 默认分配一个空的集合
-				aduser.setResource(new ArrayList<Resource>());
-				Role role = this.roleService.findRoleById(roleId);
-				aduser.setRole(role != null ? role : null);
-				// 执行添加操作
-				this.insert(aduser);
-			}
-		}
-		
-	}
+//	public void saveOrUpdateUser(User user, String roleId ) {
+//		
+//		if (Common.isNotEmpty(user)) {
+//			
+//			if (Common.isNotEmpty(user.getId())) {
+//				// 执行修改操作
+//				User eduser = this.findUserById(user.getId());
+//				
+//				if (eduser == null)
+//					eduser = new User();
+//				eduser.setCardId(user.getCardId());
+//				eduser.setCardType(user.getCardType());
+//				eduser.setPhotograph(user.getPhotograph());
+//				eduser.setUserName(user.getUserName());
+//				eduser.setPassWord(user.getPassWord());
+////				eduser.setSchool(school);
+//				//eduser.setPhotograph(user.getPhotograph());
+//				Role role = this.roleService.findRoleById(roleId);
+//				// 通过hid获取角色信息，如果为null 返回null否则返回role
+//				eduser.setRole(role != null ? role : null);
+//				this.save(eduser);
+//			} else {
+//				User aduser = new User();
+//				aduser.setAccountName(user.getAccountName());
+//				aduser.setCardId(user.getCardId());
+//				aduser.setCardType(user.getCardType());
+//				aduser.setIsDisable(false);
+//				// aduser.setPhotograph(user.getPhotograph());
+//				aduser.setUserName(user.getUserName());
+//				aduser.setPassWord(user.getPassWord());
+////				aduser.setSchool(school);
+//				// 默认分配一个空的集合
+//				aduser.setResource(new ArrayList<Resource>());
+//				Role role = this.roleService.findRoleById(roleId);
+//				aduser.setRole(role != null ? role : null);
+//				// 执行添加操作
+//				this.insert(aduser);
+//			}
+//		}
+//		
+//	}
 
 	/**
 	 * 根据用户帐号查询用户信息
@@ -176,5 +174,43 @@ public class UserServiceImpl extends GeneralServiceImpl<User> implements UserSer
 		return BasicDataResult.build(200, user.getIsDisable().equals(true)?"用户禁用成功":"用户启用成功",user.getIsDisable());
 		
 	}
+	
+	
+	public BasicDataResult checkPassword(String id,String password){
+		
+		if(Common.isEmpty(id)){
+			return BasicDataResult.build(400, "发生未知异常，请联系管理员！", null);
+		}
+		if(Common.isEmpty(password)){
+			return BasicDataResult.build(400, "请输入旧密码", null);
+		}
+		User user = this.findOneById(id, User.class);
+		if(Common.isEmpty(user)){
+			return BasicDataResult.build(400, "未能获取到数据，请刷新后再试", null);
+		}
+		if(user.getPassWord().equals(password)){
+			return BasicDataResult.build(200, "密码正确", null);
+		}
+		return BasicDataResult.build(400, "发生未知异常，请联系管理员！", null);
+		
+	}
+	
+	public BasicDataResult editPassword(String id,String password){
+		if(Common.isEmpty(id)){
+			return BasicDataResult.build(400, "发生未知异常，请联系管理员！", null);
+		}
+		if(Common.isEmpty(password)){
+			return BasicDataResult.build(400, "新密码不能为空", null);
+		}
+		User user = this.findOneById(id, User.class);
+		if(Common.isEmpty(user)){
+			return BasicDataResult.build(400, "未能获取到数据，请刷新后再试", null);
+		}
+		user.setPassWord(password);
+		this.save(user);
+		return BasicDataResult.build(200, "密码修改成功", null);
+		
+	}
+	
 
 }

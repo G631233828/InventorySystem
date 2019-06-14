@@ -47,26 +47,26 @@
 						<div class="nest" id="tableStaticClose">
 							<div class="title-alt">
 								<div>
-									 <shiro:hasPermission name="casePresentation:add"> 
+									<shiro:hasPermission name="casePresentation:add">
 										<button class="btn btn-default btn-sm"
 											th:onclick="|window.location.href='@{/casePresentation}'|">
 											<i class="glyphicon glyphicon-plus"> </i> 添加
 										</button>
-									 </shiro:hasPermission>
+									</shiro:hasPermission>
 
-									<shiro:hasPermission name="casePresentation:edit"> 
+									<shiro:hasPermission name="casePresentation:edit">
 										<button class="btn btn-primary btn-sm"
 											onclick="return toeditPage('','casePresentation')">
 											<i class="fa fa-edit"> </i>编辑
 										</button>
-									 </shiro:hasPermission> 
+									</shiro:hasPermission>
 
-									 <shiro:hasPermission name="casePresentation:delete"> 
+									<shiro:hasPermission name="casePresentation:delete">
 										<button class="btn btn-danger btn-sm"
 											th:onclick="|return del('','@{/casePresentation/}')|">
 											<i class="fa fa-trash-o"> </i>删除
 										</button>
-									 </shiro:hasPermission> 
+									</shiro:hasPermission>
 
 								</div>
 
@@ -113,38 +113,36 @@
 													<td class="numeric">
 														<div class="checkbox checkbox-inline"
 															style="margin-top: 0px;">
-															<input type="checkbox" name="ids" th:id="${casePresentation.id}"
-																class="numeric" th:value="${casePresentation.id}"> <label
+															<input type="checkbox" name="ids"
+																th:id="${casePresentation.id}" class="numeric"
+																th:value="${casePresentation.id}"> <label
 																th:for="${casePresentation.id}"></label>
 														</div>
 													</td>
-													
-													<td class="numeric">[[${casePresentation.name}]]</td>
-													<td class="numeric">
-													<th:block th:each="type:${casePresentation.caseTypes}">
-															[[${type.name}]]&nbsp;&nbsp;
-													</th:block>
 
-													</td>
-													<td class="numeric" th:text="${#dates.format(casePresentation.createTime,'yyyy-MM-dd hh:mm:ss')}"></td>
+													<td class="numeric">[[${casePresentation.name}]]</td>
+													<td class="numeric"><th:block
+															th:each="type:${casePresentation.caseTypes}">
+															[[${type.name}]]&nbsp;&nbsp;
+													</th:block></td>
+													<td class="numeric"
+														th:text="${#dates.format(casePresentation.createTime,'yyyy-MM-dd hh:mm:ss')}"></td>
 													<td class="numeric">[[${casePresentation.browseVolume}]]</td>
 													<td class="numeric" th:id="topBtn+${casePresentation.id}"
 														th:utext="${casePresentation.top eq true }?|<button type='button' onclick=toTop('${casePresentation.id}','casePresentation') class='btn btn-danger'>显示</button>|:|<button type='button' onclick=toTop('${casePresentation.id}','casePresentation') class='btn btn-success'>不显示</button>|"></td>
 													<td class="numeric" th:id="disBtn+${casePresentation.id}"
 														th:utext="${casePresentation.isDisable eq true }?|<button type='button' onclick=toDisable('${casePresentation.id}','casePresentation') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${casePresentation.id}','casePresentation') class='btn btn-success'>启用</button>|"></td>
 													<td class="numeric">
-													<!-- <shiro:hasPermission
+														<!-- <shiro:hasPermission
 															name="casePresentation:edit"> -->
-															<button class="btn btn-primary btn-xs"
-																th:onclick="|return toeditPage('${casePresentation.id}','casePresentation')|">
-																<i class="fa fa-edit"> </i>编辑
-															</button>
-														<!-- </shiro:hasPermission> <shiro:hasPermission name="casePresentation:delete"> -->
-															<button class="btn btn-danger btn-xs"
-																th:onclick="|return del('@{/casePresentation/}${casePresentation.id}','')|">
-																<i class="fa fa-trash-o"> </i>删除
-															</button>
-														<!-- </shiro:hasPermission></td> -->
+														<button class="btn btn-primary btn-xs"
+															th:onclick="|return toeditPage('${casePresentation.id}','casePresentation')|">
+															<i class="fa fa-edit"> </i>编辑
+														</button> <!-- </shiro:hasPermission> <shiro:hasPermission name="casePresentation:delete"> -->
+														<button class="btn btn-danger btn-xs"
+															th:onclick="|return del('@{/casePresentation/}${casePresentation.id}','')|">
+															<i class="fa fa-trash-o"> </i>删除
+														</button> <!-- </shiro:hasPermission></td> -->
 												</tr>
 												<!-- 菜单 -->
 											</th:block>
@@ -200,49 +198,47 @@
 				</div>
 			</div>
 
-<script type="text/javascript">
+			<script type="text/javascript">
+				//禁用按钮通用
+				function toTop(id, path) {
+					// 需要通过ajax加载对应的菜单列表
+					$
+							.ajax({
+								type : 'POST',
+								url : getRootPath() + "/" + path + "/toTop",
+								data : "id=" + id,
+								dataType : "json",
+								success : function(data) {
+									if (data.status == 200) {
+										var flag = data.data;
+										var btn;
+										if (flag == true) {
+											btn = "<button type='button'  onclick=toTop('"
+													+ id
+													+ "','"
+													+ path
+													+ "') class='btn btn-danger'>显示</button>"
+										} else {
+											btn = "<button type='button' onclick=toTop('"
+													+ id
+													+ "','"
+													+ path
+													+ "') class='btn btn-success'>不显示</button>"
+										}
+										$("#topBtn" + id).html(btn)
+									}
+									$("#modalbody").text(data.msg);
+									$("#myModal").modal('show');
+								}
+							});
 
-//禁用按钮通用
-function toTop(id, path) {
-	// 需要通过ajax加载对应的菜单列表
-	$
-			.ajax({
-				type : 'POST',
-				url : getRootPath() + "/" + path + "/toTop",
-				data : "id=" + id,
-				dataType : "json",
-				success : function(data) {
-					if (data.status == 200) {
-						var flag = data.data;
-						var btn;
-						if (flag == true) {
-							btn = "<button type='button'  onclick=toTop('"
-									+ id
-									+ "','"
-									+ path
-									+ "') class='btn btn-danger'>显示</button>"
-						} else {
-							btn = "<button type='button' onclick=toTop('"
-									+ id
-									+ "','"
-									+ path
-									+ "') class='btn btn-success'>不显示</button>"
-						}
-						$("#topBtn" + id).html(btn)
-					}
-					$("#modalbody").text(data.msg);
-					$("#myModal").modal('show');
 				}
-			});
-
-}
-
-</script>
+			</script>
 
 
 
 
-	<div th:replace="public/public::myModal"></div>
+			<div th:replace="public/public::myModal"></div>
 		</div>
 	</div>
 	<!--  END OF PAPER WRAP -->
@@ -255,7 +251,7 @@ function toTop(id, path) {
 	<div th:replace="public/public::footer"></div>
 	<!-- Sweet alert -->
 	<script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
-
+	<div th:replace="public/public_js::validator"></div>
 
 
 

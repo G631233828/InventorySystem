@@ -90,7 +90,7 @@
 										<button class="btn btn-default" onclick="return showColumn()">
 											<i class="entypo-list-add"> </i>显示列
 										</button>
-										
+
 										<button class="btn btn-default" onclick="return toExport()">
 											<i class="entypo-export"> </i>导出库存报表
 										</button>
@@ -110,12 +110,16 @@
 										<select class="filter-status form-control" id="pageSize"
 											onchange="return searchSize()">
 											<option value="10" th:selected="${pageSize == 10}">10
+
 											
 											<option value="20" th:selected="${pageSize == 20}">20
+
 											
 											<option value="50" th:selected="${pageSize == 50}">50
+
 											
 											<option value="100" th:selected="${pageSize == 100}">100
+
 											
 										</select> <input class="form-control" id="serach" placeholder="模糊匹配"
 											th:value="${search}" type="text">
@@ -190,9 +194,8 @@
 														th:style="${#lists.contains(listColums,'name')}?'':'display:none;'">
 														<a href="javascript:;"
 														th:onclick="|return toStatistics('${stock?.id}')|">
-														[[${stock?.name}]]
-														</a>
-														</td>
+															[[${stock?.name}]] </a>
+													</td>
 													<td class="numeric model" id="model"
 														th:style="${#lists.contains(listColums,'model')}?'':'display:none;'">[[${stock?.model}]]</td>
 													<td class="numeric scope" id="scope"
@@ -211,7 +214,8 @@
 														<a href="javascript:;"
 														th:onclick="|return showSupplier('${stock?.supplier?.id}')|">[[${stock?.supplier?.name}]]</a>
 													</td>
-													<td class="numeric inventory" th:id="|inventory_${stock?.id}|"
+													<td class="numeric inventory"
+														th:id="|inventory_${stock?.id}|"
 														th:style="${#lists.contains(listColums,'inventory')}?'':'display:none;'"><label
 														th:style="${stock?.inventory > 5}?'color:green':${stock?.inventory == 0?'color:red':'color:blue'}">[[${stock?.inventory}]]</label></td>
 													<td class="numeric email" id="email"
@@ -326,9 +330,7 @@
 		th:src="@{/plugs/validate/messages_zh.min.js}"></script>
 	<!-- Sweet alert -->
 	<script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
-	<script type="text/javascript">
-		
-	</script>
+	<div th:replace="public/public_js::validator"></div>
 </body>
 
 </html>

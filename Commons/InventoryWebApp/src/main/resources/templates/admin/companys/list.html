@@ -47,26 +47,26 @@
 						<div class="nest" id="tableStaticClose">
 							<div class="title-alt">
 								<div>
-									 <shiro:hasPermission name="company:add"> 
+									<shiro:hasPermission name="company:add">
 										<button class="btn btn-default btn-sm"
 											th:onclick="|window.location.href='@{/company}'|">
 											<i class="glyphicon glyphicon-plus"> </i> 添加
 										</button>
-									 </shiro:hasPermission> 
+									</shiro:hasPermission>
 
-									<shiro:hasPermission name="company:edit"> 
+									<shiro:hasPermission name="company:edit">
 										<button class="btn btn-primary btn-sm"
 											onclick="return toeditPage('','company')">
 											<i class="fa fa-edit"> </i>编辑
 										</button>
-									</shiro:hasPermission> 
+									</shiro:hasPermission>
 
-									 <shiro:hasPermission name="company:delete">
+									<shiro:hasPermission name="company:delete">
 										<button class="btn btn-danger btn-sm"
 											th:onclick="|return del('','@{/company/}')|">
 											<i class="fa fa-trash-o"> </i>删除
 										</button>
-									 </shiro:hasPermission>
+									</shiro:hasPermission>
 
 								</div>
 
@@ -114,24 +114,24 @@
 																th:for="${company.id}"></label>
 														</div>
 													</td>
-													
+
 													<td class="numeric">[[${company.name}]]</td>
 													<!-- <td class="numeric" th:text="${company?.type eq T(zhongchiedu.website.pojo.company.Type).CASE}?'案例':'产品'"></td> -->
 													<td class="numeric" th:id="disBtn+${company.id}"
 														th:utext="${company.isDisable eq true }?|<button type='button' onclick=toDisable('${company.id}','company') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${company.id}','company') class='btn btn-success'>启用</button>|"></td>
-													<td class="numeric"> <shiro:hasPermission
-															name="company:edit"> 
+													<td class="numeric"><shiro:hasPermission
+															name="company:edit">
 															<button class="btn btn-primary btn-xs"
 																th:onclick="|return toeditPage('${company.id}','company')|">
 																<i class="fa fa-edit"> </i>编辑
 															</button>
 
-														 </shiro:hasPermission> <shiro:hasPermission name="company:delete">
+														</shiro:hasPermission> <shiro:hasPermission name="company:delete">
 															<button class="btn btn-danger btn-xs"
 																th:onclick="|return del('@{/company/}${company.id}','')|">
 																<i class="fa fa-trash-o"> </i>删除
 															</button>
-														 </shiro:hasPermission></td>
+														</shiro:hasPermission></td>
 												</tr>
 												<!-- 菜单 -->
 											</th:block>
@@ -187,7 +187,7 @@
 				</div>
 			</div>
 
-	<div th:replace="public/public::myModal"></div>
+			<div th:replace="public/public::myModal"></div>
 		</div>
 	</div>
 	<!--  END OF PAPER WRAP -->
@@ -200,7 +200,7 @@
 	<div th:replace="public/public::footer"></div>
 	<!-- Sweet alert -->
 	<script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
-
+	<div th:replace="public/public_js::validator"></div>
 
 
 

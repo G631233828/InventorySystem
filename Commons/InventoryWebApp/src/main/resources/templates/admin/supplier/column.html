@@ -67,14 +67,13 @@
 												<td class="numeric" onclick="return selectColumn('productQuality');"><input type="checkbox" th:checked="${#lists.contains(listColums,'productQuality')}?'checked':'false'" id="ch_productQuality"></td>
                                             </tr>
                                             <tr>
-                                                <td class="numeric">价格</td>
-                                                <td class="numeric" onclick="return selectColumn('price');"><input type="checkbox" th:checked="${#lists.contains(listColums,'price')}?'checked':'false'" id="ch_price"></td>
+                                                <td class="numeric">付款条件</td>
+                                                <td class="numeric" onclick="return selectColumn('payMent');"><input type="checkbox" th:checked="${#lists.contains(listColums,'payMent')}?'checked':'false'" id="ch_payMent"></td>
 												<td class="numeric">供货期</td>
 												<td class="numeric" onclick="return selectColumn('supplyPeriod');"><input type="checkbox" th:checked="${#lists.contains(listColums,'supplyPeriod')}?'checked':'false'" id="ch_supplyPeriod"></td>
                                             </tr>
                                             <tr>
-                                                <td class="numeric">付款条件</td>
-                                                <td class="numeric" onclick="return selectColumn('payMent');"><input type="checkbox" th:checked="${#lists.contains(listColums,'payMent')}?'checked':'false'" id="ch_payMent"></td>
+                                              
 												<td class="numeric">售后服务</td>
 												<td class="numeric" onclick="return selectColumn('afterSaleService');"><input type="checkbox" th:checked="${#lists.contains(listColums,'afterSaleService')}?'checked':'false'" id="ch_afterSaleService"></td>
                                             </tr>

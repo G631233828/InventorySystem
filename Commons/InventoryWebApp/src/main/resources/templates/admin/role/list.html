@@ -207,7 +207,7 @@
 	<div th:replace="public/public::footer"></div>
 	<!-- Sweet alert -->
 	<script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
-
+	<div th:replace="public/public_js::validator"></div>
 	<script type="text/javascript">
 		$("#allAuthor").click(function() {
 			//		var flag = $("[name=authorIds]:checkbox").is(':checked');
@@ -266,8 +266,12 @@
 								+ "&id=" + id,
 						dataType : "json",
 						success : function(data) {
-							$("#myModal").modal('show');
-							$("#modalbody").text(data.msg);
+							 jqueryAlert({
+								    'icon'    : getRootPath() +'/plugs/alert/img/right.png',
+								    'content' : data.msg,
+								    'closeTime' : 2000,
+								})
+					
 						}
 					});
 

@@ -105,10 +105,8 @@ public class UserController {
 	@RequiresPermissions(value = "user:edit")
 	@SystemControllerLog(description = "修改用户")
 	public String editUser(HttpServletRequest request, @ModelAttribute("user") User user,
-			@RequestParam(value = "roleId", defaultValue = "") String roleId, MultipartFile[] file,
+			@RequestParam(value = "roleId", defaultValue = "") String roleId, @RequestParam("file")MultipartFile[] file,
 			@RequestParam(value = "oldheadImg", defaultValue = "") String oldheadImg) {
-
-		
 		
 		this.userService.saveOrUpdateUser(user, roleId,file,imgPath,dir,oldheadImg);
 
@@ -164,6 +162,15 @@ public class UserController {
 		return this.userService.ajaxgetRepletes(accountName);
 
 	}
+	
+	@RequestMapping(value = "/user/checkPassword", method = RequestMethod.POST)
+	@ResponseBody
+	public BasicDataResult checkPassword(@RequestParam(value = "id", defaultValue = "") String id,
+			@RequestParam(value = "password", defaultValue = "") String password) {
+		
+		return this.userService.checkPassword(id, password);
+		
+	}
 
 	@RequestMapping(value = "/user/disable", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
@@ -172,5 +179,16 @@ public class UserController {
 		return this.userService.userDisable(id);
 
 	}
+	
+	@RequestMapping(value = "/user/editPassword", method = RequestMethod.POST)
+	@ResponseBody
+	public BasicDataResult editPassword(@RequestParam(value = "id", defaultValue = "") String id,
+			@RequestParam(value = "password2", defaultValue = "") String password2) {
+		
+		return this.userService.editPassword(id, password2);
+	}
+	
+	
+	
 
 }
