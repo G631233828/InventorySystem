@@ -34,6 +34,7 @@ import zhongchiedu.general.service.Impl.UserServiceImpl;
 import zhongchiedu.inventory.pojo.Stock;
 import zhongchiedu.inventory.pojo.StockStatistics;
 import zhongchiedu.inventory.service.StockStatisticsService;
+import zhongchiedu.log.annotation.SystemServiceLog;
 
 @Service
 @Slf4j
@@ -44,6 +45,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	private @Autowired UserServiceImpl userServiceService;
 
 	@Override
+	@SystemServiceLog(description="分页查询库存统计信息")
 	public Pagination<StockStatistics> findpagination(Integer pageNo, Integer pageSize, String search, String start,
 			String end, String type, String id) {
 
@@ -66,7 +68,8 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		}
 		return pagination;
 	}
-
+	
+	@SystemServiceLog(description="条件查询库统计信息")
 	public Query findbySearch(String search, String start, String end, String type, Query query) {
 
 		Criteria ca = new Criteria();
@@ -103,6 +106,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	 * @param search
 	 * @return
 	 */
+	@SystemServiceLog(description="条件查询库统计信息")
 	public List<Object> findStocks(String search) {
 		List<Object> list = new ArrayList<>();
 		Query query = new Query();
@@ -116,7 +120,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		}
 		return list;
 	}
-
+	@SystemServiceLog(description="条件查询库统计信息")
 	public List<Stock> findStocksBySearch(String search) {
 		Query query = new Query();
 		Criteria ca = new Criteria();
@@ -125,7 +129,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		List<Stock> lists = this.stockService.find(query, Stock.class);
 		return lists;
 	}
-
+	@SystemServiceLog(description="条件查询库统计信息")
 	public List<Object> findUsers(String search) {
 		List<Object> list = new ArrayList<>();
 		Query query = new Query();
@@ -140,6 +144,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	}
 
 	@Override
+	@SystemServiceLog(description="库存出库入库")
 	public BasicDataResult inOrOutstockStatistics(StockStatistics stockStatistics, HttpSession session) {
 
 		long num = stockStatistics.getNum();
@@ -180,7 +185,8 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 	Lock lock = new ReentrantLock();
 	Lock lockinsert = new ReentrantLock();
-
+	
+	@SystemServiceLog(description="库存出库入库执行insert")
 	public void lockInsert(StockStatistics stockStatistics) {
 
 		lockinsert.lock();
@@ -191,7 +197,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		}
 
 	}
-
+	@SystemServiceLog(description="更新库存信息")
 	public long updateStock(Stock stock, long num, boolean inOrOut) {
 		lock.lock();
 		long oldnum = stock.getInventory();
@@ -220,6 +226,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	}
 
 	@Override
+	@SystemServiceLog(description="插销库存信息")
 	public BasicDataResult revoke(String id) {
 		StockStatistics st = this.findOneById(id, StockStatistics.class);
 		if (st.isRevoke()) {
@@ -254,7 +261,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		return BasicDataResult.build(400, "撤销过程中出现未知异常", null);
 
 	}
-
+	@SystemServiceLog(description="插销后更新库存信息")
 	public StockStatistics updateStockStatistics(StockStatistics stockStatistics) {
 		lockinsert.lock();
 		try {
@@ -270,6 +277,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	}
 
 	@Override
+	@SystemServiceLog(description="导出库存统计信息")
 	public HSSFWorkbook export(String search, String start, String end, String type, String name) {
 
 		HSSFWorkbook wb = new HSSFWorkbook();
@@ -425,6 +433,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		return list;
 	}
 
+	@SystemServiceLog(description="根据条件查询库存统计-findStockStatistics")
 	public List<StockStatistics> findStockStatistics(String search, String start, String end, String type) {
 		Query query = new Query();
 		query = this.findbySearch(search, start, end, type, query);
@@ -435,6 +444,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	}
 
 	@Override
+	@SystemServiceLog(description="根据条件查询库存统计-findAllByDate")
 	public List<StockStatistics> findAllByDate(String date, boolean inOrOut) {
 		Query query = new Query();
 		if(inOrOut){

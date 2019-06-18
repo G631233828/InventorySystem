@@ -27,12 +27,14 @@ import zhongchiedu.framework.service.GeneralServiceImpl;
 import zhongchiedu.inventory.pojo.Brand;
 import zhongchiedu.inventory.pojo.ProcessInfo;
 import zhongchiedu.inventory.service.BrandService;
+import zhongchiedu.log.annotation.SystemServiceLog;
 
 @Service
 @Slf4j
 public class BrandServiceImpl extends GeneralServiceImpl<Brand> implements BrandService {
 
 	@Override
+	@SystemServiceLog(description="编辑品牌信息")
 	public void saveOrUpdate(Brand brand) {
 		if (Common.isNotEmpty(brand)) {
 			if (Common.isNotEmpty(brand.getId())) {
@@ -50,6 +52,7 @@ public class BrandServiceImpl extends GeneralServiceImpl<Brand> implements Brand
 	}
 
 	@Override
+	@SystemServiceLog(description="启用禁用品牌信息")
 	public BasicDataResult disable(String id) {
 		if (Common.isEmpty(id)) {
 			return BasicDataResult.build(400, "无法禁用，请求出现问题，请刷新界面!", null);
@@ -65,6 +68,7 @@ public class BrandServiceImpl extends GeneralServiceImpl<Brand> implements Brand
 	}
 
 	@Override
+	@SystemServiceLog(description="查询所有品牌信息")
 	public List<Brand> findAllBrand(boolean isdisable) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("isDisable").is(isdisable == true ? true : false));
@@ -75,6 +79,7 @@ public class BrandServiceImpl extends GeneralServiceImpl<Brand> implements Brand
 	private Lock lock = new ReentrantLock();
 
 	@Override
+	@SystemServiceLog(description="删除品牌信息")
 	public String delete(String id) {
 		try {
 			lock.lock();
@@ -94,6 +99,7 @@ public class BrandServiceImpl extends GeneralServiceImpl<Brand> implements Brand
 	}
 
 	@Override
+	@SystemServiceLog(description="查询品牌信息")
 	public Pagination<Brand> findpagination(Integer pageNo, Integer pageSize) {
 		// 分页查询数据
 		Pagination<Brand> pagination = null;
@@ -111,6 +117,7 @@ public class BrandServiceImpl extends GeneralServiceImpl<Brand> implements Brand
 	}
 
 	@Override
+	@SystemServiceLog(description="查询重复品牌信息")
 	public BasicDataResult ajaxgetRepletes(String name) {
 		if (Common.isNotEmpty(name)) {
 			Query query = new Query();
@@ -123,6 +130,7 @@ public class BrandServiceImpl extends GeneralServiceImpl<Brand> implements Brand
 	}
 
 	@Override
+	@SystemServiceLog(description="禁用品牌信息")
 	public BasicDataResult todisable(String id) {
 		
 		if(Common.isEmpty(id)){
@@ -140,7 +148,7 @@ public class BrandServiceImpl extends GeneralServiceImpl<Brand> implements Brand
 	}
 	
 	
-	
+	@SystemServiceLog(description="批量导入")
 	public String  BatchImport(File file, int row, HttpSession session) {
 		String error = "";
 		String[][] resultexcel = null;
@@ -197,6 +205,7 @@ public class BrandServiceImpl extends GeneralServiceImpl<Brand> implements Brand
 /**
  * 执行上传文件，返回错误消息	
  */
+	@SystemServiceLog(description="上传品牌信息")
 public String upload( HttpServletRequest request, HttpSession session){
 	String error = "";
 	try {
@@ -241,6 +250,7 @@ public String upload( HttpServletRequest request, HttpSession session){
 	 * 根据单位名称查找单位，如果没有则创建一个
 	 */
 	@Override
+	@SystemServiceLog(description="根据名称查询品牌信息")
 	public Brand findByName(String name) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("name").is(name));

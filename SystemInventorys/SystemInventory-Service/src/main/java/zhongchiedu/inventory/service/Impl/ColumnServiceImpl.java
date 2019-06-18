@@ -13,11 +13,13 @@ import zhongchiedu.common.utils.Common;
 import zhongchiedu.framework.service.GeneralServiceImpl;
 import zhongchiedu.inventory.pojo.Column;
 import zhongchiedu.inventory.service.ColumnService;
+import zhongchiedu.log.annotation.SystemServiceLog;
 
 @Service
 @Slf4j
 public class ColumnServiceImpl extends GeneralServiceImpl<Column> implements ColumnService {
 	@Override
+	@SystemServiceLog(description="根据标识获取所有列")
 	public List<String> findColumns(String name) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("name").is(name));
@@ -34,6 +36,7 @@ public class ColumnServiceImpl extends GeneralServiceImpl<Column> implements Col
 	}
 
 	@Override
+	@SystemServiceLog(description="编辑列")
 	public BasicDataResult editColumns(String name,String showcolumn,boolean flag) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("name").is(name));

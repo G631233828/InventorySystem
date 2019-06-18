@@ -46,6 +46,7 @@ import zhongchiedu.inventory.pojo.Supplier;
 import zhongchiedu.inventory.pojo.SystemClassification;
 import zhongchiedu.inventory.pojo.Unit;
 import zhongchiedu.inventory.service.StockService;
+import zhongchiedu.log.annotation.SystemServiceLog;
 
 @Service
 @Slf4j
@@ -64,6 +65,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	private @Autowired BrandServiceImpl brandService;
 
 	@Override
+	@SystemServiceLog(description="编辑库存信息")
 	public void saveOrUpdate(Stock stock) {
 		if (Common.isNotEmpty(stock)) {
 			if (Common.isNotEmpty(stock.getId())) {
@@ -80,6 +82,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	}
 
 	@Override
+	@SystemServiceLog(description="启用禁用库存信息")
 	public BasicDataResult disable(String id) {
 		if (Common.isEmpty(id)) {
 			return BasicDataResult.build(400, "无法禁用，请求出现问题，请刷新界面!", null);
@@ -94,6 +97,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	}
 
 	@Override
+	@SystemServiceLog(description="获取所有非禁用库存信息")
 	public List<Stock> findAllStock(boolean isdisable) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("isDisable").is(isdisable == true ? true : false));
@@ -104,6 +108,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	private Lock lock = new ReentrantLock();
 
 	@Override
+	@SystemServiceLog(description="删除库存信息")
 	public String delete(String id) {
 		try {
 			lock.lock();
@@ -123,6 +128,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	}
 
 	@Override
+	@SystemServiceLog(description="分页查询库存信息")
 	public Pagination<Stock> findpagination(Integer pageNo, Integer pageSize, String search) {
 		// 分页查询数据
 		Pagination<Stock> pagination = null;
@@ -142,7 +148,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		}
 		return pagination;
 	}
-
+	@SystemServiceLog(description="查询库存信息")
 	public Query findbySearch(String search, Query query) {
 		if (Common.isNotEmpty(search)) {
 			List<Object> systemClassification = this.findSystemClassificationIds(search);
@@ -166,6 +172,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	 * @param search
 	 * @return
 	 */
+	@SystemServiceLog(description="查询系统分类信息")
 	public List<Object> findSystemClassificationIds(String search) {
 		List<Object> list = new ArrayList<>();
 		Query query = new Query();
@@ -185,6 +192,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	 * @param search
 	 * @return
 	 */
+	@SystemServiceLog(description="查询品牌信息")
 	public List<Object> findBrandIds(String search) {
 		List<Object> list = new ArrayList<>();
 		Query query = new Query();
@@ -203,6 +211,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	 * @param search
 	 * @return
 	 */
+	@SystemServiceLog(description="查询货架信息")
 	public List<Object> findGoodsStorageIds(String search) {
 		List<Object> list = new ArrayList<>();
 		Query query = new Query();
@@ -230,6 +239,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	 * @param search
 	 * @return
 	 */
+	@SystemServiceLog(description="查询类目信息")
 	public List<Object> findCategoryIds(String search) {
 		List<Object> list = new ArrayList<>();
 		Query query = new Query();
@@ -248,6 +258,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	 * @param search
 	 * @return
 	 */
+	@SystemServiceLog(description="查询供应商信息")
 	public List<Object> findSuppliersId(String search, List<Object> systemClassification, List<Object> categorys,
 			List<Object> brands) {
 		List<Object> list = new ArrayList<>();
@@ -270,6 +281,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	}
 
 	@Override
+	@SystemServiceLog(description="根据名称查询库存信息")
 	public BasicDataResult ajaxgetRepletes(String name) {
 		if (Common.isNotEmpty(name)) {
 			Query query = new Query();
@@ -282,6 +294,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	}
 
 	@Override
+	@SystemServiceLog(description="启用禁用库存信息")
 	public BasicDataResult todisable(String id) {
 
 		if (Common.isEmpty(id)) {
@@ -298,6 +311,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 	}
 
+	@SystemServiceLog(description="批量导入库存信息")
 	public String BatchImport(File file, int row, HttpSession session) {
 		String error = "";
 		String[][] resultexcel = null;
@@ -390,6 +404,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	/**
 	 * 执行上传文件，返回错误消息
 	 */
+	@SystemServiceLog(description="上传库存信息")
 	public String upload(HttpServletRequest request, HttpSession session) {
 		String error = "";
 		try {
@@ -444,7 +459,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		 */
 		return stock;
 	}
-
+	@SystemServiceLog(description="根据id查询库存信息")
 	public BasicDataResult findOneById(String id) {
 		Stock stock = this.findOneById(id, Stock.class);
 
@@ -453,6 +468,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	}
 
 	@Override
+	@SystemServiceLog(description="导出库存信息")
 	public HSSFWorkbook export(String name) {
 		HSSFWorkbook wb = new HSSFWorkbook();
 
@@ -588,6 +604,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	}
 
 	@Override
+	@SystemServiceLog(description="查询低库存量信息")
 	public List<Stock> findLowStock(int num) {
 
 		Query query = new Query();

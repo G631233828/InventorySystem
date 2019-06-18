@@ -29,6 +29,7 @@ import zhongchiedu.inventory.pojo.Category;
 import zhongchiedu.inventory.pojo.ProcessInfo;
 import zhongchiedu.inventory.pojo.SystemClassification;
 import zhongchiedu.inventory.service.SystemClassificationService;
+import zhongchiedu.log.annotation.SystemServiceLog;
 
 @Service
 @Slf4j
@@ -39,6 +40,7 @@ public class SystemClassificationServiceImpl extends GeneralServiceImpl<SystemCl
 	private CategoryServiceImpl categoryService;
 
 	@Override
+	@SystemServiceLog(description="编辑系统分类信息")
 	public void saveOrUpdate(SystemClassification systemClassification, String types) {
 		if (Common.isNotEmpty(systemClassification)) {
 			if (Common.isNotEmpty(types)) {
@@ -61,6 +63,7 @@ public class SystemClassificationServiceImpl extends GeneralServiceImpl<SystemCl
 	}
 
 	@Override
+	@SystemServiceLog(description="启用禁用系统分类信息")
 	public BasicDataResult disable(String id) {
 		if (Common.isEmpty(id)) {
 			return BasicDataResult.build(400, "无法禁用，请求出现问题，请刷新界面!", null);
@@ -76,6 +79,7 @@ public class SystemClassificationServiceImpl extends GeneralServiceImpl<SystemCl
 	}
 
 	@Override
+	@SystemServiceLog(description="获取所有非禁用系统分类信息")
 	public List<SystemClassification> findAllSystemClassification(boolean isdisable) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("isDisable").is(isdisable == true ? true : false));
@@ -86,6 +90,7 @@ public class SystemClassificationServiceImpl extends GeneralServiceImpl<SystemCl
 	private Lock lock = new ReentrantLock();
 
 	@Override
+	@SystemServiceLog(description="删除系统分类信息")
 	public String delete(String id) {
 		try {
 			lock.lock();
@@ -105,6 +110,7 @@ public class SystemClassificationServiceImpl extends GeneralServiceImpl<SystemCl
 	}
 
 	@Override
+	@SystemServiceLog(description="分页查询系统分类信息")
 	public Pagination<SystemClassification> findpagination(Integer pageNo, Integer pageSize) {
 		// 分页查询数据
 		Pagination<SystemClassification> pagination = null;
@@ -123,6 +129,7 @@ public class SystemClassificationServiceImpl extends GeneralServiceImpl<SystemCl
 	}
 
 	@Override
+	@SystemServiceLog(description="查询重复系统分类信息")
 	public BasicDataResult ajaxgetRepletes(String name) {
 		if (Common.isNotEmpty(name)) {
 			Query query = new Query();
@@ -152,6 +159,7 @@ public class SystemClassificationServiceImpl extends GeneralServiceImpl<SystemCl
 
 	}
 
+	@SystemServiceLog(description="批量导入系统分类信息")
 	public String BatchImport(File file, int row, HttpSession session) {
 		String error = "";
 		String[][] resultexcel = null;
@@ -220,6 +228,7 @@ public class SystemClassificationServiceImpl extends GeneralServiceImpl<SystemCl
 	/**
 	 * 执行上传文件，返回错误消息
 	 */
+	@SystemServiceLog(description="上传系统分类信息")
 	public String upload(HttpServletRequest request, HttpSession session) {
 		String error = "";
 		try {
@@ -258,6 +267,7 @@ public class SystemClassificationServiceImpl extends GeneralServiceImpl<SystemCl
 	}
 
 	@Override
+	@SystemServiceLog(description="根据系统分类信息获取所有id")
 	public Object[] categorys(SystemClassification systemClassification) {
 		Object[] categorys = {};
 		if (Common.isNotEmpty(systemClassification)) {
@@ -278,6 +288,7 @@ public class SystemClassificationServiceImpl extends GeneralServiceImpl<SystemCl
 	 * 根据系统分类名称来查找，如果不存在则创建一个
 	 */
 	@Override
+	@SystemServiceLog(description="根据名称系统分类信息")
 	public SystemClassification findByName(String name) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("isDelete").is(false));

@@ -17,12 +17,14 @@ import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralServiceImpl;
 import zhongchiedu.inventory.pojo.Companys;
 import zhongchiedu.inventory.service.CompanyService;
+import zhongchiedu.log.annotation.SystemServiceLog;
 
 @Service
 @Slf4j
 public class CompanyServiceImpl extends GeneralServiceImpl<Companys> implements CompanyService {
 
 	@Override
+	@SystemServiceLog(description="编辑企业信息")
 	public void saveOrUpdate(Companys company) {
 		if (Common.isNotEmpty(company)) {
 			if (Common.isNotEmpty(company.getId())) {
@@ -38,6 +40,7 @@ public class CompanyServiceImpl extends GeneralServiceImpl<Companys> implements 
 	}
 
 	@Override
+	@SystemServiceLog(description="启用禁用企业信息")
 	public BasicDataResult disable(String id) {
 		if (Common.isEmpty(id)) {
 			return BasicDataResult.build(400, "无法禁用，请求出现问题，请刷新界面!", null);
@@ -53,6 +56,7 @@ public class CompanyServiceImpl extends GeneralServiceImpl<Companys> implements 
 	}
 
 	@Override
+	@SystemServiceLog(description="获取所有非禁用企业信息")
 	public List<Companys> findAllCompany(boolean isdisable) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("isDisable").is(isdisable == true ? true : false));
@@ -63,6 +67,7 @@ public class CompanyServiceImpl extends GeneralServiceImpl<Companys> implements 
 	private Lock lock = new ReentrantLock();
 
 	@Override
+	@SystemServiceLog(description="删除企业信息")
 	public String delete(String id) {
 		try {
 			lock.lock();
@@ -82,6 +87,7 @@ public class CompanyServiceImpl extends GeneralServiceImpl<Companys> implements 
 	}
 
 	@Override
+	@SystemServiceLog(description="分页查询企业信息")
 	public Pagination<Companys> findpagination(Integer pageNo, Integer pageSize) {
 		// 分页查询数据
 		Pagination<Companys> pagination = null;
@@ -100,6 +106,7 @@ public class CompanyServiceImpl extends GeneralServiceImpl<Companys> implements 
 	}
 
 	@Override
+	@SystemServiceLog(description="根据名称查询是否存在企业信息")
 	public BasicDataResult ajaxgetRepletes(String name) {
 		if (Common.isNotEmpty(name)) {
 			Query query = new Query();
@@ -112,6 +119,7 @@ public class CompanyServiceImpl extends GeneralServiceImpl<Companys> implements 
 	}
 
 	@Override
+	@SystemServiceLog(description="启用禁用企业信息")
 	public BasicDataResult todisable(String id) {
 		
 		if(Common.isEmpty(id)){

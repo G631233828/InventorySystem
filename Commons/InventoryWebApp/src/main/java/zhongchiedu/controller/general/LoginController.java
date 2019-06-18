@@ -35,6 +35,7 @@ import zhongchiedu.inventory.pojo.Stock;
 import zhongchiedu.inventory.pojo.StockStatistics;
 import zhongchiedu.inventory.service.Impl.StockServiceImpl;
 import zhongchiedu.inventory.service.Impl.StockStatisticsServiceImpl;
+import zhongchiedu.log.annotation.SystemControllerLog;
 
 @Controller
 public class LoginController {
@@ -44,6 +45,7 @@ public class LoginController {
 	private UserService userService;
 
 	@RequestMapping("/tologin")
+	@SystemControllerLog(description = "用户申请登陆")
 	public String login(User user, HttpServletRequest request, Map<String, Object> map, HttpSession session,Model model)
 			throws Exception {
 		if(Common.isEmpty(user.getAccountName())||Common.isEmpty(user.getPassWord())){
@@ -96,6 +98,7 @@ public class LoginController {
 	 * @return
 	 */
 	@RequestMapping(value = "/loginOut")
+	@SystemControllerLog(description = "用户退出")
 	public String loginOut(HttpSession session,HttpServletResponse resp) {
 		Subject subject = SecurityUtils.getSubject();// 获得主体
 		session.removeAttribute(Contents.USER_SESSION);//删除cookie
@@ -111,7 +114,10 @@ public class LoginController {
 	private @Autowired StockServiceImpl stockService;
 	private @Autowired StockStatisticsServiceImpl stockStatisticsService; 
 	
+	
+	
 	@RequestMapping(value="/toindex")
+	@SystemControllerLog(description = "用户登陆成功")
 	public String toindex(Model model){
 		//今日出库
 		List<StockStatistics> out = this.stockStatisticsService.findAllByDate(Common.fromDateYMD(), false);

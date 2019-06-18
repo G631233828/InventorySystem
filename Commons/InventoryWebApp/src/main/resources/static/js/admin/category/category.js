@@ -17,6 +17,7 @@ $().ready(function() {
 						},
 						dataType : "json",
 						dataFilter : function(data, type) {
+							alert(1)
 							var oldname = $("#oldname").val();
 							var name = $("#name").val();
 							if(oldname == name){
@@ -28,10 +29,10 @@ $().ready(function() {
 							}
 							return false;
 						}
-					},
+					}/*,
 					upload : {
 						required : true
-					}
+					}*/
 				},
 			},
 			messages : {
@@ -39,11 +40,11 @@ $().ready(function() {
 					required : a + "请输入类目名称",
 					minlength : a + "类目名称长度至少是2个",
 					remote : a + "当前类目已经存在！"
-				},
+				}/*,
 				upload : {
 					required : a+ "导入文件不能为空！"
 				}
-				
+				*/
 			}
 		});
 	});

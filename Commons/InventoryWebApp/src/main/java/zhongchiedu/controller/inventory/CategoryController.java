@@ -39,7 +39,7 @@ public class CategoryController {
 
 	@GetMapping("categorys")
 	@RequiresPermissions(value = "category:list")
-	@SystemControllerLog(description = "查询所有货架信息")
+	@SystemControllerLog(description = "查询所有类目信息")
 	public String list(@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
 			@RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize, HttpSession session,
 			@ModelAttribute("errorImport") String errorImport) {

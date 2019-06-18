@@ -29,12 +29,14 @@ import zhongchiedu.inventory.pojo.ProcessInfo;
 import zhongchiedu.inventory.pojo.Unit;
 import zhongchiedu.inventory.service.CategoryService;
 import zhongchiedu.inventory.service.UnitService;
+import zhongchiedu.log.annotation.SystemServiceLog;
 
 @Service
 @Slf4j
 public class UnitServiceImpl extends GeneralServiceImpl<Unit> implements UnitService {
 
 	@Override
+	@SystemServiceLog(description="编辑单位信息")
 	public void saveOrUpdate(Unit unit) {
 		if (Common.isNotEmpty(unit)) {
 			if (Common.isNotEmpty(unit.getId())) {
@@ -52,6 +54,7 @@ public class UnitServiceImpl extends GeneralServiceImpl<Unit> implements UnitSer
 	}
 
 	@Override
+	@SystemServiceLog(description="启用禁用单位信息")
 	public BasicDataResult disable(String id) {
 		if (Common.isEmpty(id)) {
 			return BasicDataResult.build(400, "无法禁用，请求出现问题，请刷新界面!", null);
@@ -67,6 +70,7 @@ public class UnitServiceImpl extends GeneralServiceImpl<Unit> implements UnitSer
 	}
 
 	@Override
+	@SystemServiceLog(description="获取所有非禁用单位信息")
 	public List<Unit> findAllUnit(boolean isdisable) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("isDisable").is(isdisable == true ? true : false));
@@ -77,6 +81,7 @@ public class UnitServiceImpl extends GeneralServiceImpl<Unit> implements UnitSer
 	private Lock lock = new ReentrantLock();
 
 	@Override
+	@SystemServiceLog(description="删除单位信息")
 	public String delete(String id) {
 		try {
 			lock.lock();
@@ -96,6 +101,7 @@ public class UnitServiceImpl extends GeneralServiceImpl<Unit> implements UnitSer
 	}
 
 	@Override
+	@SystemServiceLog(description="分页查询单位信息")
 	public Pagination<Unit> findpagination(Integer pageNo, Integer pageSize) {
 		// 分页查询数据
 		Pagination<Unit> pagination = null;
@@ -113,6 +119,7 @@ public class UnitServiceImpl extends GeneralServiceImpl<Unit> implements UnitSer
 	}
 
 	@Override
+	@SystemServiceLog(description="根据名称获取单位信息")
 	public BasicDataResult ajaxgetRepletes(String name) {
 		if (Common.isNotEmpty(name)) {
 			Query query = new Query();
@@ -142,7 +149,7 @@ public class UnitServiceImpl extends GeneralServiceImpl<Unit> implements UnitSer
 	}
 	
 	
-	
+	@SystemServiceLog(description="批量导入单位信息")
 	public String  BatchImport(File file, int row, HttpSession session) {
 		String error = "";
 		String[][] resultexcel = null;
@@ -199,6 +206,7 @@ public class UnitServiceImpl extends GeneralServiceImpl<Unit> implements UnitSer
 /**
  * 执行上传文件，返回错误消息	
  */
+	@SystemServiceLog(description="上传单位信息")
 public String upload( HttpServletRequest request, HttpSession session){
 	String error = "";
 	try {
@@ -243,6 +251,7 @@ public String upload( HttpServletRequest request, HttpSession session){
 	 * 根据单位名称查找单位，如果没有则创建一个
 	 */
 	@Override
+	@SystemServiceLog(description="根据名称获取单位信息")
 	public Unit findByName(String name) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("name").is(name));

@@ -49,7 +49,7 @@ public class ResourceController {
 	
 	@GetMapping("resources")
 	@RequiresPermissions(value = "resource:list")
-	@SystemControllerLog(description = "查询所有用户")
+	@SystemControllerLog(description = "查询所有资源")
 	public String list(@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
 			@RequestParam(value = "pageSize", defaultValue = "9999") Integer pageSize, HttpSession session) {
 		

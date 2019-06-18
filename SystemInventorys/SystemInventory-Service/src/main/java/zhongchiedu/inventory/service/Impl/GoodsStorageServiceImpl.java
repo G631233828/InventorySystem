@@ -20,12 +20,14 @@ import zhongchiedu.framework.service.GeneralServiceImpl;
 import zhongchiedu.inventory.pojo.Companys;
 import zhongchiedu.inventory.pojo.GoodsStorage;
 import zhongchiedu.inventory.service.GoodsStorageService;
+import zhongchiedu.log.annotation.SystemServiceLog;
 
 @Service
 @Slf4j
 public class GoodsStorageServiceImpl extends GeneralServiceImpl<GoodsStorage> implements GoodsStorageService {
 
 	@Override
+	@SystemServiceLog(description="编辑货架信息")
 	public void saveOrUpdate(GoodsStorage goodsStorage) {
 		if (Common.isNotEmpty(goodsStorage)) {
 			if (Common.isNotEmpty(goodsStorage.getId())) {
@@ -41,6 +43,7 @@ public class GoodsStorageServiceImpl extends GeneralServiceImpl<GoodsStorage> im
 	}
 
 	@Override
+	@SystemServiceLog(description="启用禁用货架信息")
 	public BasicDataResult disable(String id) {
 		if (Common.isEmpty(id)) {
 			return BasicDataResult.build(400, "无法禁用，请求出现问题，请刷新界面!", null);
@@ -56,6 +59,7 @@ public class GoodsStorageServiceImpl extends GeneralServiceImpl<GoodsStorage> im
 	}
 
 	@Override
+	@SystemServiceLog(description="获取所有非禁用货架信息")
 	public List<GoodsStorage> findAllGoodsStorage(boolean isdisable) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("isDisable").is(isdisable == true ? true : false));
@@ -66,6 +70,7 @@ public class GoodsStorageServiceImpl extends GeneralServiceImpl<GoodsStorage> im
 	private Lock lock = new ReentrantLock();
 
 	@Override
+	@SystemServiceLog(description="删除货架信息")
 	public String delete(String id) {
 		try {
 			lock.lock();
@@ -85,6 +90,7 @@ public class GoodsStorageServiceImpl extends GeneralServiceImpl<GoodsStorage> im
 	}
 
 	@Override
+	@SystemServiceLog(description="分页查询货架信息")
 	public Pagination<GoodsStorage> findpagination(Integer pageNo, Integer pageSize) {
 		// 分页查询数据
 		Pagination<GoodsStorage> pagination = null;
@@ -103,6 +109,7 @@ public class GoodsStorageServiceImpl extends GeneralServiceImpl<GoodsStorage> im
 	}
 
 	@Override
+	@SystemServiceLog(description="查询是否有重复货架信息")
 	public BasicDataResult ajaxgetRepletes(String address, String shelfNumber, String shelflevel) {
 		if (Common.isNotEmpty(address)&&Common.isNotEmpty(shelfNumber)&&Common.isNotEmpty(shelflevel)) {
 			Query query = new Query();
@@ -115,6 +122,7 @@ public class GoodsStorageServiceImpl extends GeneralServiceImpl<GoodsStorage> im
 	}
 
 	@Override
+	@SystemServiceLog(description="启用禁用货架信息")
 	public BasicDataResult todisable(String id) {
 		
 		if(Common.isEmpty(id)){

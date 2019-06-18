@@ -96,7 +96,7 @@
 											<div class="form-group">
 												<label class="col-lg-1 control-label">货架号：</label>
 												<div class="col-lg-6">
-													<input class="form-control" id="shelfNumber"
+													<input class="form-control" id="shelfNumber" onkeyup="return checkshelf()"
 														placeholder="请输入货架号" name="shelfNumber"
 														th:value="${goodsStorage?.shelfNumber}"
 														required="required">

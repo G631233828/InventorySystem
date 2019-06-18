@@ -27,12 +27,14 @@ import zhongchiedu.framework.service.GeneralServiceImpl;
 import zhongchiedu.inventory.pojo.Category;
 import zhongchiedu.inventory.pojo.ProcessInfo;
 import zhongchiedu.inventory.service.CategoryService;
+import zhongchiedu.log.annotation.SystemServiceLog;
 
 @Service
 @Slf4j
 public class CategoryServiceImpl extends GeneralServiceImpl<Category> implements CategoryService {
 
 	@Override
+	@SystemServiceLog(description="编辑类目信息")
 	public void saveOrUpdate(Category category) {
 		if (Common.isNotEmpty(category)) {
 			if (Common.isNotEmpty(category.getId())) {
@@ -50,6 +52,7 @@ public class CategoryServiceImpl extends GeneralServiceImpl<Category> implements
 	}
 
 	@Override
+	@SystemServiceLog(description="禁用类目")
 	public BasicDataResult disable(String id) {
 		if (Common.isEmpty(id)) {
 			return BasicDataResult.build(400, "无法禁用，请求出现问题，请刷新界面!", null);
@@ -65,6 +68,7 @@ public class CategoryServiceImpl extends GeneralServiceImpl<Category> implements
 	}
 
 	@Override
+	@SystemServiceLog(description="查询所有非禁用的类目")
 	public List<Category> findAllCategory(boolean isdisable) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("isDisable").is(isdisable == true ? true : false));
@@ -94,6 +98,7 @@ public class CategoryServiceImpl extends GeneralServiceImpl<Category> implements
 	}
 
 	@Override
+	@SystemServiceLog(description="分页查询类目信息")
 	public Pagination<Category> findpagination(Integer pageNo, Integer pageSize) {
 		// 分页查询数据
 		Pagination<Category> pagination = null;
@@ -111,6 +116,7 @@ public class CategoryServiceImpl extends GeneralServiceImpl<Category> implements
 	}
 
 	@Override
+	@SystemServiceLog(description="根据类目名称查询重复")
 	public BasicDataResult ajaxgetRepletes(String name) {
 		if (Common.isNotEmpty(name)) {
 			Query query = new Query();
@@ -123,6 +129,7 @@ public class CategoryServiceImpl extends GeneralServiceImpl<Category> implements
 	}
 
 	@Override
+	@SystemServiceLog(description="启用禁用类目")
 	public BasicDataResult todisable(String id) {
 		
 		if(Common.isEmpty(id)){
@@ -140,7 +147,7 @@ public class CategoryServiceImpl extends GeneralServiceImpl<Category> implements
 	}
 	
 	
-	
+	@SystemServiceLog(description="批量导入类目")
 	public String  BatchImport(File file, int row, HttpSession session) {
 		String error = "";
 		String[][] resultexcel = null;
@@ -197,6 +204,7 @@ public class CategoryServiceImpl extends GeneralServiceImpl<Category> implements
 /**
  * 执行上传文件，返回错误消息	
  */
+	@SystemServiceLog(description="上传类目信息")
 public String upload( HttpServletRequest request, HttpSession session){
 	String error = "";
 	try {
@@ -241,6 +249,7 @@ public String upload( HttpServletRequest request, HttpSession session){
 	 * 根据类目名车查找类目，如果没有则创建一个
 	 */
 	@Override
+	@SystemServiceLog(description="根据类目名称查询类目信息")
 	public Category findByName(String name) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("name").is(name));

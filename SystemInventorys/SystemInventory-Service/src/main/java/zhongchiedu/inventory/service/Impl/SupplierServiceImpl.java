@@ -32,6 +32,7 @@ import zhongchiedu.inventory.pojo.ProcessInfo;
 import zhongchiedu.inventory.pojo.Supplier;
 import zhongchiedu.inventory.pojo.SystemClassification;
 import zhongchiedu.inventory.service.SupplierService;
+import zhongchiedu.log.annotation.SystemServiceLog;
 
 @Service
 @Slf4j
@@ -44,6 +45,7 @@ public class SupplierServiceImpl extends GeneralServiceImpl<Supplier> implements
 	private @Autowired CategoryServiceImpl categoryService;
 	
 	@Override
+	@SystemServiceLog(description="编辑供应商信息")
 	public void saveOrUpdate(Supplier supplier, String types) {
 		if (Common.isNotEmpty(supplier)) {
 			if (Common.isNotEmpty(types)) {
@@ -66,6 +68,7 @@ public class SupplierServiceImpl extends GeneralServiceImpl<Supplier> implements
 	}
 
 	@Override
+	@SystemServiceLog(description="启用禁用供应商信息")
 	public BasicDataResult disable(String id) {
 		if (Common.isEmpty(id)) {
 			return BasicDataResult.build(400, "无法禁用，请求出现问题，请刷新界面!", null);
@@ -81,6 +84,7 @@ public class SupplierServiceImpl extends GeneralServiceImpl<Supplier> implements
 	}
 
 	@Override
+	@SystemServiceLog(description="查询所有非禁用供应商信息")
 	public List<Supplier> findAllSupplier(boolean isdisable) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("isDisable").is(isdisable == true ? true : false));
@@ -91,6 +95,7 @@ public class SupplierServiceImpl extends GeneralServiceImpl<Supplier> implements
 	private Lock lock = new ReentrantLock();
 
 	@Override
+	@SystemServiceLog(description="删除供应商信息")
 	public String delete(String id) {
 		try {
 			lock.lock();
@@ -110,6 +115,7 @@ public class SupplierServiceImpl extends GeneralServiceImpl<Supplier> implements
 	}
 
 	@Override
+	@SystemServiceLog(description="分页查询供应商信息")
 	public Pagination<Supplier> findpagination(Integer pageNo, Integer pageSize) {
 		// 分页查询数据
 		Pagination<Supplier> pagination = null;
@@ -127,6 +133,7 @@ public class SupplierServiceImpl extends GeneralServiceImpl<Supplier> implements
 	}
 
 	@Override
+	@SystemServiceLog(description="查询重复供应商信息")
 	public BasicDataResult ajaxgetRepletes(String name) {
 		if (Common.isNotEmpty(name)) {
 			Query query = new Query();
@@ -156,7 +163,7 @@ public class SupplierServiceImpl extends GeneralServiceImpl<Supplier> implements
 	}
 	
 	
-	
+	@SystemServiceLog(description="批量导入供应商信息")
 	public String  BatchImport(File file, int row, HttpSession session) {
 		String error = "";
 		String[][] resultexcel = null;
@@ -268,6 +275,7 @@ public class SupplierServiceImpl extends GeneralServiceImpl<Supplier> implements
 /**
  * 执行上传文件，返回错误消息	
  */
+	@SystemServiceLog(description="上传供应商信息")
 public String upload( HttpServletRequest request, HttpSession session){
 	String error = "";
 	try {
@@ -312,6 +320,7 @@ public String upload( HttpServletRequest request, HttpSession session){
 	 * 根据单位名称查找单位
 	 */
 	@Override
+	@SystemServiceLog(description="根据名称查询供应商信息")
 	public Supplier findByName(String name) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("name").is(name));
@@ -327,6 +336,7 @@ public String upload( HttpServletRequest request, HttpSession session){
 	}
 
 	@Override
+	@SystemServiceLog(description="获取所有供应商id")
 	public Object[] categorys(Supplier supplier) {
 		Object[] categorys = {};
 		if (Common.isNotEmpty(supplier)) {
@@ -344,6 +354,7 @@ public String upload( HttpServletRequest request, HttpSession session){
 	}
 
 	@Override
+	@SystemServiceLog(description="根据id查询供应商信息")
 	public BasicDataResult findOneById(String id) {
 		Supplier supplier = this.findOneById(id, Supplier.class);
 		return Common.isNotEmpty(supplier)?BasicDataResult.build(200, "查询成功", supplier):BasicDataResult.build(400, "查询失败", null);

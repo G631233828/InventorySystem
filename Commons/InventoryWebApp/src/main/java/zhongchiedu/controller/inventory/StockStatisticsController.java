@@ -71,16 +71,16 @@ public class StockStatisticsController {
 
 	@RequestMapping(value = "/stockStatistics/in", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	// @RequiresPermissions(value = "stockStatistics:in")
-	@SystemControllerLog(description = "商品入库")
+	@RequiresPermissions(value = "stockStatistics:in")
+	@SystemControllerLog(description = "设备入库")
 	public BasicDataResult in(@ModelAttribute("stockStatistics") StockStatistics stockStatistics, HttpSession session) {
 		return this.stockStatisticsService.inOrOutstockStatistics(stockStatistics, session);
 	}
 
 	@RequestMapping(value = "/stockStatistics/out", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	// @RequiresPermissions(value = "stockStatisticss:out")
-	@SystemControllerLog(description = "商品出库")
+	 @RequiresPermissions(value = "stockStatistics:out")
+	@SystemControllerLog(description = "设备出库")
 	public BasicDataResult out(@ModelAttribute("stockStatistics") StockStatistics stockStatistics,
 			HttpSession session) {
 		return this.stockStatisticsService.inOrOutstockStatistics(stockStatistics, session);
@@ -102,6 +102,7 @@ public class StockStatisticsController {
 
 	@RequestMapping(value = "/stockStatistics/revoke", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody
+	@SystemControllerLog(description = "出入库撤销")
 	public BasicDataResult revoke(@RequestParam(value = "id", defaultValue = "") String id) {
 		return this.stockStatisticsService.revoke(id);
 	}
@@ -110,6 +111,7 @@ public class StockStatisticsController {
 	 * 导出excel
 	 */
 	@RequestMapping(value = "/stockStatistics/export", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+	@SystemControllerLog(description = "")
 	public void exportStock(@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
 			@RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize, HttpSession session,
 			@RequestParam(value = "search", defaultValue = "") String search,
