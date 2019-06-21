@@ -179,7 +179,7 @@
 										<tbody>
 											<!-- 目录 -->
 											<th:block th:each="stock:${pageList.datas}"
-												th:if="${stock?.supplier?.isDisable == false}">
+												th:if="${stock?.supplier?.isDisable == false || stock?.supplier == null}">
 												<tr>
 													<td class="numeric">
 														<div class="checkbox checkbox-inline"
@@ -223,12 +223,12 @@
 													<td class="numeric" th:id="disBtn+${stock.id}"
 														th:utext="${stock.isDisable eq true }?|<button type='button' onclick=toDisable('${stock.id}','stock') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${stock.id}','stock') class='btn btn-success'>启用</button>|"></td>
 													<td class="numeric"><shiro:hasPermission
-															name="stock:in">
+															name="stockStatistics:in">
 															<button class="btn source btn-xs"
 																th:onclick="|return showStockStatistics('${stock.id}')|">
 																<i class="entypo-download"> </i>入库
 															</button>
-														</shiro:hasPermission> <shiro:hasPermission name="stock:out">
+														</shiro:hasPermission> <shiro:hasPermission name="stockStatistics:out">
 															<button class="btn source btn-xs"
 																th:onclick="|return showStockStatistics2('${stock.id}')|">
 																<i class="entypo-upload"> </i>出库
