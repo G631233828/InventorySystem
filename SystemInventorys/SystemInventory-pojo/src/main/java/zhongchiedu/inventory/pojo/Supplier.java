@@ -41,6 +41,7 @@ public class Supplier extends GeneralBean<Supplier> {
 	private String qq;
 	private String wechat;
 	private String email;
+//	private List<Contact> contact;
 	private String address;
 	private String introducer;//介绍人
 	private String productQuality;//产品质量

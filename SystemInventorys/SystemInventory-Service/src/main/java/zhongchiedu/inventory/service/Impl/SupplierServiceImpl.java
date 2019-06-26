@@ -168,15 +168,14 @@ public class SupplierServiceImpl extends GeneralServiceImpl<Supplier> implements
 		String error = "";
 		String[][] resultexcel = null;
 		try {
-			resultexcel = ExcelReadUtil.readExcel(file, row);
+			resultexcel = ExcelReadUtil.readExcel(file, 0);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		int rowLength = resultexcel.length;
 		ProcessInfo pri = new ProcessInfo();
 		pri.allnum = rowLength;
-		for (int i = 0; i < rowLength; i++) {
-			Query query = new Query();
+		for (int i = 1; i < rowLength; i++) {
 			Supplier importSupplier = new Supplier();
 
 			pri.nownum = i;
@@ -186,9 +185,9 @@ public class SupplierServiceImpl extends GeneralServiceImpl<Supplier> implements
 			try {
 				SystemClassification systemClassification = null;//系统分类
 				Brand brand = null;//品牌
-				String name = resultexcel[i][j];//供应商名称
+				String name = resultexcel[i][j].trim();//供应商名称
 				if(Common.isEmpty(name)){
-					error += "<span class='entypo-attention'></span>导入文件过程中出现供应商名称为空，第<b>&nbsp&nbsp" + (i + 2)
+					error += "<span class='entypo-attention'></span>导入文件过程中出现供应商名称为空，第<b>&nbsp&nbsp" + (i + 1)
 							+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
 					continue;
 				}
@@ -221,6 +220,7 @@ public class SupplierServiceImpl extends GeneralServiceImpl<Supplier> implements
 				importSupplier.setSupplyPeriod(resultexcel[i][j+12]);
 				importSupplier.setPayMent(resultexcel[i][j+13]);
 				importSupplier.setAfterSaleService(resultexcel[i][j+14]);
+				
 				if(Common.isNotEmpty(supplier)){
 					//供应商已存在
 					List<Category> list = supplier.getCategorys();
@@ -231,13 +231,30 @@ public class SupplierServiceImpl extends GeneralServiceImpl<Supplier> implements
 							category = this.categoryService.findByName(c);
 						}
 						if(list.contains(category)){
-							error += "<span class='entypo-attention'></span>导入文件过程中出现已经在相同系统分类下的类目信息，第<b>&nbsp&nbsp" + (i + 2)
-									+ "&nbsp&nbsp</b>行出现重复内容为<b>&nbsp&nbsp导入类目名称为:<b>&nbsp&nbsp" + c
-									+ "&nbsp&nbsp</b>请手动去修改该条信息！&nbsp&nbsp</b></br>";
+//							error += "<span class='entypo-attention'></span>导入文件过程中出现已经在相同系统分类下的类目信息，第<b>&nbsp&nbsp" + (i + 1)
+//									+ "&nbsp&nbsp</b>行出现重复内容为<b>&nbsp&nbsp导入类目名称为:<b>&nbsp&nbsp" + c
+//									+ "&nbsp&nbsp</b>已过滤重复数据！&nbsp&nbsp</b></br>";
 							continue;
 						}
 						list.add(category);
 					}
+					//更新原先供应商信息
+					String newContact = importSupplier.getContact();
+					String newContactNumber = importSupplier.getContactNumber();
+					String newQq = importSupplier.getQq();
+					String newWechat = importSupplier.getWechat();
+					String newemail = importSupplier.getEmail();
+					
+					if(!supplier.getContact().contains(newContact)){
+						supplier.setContact(Common.isNotEmpty(newContact)?Common.isNotEmpty(supplier.getContact())?supplier.getContact()+"/"+newContact:newContact:"");
+						supplier.setContactNumber(Common.isNotEmpty(newContactNumber)?Common.isNotEmpty(supplier.getContactNumber())?supplier.getContactNumber()+"/"+newContactNumber:newContactNumber:"");
+						supplier.setQq(Common.isNotEmpty(newQq)?Common.isNotEmpty(supplier.getQq())?supplier.getQq()+"/"+newQq:newQq:"");
+						supplier.setWechat(Common.isNotEmpty(newWechat)?Common.isNotEmpty(supplier.getWechat())?supplier.getWechat()+"/"+newWechat:newWechat:"");
+						supplier.setEmail(Common.isNotEmpty(newemail)?Common.isNotEmpty(supplier.getEmail())?supplier.getWechat()+"/"+newemail:newemail:"");
+						error += "<span class='entypo-attention'></span>导入文件过程中出现存在的供应商信息，第<b>&nbsp&nbsp" + (i + 1)
+								+ "&nbsp&nbsp</b>已经修改联系人信息<b>&nbsp&nbsp</b></br>";
+					}
+					
 					this.save(supplier);
 				}else{
 					//添加新供应商
@@ -255,10 +272,10 @@ public class SupplierServiceImpl extends GeneralServiceImpl<Supplier> implements
 		
 				// 捕捉批量导入过程中遇到的错误，记录错误行数继续执行下去
 			} catch (Exception e) {
-				log.debug("导入文件过程中出现错误第" + (i + 2) + "行出现错误" + e);
+				log.debug("导入文件过程中出现错误第" + (i + 1) + "行出现错误" + e);
 				String aa = e.getLocalizedMessage();
 				String b = aa.substring(aa.indexOf(":") + 1, aa.length()).replaceAll("\"", "");
-				error += "<span class='entypo-attention'></span>导入文件过程中出现错误第<b>&nbsp&nbsp" + (i + 2)
+				error += "<span class='entypo-attention'></span>导入文件过程中出现错误第<b>&nbsp&nbsp" + (i + 1)
 						+ "&nbsp&nbsp</b>行出现错误内容为<b>&nbsp&nbsp" + b + "&nbsp&nbsp</b></br>";
 				if ((i + 1) < rowLength) {
 					continue;

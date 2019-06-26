@@ -316,14 +316,14 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		String error = "";
 		String[][] resultexcel = null;
 		try {
-			resultexcel = ExcelReadUtil.readExcel(file, row);
+			resultexcel = ExcelReadUtil.readExcel(file, 0);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		int rowLength = resultexcel.length;
 		ProcessInfo pri = new ProcessInfo();
 		pri.allnum = rowLength;
-		for (int i = 0; i < rowLength; i++) {
+		for (int i = 1; i < rowLength; i++) {
 			Query query = new Query();
 			Stock importStock = new Stock();
 
@@ -338,14 +338,14 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				Unit unit = null;
 				String name = resultexcel[i][j].trim();// 设备名称
 				if (Common.isEmpty(name)) {
-					error += "<span class='entypo-attention'></span>导入文件过程中出现设备名称为空，第<b>&nbsp&nbsp" + (i + 2)
+					error += "<span class='entypo-attention'></span>导入文件过程中出现设备名称为空，第<b>&nbsp&nbsp" + (i + 1)
 							+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
 					continue;
 				}
 				importStock.setName(name); // 设备名称
 				String model = resultexcel[i][j + 1].trim();
 				if (Common.isEmpty(name)) {
-					error += "<span class='entypo-attention'></span>导入文件过程中出现设备型号为空，第<b>&nbsp&nbsp" + (i + 2)
+					error += "<span class='entypo-attention'></span>导入文件过程中出现设备型号为空，第<b>&nbsp&nbsp" + (i + 1)
 							+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
 					continue;
 				}
@@ -366,7 +366,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 					supplier = this.supplierService.findByName(supplierName);
 					if (Common.isEmpty(supplier)) {
 						error += "<span class='entypo-attention'></span>导入文件过程中出现不存在的供应商<b>&nbsp;&nbsp;" + supplierName
-								+ "&nbsp;&nbsp;</b>，请先添加供应商，第<b>&nbsp&nbsp" + (i + 2)
+								+ "&nbsp;&nbsp;</b>，请先添加供应商，第<b>&nbsp&nbsp" + (i + 1)
 								+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
 						continue;
 					}
@@ -377,7 +377,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				if (Common.isNotEmpty(stock)) {
 					// 设备已存在
 					error += "<span class='entypo-attention'></span>导入文件过程中设备已经存在，设备名称<b>&nbsp;&nbsp;" + stock.getName()
-							+ "&nbsp;&nbsp;</b>，第<b>&nbsp&nbsp" + (i + 2) + "请手动去修改该条信息！&nbsp&nbsp</b></br>";
+							+ "&nbsp;&nbsp;</b>，第<b>&nbsp&nbsp" + (i + 1) + "请手动去修改该条信息！&nbsp&nbsp</b></br>";
 					continue;
 				} else {
 					// 添加新设备
@@ -386,10 +386,10 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 				// 捕捉批量导入过程中遇到的错误，记录错误行数继续执行下去
 			} catch (Exception e) {
-				log.debug("导入文件过程中出现错误第" + (i + 2) + "行出现错误" + e);
+				log.debug("导入文件过程中出现错误第" + (i + 1) + "行出现错误" + e);
 				String aa = e.getLocalizedMessage();
 				String b = aa.substring(aa.indexOf(":") + 1, aa.length()).replaceAll("\"", "");
-				error += "<span class='entypo-attention'></span>导入文件过程中出现错误第<b>&nbsp&nbsp" + (i + 2)
+				error += "<span class='entypo-attention'></span>导入文件过程中出现错误第<b>&nbsp&nbsp" + (i + 1)
 						+ "&nbsp&nbsp</b>行出现错误内容为<b>&nbsp&nbsp" + b + "&nbsp&nbsp</b></br>";
 				if ((i + 1) < rowLength) {
 					continue;

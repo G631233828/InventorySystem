@@ -227,9 +227,12 @@ public class ExcelReadUtil {
                       default:
                           value = "";
                       }
+                   }else{
+                	   value="";
                    }
+                   	
                    if (columnIndex == 0 && value.trim().equals("")) {
-                      break;
+                	   value="";
                    }
                    values[columnIndex] = rightTrim(value);
                    hasValue = true;

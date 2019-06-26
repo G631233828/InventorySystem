@@ -164,14 +164,14 @@ public class SystemClassificationServiceImpl extends GeneralServiceImpl<SystemCl
 		String error = "";
 		String[][] resultexcel = null;
 		try {
-			resultexcel = ExcelReadUtil.readExcel(file, row);
+			resultexcel = ExcelReadUtil.readExcel(file, 0);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		int rowLength = resultexcel.length;
 		ProcessInfo pri = new ProcessInfo();
 		pri.allnum = rowLength;
-		for (int i = 0; i < rowLength; i++) {
+		for (int i = 1; i < rowLength; i++) {
 			Query query = new Query();
 			SystemClassification importSystemClassification = new SystemClassification();
 
@@ -194,7 +194,7 @@ public class SystemClassificationServiceImpl extends GeneralServiceImpl<SystemCl
 					List<Category>  list = systemClassification.getCategorys();
 					
 					if(list.contains(category)){
-						error += "<span class='entypo-attention'></span>导入文件过程中出现已经在相同系统分类下的类目信息，第<b>&nbsp&nbsp" + (i + 2)
+						error += "<span class='entypo-attention'></span>导入文件过程中出现已经在相同系统分类下的类目信息，第<b>&nbsp&nbsp" + (i + 1)
 								+ "&nbsp&nbsp</b>行出现重复内容为<b>&nbsp&nbsp导入类目名称为:<b>&nbsp&nbsp" + categoryName
 								+ "&nbsp&nbsp</b>请手动去修改该条信息！&nbsp&nbsp</b></br>";
 						continue;
@@ -210,10 +210,10 @@ public class SystemClassificationServiceImpl extends GeneralServiceImpl<SystemCl
 				}
 				// 捕捉批量导入过程中遇到的错误，记录错误行数继续执行下去
 			} catch (Exception e) {
-				log.debug("导入文件过程中出现错误第" + (i + 2) + "行出现错误" + e);
+				log.debug("导入文件过程中出现错误第" + (i + 1) + "行出现错误" + e);
 				String aa = e.getLocalizedMessage();
 				String b = aa.substring(aa.indexOf(":") + 1, aa.length()).replaceAll("\"", "");
-				error += "<span class='entypo-attention'></span>导入文件过程中出现错误第<b>&nbsp&nbsp" + (i + 2)
+				error += "<span class='entypo-attention'></span>导入文件过程中出现错误第<b>&nbsp&nbsp" + (i + 1)
 						+ "&nbsp&nbsp</b>行出现错误内容为<b>&nbsp&nbsp" + b + "&nbsp&nbsp</b></br>";
 				if ((i + 1) < rowLength) {
 					continue;

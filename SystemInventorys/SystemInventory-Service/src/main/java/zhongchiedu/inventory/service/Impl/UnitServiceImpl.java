@@ -154,14 +154,14 @@ public class UnitServiceImpl extends GeneralServiceImpl<Unit> implements UnitSer
 		String error = "";
 		String[][] resultexcel = null;
 		try {
-			resultexcel = ExcelReadUtil.readExcel(file, row);
+			resultexcel = ExcelReadUtil.readExcel(file, 0);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		int rowLength = resultexcel.length;
 		ProcessInfo pri = new ProcessInfo();
 		pri.allnum = rowLength;
-		for (int i = 0; i < rowLength; i++) {
+		for (int i = 1; i < rowLength; i++) {
 			Query query = new Query();
 			Unit importUnit = new Unit();
 
@@ -177,7 +177,7 @@ public class UnitServiceImpl extends GeneralServiceImpl<Unit> implements UnitSer
 				// 通过类目名称是否存在该信息
 				Unit unit = this.findOneByQuery(query, Unit.class);
 				if(Common.isNotEmpty(unit)){
-					error += "<span class='entypo-attention'></span>导入文件过程中出现已经存在的单位信息，第<b>&nbsp;&nbsp;" + (i + 2)
+					error += "<span class='entypo-attention'></span>导入文件过程中出现已经存在的单位信息，第<b>&nbsp;&nbsp;" + (i + 1)
 							+ "&nbsp&nbsp</b>行出现重复内容为<b>&nbsp&nbsp导入类目名称为:<b>&nbsp;&nbsp;" + unit.getName()
 							+ "&nbsp;&nbsp;请手动去修改该条信息！</b></br>";
 					continue;
@@ -186,10 +186,10 @@ public class UnitServiceImpl extends GeneralServiceImpl<Unit> implements UnitSer
 				}
 				// 捕捉批量导入过程中遇到的错误，记录错误行数继续执行下去
 			} catch (Exception e) {
-				log.debug("导入文件过程中出现错误第" + (i + 2) + "行出现错误" + e);
+				log.debug("导入文件过程中出现错误第" + (i + 1) + "行出现错误" + e);
 				String aa = e.getLocalizedMessage();
 				String b = aa.substring(aa.indexOf(":") + 1, aa.length()).replaceAll("\"", "");
-				error += "<span class='entypo-attention'></span>导入文件过程中出现错误第<b>&nbsp&nbsp" + (i + 2)
+				error += "<span class='entypo-attention'></span>导入文件过程中出现错误第<b>&nbsp&nbsp" + (i + 1)
 						+ "&nbsp&nbsp</b>行出现错误内容为<b>&nbsp&nbsp" + b + "&nbsp&nbsp</b></br>";
 				if ((i + 1) < rowLength) {
 					continue;

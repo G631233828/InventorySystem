@@ -193,10 +193,8 @@
 															id="systemClassification"
 															th:style="${#lists.contains(listColums,'systemClassification')}?'':'display:none;'">[[${supplier?.systemClassification?.name}]]</td>
 														<td class="numeric categorys" id="categorys"
-															th:style="${#lists.contains(listColums,'categorys')}?'':'display:none;'"><th:block
-																th:each="category:${supplier.categorys}">
-															[[${category.isDelete eq false}?${category.name}+'&nbsp;&nbsp;':'']]
-													</th:block></td>
+															th:style="${#lists.contains(listColums,'categorys')}?'':'display:none;' "><th:block
+																th:each="category,categoryStat:${supplier.categorys}" th:if="${category.isDelete eq false && category.isDisable eq false}" th:utext="${categoryStat.index+1 }% 7==0?'<br/>'+${category.name}+'&nbsp;&nbsp;':${category.name}+'&nbsp;&nbsp;'"> </th:block></td>
 														<td class="numeric brand" id="brand"
 															th:style="${#lists.contains(listColums,'brand')}?'':'display:none;'">[[${supplier?.brand?.name}]]</td>
 														<td class="numeric contact" id="contact"
