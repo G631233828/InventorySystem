@@ -7,7 +7,8 @@
 <link th:href="@{/plugs/alert/css/alert.css}" rel="stylesheet">
 <script type="text/javascript" th:src="@{/plugs/alert/js/alert.js}"></script>
 <link rel="stylesheet" th:href="@{/plugs/datapicker/datepicker3.css}">
-<script type="text/javascript" th:src="@{/plugs/datapicker/bootstrap-datepicker.js}"></script>
+<script type="text/javascript"
+	th:src="@{/plugs/datapicker/bootstrap-datepicker.js}"></script>
 
 
 
@@ -23,8 +24,7 @@
 	<!-- /END OF TOP NAVBAR -->
 
 	<!-- SIDE MENU -->
-	<div
-		th:replace="public/public::left(activeUri='stockManager')"></div>
+	<div th:replace="public/public::left(activeUri='stockManager')"></div>
 	<!-- END OF SIDE MENU -->
 
 	<!--  PAPER WRAP -->
@@ -73,25 +73,30 @@
 										<select class="filter-status form-control" id="pageSize"
 											onchange="return searchVal()">
 											<option value="10" th:selected="${pageSize == 10}">10
+											
 											<option value="20" th:selected="${pageSize == 20}">20
+											
 											<option value="50" th:selected="${pageSize == 50}">50
+											
 											<option value="100" th:selected="${pageSize == 100}">100
-										</select> 
-										
-										
-										<input class="form-control" id="serach" placeholder="模糊匹配"
-											th:value="${search}" type="text">
-										<input class="form-control datepicker" readonly="readonly"  id="start" placeholder="开始日期"
-											th:value="${start}" type="text">
-										<input class="form-control datepicker" readonly="readonly"  id="end" placeholder="结束日期"
-											th:value="${end}" type="text">
 											
-										<select class="filter-status form-control" id="type" name="type">
+										</select> <input class="form-control" id="serach" placeholder="模糊匹配"
+											th:value="${search}" type="text"> <input
+											class="form-control datepicker" readonly="readonly"
+											id="start" placeholder="开始日期" th:value="${start}" type="text">
+										<input class="form-control datepicker" readonly="readonly"
+											id="end" placeholder="结束日期" th:value="${end}" type="text">
+
+										<select class="filter-status form-control" id="type"
+											name="type">
 											<option value="all" th:selected="${type == 'all'}">所有
-											<option value="in" th:selected="${type == 'in'}">入库
-											<option value="out" th:selected="${type == 'out'}">出库
-										</select> 	
 											
+											<option value="in" th:selected="${type == 'in'}">入库
+											
+											<option value="out" th:selected="${type == 'out'}">出库
+											
+										</select>
+
 										<button class="btn btn-default btn-sm"
 											onclick="return searchVal()">
 											<i class="entypo-search"> </i> 搜索
@@ -100,7 +105,7 @@
 											onclick="return clearaa()">
 											<i class="entypo-search"> </i> 清空
 										</button>
-										
+
 										<button class="btn btn-default" onclick="return toExport()">
 											<i class="entypo-export"> </i>导出库存出入统计报表
 										</button>
@@ -120,7 +125,7 @@
 										class="table table-bordered table-striped cf text-nowrap  table-hover">
 										<thead class="cf">
 											<tr>
-											<!-- 	<th class="numeric" style="width: 20px;">
+												<!-- 	<th class="numeric" style="width: 20px;">
 													<div class="checkbox checkbox-inline"
 														style="margin-top: 0px;">
 														<input type="checkbox" id="checkall" name="checkall" /> <label
@@ -143,6 +148,12 @@
 													th:style="${#lists.contains(listColums,'newNum')}?'':'display:none;'">库存数量</th>
 												<th class="numeric revokeNum"
 													th:style="${#lists.contains(listColums,'revokeNum')}?'':'display:none;'">撤销数量</th>
+												<th class="numeric personInCharge"
+													th:style="${#lists.contains(listColums,'personInCharge')}?'':'display:none;'">负责人</th>
+												<th class="numeric projectName"
+													th:style="${#lists.contains(listColums,'projectName')}?'':'display:none;'">项目名称</th>
+												<th class="numeric customer"
+													th:style="${#lists.contains(listColums,'customer')}?'':'display:none;'">客户</th>
 												<th class="numeric user"
 													th:style="${#lists.contains(listColums,'user')}?'':'display:none;'">操作人</th>
 												<th class="numeric revoke"
@@ -185,17 +196,28 @@
 														th:style="${#lists.contains(listColums,'newNum')}?'':'display:none;'">[[${stockStatistics?.newNum}]]</td>
 													<td class="numeric revokeNum" id="revokeNum"
 														th:style="${#lists.contains(listColums,'revokeNum')}?'':'display:none;'">[[${stockStatistics?.revokeNum}]]</td>
+													<td class="numeric personInCharge" id="personInCharge"
+														th:style="${#lists.contains(listColums,'personInCharge')}?'':'display:none;'"
+														th:text="${stockStatistics.personInCharge != null}?${stockStatistics?.personInCharge}:'--------'"></td>
+													<td class="numeric projectName" id="projectName"
+														th:style="${#lists.contains(listColums,'projectName')}?'':'display:none;'"
+														th:text="${stockStatistics.projectName != null}?${stockStatistics?.projectName}:'--------'"></td>
+													<td class="numeric customer" id="customer"
+														th:style="${#lists.contains(listColums,'customer')}?'':'display:none;'"
+														th:text="${stockStatistics.customer != null}?${stockStatistics?.customer}:'--------'"></td>
 													<td class="numeric user" id="user"
 														th:style="${#lists.contains(listColums,'user')}?'':'display:none;'">[[${stockStatistics?.user?.userName}]]</td>
 													<td class="numeric revoke" id="revoke"
 														th:style="${#lists.contains(listColums,'revoke')}?'':'display:none;'">
 														<label th:id="|revoke${stockStatistics?.id}|"
-														th:style="${stockStatistics?.revoke == true}?'color:red':'color:green'" th:text="${stockStatistics?.revoke == true}?'已撤销':'正常'"></label>
+														th:style="${stockStatistics?.revoke == true}?'color:red':'color:green'"
+														th:text="${stockStatistics?.revoke == true}?'已撤销':'正常'"></label>
 													</td>
 													<td class="numeric">
 														<!-- <shiro:hasPermission
 															name="stockStatistics:edit"> -->
-														<button class="btn btn-primary btn-xs btcancle"  th:id="${stockStatistics?.id}"
+														<button class="btn btn-primary btn-xs btcancle"
+															th:id="${stockStatistics?.id}"
 															th:onclick="|return revoke('${stockStatistics?.id}')|">
 															<i class="fa fa-edit"> </i>撤销
 														</button> <!-- </shiro:hasPermission> -->

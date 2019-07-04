@@ -43,6 +43,10 @@ public class StockStatistics extends GeneralBean<StockStatistics> {
 	private boolean inOrOut;//入库还是出库
 	private long revokeNum;//撤销数量，默认为全部，撤销数量不能大于入库或者出库数量
 	
+	private String personInCharge;//责任人
+	private String projectName;   //项目名
+	private String customer;//客户
+	
 
 	
 

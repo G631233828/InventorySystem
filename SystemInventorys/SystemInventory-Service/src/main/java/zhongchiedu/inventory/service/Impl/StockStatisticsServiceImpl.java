@@ -85,7 +85,9 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			List<Object> stockId = this.findStocks(search);
 			List<Object> userId = this.findUsers(search);
 			ca1.orOperator(Criteria.where("stock.$id").in(stockId), Criteria.where("user.$id").in(userId),
-					Criteria.where("name").regex(search));
+					Criteria.where("name").regex(search),Criteria.where("personInCharge").regex(search),
+					Criteria.where("projectName").regex(search),Criteria.where("customer").regex(search)
+					);
 		}
 
 		if (Common.isNotEmpty(start) && Common.isNotEmpty(end)) {
@@ -407,11 +409,28 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 					} else {
 						cell.setCellValue(st.getDepotTime());
 					}
+					
 					cell = row.createCell(l+2);
 					cell.setCellStyle(style);
 					cell.setCellValue(msg+st.getNum());
+					
+					if(type.equals("out")){
+						cell = row.createCell(l+3);
+						cell.setCellStyle(style);
+						cell.setCellValue("负责人："+st.getPersonInCharge());
+						
+						cell = row.createCell(l+4);
+						cell.setCellStyle(style);
+						cell.setCellValue("项目："+st.getProjectName());
+						
+						cell = row.createCell(l+5);
+						cell.setCellStyle(style);
+						cell.setCellValue("客户："+st.getCustomer());
 
-					l= l+2;
+						l= l+5;
+					}else{
+						l= l+2;
+					}
 				}
 			}
 			j++;

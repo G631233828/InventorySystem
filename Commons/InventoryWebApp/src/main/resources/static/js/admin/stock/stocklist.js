@@ -33,10 +33,11 @@ function showStockStatistics(o) {
 				var name = datas.name;
 				var inventory = datas.inventory;
 				var stockid = datas.id;
+				var unit = datas.unit.name;
 				
 				$("#stockId").val(stockid);
 				$("#stockName").text(name);
-				$("#loadinventory").text(inventory);
+				$("#loadinventory").text(inventory+"  "+unit);
 				
 			}
 		}
@@ -63,10 +64,11 @@ function showStockStatistics2(o) {
 				var name = datas.name;
 				var inventory = datas.inventory;
 				var stockid = datas.id;
+				var unit = datas.unit.name;
 				
 				$("#stockIdOut").val(stockid);
 				$("#stockNameOut").text(name);
-				$("#loadinventoryOut").text(inventory);
+				$("#loadinventoryOut").text(inventory+"  "+unit);
 				
 			}
 		}
