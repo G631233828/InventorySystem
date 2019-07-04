@@ -13,6 +13,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.bson.types.ObjectId;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -116,11 +117,15 @@ public class SupplierServiceImpl extends GeneralServiceImpl<Supplier> implements
 
 	@Override
 	@SystemServiceLog(description="分页查询供应商信息")
-	public Pagination<Supplier> findpagination(Integer pageNo, Integer pageSize) {
+	public Pagination<Supplier> findpagination(Integer pageNo, Integer pageSize, String search) {
 		// 分页查询数据
 		Pagination<Supplier> pagination = null;
 		try {
 			Query query = new Query();
+			
+			if(Common.isNotEmpty(search)){
+				query= this.findbySearch(search, query);
+			}
 			query.addCriteria(Criteria.where("isDelete").is(false));
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, Supplier.class);
 			if (pagination == null)
@@ -131,6 +136,54 @@ public class SupplierServiceImpl extends GeneralServiceImpl<Supplier> implements
 		}
 		return pagination;
 	}
+	
+	
+	@SystemServiceLog(description="查询供应商信息")
+	public Query findbySearch(String search, Query query) {
+		if (Common.isNotEmpty(search)) {
+			List<Object> systemClassification = this.findSystemClassificationIds(search);
+			Criteria ca = new Criteria();
+			query.addCriteria(ca.orOperator(Criteria.where("wechat").regex(search),
+					Criteria.where("qq").regex(search), Criteria.where("afterSaleService").regex(search),
+					Criteria.where("introducer").regex(search), Criteria.where("name").regex(search),
+					Criteria.where("address").regex(search), Criteria.where("email").regex(search),
+					Criteria.where("contact").regex(search), Criteria.where("contactNumber").regex(search),
+					Criteria.where("systemClassification.$id").in(systemClassification)));
+		}
+
+		return query;
+
+	}
+
+	/**
+	 * 模糊匹配系统分类的Id
+	 * 
+	 * @param search
+	 * @return
+	 */
+	@SystemServiceLog(description="查询系统分类信息")
+	public List<Object> findSystemClassificationIds(String search) {
+		List<Object> list = new ArrayList<>();
+		Query query = new Query();
+		query.addCriteria(Criteria.where("name").regex(search));
+		query.addCriteria(Criteria.where("isDelete").is(false));
+		List<SystemClassification> lists = this.systemClassificationService.find(query, SystemClassification.class);
+		for (SystemClassification li : lists) {
+			list.add(new ObjectId(li.getId()));
+		}
+		return list;
+
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 	@Override
 	@SystemServiceLog(description="查询重复供应商信息")

@@ -4,7 +4,7 @@
 <head th:include="public/public_css::pub_css"></head>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<!-- <link rel="stylesheet" th:href="@{/assets/css/bootstrap-select.css}"> -->
+<link rel="stylesheet" th:href="@{/assets/css/bootstrap-select.css}">
 </head>
 
 <body>
@@ -102,7 +102,7 @@
 												<label class="col-lg-1 control-label">货架号/层：</label>
 												<div class="col-lg-6">
 													<select id="goodsStorage" name="goodsStorage.id"
-														class="form-control" required="required">
+														class="form-control">
 														<option value="">---请选择存放货架---</option>
 														<option
 															th:selected="${stock!=null && stock?.goodsStorage !=null}?${stock?.goodsStorage?.id}==${goodsStorage?.id}"
@@ -119,15 +119,14 @@
 												<div class="col-lg-6">
 													<input class="form-control" id="price"
 														placeholder="请输入设备单价" name="price"
-														th:value="${stock?.price}" required="required">
+														th:value="${stock?.price}" >
 												</div>
 											</div>
 
 											<div class="form-group">
 												<label class="col-lg-1 control-label">计量单位：</label>
 												<div class="col-lg-6">
-													<select id="unit" name="unit.id" class="form-control"
-														required="required">
+													<select id="unit" name="unit.id" class="form-control" >
 														<option value="">---请选择设备计量单位---</option>
 														<option
 															th:selected="${stock!=null && stock?.unit !=null}?${stock?.unit?.id}==${unit?.id}"
@@ -151,16 +150,31 @@
 												<div class="col-lg-6">
 													<input class="form-control" id="maintenance"
 														placeholder="请输入设备维保" name="maintenance"
-														th:value="${stock?.maintenance}" required="required">
+														th:value="${stock?.maintenance}">
 												</div>
 											</div>
 
 
+
+
+										<div class="form-group">
+												<label class="col-lg-1 control-label">供应商：</label>
+												<div class="col-lg-6">
+													<select multiple class="selectpicker form-control"
+														id="number-multiple" data-container="body" name="supplier.id"
+														 title="请选择供应商" data-live-search="true"
+														data-hide-disabled="true" data-actions-box="false"
+														data-virtual-scroll="false" data-max-options="1"></select>
+												</div>
+											</div>
+
+
+<!-- 
 											<div class="form-group">
 												<label class="col-lg-1 control-label">供应商：</label>
 												<div class="col-lg-6">
 													<select id="supplier" name="supplier.id"
-														class="form-control" required="required">
+														class="form-control" >
 														<option value="">---请选择设备供应商---</option>
 														<option
 															th:selected="${stock!=null && stock?.supplier !=null}?${stock?.supplier?.id}==${supplier?.id}"
@@ -168,7 +182,7 @@
 															th:value="${supplier?.id}" th:text="${supplier?.name}"></option>
 													</select>
 												</div>
-											</div>
+											</div> -->
 
 
 
@@ -225,8 +239,8 @@
 	<div th:replace="public/public_js::pub_js"></div>
 	<div th:replace="public/public::myModal"></div>
 
-	<!-- <script th:src="@{/assets/js/select/bootstrap-select.js}"
-		type="text/javascript"></script> -->
+	<script th:src="@{/assets/js/select/bootstrap-select.js}"
+		type="text/javascript"></script>
 	<div th:replace="public/public_js::public_script"></div>
 	<div th:replace="public/public::footer"></div>
 	<!-- Jquery Validate -->
@@ -239,12 +253,12 @@
 		th:src="@{/js/admin/stock/stock.js}"></script>
 
 	<div th:replace="public/public_js::validator"></div>
-	<!-- 	<script type="text/javascript" th:inline="javascript">
+	<script type="text/javascript" th:inline="javascript">
 
 $(function(){
 var options = [], _options;
 /* <![CDATA[ */
-	 var data = [[${categorys}]]
+	 var data = [[${suppliers}]]
 	 /*]]>*/
 	  for (var i = 0; i < data.length; i++) {
 	    var option = '<option value="' + data[i].id + '">' + data[i].name + '</option>';
@@ -252,14 +266,14 @@ var options = [], _options;
 	  }
 	  _options = options.join('');
 	  $('#number-multiple')[0].innerHTML = _options;
-			var a = /* <![CDATA[ */ [[${selectcategorys}]] /*]]>*/
+			var a = /* <![CDATA[ */ [[${stock?.supplier?.id}]] /*]]>*/
 			     $("#number-multiple").selectpicker('val',a);
 				  $("#number-multiple").selectpicker('refresh');
 			  $('#number-multiple').selectpicker('render')
 })	  
 	  
 
-</script> -->
+</script>
 
 </body>
 

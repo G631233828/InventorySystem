@@ -70,13 +70,15 @@ public class SupplierController {
 	@SystemControllerLog(description = "查询所有供应商信息")
 	public String list(@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
 			@RequestParam(value = "pageSize", defaultValue = "12") Integer pageSize, HttpSession session,
-			@ModelAttribute("errorImport") String errorImport) {
+			@ModelAttribute("errorImport") String errorImport,
+			@RequestParam(value = "search", defaultValue = "") String search) {
 		model.addAttribute("errorImport", errorImport);
-		Pagination<Supplier> pagination = this.supplierService.findpagination(pageNo, pageSize);
+		Pagination<Supplier> pagination = this.supplierService.findpagination(pageNo, pageSize,search);
 		model.addAttribute("pageList", pagination);
 		List<String> listColums = this.columnService.findColumns("supplier");
 		model.addAttribute("listColums",listColums);
-		
+		model.addAttribute("pageSize", pageSize);
+		model.addAttribute("search", search);
 		return "admin/supplier/list";
 	}
 

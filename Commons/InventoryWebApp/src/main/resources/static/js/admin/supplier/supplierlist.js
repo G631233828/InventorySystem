@@ -12,6 +12,28 @@ function showColumn() {
 
 }
 
+
+
+
+
+function searchVal() {
+	var pageSize = $("#pageSize").val();
+	var search = $("#serach").val();
+	window.location.href="suppliers?pageSize="+pageSize+"&search="+search;
+
+}
+function searchSize() {
+	var pageSize = $("#pageSize").val();
+	var search = $("#serach").val();
+	window.location.href="suppliers?pageSize="+pageSize+"&search="+search;
+	
+}
+
+
+
+
+
+
 function selectColumn(o) {
 
 	var td = "#ch_" + o;

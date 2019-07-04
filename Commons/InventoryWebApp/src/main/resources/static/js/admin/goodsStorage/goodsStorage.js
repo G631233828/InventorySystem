@@ -12,39 +12,7 @@ $().ready(function() {
 			},
 			shelfNumber : {
 				required : true,
-				minlength : 1
-				remote : {
-					url : getRootPath() + "/goodsStorage/ajaxgetRepletes",
-					type : "POST",
-					data : {
-						"companys.id" : function() {
-							return $("#companys").val();
-						},
-						address : function() {
-							return $("#address").val();
-						},
-						shelfNumber : function() {
-							return $("#shelfNumber").val();
-						},
-						shelflevel : function() {
-							return $("#shelflevel").val();
-						},
-					},
-					dataType : "json",
-					dataFilter : function(data, type) {
-						var oldshelflevel = $("#oldshelflevel").val();
-						var shelflevel = $("#shelflevel").val();
-						if(oldshelflevel == shelflevel){
-							return true;
-						}
-						var jsondata = $.parseJSON(data);
-						alert(jsondata.status)
-						if (jsondata.status == 200) {
-							return true;
-						}
-						return false;
-					}
-				}
+				minlength : 1,
 			},
 			shelflevel : {
 				required : true,
@@ -73,7 +41,6 @@ $().ready(function() {
 							return true;
 						}
 						var jsondata = $.parseJSON(data);
-						alert(jsondata.status)
 						if (jsondata.status == 200) {
 							return true;
 						}
@@ -92,8 +59,7 @@ $().ready(function() {
 			},
 			shelfNumber : {
 				required : a + "请输入货架编号",
-				minlength : a + "货架编号长度至少是2个",
-				remote : a + "货架层在当前企业中已经存在！"
+				minlength : a + "货架编号长度至少是2个"
 			},
 			shelflevel : {
 				required : a + "请输入货架层",
@@ -103,21 +69,3 @@ $().ready(function() {
 		}
 	});
 });
-
-
-
-$("#shelfNumber").keyup(function(){
-	$("#goodsStorageForm").validate().element($("#shelflevel"))
-})
-
-function checkshelf(){
-	$("#goodsStorageForm").validate().element($("#shelflevel"))
-}
-
-$("#shelflevel").keyup(function(){
-	$("#goodsStorageForm").validate().element($("#shelflevel"))
-})
-
-
-
-

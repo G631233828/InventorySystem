@@ -96,33 +96,43 @@
 
 							</div>
 
-							<!-- 搜索  下拉  start-->
-							<!-- 	<div class="mail_header">
-								<div class="col-sm-6">
-									<div class="row" style="margin-bottom: 10px;">
-									
-										<div class="col-sm-2">
-										<select class="filter-status form-control">
-												<option value="10">10
-												<option value="25">25
-												<option value="50">50
-												<option value="100">100
-											</select>
-										</div>
-										<div class="col-sm-3">
-											<input class="form-control" id="filter"
-												placeholder="查找类目..." type="text">
-										
-											
-										</div>
-									</div>
-								</div>
-							</div> -->
-							<!-- 搜索  下拉  end-->
+				
 
 
 
 							<div class="body-nest" id="tableStatic">
+									<div class="body-nest" id="tableStatic">
+
+								<div class="row" style="margin-bottom: 10px;">
+									<div class="col-sm-3 form-inline">
+										<select class="filter-status form-control" id="pageSize"
+											onchange="return searchSize()">
+											<option value="10" th:selected="${pageSize == 10}">10
+
+											
+											<option value="20" th:selected="${pageSize == 20}">20
+
+											
+											<option value="50" th:selected="${pageSize == 50}">50
+
+											
+											<option value="100" th:selected="${pageSize == 100}">100
+
+											
+										</select> <input class="form-control" id="serach" placeholder="模糊匹配"
+											th:value="${search}" type="text">
+										<button class="btn btn-default btn-sm"
+											onclick="return searchVal()">
+											<i class="entypo-search"> </i> 搜索
+										</button>
+									</div>
+								</div>
+
+								<div class="col-sm-6"></div>
+
+							</div>
+							
+							
 
 								<section id="flip-scroll">
 									<div
@@ -247,40 +257,48 @@
 										<input name="_method" value="delete" type="hidden">
 									</form>
 
-									<div class="row">
+									
+									
+								<div class="row">
 
-										<div class="col-md-12">
-											<div class="col-md-6">
-												<div class="dataTables_info hidden-xs"
-													style="margin-top: 0px;" role="status" aria-live="polite"
-													th:text="|每页显示${pageList.pageSize}行
+									<div class="col-md-12">
+										<div class="col-md-6">
+											<div class="dataTables_info hidden-xs"
+												style="margin-top: 0px;" role="status" aria-live="polite"
+												th:text="|每页显示${pageList.pageSize}行
 										－ 当前页${pageList.pageNo}页 － 共${pageList.totalPage}页|"></div>
-											</div>
-											<div class="col-md-6">
-												<ul class="pagination pagination-split pull-right"
-													style="margin-top: 0px;">
-													<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
-														th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/suppliers?pageNo=}+${pageList.upPage}">上一页</a>
-													</li>
-													<li th:each="page:${pageList.navigatepageNums}"
-														th:class="${page  == pageList.pageNo}?active:''"><a
-														th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/suppliers?pageNo=}+${page}">[[${page}]]</a>
-													</li>
-													<li
-														th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
-														<a
-														th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/suppliers?pageNo=}+${pageList.nextPage}">下一页</a>
-													</li>
-												</ul>
-											</div>
 										</div>
-
-										<!-- 分页结束 -->
+										<div class="col-md-6">
+											<ul class="pagination pagination-split pull-right"
+												style="margin-top: 0px;">
+												<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
+													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/suppliers(pageNo=${pageList.upPage},pageSize=${pageSize},search=${search})}">上一页</a>
+												</li>
+												<li th:each="page:${pageList.navigatepageNums}"
+													th:class="${page  == pageList.pageNo}?active:''"><a
+													th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/suppliers(pageNo=${page},pageSize=${pageSize},search=${search})}">[[${page}]]</a>
+												</li>
+												<li
+													th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
+													<a
+													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/suppliers(pageNo=${pageList.nextPage},pageSize=${pageSize},search=${search})}">下一页</a>
+												</li>
+											</ul>
+										</div>
 									</div>
+
+									<!-- 分页结束 -->
+								</div>
+									
+									
+									
+									
+									
+									
 
 								</section>
 
-							</div>
+						</div>
 
 						</div>
 

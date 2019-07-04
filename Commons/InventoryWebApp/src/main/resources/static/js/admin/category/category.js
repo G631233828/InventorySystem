@@ -17,7 +17,6 @@ $().ready(function() {
 						},
 						dataType : "json",
 						dataFilter : function(data, type) {
-							alert(1)
 							var oldname = $("#oldname").val();
 							var name = $("#name").val();
 							if(oldname == name){

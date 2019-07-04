@@ -16,7 +16,7 @@ import zhongchiedu.inventory.pojo.Supplier;
 
 public interface SupplierService extends GeneralService<Supplier> {
 	
-	public Pagination<Supplier> findpagination(Integer pageNo,Integer pageSize);
+	public Pagination<Supplier> findpagination(Integer pageNo,Integer pageSize, String search);
 	
 	public void saveOrUpdate(Supplier supplier, String types);
 	
