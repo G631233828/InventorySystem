@@ -188,14 +188,8 @@ function toExport(){
 	    'content' : "正在导出请稍等...",
 	    'closeTime' : 5000,
 	})
-	window.location.href = "stock/export";
-	
-	
+	window.location.href = "projectStock/export";
 }
-
-
-
-
 
 
 
@@ -209,7 +203,7 @@ function selectColumn(o) {
 
 	$.ajax({
 		type : 'GET',
-		url : 'stock/columns',
+		url : 'projectStock/columns',
 		data : "column=" + o + "&flag=" + flag,
 		dataType : 'json',
 		success : function(data) {

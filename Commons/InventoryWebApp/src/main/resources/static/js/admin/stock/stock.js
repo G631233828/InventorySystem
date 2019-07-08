@@ -38,26 +38,26 @@ $().ready(function() {
 			/*	scope : {
 					required : true
 				},*/
-				"goodsStorage.id" : {
+			/*	"goodsStorage.id" : {
 					required : true
-				},
-				price : {
+				},*/
+	/*			price : {
 					required : true
 				},
 				maintenance : {
 					required : true
-				},
-				"supplier.id" : {
+				},*/
+			/*	"supplier.id" : {
 					required : true
-				},
+				},*/
 				"stock.id" : {
 					required : true
 				}
 			},
 			messages : {
 				name : {
-					required : a + "请输入供应商名称",
-					remote : a + "当前供应商已经存在！"
+					required : a + "请输入设备名称",
+					remote : a + "当前设备已经存在！"
 				},
 				upload : {
 					required : a+ "导入文件不能为空！"
@@ -68,20 +68,20 @@ $().ready(function() {
 			/*	scope : {
 					required : a+ "请输入设备使用范围"
 				},*/
-				"goodsStorage.id" : {
+			/*	"goodsStorage.id" : {
 					required : a+ "请选择存放货架位置"
-				},
-				price : {
+				},*/
+	/*			price : {
 					required : a+ "请输入设备单价"
 				},
 				maintenance : {
 					required : a+ "请输入设备维保"
-				},
-				"supplier.id" : {
+				},*/
+			/*	"supplier.id" : {
 					required : a+ "请选择设备供应商"
-				},
+				},*/
 				"stock.id" : {
-					required : a+ "请选择计量单位"
+					required : a+ "请选择设备"
 				}
 			
 			}

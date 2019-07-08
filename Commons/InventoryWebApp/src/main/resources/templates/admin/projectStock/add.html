@@ -5,6 +5,8 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" th:href="@{/assets/css/bootstrap-select.css}">
+<link rel="stylesheet" th:href="@{/plugs/datapicker/datepicker3.css}">
+<script type="text/javascript" th:src="@{/plugs/datapicker/bootstrap-datepicker.js}"></script>
 </head>
 
 <body>
@@ -43,7 +45,7 @@
 
 						<div style="margin: -20px 15px;" class="nest" id="Blank_PageClose">
 							<div class="title-alt">
-								<h6>库存管理</h6>
+								<h6>项目库存管理</h6>
 								<div class="titleClose">
 									<a class="gone" href="#Blank_PageClose"> <span
 										class="entypo-cancel"></span>
@@ -63,29 +65,50 @@
 									<!-- edit form column -->
 									<div class="col-md-12 personal-info">
 										<form class="form-horizontal" enctype="multipart/form-data"
-											id="stockForm" th:action="@{/stock}" method="post">
+											id="projectStockForm" th:action="@{/projectStock}"
+											method="post">
 											<input type="hidden" name="_method" value="put"
-												th:if="${stock!=null}" /> <input type="hidden" name="id"
-												th:if="${stock!=null}" th:value="${stock.id}"> <input
-												type="hidden" id="oldname" th:value="${stock?.name}">
-
-
+												th:if="${projectStock!=null}" /> <input type="hidden"
+												name="id" th:if="${projectStock!=null}"
+												th:value="${projectStock.id}"> <input type="hidden"
+												id="oldname" th:value="${projectStock?.name}">
 
 
 
 											<div class="form-group">
+												<label class="col-lg-1 control-label">项目名称：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="projectName"
+														placeholder="请输入项目名称" name="projectName"
+														th:value="${projectStock?.projectName}">
+												</div>
+											</div>
+											<div class="form-group">
 												<label class="col-lg-1 control-label">设备名称：</label>
 												<div class="col-lg-6">
 													<input class="form-control" id="name" placeholder="请输入设备名称"
-														name="name" th:value="${stock?.name}" required="required">
+														name="name" th:value="${projectStock?.name}"
+														required="required">
 												</div>
 											</div>
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label">供应商：</label>
+												<div class="col-lg-6">
+													<select multiple class="selectpicker form-control"
+														id="number-multiple" data-container="body"
+														name="supplier" title="请选择供应商" data-live-search="true"
+														data-hide-disabled="true" data-actions-box="false"
+														data-virtual-scroll="false" data-max-options="1"></select>
+												</div>
+											</div>
+
 											<div class="form-group">
 												<label class="col-lg-1 control-label">设备型号：</label>
 												<div class="col-lg-6">
 													<input class="form-control" id="model"
 														placeholder="请输入设备型号" name="model"
-														th:value="${stock?.model}">
+														th:value="${projectStock?.model}">
 												</div>
 											</div>
 
@@ -94,45 +117,43 @@
 												<div class="col-lg-6">
 													<input class="form-control" id="scope"
 														placeholder="请输入设备使用范围" name="scope"
-														th:value="${stock?.scope}">
-												</div>
-											</div>
-
-											<div class="form-group">
-												<label class="col-lg-1 control-label">货架号/层：</label>
-												<div class="col-lg-6">
-													<select id="goodsStorage" name="goodsStorage.id"
-														class="form-control">
-														<option value="">---请选择存放货架---</option>
-														<option
-															th:selected="${stock!=null && stock?.goodsStorage !=null}?${stock?.goodsStorage?.id}==${goodsStorage?.id}"
-															th:each="goodsStorage:${goodsStorages}"
-															th:value="${goodsStorage?.id}"
-															th:text="|${goodsStorage?.shelfNumber}/${goodsStorage?.shelflevel}|"></option>
-													</select>
+														th:value="${projectStock?.scope}">
 												</div>
 											</div>
 
 
+
 											<div class="form-group">
-												<label class="col-lg-1 control-label">单价：</label>
+												<label class="col-lg-1 control-label">预计采购量：</label>
 												<div class="col-lg-6">
-													<input class="form-control" id="price"
-														placeholder="请输入设备单价" name="price"
-														th:value="${stock?.price}" >
+													<input class="form-control" id="projectedProcurementVolume"
+														placeholder="请输入预计采购量" name="projectedProcurementVolume"
+														th:value="${projectStock?.projectedProcurementVolume}">
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-lg-1 control-label">预计采购单价：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="estimatedUnitPrice"
+														placeholder="请输入预计采购单价" name="estimatedUnitPrice"
+														th:value="${projectStock?.estimatedUnitPrice}">
 												</div>
 											</div>
 
 											<div class="form-group">
-												<label class="col-lg-1 control-label">计量单位：</label>
+												<label class="col-lg-1 control-label">实际采购量：</label>
 												<div class="col-lg-6">
-													<select id="unit" name="unit.id" class="form-control" >
-														<option value="">---请选择设备计量单位---</option>
-														<option
-															th:selected="${stock!=null && stock?.unit !=null}?${stock?.unit?.id}==${unit?.id}"
-															th:each="unit:${units}" th:value="${unit?.id}"
-															th:text="${unit?.name}"></option>
-													</select>
+													<input class="form-control" id="actualPurchaseQuantity"
+														placeholder="请输入实际采购量" name="actualPurchaseQuantity"
+														th:value="${projectStock?.actualPurchaseQuantity}">
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-lg-1 control-label">实际采购单价：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="realCostUnitPrice"
+														placeholder="请输入实际采购单价" name="realCostUnitPrice"
+														th:value="${projectStock?.realCostUnitPrice}">
 												</div>
 											</div>
 
@@ -141,49 +162,36 @@
 												<label class="col-lg-1 control-label">剩余库存：</label>
 												<div class="col-lg-6">
 													<input class="form-control" disabled="disabled"
-														th:value="${stock?.inventory}">
+														th:value="${projectStock?.inventory}">
 												</div>
 											</div>
 
 											<div class="form-group">
-												<label class="col-lg-1 control-label">维保：</label>
+												<label class="col-lg-1 control-label">付款时间：</label>
 												<div class="col-lg-6">
-													<input class="form-control" id="maintenance"
-														placeholder="请输入设备维保" name="maintenance"
-														th:value="${stock?.maintenance}">
+													<input class="form-control datepicker" id="paymentTime"
+														placeholder="请输入实际采购单价" name="paymentTime"
+														th:value="${projectStock?.paymentTime}">
 												</div>
 											</div>
 
-
-
-
-										<div class="form-group">
-												<label class="col-lg-1 control-label">供应商：</label>
-												<div class="col-lg-6">
-													<select multiple class="selectpicker form-control"
-														id="number-multiple" data-container="body" name="supplier.id"
-														 title="请选择供应商" data-live-search="true"
-														data-hide-disabled="true" data-actions-box="false"
-														data-virtual-scroll="false" data-max-options="1"></select>
-												</div>
-											</div>
-
-
-<!-- 
 											<div class="form-group">
-												<label class="col-lg-1 control-label">供应商：</label>
+												<label class="col-lg-1 control-label">付款金额：</label>
 												<div class="col-lg-6">
-													<select id="supplier" name="supplier.id"
-														class="form-control" >
-														<option value="">---请选择设备供应商---</option>
-														<option
-															th:selected="${stock!=null && stock?.supplier !=null}?${stock?.supplier?.id}==${supplier?.id}"
-															th:each="supplier:${suppliers}"
-															th:value="${supplier?.id}" th:text="${supplier?.name}"></option>
-													</select>
+													<input class="form-control" id="paymentAmount"
+														placeholder="请输入付款金额" name="paymentAmount"
+														th:value="${projectStock?.paymentAmount}">
 												</div>
-											</div> -->
+											</div>
 
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label">出库数量：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="num" placeholder="请输入出库数量"
+														name="num" th:value="${projectStock?.num}">
+												</div>
+											</div>
 
 
 
@@ -194,9 +202,9 @@
 														<select name="isDisable" id="isDisable"
 															class="form-control" required>
 															<option value="false"
-																th:selected="${stock?.isDisable eq false}">启用中</option>
+																th:selected="${projectStock?.isDisable eq false}">启用中</option>
 															<option value="true"
-																th:selected="${stock?.isDisable eq true}">禁用中</option>
+																th:selected="${projectStock?.isDisable eq true}">禁用中</option>
 														</select>
 													</div>
 												</div>
@@ -211,8 +219,8 @@
 												<label class="col-lg-1 control-label"></label>
 												<div class="col-md-8">
 													<button type="submit" class="btn btn-success"
-														th:text="${stock!=null?'修改':'添加'}"></button>
-													<span></span> <input th:if="${stock} eq null"
+														th:text="${projectStock!=null?'修改':'添加'}"></button>
+													<span></span> <input th:if="${projectStock} eq null"
 														class="btn btn-default" value="重置" type="reset">
 												</div>
 											</div>
@@ -250,7 +258,7 @@
 		th:src="@{/plugs/validate/messages_zh.min.js}"></script>
 
 	<script type="text/javascript" th:inline="javascript"
-		th:src="@{/js/admin/stock/stock.js}"></script>
+		th:src="@{/js/admin/projectStock/projectStock.js}"></script>
 
 	<div th:replace="public/public_js::validator"></div>
 	<script type="text/javascript" th:inline="javascript">
@@ -266,7 +274,7 @@ var options = [], _options;
 	  }
 	  _options = options.join('');
 	  $('#number-multiple')[0].innerHTML = _options;
-			var a = /* <![CDATA[ */ [[${stock?.supplier?.id}]] /*]]>*/
+			var a = /* <![CDATA[ */ [[${projectStock?.supplier?.id}]] /*]]>*/
 			     $("#number-multiple").selectpicker('val',a);
 				  $("#number-multiple").selectpicker('refresh');
 			  $('#number-multiple').selectpicker('render')
