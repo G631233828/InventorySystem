@@ -73,8 +73,6 @@
 												th:value="${projectStock.id}"> <input type="hidden"
 												id="oldname" th:value="${projectStock?.name}">
 
-
-
 											<div class="form-group">
 												<label class="col-lg-1 control-label">项目名称：</label>
 												<div class="col-lg-6">
@@ -143,7 +141,7 @@
 											<div class="form-group">
 												<label class="col-lg-1 control-label">实际采购量：</label>
 												<div class="col-lg-6">
-													<input class="form-control" id="actualPurchaseQuantity"
+													<input class="form-control" id="actualPurchaseQuantity" th:disabled="${projectStock == null}?false:disabled"
 														placeholder="请输入实际采购量" name="actualPurchaseQuantity"
 														th:value="${projectStock?.actualPurchaseQuantity}">
 												</div>
@@ -157,7 +155,6 @@
 												</div>
 											</div>
 
-
 											<div class="form-group">
 												<label class="col-lg-1 control-label">剩余库存：</label>
 												<div class="col-lg-6">
@@ -170,7 +167,7 @@
 												<label class="col-lg-1 control-label">付款时间：</label>
 												<div class="col-lg-6">
 													<input class="form-control datepicker" id="paymentTime"
-														placeholder="请输入实际采购单价" name="paymentTime"
+														placeholder="请选择付款时间" name="paymentTime"
 														th:value="${projectStock?.paymentTime}">
 												</div>
 											</div>
@@ -185,10 +182,10 @@
 											</div>
 
 
-											<div class="form-group">
+											<div class="form-group" >
 												<label class="col-lg-1 control-label">出库数量：</label>
 												<div class="col-lg-6">
-													<input class="form-control" id="num" placeholder="请输入出库数量"
+													<input class="form-control" th:disabled="${projectStock == null}?false:disabled"  id="num" placeholder="请输入出库数量"
 														name="num" th:value="${projectStock?.num}">
 												</div>
 											</div>

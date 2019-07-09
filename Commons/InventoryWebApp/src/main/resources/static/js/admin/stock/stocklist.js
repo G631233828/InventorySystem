@@ -66,8 +66,10 @@ function showStockStatistics2(o) {
 				var name = datas.name;
 				var inventory = datas.inventory;
 				var stockid = datas.id;
-				var unit = datas.unit.name;
-				
+				var unit = "";
+				if(datas.unit!=null){
+					unit = datas.unit.name;
+				}
 				$("#stockIdOut").val(stockid);
 				$("#stockNameOut").text(name);
 				$("#loadinventoryOut").text(inventory+"  "+unit);

@@ -133,6 +133,7 @@ public class ProjectStockController {
 	@RequiresPermissions(value = "projectStock:edit")
 	@SystemControllerLog(description = "修改项目设备")
 	public String edit(
+			@RequestParam(value="id",defaultValue="")String id,
 			@RequestParam(value="projectName",defaultValue="")String projectName,
 			@RequestParam(value="name",defaultValue="")String name,
 			@RequestParam(value="model",defaultValue="")String model,
@@ -147,6 +148,7 @@ public class ProjectStockController {
 			@RequestParam(value="num",defaultValue="0")long num
 			) {
 		ProjectStock projectStock = new ProjectStock();
+		projectStock.setId(id);
 		projectStock.setProjectName(projectName);
 		projectStock.setName(name);
 		projectStock.setModel(model);

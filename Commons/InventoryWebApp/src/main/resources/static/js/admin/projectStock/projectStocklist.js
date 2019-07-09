@@ -19,6 +19,8 @@ function showColumn() {
  * @returns
  */
 function showStockStatistics(o) {
+	alert(o);
+	
 	$(".stockval").val('');
 	$(".stockval").text('');
 	
@@ -44,7 +46,7 @@ function showStockStatistics(o) {
 			}
 		}
 	})
-	$("#mystockStatistics").modal('show');
+	$("#myprojectStockStatistics").modal('show');
 }
 
 
@@ -52,6 +54,7 @@ function showStockStatistics(o) {
  * 出库
  */
 function showStockStatistics2(o) {
+	alert(o);
 	$(".stockval").val('');
 	$(".stockval").text('');
 	
@@ -75,7 +78,7 @@ function showStockStatistics2(o) {
 			}
 		}
 	})
-	$("#mystockStatistics2").modal('show');
+	$("#myprojectStockStatistics2").modal('show');
 }
 
 

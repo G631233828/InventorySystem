@@ -54,17 +54,40 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 	public void saveOrUpdate(ProjectStock stock) {
 		if (Common.isNotEmpty(stock)) {
 			
-			if(stock.getNum()>0){
-				stock.setInventory(stock.getActualPurchaseQuantity()-stock.getNum());
-			}
-			
 			if (Common.isNotEmpty(stock.getId())) {
 				// update
+				//更新预计采购数量、预计采购单价
+				//更新实际采购单价
 				ProjectStock ed = this.findOneById(stock.getId(), ProjectStock.class);
+				//预计采购量
+				long projectedProcurementVolume = stock.getProjectedProcurementVolume();
+				//预计采购单价
+				long estimatedUnitPrice = stock.getEstimatedUnitPrice();
+				//预计采购总价
+				long  projectedTotalPurchasePrice = 0;
+				//实际采购数量
+				long actualPurchaseQuantity = ed.getActualPurchaseQuantity();
+				//实际成本单价
+				long realCostUnitPrice = stock.getRealCostUnitPrice();
+				//实际成本总价
+				long totalActualCost = 0;
+				if(Common.isNotEmpty(projectedProcurementVolume)&&Common.isNotEmpty(estimatedUnitPrice)){
+					projectedTotalPurchasePrice = projectedProcurementVolume*estimatedUnitPrice;
+					stock.setProjectedTotalPurchasePrice(projectedTotalPurchasePrice);
+				}
+				if(Common.isNotEmpty(actualPurchaseQuantity)&&Common.isNotEmpty(realCostUnitPrice)){
+					totalActualCost= actualPurchaseQuantity * realCostUnitPrice;
+					stock.setTotalActualCost(totalActualCost);
+				}
 				stock.setInventory(ed.getInventory());
+				stock.setNum(ed.getNum());
+				stock.setActualPurchaseQuantity(ed.getActualPurchaseQuantity());
 				BeanUtils.copyProperties(stock, ed);
 				this.save(stock);
 			} else {
+				if(stock.getNum()>0){
+					stock.setInventory(stock.getActualPurchaseQuantity()-stock.getNum());
+				}
 				// insert
 				long projectedProcurementVolume = stock.getProjectedProcurementVolume();
 				long estimatedUnitPrice = stock.getEstimatedUnitPrice();
