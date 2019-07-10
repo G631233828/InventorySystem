@@ -33,6 +33,7 @@ public class ProjectStockStatistics extends GeneralBean<ProjectStockStatistics> 
 	private String depotTime;//出库时间
 	private long num;//出库、入库数量
 	private long newNum;//当前库存
+	private long actualPurchaseQuantity;//实际采购量 
 	@DBRef
 	private Companys company;//绑定企业
 	@DBRef

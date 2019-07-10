@@ -14,8 +14,7 @@ $().ready(function() {
 					digits:true
 				},
 				actualPurchaseQuantity : {
-					digits:true,
-					checkNum2:"#num"
+					digits:true
 				},
 				realCostUnitPrice : {
 					digits:true
@@ -23,10 +22,9 @@ $().ready(function() {
 				paymentAmount : {
 					digits:true
 				},
-				num : {
+	/*			num : {
 					digits:true,
-					checkNum:"#actualPurchaseQuantity"
-				},
+				},*/
 			
 			},
 			messages : {
@@ -56,21 +54,21 @@ $().ready(function() {
 		});
 		
 		
-		jQuery.validator.addMethod("checkNum", function(value, element, param) {
-			if(value == ""){
-				return true;
-			}
-          return value <= $(param).val();
-        }, $.validator.format("出库数量不能大于实际采购数量!"));
-		
-		
-		jQuery.validator.addMethod("checkNum2", function(value, element, param) {
-			if(value == ""){
-				return true;
-			}
-			return value >= $(param).val();
-		}, $.validator.format("出库数量不能大于实际采购数量!"));
-		
+//		jQuery.validator.addMethod("checkNum", function(value, element, param) {
+//			if(value == ""){
+//				return true;
+//			}
+//			return parseInt(value) <= parseInt($(param).val());
+//        }, $.validator.format("出库数量不能大于实际采购数量!"));
+//		
+//		
+//		jQuery.validator.addMethod("checkNum2", function(value, element, param) {
+//			if(value == ""){
+//				return true;
+//			}
+//			return parseInt(value) >= parseInt($(param).val());
+//		}, $.validator.format("出库数量不能大于实际采购数量!"));
+//		
 		
 	});
 

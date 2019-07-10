@@ -232,7 +232,7 @@
 													<td class="numeric projectedTotalPurchasePrice" id="projectedTotalPurchasePrice"
 														th:style="${#lists.contains(listColums,'projectedTotalPurchasePrice')}?'':'display:none;'">[[${projectStock?.projectedTotalPurchasePrice}]]</td>
 														
-													<td class="numeric actualPurchaseQuantity" id="actualPurchaseQuantity"
+													<td class="numeric actualPurchaseQuantity" th:id="|actualPurchaseQuantity_${projectStock?.id}|"
 														th:style="${#lists.contains(listColums,'actualPurchaseQuantity')}?'':'display:none;'">[[${projectStock?.actualPurchaseQuantity}]]</td>
 														
 													<td class="numeric realCostUnitPrice" id="realCostUnitPrice"
@@ -250,7 +250,7 @@
 														th:id="|inventory_${projectStock?.id}|"
 														th:style="${#lists.contains(listColums,'inventory')}?'':'display:none;'"><label
 														th:style="${projectStock?.inventory > 5}?'color:green':${projectStock?.inventory == 0?'color:red':'color:blue'}">[[${projectStock?.inventory}]]</label></td>
-													<td class="numeric num" id="num"
+													<td class="numeric num"  th:id="|num_${projectStock?.id}|"
 														th:style="${#lists.contains(listColums,'num')}?'':'display:none;'">[[${projectStock?.num}]]</td>
 												
 													<td class="numeric" th:id="disBtn+${projectStock.id}"

@@ -73,12 +73,16 @@
 										<select class="filter-status form-control" id="pageSize"
 											onchange="return searchVal()">
 											<option value="10" th:selected="${pageSize == 10}">10
+
 											
 											<option value="20" th:selected="${pageSize == 20}">20
+
 											
 											<option value="50" th:selected="${pageSize == 50}">50
+
 											
 											<option value="100" th:selected="${pageSize == 100}">100
+
 											
 										</select> <input class="form-control" id="serach" placeholder="模糊匹配"
 											th:value="${search}" type="text"> <input
@@ -90,10 +94,13 @@
 										<select class="filter-status form-control" id="type"
 											name="type">
 											<option value="all" th:selected="${type == 'all'}">所有
+
 											
 											<option value="in" th:selected="${type == 'in'}">入库
+
 											
 											<option value="out" th:selected="${type == 'out'}">出库
+
 											
 										</select>
 
@@ -132,8 +139,8 @@
 															for="checkall"></label>
 													</div>
 												</th> -->
-												<th class="numeric projectStockName"
-													th:style="${#lists.contains(listColums,'projectStockName')}?'':'display:none;'">设备名称</th>
+												<th class="numeric projectName"
+													th:style="${#lists.contains(listColums,'projectName')}?'':'display:none;'">项目名称</th>
 												<th class="numeric stockName"
 													th:style="${#lists.contains(listColums,'stockName')}?'':'display:none;'">设备名称</th>
 												<th class="numeric stockModel"
@@ -152,8 +159,6 @@
 													th:style="${#lists.contains(listColums,'revokeNum')}?'':'display:none;'">撤销数量</th>
 												<th class="numeric personInCharge"
 													th:style="${#lists.contains(listColums,'personInCharge')}?'':'display:none;'">负责人</th>
-												<th class="numeric projectName"
-													th:style="${#lists.contains(listColums,'projectName')}?'':'display:none;'">项目名称</th>
 												<th class="numeric customer"
 													th:style="${#lists.contains(listColums,'customer')}?'':'display:none;'">客户</th>
 												<th class="numeric user"
@@ -177,9 +182,10 @@
 																th:for="${stockStatistics.id}"></label>
 														</div>
 													</td> -->
+													<td class="numeric projectName" id="projectName"
+														th:style="${#lists.contains(listColums,'projectName')}?'':'display:none;'"
+														th:text="${stockStatistics.projectStock?.projectName != null}?${stockStatistics?.projectStock?.projectName}:'--------'"></td>
 
-													<td class="numeric stockName" id="stockName"
-														th:style="${#lists.contains(listColums,'stockName')}?'':'display:none;'">[[${stockStatistics?.projectStock?.projectName}]]</td>
 													<td class="numeric stockName" id="stockName"
 														th:style="${#lists.contains(listColums,'stockName')}?'':'display:none;'">[[${stockStatistics?.projectStock?.name}]]</td>
 													<td class="numeric stockModel" id="stockModel"
@@ -203,9 +209,6 @@
 													<td class="numeric personInCharge" id="personInCharge"
 														th:style="${#lists.contains(listColums,'personInCharge')}?'':'display:none;'"
 														th:text="${stockStatistics.personInCharge != null}?${stockStatistics?.personInCharge}:'--------'"></td>
-													<td class="numeric projectName" id="projectName"
-														th:style="${#lists.contains(listColums,'projectName')}?'':'display:none;'"
-														th:text="${stockStatistics.projectName != null}?${stockStatistics?.projectName}:'--------'"></td>
 													<td class="numeric customer" id="customer"
 														th:style="${#lists.contains(listColums,'customer')}?'':'display:none;'"
 														th:text="${stockStatistics.customer != null}?${stockStatistics?.customer}:'--------'"></td>

@@ -19,30 +19,25 @@ function showColumn() {
  * @returns
  */
 function showStockStatistics(o) {
-	alert(o);
-	
 	$(".stockval").val('');
 	$(".stockval").text('');
 	
 	$.ajax({
 		type : 'POST',
-		url : 'stockStatistics/findStock',
+		url : 'projectStockStatistics/findProjectStock',
 		data : "id=" + o ,
 		dataType : 'json',
 		success : function(data) {
 			if (data.status == 200) {
 				var datas = data.data;
+				var projectName = datas.projectName;
 				var name = datas.name;
 				var inventory = datas.inventory;
-				var stockid = datas.id;
-				var unit = "";
-				if(datas.unit!=null){
-					unit = datas.unit.name;
-				}
-				$("#stockId").val(stockid);
-				$("#stockName").text(name);
-				$("#loadinventory").text(inventory+"  "+unit);
-				
+				var projectStockId = datas.id;
+				$("#projectStockId").val(projectStockId);
+				$("#projectStockName").text(name);
+				$("#loadProjectName").text(projectName);
+				$("#loadinventory").text(inventory);
 			}
 		}
 	})
@@ -54,26 +49,25 @@ function showStockStatistics(o) {
  * 出库
  */
 function showStockStatistics2(o) {
-	alert(o);
 	$(".stockval").val('');
 	$(".stockval").text('');
 	
 	$.ajax({
 		type : 'POST',
-		url : 'stockStatistics/findStock',
+		url : 'projectStockStatistics/findProjectStock',
 		data : "id=" + o ,
 		dataType : 'json',
 		success : function(data) {
 			if (data.status == 200) {
 				var datas = data.data;
+				var projectName = datas.projectName;
 				var name = datas.name;
 				var inventory = datas.inventory;
-				var stockid = datas.id;
-				var unit = datas.unit.name;
-				
-				$("#stockIdOut").val(stockid);
-				$("#stockNameOut").text(name);
-				$("#loadinventoryOut").text(inventory+"  "+unit);
+				var projectStockId = datas.id;
+				$("#projectStockIdOut").val(projectStockId);
+				$("#projectStockNameOut").text(name);
+				$("#loadProjectNameOut").text(projectName);
+				$("#loadinventoryOut").text(inventory);
 				
 			}
 		}
@@ -97,7 +91,7 @@ function showSupplier(o) {
 	$(".supplier2").text('');
 	$.ajax({
 		type : 'POST',
-		url : 'stock/getSupplier',
+		url : 'projectStock/getSupplier',
 		data : "id=" + o ,
 		dataType : 'json',
 		success : function(data) {
@@ -166,14 +160,14 @@ function searchVal() {
 		});
 		return ;
 	}*/
-	window.location.href="stocks?pageSize="+pageSize+"&search="+search;
+	window.location.href="projectStocks?pageSize="+pageSize+"&search="+search;
 
 }
 function searchSize() {
 	
 	var pageSize = $("#pageSize").val();
 	var search = $("#serach").val();
-	window.location.href="stocks?pageSize="+pageSize+"&search="+search;
+	window.location.href="projectStocks?pageSize="+pageSize+"&search="+search;
 	
 }
 

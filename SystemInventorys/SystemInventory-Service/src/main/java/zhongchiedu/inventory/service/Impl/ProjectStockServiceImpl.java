@@ -183,7 +183,7 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 			Criteria ca = new Criteria();
 			query.addCriteria(
 					ca.orOperator(Criteria.where("supplier.$id").in(suppliersId), Criteria.where("name").regex(search),
-							Criteria.where("model").regex(search), Criteria.where("scope").regex(search)));
+							Criteria.where("projectName").regex(search),Criteria.where("model").regex(search), Criteria.where("scope").regex(search)));
 		}
 		return query;
 	}
@@ -266,23 +266,34 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 			try {
 				ProjectStock stock = null; // 项目库存信息
 				Supplier supplier = null;
+				
+				
+				
+				String projectName = resultexcel[i][j ].trim();// 项目名称
+				if (Common.isEmpty(projectName)) {
+					error += "<span class='entypo-attention'></span>导入文件过程中，第<b>&nbsp&nbsp" + (i + 1)
+							+ "行出现项目名称为空，请手动去修改该条信息！&nbsp&nbsp</b></br>";
+					return error;
+				}
+				importProjectStock.setProjectName(projectName);
 
-				String name = resultexcel[i][j].trim();// 设备名称
+				String name = resultexcel[i][j+1].trim();// 设备名称
 				if (Common.isEmpty(name)) {
 					error += "<span class='entypo-attention'></span>导入文件过程中出现设备名称为空，第<b>&nbsp&nbsp" + (i + 1)
 							+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
 					continue;
 				}
-
 				importProjectStock.setName(name); // 设备名称
-				String model = resultexcel[i][j + 1].trim();
+				
+				String model = resultexcel[i][j + 2].trim();
 				importProjectStock.setModel(model);// 设备型号
-				importProjectStock.setScope(resultexcel[i][j + 2].trim());// 使用范围
+				
+				importProjectStock.setScope(resultexcel[i][j + 3].trim());// 使用范围
 
 				long projectedProcurementVolume = 0;
 				long estimatedUnitPrice = 0;
 				try {
-					projectedProcurementVolume = Long.valueOf(resultexcel[i][j + 3]);
+					projectedProcurementVolume = Long.valueOf(resultexcel[i][j + 4]);//预计采购量
 				} catch (NumberFormatException e) {
 					log.debug("导入文件过程中出现错误第" + (i + 1) + "行出现错误" + e);
 					String aa = e.getLocalizedMessage();
@@ -295,7 +306,7 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 
 				}
 				try {
-					estimatedUnitPrice = Long.valueOf(resultexcel[i][j + 4]);
+					estimatedUnitPrice = Long.valueOf(resultexcel[i][j + 5]);//预计采购单价
 				} catch (NumberFormatException e) {
 					log.debug("导入文件过程中出现错误第" + (i + 1) + "行出现错误" + e);
 					String aa = e.getLocalizedMessage();
@@ -310,6 +321,7 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 
 				importProjectStock.setProjectedProcurementVolume(projectedProcurementVolume);// 预计采购量
 				importProjectStock.setEstimatedUnitPrice(estimatedUnitPrice);// 预计采购单价
+				
 				long projectedTotalPurchasePrice = 0;
 				if (Common.isNotEmpty(projectedProcurementVolume) && Common.isNotEmpty(estimatedUnitPrice)) {
 					projectedTotalPurchasePrice = projectedProcurementVolume * estimatedUnitPrice;
@@ -318,7 +330,7 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 
 				long actualPurchaseQuantity = 0; // 实际采购数量
 				try {
-					actualPurchaseQuantity = Long.valueOf(resultexcel[i][j + 5]);
+					actualPurchaseQuantity = Long.valueOf(resultexcel[i][j + 6]);
 				} catch (NumberFormatException e) {
 					log.debug("导入文件过程中出现错误第" + (i + 1) + "行出现错误" + e);
 					String aa = e.getLocalizedMessage();
@@ -331,9 +343,9 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 				}
 				importProjectStock.setActualPurchaseQuantity(actualPurchaseQuantity);// 实际采购数量
 
-				long realCostUnitPrice = 0; // 实际采购数量
+				long realCostUnitPrice = 0; // 实际采购单价
 				try {
-					realCostUnitPrice = Long.valueOf(resultexcel[i][j + 6]);
+					realCostUnitPrice = Long.valueOf(resultexcel[i][j + 7]);
 				} catch (NumberFormatException e) {
 					log.debug("导入文件过程中出现错误第" + (i + 1) + "行出现错误" + e);
 					String aa = e.getLocalizedMessage();
@@ -351,24 +363,29 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 				}
 				importProjectStock.setTotalActualCost(totalActualCost);// 计算实际成本总价
 
-				importProjectStock.setPaymentTime(resultexcel[i][j + 7]);// 付款时间
+				importProjectStock.setPaymentTime(resultexcel[i][j + 8]);// 付款时间
 
-				long paymentAmount = 0;
-				try {
-					paymentAmount = Long.valueOf(resultexcel[i][j + 8]);
-				} catch (NumberFormatException e) {
-					log.debug("导入文件过程中出现错误第" + (i + 1) + "行出现错误" + e);
-					String aa = e.getLocalizedMessage();
-					String b = aa.substring(aa.indexOf(":") + 1, aa.length()).replaceAll("\"", "");
-					error += "<span class='entypo-attention'></span>导入文件过程中出现错误第<b>&nbsp&nbsp" + (i + 1)
-							+ "&nbsp&nbsp</b>行出现错误内容为<b>&nbsp&nbsp" + b + "&nbsp&nbsp</b></br> 请输入正确数字";
-					if ((i + 1) < rowLength) {
-						continue;
+//				long paymentAmount = 0;
+//				
+				
+				String paymentAmount = resultexcel[i][j + 9];
+				if(Common.isNotEmpty(paymentAmount)){
+					try {
+						importProjectStock.setPaymentAmount(Long.valueOf(paymentAmount));// 付款金额
+					} catch (NumberFormatException e) {
+						log.debug("导入文件过程中出现错误第" + (i + 1) + "行出现错误" + e);
+						String aa = e.getLocalizedMessage();
+						String b = aa.substring(aa.indexOf(":") + 1, aa.length()).replaceAll("\"", "");
+						error += "<span class='entypo-attention'></span>导入文件过程中出现错误第<b>&nbsp&nbsp" + (i + 1)
+								+ "&nbsp&nbsp</b>行出现错误内容为<b>&nbsp&nbsp" + b + "&nbsp&nbsp</b></br> 请输入正确数字";
+						if ((i + 1) < rowLength) {
+							continue;
+						}
 					}
+					
 				}
-				importProjectStock.setPaymentAmount(paymentAmount);// 付款金额
 
-				String nums = resultexcel[i][j + 9];
+				/*	String nums = resultexcel[i][j + 9];
 				long num = 0;
 				if (Common.isNotEmpty(nums)) {
 					try {
@@ -390,17 +407,9 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 								+ "&nbsp&nbsp</b>行出现错误内容为<b>&nbsp&nbsp出库数量大于实际采购数量，无法完成出库，请检查&nbsp&nbsp</b></br>";
 						continue;
 					}
-					importProjectStock.setInventory(actualPurchaseQuantity - num);
 
-				}
-				String projectName = resultexcel[i][j + 11].trim();// 项目名称
-
-				if (Common.isEmpty(projectName)) {
-					error += "<span class='entypo-attention'></span>导入文件过程中，第<b>&nbsp&nbsp" + (i + 1)
-							+ "行出现项目名称为空，请手动去修改该条信息！&nbsp&nbsp</b></br>";
-					return error;
-				}
-				importProjectStock.setProjectName(projectName);
+				}*/
+				
 
 				String supplierName = resultexcel[i][j + 10].trim();// 供应商名称
 				if (Common.isNotEmpty(supplierName)) {
@@ -410,7 +419,6 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 						error += "<span class='entypo-attention'></span>导入文件过程中出现不存在的供应商<b>&nbsp;&nbsp;" + supplierName
 								+ "&nbsp;&nbsp;</b>，请先添加供应商，第<b>&nbsp&nbsp" + (i + 1)
 								+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
-						continue;
 					}
 				}
 				importProjectStock.setSupplier(supplier);
@@ -590,65 +598,72 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 		int j = 1;
 		// 获取所有的项目库存
 		List<ProjectStock> list = this.findAllProjectStock(false);
-
 		for (ProjectStock stock : list) {
 			// 获取所有的设备
 			HSSFRow row = sheet.createRow(j + 1);
+			
 			HSSFCell cell = row.createCell(0);
 			cell.setCellStyle(style);
-			cell.setCellValue(stock.getName());
-
-			cell = row.createCell(1);
+			cell.setCellValue(stock.getProjectName());//项目名称
+			
+			 cell = row.createCell(1);
 			cell.setCellStyle(style);
-			cell.setCellValue(stock.getModel());
-
-			cell = row.createCell(2);
+			cell.setCellValue(Common.isNotEmpty(stock.getSupplier())?stock.getSupplier().getName():"");// 供应商
+			
+			 cell = row.createCell(2);
 			cell.setCellStyle(style);
-			cell.setCellValue(stock.getScope());
+			cell.setCellValue(stock.getName());//设备名称
 
 			cell = row.createCell(3);
 			cell.setCellStyle(style);
-			cell.setCellValue(stock.getProjectedProcurementVolume());// 预计采购数量
+			cell.setCellValue(stock.getModel());//型号
 
 			cell = row.createCell(4);
 			cell.setCellStyle(style);
-			cell.setCellValue(stock.getEstimatedUnitPrice());// 预计采购单价
+			cell.setCellValue(stock.getScope()); //使用范围
 
 			cell = row.createCell(5);
 			cell.setCellStyle(style);
-			cell.setCellValue(stock.getProjectedTotalPurchasePrice());// 预计采购单价
+			cell.setCellValue(stock.getProjectedProcurementVolume());// 预计采购数量
 
 			cell = row.createCell(6);
 			cell.setCellStyle(style);
-			cell.setCellValue(stock.getSupplier().getName());// 供应商
+			cell.setCellValue(stock.getEstimatedUnitPrice());// 预计采购单价
 
 			cell = row.createCell(7);
 			cell.setCellStyle(style);
-			cell.setCellValue(stock.getActualPurchaseQuantity());// 实际采购数量
+			cell.setCellValue(stock.getProjectedTotalPurchasePrice());// 预计总价
 
 			cell = row.createCell(8);
 			cell.setCellStyle(style);
-			cell.setCellValue(stock.getRealCostUnitPrice());// 实际成本单价
+			cell.setCellValue(stock.getActualPurchaseQuantity());// 实际采购数量
 
 			cell = row.createCell(9);
 			cell.setCellStyle(style);
-			cell.setCellValue(stock.getTotalActualCost());// 实际成本总价
+			cell.setCellValue(stock.getRealCostUnitPrice());// 实际成本单价
 
 			cell = row.createCell(10);
 			cell.setCellStyle(style);
-			cell.setCellValue(stock.getPaymentTime());// 实际成本总价
+			cell.setCellValue(stock.getTotalActualCost());// 实际成本总价
 
 			cell = row.createCell(11);
 			cell.setCellStyle(style);
-			cell.setCellValue(stock.getPaymentAmount());// 付款金额
+			cell.setCellValue(stock.getPaymentTime());// 付款时间
 
 			cell = row.createCell(12);
 			cell.setCellStyle(style);
-			cell.setCellValue(stock.getNum());// 出库数量
+			cell.setCellValue(stock.getPaymentAmount());// 付款金额
+
 
 			cell = row.createCell(13);
 			cell.setCellStyle(style);
 			cell.setCellValue(stock.getInventory());// 剩余库存量
+			
+			cell = row.createCell(14);
+			cell.setCellStyle(style);
+			cell.setCellValue(stock.getNum());// 出库数量
+			
+			
 			j++;
 		}
 
@@ -661,12 +676,21 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 	 */
 	public List<String> title() {
 		List<String> list = new ArrayList<>();
+		list.add("项目名称");
+		list.add("供应商");
 		list.add("设备名称");
-		list.add("品名型号");
+		list.add("设备型号");
 		list.add("使用范围");
-		list.add("货架号/层");
-		list.add("计量单位 ");
-		list.add("当前项目库存");
+		list.add("预计采购量");
+		list.add("预计采购单价");
+		list.add("预计采购总价");
+		list.add("实际采购量");
+		list.add("实际成本单价");
+		list.add("实际成本总价");
+		list.add("付款时间");
+		list.add("付款金额");
+		list.add("库存量");
+		list.add("出库数量");
 		return list;
 	}
 

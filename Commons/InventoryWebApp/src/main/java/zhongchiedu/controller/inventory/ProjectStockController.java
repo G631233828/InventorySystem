@@ -246,7 +246,7 @@ public class ProjectStockController {
 	public ModelAndView upload(HttpServletRequest request, HttpSession session, RedirectAttributes attr) {
 		log.info("开始上传文件");
 		ModelAndView modelAndView = new ModelAndView();
-		modelAndView.setViewName("redirect:/stocks");
+		modelAndView.setViewName("redirect:/projectStocks");
 		String error = this.projectStockService.upload(request, session);
 		attr.addFlashAttribute("errorImport", error);
 		return modelAndView;

@@ -9,12 +9,13 @@ $().ready(function() {
 				$.ajax({
 					dataType:"json",
 					type:"POST",
-					url: getRootPath() + "/stockStatistics/out",
+					url: getRootPath() + "/projectStockStatistics/out",
 					data:$("#OutstockStatisticsForm").serialize(),
 					success:function(data){
 						if(data.status == 200){
 							var  newInventory = data.data.newNum;
-							var id = $("#stockIdOut").val();
+							var newnum = data.data.num;
+							var id = $("#projectStockIdOut").val();
 							if(newInventory > 5){
 								$("#inventory_"+id).css("color","green");
 							}else if(newInventory ==0){
@@ -24,7 +25,8 @@ $().ready(function() {
 							}
 							
 							$("#inventory_"+id).text(newInventory);
-							$("#mystockStatistics2").modal('hide');
+							$("#num_"+id).text(newnum);
+							$("#myprojectStockStatistics2").modal('hide');
 							
 							// 判断是否已存在，如果已存在则直接显示
 							jqueryAlert({

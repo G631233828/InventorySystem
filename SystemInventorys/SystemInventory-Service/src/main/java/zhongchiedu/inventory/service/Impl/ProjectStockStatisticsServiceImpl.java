@@ -154,6 +154,7 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 			return BasicDataResult.build(400, "操作的数据有误！", null);
 		}
 		String id = stockStatistics.getProjectStock().getId();// 获取库存设备id
+		
 		ProjectStock projectStock = this.projectStockService.findOneById(id, ProjectStock.class);
 		if (Common.isNotEmpty(projectStock)) {
 			User user = (User) session.getAttribute(Contents.USER_SESSION);
@@ -165,6 +166,7 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 				long newNum = this.updateProjectStock(projectStock, num, true);
 				stockStatistics.setStorageTime(Common.fromDateH());
 				stockStatistics.setNewNum(newNum);
+				stockStatistics.setActualPurchaseQuantity(projectStock.getActualPurchaseQuantity());
 				lockInsert(stockStatistics);
 				return BasicDataResult.build(200, "商品入库成功", stockStatistics);
 			} else {
@@ -176,6 +178,8 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 				}
 				stockStatistics.setDepotTime(Common.fromDateH());
 				stockStatistics.setNewNum(newNum);
+				stockStatistics.setNum(projectStock.getNum());
+				stockStatistics.setActualPurchaseQuantity(projectStock.getActualPurchaseQuantity());
 				lockInsert(stockStatistics);
 				return BasicDataResult.build(200, "商品出库成功", stockStatistics);
 			}
@@ -209,6 +213,7 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 				// 入库
 				newnum = oldnum + num;
 				projectStock.setInventory(newnum);
+				projectStock.setActualPurchaseQuantity(projectStock.getActualPurchaseQuantity()+num);
 				this.projectStockService.save(projectStock);
 				return newnum;
 			} else {
@@ -218,6 +223,7 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 				}
 				newnum = oldnum - num;
 				projectStock.setInventory(newnum);
+				projectStock.setNum(projectStock.getNum()+num);
 				this.projectStockService.save(projectStock);
 				return newnum;
 			}
