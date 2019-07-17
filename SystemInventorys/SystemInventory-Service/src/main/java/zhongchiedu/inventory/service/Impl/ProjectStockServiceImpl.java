@@ -166,6 +166,7 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 				query = this.findbySearch(search, query);
 			}
 			query.addCriteria(Criteria.where("isDelete").is(false));
+			query.with(new Sort(new Order(Direction.DESC, "createTime")));
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, ProjectStock.class);
 			if (pagination == null)
 				pagination = new Pagination<ProjectStock>();
@@ -265,8 +266,8 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 			int j = 0;
 			try {
 				ProjectStock stock = null; // 项目库存信息
-				Supplier supplier = null;
-				
+				List<Supplier> supplier = null;
+				Supplier supp = null;
 				
 				
 				String projectName = resultexcel[i][j ].trim();// 项目名称
@@ -414,20 +415,32 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 				String supplierName = resultexcel[i][j + 10].trim();// 供应商名称
 				if (Common.isNotEmpty(supplierName)) {
 					// 根据供应商名称查找，看供应商是否存在
-					supplier = this.supplierService.findByName(supplierName);
-					if (Common.isEmpty(supplier)) {
+					supplier = this.supplierService.findByRegxName(supplierName);
+					if(supplier.size()==0){
 						error += "<span class='entypo-attention'></span>导入文件过程中出现不存在的供应商<b>&nbsp;&nbsp;" + supplierName
 								+ "&nbsp;&nbsp;</b>，请先添加供应商，第<b>&nbsp&nbsp" + (i + 1)
-								+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
+								+ "行，请手动去修改该条信息！&nbsp&nbsp</b></br>";
+						importProjectStock.setSupplier(null);
+					}else if(supplier.size()>1){
+						error += "<span class='entypo-attention'></span>导入文件过程中出现不存在的供应商<b>&nbsp;&nbsp;" + supplierName
+								+ "&nbsp;&nbsp;</b>，匹配到多个类似供应商，第<b>&nbsp&nbsp" + (i + 1)
+								+ "行，请手动去修改该条信息！&nbsp&nbsp</b></br>";
+						importProjectStock.setSupplier(null);
+					}else{
+						supp = supplier.get(0);
+						importProjectStock.setSupplier(supplier.get(0));
 					}
+					
+			
+				}else{
+					importProjectStock.setSupplier(null);
 				}
-				importProjectStock.setSupplier(supplier);
-
-				stock = this.findByName(name, model, projectName);
+		
+				stock = this.findByName(name, model, projectName,supp);
 				if (Common.isNotEmpty(stock)) {
 					// 设备已存在
 					error += "<span class='entypo-attention'></span>导入文件过程中设备已经存在，设备名称<b>&nbsp;&nbsp;" + stock.getName()
-							+ "&nbsp;&nbsp;</b>，第<b>&nbsp&nbsp" + (i + 1) + "请手动去修改该条信息！&nbsp&nbsp</b></br>";
+							+ "&nbsp;&nbsp;</b>，第<b>&nbsp&nbsp" + (i + 1) + "行，请手动去修改该条信息！&nbsp&nbsp</b></br>";
 					continue;
 				} else {
 					// 添加
@@ -450,6 +463,15 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 		log.info(error);
 		return error;
 	}
+	
+	
+
+	
+	
+	
+	
+	
+	
 
 	/**
 	 * 执行上传文件，返回错误消息
@@ -497,8 +519,11 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 	 * 根据单位名称查找单位，如果没有则创建一个
 	 */
 	@Override
-	public ProjectStock findByName(String name, String model, String projectName) {
+	public ProjectStock findByName(String name, String model, String projectName,Supplier supplier) {
 		Query query = new Query();
+		if(Common.isNotEmpty(supplier)){
+			query.addCriteria(Criteria.where("supplier.$id").is(new ObjectId(supplier.getId())));
+		}
 		query.addCriteria(Criteria.where("name").is(name));
 		query.addCriteria(Criteria.where("model").is(model));
 		query.addCriteria(Criteria.where("projectName").is(projectName));
@@ -711,10 +736,12 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 	}
 
 	public static void main(String[] args) {
-		String aaa = "杀得过";
-
-		Long a = Long.valueOf(aaa);
-		System.out.println(a);
+	
+		List list = new ArrayList();
+		System.out.println(list.size());
+		
+		
+		
 
 	}
 

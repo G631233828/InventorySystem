@@ -8,22 +8,22 @@ $().ready(function() {
 					required : true,
 				},
 				projectedProcurementVolume : {
-					digits:true
+					number:true
 				},
 				estimatedUnitPrice : {
-					digits:true
+					number:true
 				},
 				actualPurchaseQuantity : {
-					digits:true
+					number:true
 				},
 				realCostUnitPrice : {
-					digits:true
+					number:true
 				},
 				paymentAmount : {
-					digits:true
+					number:true
 				},
 	/*			num : {
-					digits:true,
+					number:true,
 				},*/
 			
 			},
@@ -32,22 +32,22 @@ $().ready(function() {
 					required : a + "请输入设备名称"
 				},
 				projectedProcurementVolume : {
-					digits : a + "请输入正确的预计采购量"
+					number : a + "请输入正确的预计采购量"
 				},
 				estimatedUnitPrice : {
-					digits : a + "请输入正确的预计采购单价"
+					number : a + "请输入正确的预计采购单价"
 				},
 				actualPurchaseQuantity : {
-					digits : a + "请输入正确的实际采购量"
+					number : a + "请输入正确的实际采购量"
 				},
 				realCostUnitPrice : {
-					digits : a + "请输入正确的实际采购单价"
+					number : a + "请输入正确的实际采购单价"
 				},
 				paymentAmount : {
-					digits : a + "请输入正确的付款金额"
+					number : a + "请输入正确的付款金额"
 				},
 				num : {
-					digits : a + "请输入正确的出库数量",
+					number : a + "请输入正确的出库数量",
 				}
 			
 			}

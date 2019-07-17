@@ -38,6 +38,8 @@ public interface SupplierService extends GeneralService<Supplier> {
 	
 	public Supplier findByName(String name);
 	
+	public List<Supplier> findByRegxName(String name);
+	
 	public Object[] categorys(Supplier supplier);
 	
 	public BasicDataResult findOneById(String id);

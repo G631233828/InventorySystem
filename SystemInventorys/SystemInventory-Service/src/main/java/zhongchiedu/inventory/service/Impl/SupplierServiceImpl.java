@@ -404,6 +404,24 @@ public String upload( HttpServletRequest request, HttpSession session){
 		}*/
 		return supplier;
 	}
+	/**
+	 * 根据单位名称查找单位
+	 */
+	@Override
+	@SystemServiceLog(description="根据名称查询供应商信息")
+	public List<Supplier> findByRegxName(String name) {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("name").regex(name));
+		query.addCriteria(Criteria.where("isDelete").is(false));
+		List<Supplier> list = this.find(query, Supplier.class);
+		/*if(Common.isEmpty(supplier)){
+			Supplier ca = new Supplier();
+			ca.setName(name);
+			this.insert(ca);
+			return ca;
+		}*/
+		return list;
+	}
 
 	@Override
 	@SystemServiceLog(description="获取所有供应商id")

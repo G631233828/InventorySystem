@@ -100,7 +100,7 @@ function revoke(o){
 					dataType : 'json',
 					success : function(data) {
 						if (data.status == 200) {
-							$("#revokeNum").text(data.data.revokeNum);
+//							$("#revokeNum").text(data.data.revokeNum);
 							$("#revoke"+o).css("color","red");
 							$("#revoke"+o).text("已撤销");
 							M.dialog3.close();

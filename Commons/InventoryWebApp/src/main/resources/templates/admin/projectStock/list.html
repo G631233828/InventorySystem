@@ -261,12 +261,24 @@
 																th:onclick="|return showStockStatistics('${projectStock.id}')|">
 																<i class="entypo-download"> </i>入库
 															</button>
-														</shiro:hasPermission> <shiro:hasPermission name="projectStockStatistics:out">
+														</shiro:hasPermission> 
+														
+														<shiro:hasPermission name="projectStockStatistics:out">
 															<button class="btn source btn-xs"
 																th:onclick="|return showStockStatistics2('${projectStock.id}')|">
 																<i class="entypo-upload"> </i>出库
 															</button>
-														</shiro:hasPermission> <shiro:hasPermission name="projectStock:edit">
+														</shiro:hasPermission> 
+														
+														<shiro:hasPermission name="projectStockStatistics:toStock">
+															<button class="btn source btn-xs"
+																th:onclick="|return toeditPage('${projectStock.id}','projectStockToStock')|">
+																<i class="entypo-download"> </i>添加至库存
+															</button>
+														</shiro:hasPermission> 
+														
+														
+														<shiro:hasPermission name="projectStock:edit">
 															<button class="btn btn-primary btn-xs"
 																th:onclick="|return toeditPage('${projectStock.id}','projectStock')|">
 																<i class="fa fa-edit"> </i>编辑

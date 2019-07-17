@@ -38,16 +38,17 @@ import zhongchiedu.log.annotation.SystemServiceLog;
 
 @Service
 @Slf4j
-public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<ProjectStockStatistics> implements ProjectStockStatisticsService {
+public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<ProjectStockStatistics>
+		implements ProjectStockStatisticsService {
 
 	private @Autowired ProjectStockServiceImpl projectStockService;
 
 	private @Autowired UserServiceImpl userServiceService;
 
 	@Override
-	@SystemServiceLog(description="分页查询库存统计信息")
-	public Pagination<ProjectStockStatistics> findpagination(Integer pageNo, Integer pageSize, String search, String start,
-			String end, String type, String id) {
+	@SystemServiceLog(description = "分页查询库存统计信息")
+	public Pagination<ProjectStockStatistics> findpagination(Integer pageNo, Integer pageSize, String search,
+			String start, String end, String type, String id) {
 
 		// 分页查询数据
 		Pagination<ProjectStockStatistics> pagination = null;
@@ -68,8 +69,8 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 		}
 		return pagination;
 	}
-	
-	@SystemServiceLog(description="条件查询库统计信息")
+
+	@SystemServiceLog(description = "条件查询库统计信息")
 	public Query findbySearch(String search, String start, String end, String type, Query query) {
 
 		Criteria ca = new Criteria();
@@ -85,9 +86,8 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 			List<Object> stockId = this.findProjectStocks(search);
 			List<Object> userId = this.findUsers(search);
 			ca1.orOperator(Criteria.where("projectStock.$id").in(stockId), Criteria.where("user.$id").in(userId),
-					Criteria.where("name").regex(search),Criteria.where("personInCharge").regex(search),
-					Criteria.where("projectName").regex(search),Criteria.where("customer").regex(search)
-					);
+					Criteria.where("name").regex(search), Criteria.where("personInCharge").regex(search),
+					Criteria.where("projectName").regex(search), Criteria.where("customer").regex(search));
 		}
 
 		if (Common.isNotEmpty(start) && Common.isNotEmpty(end)) {
@@ -108,7 +108,7 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 	 * @param search
 	 * @return
 	 */
-	@SystemServiceLog(description="条件查询库统计信息")
+	@SystemServiceLog(description = "条件查询库统计信息")
 	public List<Object> findProjectStocks(String search) {
 		List<Object> list = new ArrayList<>();
 		Query query = new Query();
@@ -116,13 +116,15 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 
 		query.addCriteria(ca.orOperator(Criteria.where("name").regex(search), Criteria.where("model").regex(search)));
 		query.addCriteria(Criteria.where("isDelete").is(false));
+		query.with(new Sort(new Order(Direction.DESC, "createTime")));
 		List<ProjectStock> lists = this.projectStockService.find(query, ProjectStock.class);
 		for (ProjectStock li : lists) {
 			list.add(new ObjectId(li.getId()));
 		}
 		return list;
 	}
-	@SystemServiceLog(description="条件查询库统计信息")
+
+	@SystemServiceLog(description = "条件查询库统计信息")
 	public List<ProjectStock> findStocksBySearch(String search) {
 		Query query = new Query();
 		Criteria ca = new Criteria();
@@ -131,7 +133,8 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 		List<ProjectStock> lists = this.projectStockService.find(query, ProjectStock.class);
 		return lists;
 	}
-	@SystemServiceLog(description="条件查询库统计信息")
+
+	@SystemServiceLog(description = "条件查询库统计信息")
 	public List<Object> findUsers(String search) {
 		List<Object> list = new ArrayList<>();
 		Query query = new Query();
@@ -146,7 +149,7 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 	}
 
 	@Override
-	@SystemServiceLog(description="库存出库入库")
+	@SystemServiceLog(description = "库存出库入库")
 	public BasicDataResult inOrOutstockStatistics(ProjectStockStatistics stockStatistics, HttpSession session) {
 
 		long num = stockStatistics.getNum();
@@ -154,7 +157,7 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 			return BasicDataResult.build(400, "操作的数据有误！", null);
 		}
 		String id = stockStatistics.getProjectStock().getId();// 获取库存设备id
-		
+
 		ProjectStock projectStock = this.projectStockService.findOneById(id, ProjectStock.class);
 		if (Common.isNotEmpty(projectStock)) {
 			User user = (User) session.getAttribute(Contents.USER_SESSION);
@@ -163,7 +166,7 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 			if (stockStatistics.isInOrOut()) {
 				// true == 入库
 				// 更新库存中的库存
-				long newNum = this.updateProjectStock(projectStock, num, true);
+				long newNum = this.updateProjectStock(projectStock, num, true, false);
 				stockStatistics.setStorageTime(Common.fromDateH());
 				stockStatistics.setNewNum(newNum);
 				stockStatistics.setActualPurchaseQuantity(projectStock.getActualPurchaseQuantity());
@@ -171,7 +174,7 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 				return BasicDataResult.build(200, "商品入库成功", stockStatistics);
 			} else {
 				// 出库
-				long newNum = this.updateProjectStock(projectStock, num, false);
+				long newNum = this.updateProjectStock(projectStock, num, false, false);
 				if (newNum == -1) {
 					// 出货数量不够
 					return BasicDataResult.build(400, "货物库存数量不足", null);
@@ -191,8 +194,8 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 
 	Lock lock = new ReentrantLock();
 	Lock lockinsert = new ReentrantLock();
-	
-	@SystemServiceLog(description="库存出库入库执行insert")
+
+	@SystemServiceLog(description = "库存出库入库执行insert")
 	public void lockInsert(ProjectStockStatistics stockStatistics) {
 
 		lockinsert.lock();
@@ -203,8 +206,9 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 		}
 
 	}
-	@SystemServiceLog(description="更新库存信息")
-	public long updateProjectStock(ProjectStock projectStock, long num, boolean inOrOut) {
+
+	@SystemServiceLog(description = "更新库存信息")
+	public long updateProjectStock(ProjectStock projectStock, long num, boolean inOrOut, boolean revoke) {
 		lock.lock();
 		long oldnum = projectStock.getInventory();
 		long newnum = 0;
@@ -213,7 +217,17 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 				// 入库
 				newnum = oldnum + num;
 				projectStock.setInventory(newnum);
-				projectStock.setActualPurchaseQuantity(projectStock.getActualPurchaseQuantity()+num);
+				projectStock.setIsDelete(false);
+				projectStock.setActualPurchaseQuantity(projectStock.getActualPurchaseQuantity() + num);
+				if (revoke) {
+					// 出库数量去除
+					long revokeNum = projectStock.getNum();
+					if ((revokeNum - num) < 0) {
+						return -1;
+					}
+					projectStock.setNum(revokeNum - num);
+				}
+
 				this.projectStockService.save(projectStock);
 				return newnum;
 			} else {
@@ -223,7 +237,10 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 				}
 				newnum = oldnum - num;
 				projectStock.setInventory(newnum);
-				projectStock.setNum(projectStock.getNum()+num);
+				projectStock.setIsDelete(false);
+				if (!revoke) {
+					projectStock.setNum(projectStock.getNum() + num);
+				}
 				this.projectStockService.save(projectStock);
 				return newnum;
 			}
@@ -234,18 +251,17 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 	}
 
 	@Override
-	@SystemServiceLog(description="插销库存信息")
+	@SystemServiceLog(description = "撤销库存信息")
 	public BasicDataResult revoke(String id) {
 		ProjectStockStatistics st = this.findOneById(id, ProjectStockStatistics.class);
 		if (st.isRevoke()) {
 			return BasicDataResult.build(400, "该信息已经撤销，不能重复撤销", null);
-
 		}
 		if (Common.isEmpty(st.getProjectStock())) {
 			return BasicDataResult.build(400, "未能获取到设备信息", null);
 		}
-		String stockId = st.getProjectStock().getId();
-		ProjectStock projectStock = this.projectStockService.findOneById(stockId, ProjectStock.class);
+		String projectStockId = st.getProjectStock().getId();
+		ProjectStock projectStock = this.projectStockService.findOneById(projectStockId, ProjectStock.class);
 		if (Common.isEmpty(projectStock)) {
 			return BasicDataResult.build(400, "未能获取到设备信息", null);
 		}
@@ -253,10 +269,10 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 		long newNum = 0L;
 		if (Common.isNotEmpty(st.getStorageTime())) {
 			// 撤销出库
-			newNum = this.updateProjectStock(projectStock, st.getNum(), false);
+			newNum = this.updateProjectStock(projectStock, st.getNum(), false, true);
 		} else {
 			// 撤销入库
-			newNum = this.updateProjectStock(projectStock, st.getNum(), true);
+			newNum = this.updateProjectStock(projectStock, st.getNum(), true, true);
 		}
 		if (newNum == -1) {
 			// 出货数量不够
@@ -269,7 +285,8 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 		return BasicDataResult.build(400, "撤销过程中出现未知异常", null);
 
 	}
-	@SystemServiceLog(description="插销后更新库存信息")
+
+	@SystemServiceLog(description = "撤销后更新库存信息")
 	public ProjectStockStatistics updateProjectStockStatistics(ProjectStockStatistics stockStatistics) {
 		lockinsert.lock();
 		try {
@@ -285,7 +302,7 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 	}
 
 	@Override
-	@SystemServiceLog(description="导出库存统计信息")
+	@SystemServiceLog(description = "导出库存统计信息")
 	public HSSFWorkbook export(String search, String start, String end, String type, String name) {
 
 		HSSFWorkbook wb = new HSSFWorkbook();
@@ -312,7 +329,7 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 			sheet = wb.createSheet(i);
 			HSSFCellStyle style = createStyle(wb);
 			List<String> title = this.title();
-			this.createHead(sheet, title, style, start+" \t"+ end + i);
+			this.createHead(sheet, title, style, start + " \t" + end + i);
 			this.createTitle(sheet, title, style);
 			this.createStock(sheet, title, style, search, start, end, type);
 			sheet.createFreezePane(2, 0, 2, 0);
@@ -387,13 +404,13 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 		List<ProjectStock> listStock = this.findStocksBySearch(search);
 		// 获取所有的库存
 		List<ProjectStockStatistics> list = this.findProjectStockStatistics(search, start, end, type);
-		String msg="";
+		String msg = "";
 		if (type.equals("in")) {
 			// 入库统计
-			msg="入库:";
+			msg = "入库:";
 		} else if (type.equals("out")) {
 			// 出库统计
-			msg="出库:";
+			msg = "出库:";
 		}
 		for (ProjectStock stock : listStock) {
 			// 获取所有的设备
@@ -401,8 +418,8 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 			HSSFCell cell = row.createCell(0);
 			cell.setCellStyle(style);
 			cell.setCellValue(stock.getProjectName());
-			
-		    cell = row.createCell(1);
+
+			cell = row.createCell(1);
 			cell.setCellStyle(style);
 			cell.setCellValue(stock.getName());
 
@@ -412,34 +429,34 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 			int l = 2;
 			for (ProjectStockStatistics st : list) {
 				if (stock.getId().equals(st.getProjectStock().getId())) {
-					cell = row.createCell(l+1);
+					cell = row.createCell(l + 1);
 					cell.setCellStyle(style);
 					if (st.isInOrOut()) {
 						cell.setCellValue(st.getStorageTime());
 					} else {
 						cell.setCellValue(st.getDepotTime());
 					}
-					
-					cell = row.createCell(l+2);
-					cell.setCellStyle(style);
-					cell.setCellValue(msg+st.getNum());
-					
-					if(type.equals("out")){
-						cell = row.createCell(l+3);
-						cell.setCellStyle(style);
-						cell.setCellValue("负责人："+st.getPersonInCharge());
-						
-						cell = row.createCell(l+4);
-						cell.setCellStyle(style);
-						cell.setCellValue("项目："+st.getProjectName());
-						
-						cell = row.createCell(l+5);
-						cell.setCellStyle(style);
-						cell.setCellValue("客户："+st.getCustomer());
 
-						l= l+5;
-					}else{
-						l= l+2;
+					cell = row.createCell(l + 2);
+					cell.setCellStyle(style);
+					cell.setCellValue(msg + st.getNum());
+
+					if (type.equals("out")) {
+						cell = row.createCell(l + 3);
+						cell.setCellStyle(style);
+						cell.setCellValue("负责人：" + st.getPersonInCharge());
+
+						cell = row.createCell(l + 4);
+						cell.setCellStyle(style);
+						cell.setCellValue("项目：" + st.getProjectName());
+
+						cell = row.createCell(l + 5);
+						cell.setCellStyle(style);
+						cell.setCellValue("客户：" + st.getCustomer());
+
+						l = l + 5;
+					} else {
+						l = l + 2;
 					}
 				}
 			}
@@ -463,8 +480,9 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 		return list;
 	}
 
-	@SystemServiceLog(description="根据条件查询库存统计-findProjectStockStatistics")
-	public List<ProjectStockStatistics> findProjectStockStatistics(String search, String start, String end, String type) {
+	@SystemServiceLog(description = "根据条件查询库存统计-findProjectStockStatistics")
+	public List<ProjectStockStatistics> findProjectStockStatistics(String search, String start, String end,
+			String type) {
 		Query query = new Query();
 		query = this.findbySearch(search, start, end, type, query);
 		query.with(new Sort(new Order(Direction.DESC, "createTime")));
@@ -474,15 +492,17 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 	}
 
 	@Override
-	@SystemServiceLog(description="根据条件查询库存统计-findAllByDate")
+	@SystemServiceLog(description = "根据条件查询库存统计-findAllByDate")
 	public List<ProjectStockStatistics> findAllByDate(String date, boolean inOrOut) {
 		Query query = new Query();
-		if(inOrOut){
-			//true 查入库
-			query.addCriteria(Criteria.where("storageTime").regex(date)).addCriteria(Criteria.where("inOrOut").is(inOrOut)).addCriteria(Criteria.where("revoke").is(false));
-		}else{
-			//false 查出库
-			query.addCriteria(Criteria.where("depotTime").regex(date)).addCriteria(Criteria.where("inOrOut").is(inOrOut)).addCriteria(Criteria.where("revoke").is(false));
+		if (inOrOut) {
+			// true 查入库
+			query.addCriteria(Criteria.where("storageTime").regex(date))
+					.addCriteria(Criteria.where("inOrOut").is(inOrOut)).addCriteria(Criteria.where("revoke").is(false));
+		} else {
+			// false 查出库
+			query.addCriteria(Criteria.where("depotTime").regex(date))
+					.addCriteria(Criteria.where("inOrOut").is(inOrOut)).addCriteria(Criteria.where("revoke").is(false));
 		}
 		List<ProjectStockStatistics> list = this.find(query, ProjectStockStatistics.class);
 		return list;

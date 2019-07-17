@@ -57,18 +57,16 @@
                                             <tr>
                                                 <td class="numeric">状态</td>
                                                 <td class="numeric" onclick="return selectColumn('revoke');"><input type="checkbox" th:checked="${#lists.contains(listColums,'revoke')}?'checked':'false'" id="ch_revoke"></td>
-                                                <td class="numeric">撤回数量</td>
-                                                <td class="numeric" onclick="return selectColumn('revokeNum');"><input type="checkbox" th:checked="${#lists.contains(listColums,'revokeNum')}?'checked':'false'" id="ch_revokeNum"></td>
+                                              <td class="numeric">客户</td>
+                                                <td class="numeric" onclick="return selectColumn('customer');"><input type="checkbox" th:checked="${#lists.contains(listColums,'customer')}?'checked':'false'" id="ch_customer"></td>
+                                             <!--    <td class="numeric">撤回数量</td>
+                                                <td class="numeric" onclick="return selectColumn('revokeNum');"><input type="checkbox" th:checked="${#lists.contains(listColums,'revokeNum')}?'checked':'false'" id="ch_revokeNum"></td> -->
                                             </tr>
                                             <tr>
                                                 <td class="numeric">负责人</td>
                                                 <td class="numeric" onclick="return selectColumn('personInCharge');"><input type="checkbox" th:checked="${#lists.contains(listColums,'personInCharge')}?'checked':'false'" id="ch_personInCharge"></td>
                                                 <td class="numeric">项目名称</td>
                                                 <td class="numeric" onclick="return selectColumn('projectName');"><input type="checkbox" th:checked="${#lists.contains(listColums,'projectName')}?'checked':'false'" id="ch_projectName"></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="numeric">客户</td>
-                                                <td class="numeric" onclick="return selectColumn('customer');"><input type="checkbox" th:checked="${#lists.contains(listColums,'customer')}?'checked':'false'" id="ch_customer"></td>
                                             </tr>
                                            
                                         </tbody>

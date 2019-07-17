@@ -209,6 +209,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				// 入库
 				newnum = oldnum + num;
 				stock.setInventory(newnum);
+				stock.setIsDelete(false);
 				this.stockService.save(stock);
 				return newnum;
 			} else {
@@ -218,6 +219,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				}
 				newnum = oldnum - num;
 				stock.setInventory(newnum);
+				stock.setIsDelete(false);
 				this.stockService.save(stock);
 				return newnum;
 			}
@@ -263,7 +265,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		return BasicDataResult.build(400, "撤销过程中出现未知异常", null);
 
 	}
-	@SystemServiceLog(description="插销后更新库存信息")
+	@SystemServiceLog(description="撤销后更新库存信息")
 	public StockStatistics updateStockStatistics(StockStatistics stockStatistics) {
 		lockinsert.lock();
 		try {

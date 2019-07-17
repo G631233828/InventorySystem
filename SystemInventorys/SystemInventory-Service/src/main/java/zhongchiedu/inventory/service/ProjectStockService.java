@@ -13,6 +13,7 @@ import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralService;
 import zhongchiedu.inventory.pojo.ProcessInfo;
 import zhongchiedu.inventory.pojo.ProjectStock;
+import zhongchiedu.inventory.pojo.Supplier;
 
 public interface ProjectStockService extends GeneralService<ProjectStock> {
 	
@@ -36,7 +37,7 @@ public interface ProjectStockService extends GeneralService<ProjectStock> {
 	
 	public String upload( HttpServletRequest request, HttpSession session);
 	
-	public ProjectStock findByName(String name,String model,String projectName);
+	public ProjectStock findByName(String name,String model,String projectName,Supplier supplier);
 	
 	public BasicDataResult findOneById(String id);
 	

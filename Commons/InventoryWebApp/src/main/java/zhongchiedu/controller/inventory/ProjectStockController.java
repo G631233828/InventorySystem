@@ -59,9 +59,11 @@ public class ProjectStockController {
 
 	private @Autowired ColumnServiceImpl columnService;
 
+	private @Autowired GoodsStorageServiceImpl goodsStorageService;
 
 	private @Autowired SupplierServiceImpl supplierService;
 
+	private @Autowired UnitServiceImpl unitService;
 
 	@GetMapping("projectStocks")
 	@RequiresPermissions(value = "projectStock:list")
@@ -97,20 +99,18 @@ public class ProjectStockController {
 	@PostMapping("/projectStock")
 	@RequiresPermissions(value = "projectStock:add")
 	@SystemControllerLog(description = "添加项目设备")
-	public String addUser(
-			@RequestParam(value="projectName",defaultValue="")String projectName,
-			@RequestParam(value="name",defaultValue="")String name,
-			@RequestParam(value="model",defaultValue="")String model,
-			@RequestParam(value="scope",defaultValue="")String scope,
-			@RequestParam(value="paymentTime",defaultValue="")String paymentTime,
-			@RequestParam(value="supplier",defaultValue="")String supplier,
-			@RequestParam(value="projectedProcurementVolume",defaultValue="0")long projectedProcurementVolume,
-			@RequestParam(value="estimatedUnitPrice",defaultValue="0")long estimatedUnitPrice,
-			@RequestParam(value="actualPurchaseQuantity",defaultValue="0")long actualPurchaseQuantity,
-			@RequestParam(value="realCostUnitPrice",defaultValue="0")long realCostUnitPrice,
-			@RequestParam(value="paymentAmount",defaultValue="0")long paymentAmount,
-			@RequestParam(value="num",defaultValue="0")long num
-			) {
+	public String addUser(@RequestParam(value = "projectName", defaultValue = "") String projectName,
+			@RequestParam(value = "name", defaultValue = "") String name,
+			@RequestParam(value = "model", defaultValue = "") String model,
+			@RequestParam(value = "scope", defaultValue = "") String scope,
+			@RequestParam(value = "paymentTime", defaultValue = "") String paymentTime,
+			@RequestParam(value = "supplier", defaultValue = "") String supplier,
+			@RequestParam(value = "projectedProcurementVolume", defaultValue = "0") long projectedProcurementVolume,
+			@RequestParam(value = "estimatedUnitPrice", defaultValue = "0") long estimatedUnitPrice,
+			@RequestParam(value = "actualPurchaseQuantity", defaultValue = "0") long actualPurchaseQuantity,
+			@RequestParam(value = "realCostUnitPrice", defaultValue = "0") long realCostUnitPrice,
+			@RequestParam(value = "paymentAmount", defaultValue = "0") long paymentAmount,
+			@RequestParam(value = "num", defaultValue = "0") long num) {
 		ProjectStock projectStock = new ProjectStock();
 		projectStock.setProjectName(projectName);
 		projectStock.setName(name);
@@ -124,7 +124,7 @@ public class ProjectStockController {
 		projectStock.setRealCostUnitPrice(realCostUnitPrice);
 		projectStock.setPaymentAmount(paymentAmount);
 		projectStock.setNum(num);
-		
+
 		this.projectStockService.saveOrUpdate(projectStock);
 		return "redirect:projectStocks";
 	}
@@ -132,21 +132,19 @@ public class ProjectStockController {
 	@PutMapping("/projectStock")
 	@RequiresPermissions(value = "projectStock:edit")
 	@SystemControllerLog(description = "修改项目设备")
-	public String edit(
-			@RequestParam(value="id",defaultValue="")String id,
-			@RequestParam(value="projectName",defaultValue="")String projectName,
-			@RequestParam(value="name",defaultValue="")String name,
-			@RequestParam(value="model",defaultValue="")String model,
-			@RequestParam(value="scope",defaultValue="")String scope,
-			@RequestParam(value="paymentTime",defaultValue="")String paymentTime,
-			@RequestParam(value="supplier",defaultValue="")String supplier,
-			@RequestParam(value="projectedProcurementVolume",defaultValue="0")long projectedProcurementVolume,
-			@RequestParam(value="estimatedUnitPrice",defaultValue="0")long estimatedUnitPrice,
-			@RequestParam(value="actualPurchaseQuantity",defaultValue="0")long actualPurchaseQuantity,
-			@RequestParam(value="realCostUnitPrice",defaultValue="0")long realCostUnitPrice,
-			@RequestParam(value="paymentAmount",defaultValue="0")long paymentAmount,
-			@RequestParam(value="num",defaultValue="0")long num
-			) {
+	public String edit(@RequestParam(value = "id", defaultValue = "") String id,
+			@RequestParam(value = "projectName", defaultValue = "") String projectName,
+			@RequestParam(value = "name", defaultValue = "") String name,
+			@RequestParam(value = "model", defaultValue = "") String model,
+			@RequestParam(value = "scope", defaultValue = "") String scope,
+			@RequestParam(value = "paymentTime", defaultValue = "") String paymentTime,
+			@RequestParam(value = "supplier", defaultValue = "") String supplier,
+			@RequestParam(value = "projectedProcurementVolume", defaultValue = "0") long projectedProcurementVolume,
+			@RequestParam(value = "estimatedUnitPrice", defaultValue = "0") long estimatedUnitPrice,
+			@RequestParam(value = "actualPurchaseQuantity", defaultValue = "0") long actualPurchaseQuantity,
+			@RequestParam(value = "realCostUnitPrice", defaultValue = "0") long realCostUnitPrice,
+			@RequestParam(value = "paymentAmount", defaultValue = "0") long paymentAmount,
+			@RequestParam(value = "num", defaultValue = "0") long num) {
 		ProjectStock projectStock = new ProjectStock();
 		projectStock.setId(id);
 		projectStock.setProjectName(projectName);
@@ -161,7 +159,7 @@ public class ProjectStockController {
 		projectStock.setRealCostUnitPrice(realCostUnitPrice);
 		projectStock.setPaymentAmount(paymentAmount);
 		projectStock.setNum(num);
-		
+
 		this.projectStockService.saveOrUpdate(projectStock);
 		return "redirect:projectStocks";
 	}
@@ -181,6 +179,37 @@ public class ProjectStockController {
 		List<Supplier> syslist = this.supplierService.findAllSupplier(false);
 		model.addAttribute("suppliers", syslist);
 		return "admin/projectStock/add";
+
+	}
+
+	/**
+	 * 跳转到编辑界面
+	 * 
+	 * @return
+	 */
+	@GetMapping("/projectStockToStock{id}")
+	@RequiresPermissions(value = "projectStock:edit")
+	@SystemControllerLog(description = "编辑项目设备")
+	public String projectStockToStock(@PathVariable String id, Model model) {
+		ProjectStock projectStock = this.projectStockService.findOneById(id, ProjectStock.class);
+		Stock stock = new Stock();
+		stock.setName(projectStock.getName());
+		stock.setModel(projectStock.getModel());
+		stock.setScope(projectStock.getScope());
+		stock.setSupplier(projectStock.getSupplier());
+		model.addAttribute("stock", stock);
+
+		// 所有货架
+		List<GoodsStorage> list = this.goodsStorageService.findAllGoodsStorage(false);
+		model.addAttribute("goodsStorages", list);
+		// 所有供应商
+		List<Supplier> syslist = this.supplierService.findAllSupplier(false);
+		model.addAttribute("suppliers", syslist);
+		// 计量单位
+		List<Unit> listUnits = this.unitService.findAllUnit(false);
+		model.addAttribute("units", listUnits);
+
+		return "admin/stock/add";
 
 	}
 
@@ -206,7 +235,7 @@ public class ProjectStockController {
 	public BasicDataResult ajaxgetRepletes(@RequestParam(value = "name", defaultValue = "") String name,
 			@RequestParam(value = "projectName", defaultValue = "") String projectName,
 			@RequestParam(value = "model", defaultValue = "") String model) {
-		return this.projectStockService.ajaxgetRepletes(projectName,name,model);
+		return this.projectStockService.ajaxgetRepletes(projectName, name, model);
 	}
 
 	@RequestMapping(value = "/projectStock/disable", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
@@ -283,22 +312,22 @@ public class ProjectStockController {
 	/**
 	 * 导出excel
 	 */
-	@RequestMapping(value="/projectStock/export")
+	@RequestMapping(value = "/projectStock/export")
 	public void exportStock(HttpServletResponse response) {
-			try{
-				response.setContentType("application/vnd.ms-excel");
-				String name = Common.fromDateYM()+"项目库存报表";
-				String fileName = new String((name).getBytes("gb2312"), "ISO8859-1");
-				HSSFWorkbook wb = this.projectStockService.export(name);
-				response.setHeader("Content-disposition", "attachment;filename=" + fileName+".xls");
-				OutputStream ouputStream = response.getOutputStream();
-				wb.write(ouputStream);
-				ouputStream.flush();
-				ouputStream.close();
-			}catch(IOException e){
-				e.printStackTrace();
-			}
-			
+		try {
+			response.setContentType("application/vnd.ms-excel");
+			String name = Common.fromDateYM() + "项目库存报表";
+			String fileName = new String((name).getBytes("gb2312"), "ISO8859-1");
+			HSSFWorkbook wb = this.projectStockService.export(name);
+			response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xls");
+			OutputStream ouputStream = response.getOutputStream();
+			wb.write(ouputStream);
+			ouputStream.flush();
+			ouputStream.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 	}
 
 }
