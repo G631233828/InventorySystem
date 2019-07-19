@@ -69,26 +69,3 @@ $().ready(function() {
 
 
 
-
-//
-//
-//// 检查库存是否足够
-//jQuery.validator.checkNum("checkNum", function(value, element) {
-//	var oldVal = $("#"+element).val();
-//	if(value > oldVal){
-//		return false ;
-//	} 
-//	return true ;
-//}, "出库数量不能大于当前库存数量");
-//
-
-
-
-
-
-
-
-
-
-
-

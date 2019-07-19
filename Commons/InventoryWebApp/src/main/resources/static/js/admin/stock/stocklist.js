@@ -15,6 +15,7 @@ function showColumn() {
 
 /**
  * 查找设备信息
+ * 
  * @param o
  * @returns
  */
@@ -101,24 +102,27 @@ function showSupplier(o) {
 		dataType : 'json',
 		success : function(data) {
 			if (data.status == 200) {
-				var name = data.data.name;
-				var systemClassification = data.data.systemClassification.name;
+				var name = data.data.name!=null?data.data.name:"";
+				var systemClassification = data.data.systemClassification.name!=null?data.data.systemClassification.name:"";
 				var categorys='';
+				var cas = data.data.categorys?data.data.categorys:null;
+				if(cas!=null){
 				$.each(data.data.categorys,function(key,value){
 					categorys+=value.name+",  ";
 				})
-				var brand = data.data.brand.name;
-				var contact = data.data.contact;
-				var contactNumber = data.data.contactNumber;
-				var qq = data.data.qq;
-				var wechat = data.data.wechat;
-				var email = data.data.email;
-				var address = data.data.address;
-				var introducer = data.data.introducer;
-				var productQuality = data.data.productQuality;
-				var supplyPeriod = data.data.supplyPeriod;
-				var payMent = data.data.payMent;
-				var afterSaleService = data.data.afterSaleService;
+			}
+				var brand = data.data.brand!=null?data.data.brand.name:"";
+				var contact = data.data.contact!=null?data.data.contact:"";
+				var contactNumber = data.data.contactNumber!=null?data.data.contactNumber:"";
+				var qq = data.data.qq!=null?data.data.qq:"";
+				var wechat = data.data.wechat!=null?data.data.wechat:"";
+				var email = data.data.email!=null?data.data.email:"";
+				var address = data.data.address!=null?data.data.address:"";
+				var introducer = data.data.introducer!=null?data.data.introducer:"";
+				var productQuality = data.data.productQuality!=null? data.data.productQuality:"";
+				var supplyPeriod = data.data.supplyPeriod!=null?data.data.supplyPeriod:"";
+				var payMent = data.data.payMent!=null?data.data.payMent:"";
+				var afterSaleService = data.data.afterSaleService!=null?data.data.afterSaleService:"";
 				
 				$("#supplier_name").text(name);
 				$("#supplier_systemClassification").text(systemClassification);
@@ -157,14 +161,10 @@ function searchVal() {
 	var pageSize = $("#pageSize").val();
 	var search = $("#serach").val();
 
-/*	if (search == null || search == "") {
-		swal({
-			type : "warning",
-			title : "",
-			text : "查询内容不能为空!!",
-		});
-		return ;
-	}*/
+/*
+ * if (search == null || search == "") { swal({ type : "warning", title : "",
+ * text : "查询内容不能为空!!", }); return ; }
+ */
 	window.location.href="stocks?pageSize="+pageSize+"&search="+search;
 
 }
