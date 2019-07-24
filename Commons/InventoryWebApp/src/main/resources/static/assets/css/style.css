@@ -12,7 +12,7 @@
 }
 
 body {
-	color: #9EA7B3 !important;
+	/* color: #9EA7B3 !important; */
 	/*     color: #9ea7b3!important; */
 	font-family: "Open Sans", Arial, sans-serif !important;
 	font-size: 13px !important;
@@ -2053,7 +2053,7 @@ ul.topnav h4 {
 	background-position: right;
 	padding-right: 0;
 	text-decoration: none;
-	color: #9EA7B3;
+/* 	color: #9EA7B3; */
 }
 
 .home {
@@ -2085,7 +2085,7 @@ ul.topnav h4 {
 }
 
 .tittle-content-header {
-	color: #9EA7B3 !important;
+	/* color: #9EA7B3 !important; */
 	font-family: "Open Sans";
 	font-size: 16px;
 	font-weight: normal;
@@ -2252,7 +2252,7 @@ img.sidebar-icon {
 }
 
 .nest .title-alt h6 {
-	color: #9EA7B3;
+	/* color: #9EA7B3; */
 	float: left;
 	font-family: 'Open Sans', serif;
 	font-size: 14px;

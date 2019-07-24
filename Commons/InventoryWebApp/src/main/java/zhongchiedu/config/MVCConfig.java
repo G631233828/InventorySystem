@@ -38,7 +38,11 @@ public class MVCConfig extends WebMvcConfigurerAdapter {
 	    	super.addResourceHandlers(registry);
 	    }
 		  
-
+//
+//    @Bean
+//    public SessionInterceptor sessionInterceptor(){
+//    	return new SessionInterceptor();
+//    }
     
 //	
 //	@Override
@@ -86,7 +90,8 @@ public class MVCConfig extends WebMvcConfigurerAdapter {
 			//不要使用new xxx否则拦截器中会注入失败
 			@Override
 			public void addInterceptors(InterceptorRegistry registry) {
-				registry.addInterceptor(loginHandlerInterceptor()).addPathPatterns("/**").excludePathPatterns("/index.html","/user/login","/api/**");
+				//registry.addInterceptor(sessionInterceptor()).addPathPatterns("/**").excludePathPatterns("/index.html","/user/login");
+				registry.addInterceptor(loginHandlerInterceptor()).addPathPatterns("/**").excludePathPatterns("/index.html","/user/login");
 			}
 			
 		};

@@ -52,7 +52,7 @@ public class ProjectStockStatisticsController {
 	@RequiresPermissions(value = "projectStockStatistics:list")
 	@SystemControllerLog(description = "查询项目库存统计")
 	public String list(@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
-			@RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize, HttpSession session,
+			@RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize, HttpSession session,
 			@RequestParam(value = "search", defaultValue = "") String search,
 			@RequestParam(value = "start", defaultValue = "") String start,
 			@RequestParam(value = "end", defaultValue = "") String end,
@@ -67,6 +67,7 @@ public class ProjectStockStatisticsController {
 		model.addAttribute("search", search);
 		model.addAttribute("start", start);
 		model.addAttribute("end", end);
+		model.addAttribute("pageSize", pageSize);
 		model.addAttribute("id", id);
 		model.addAttribute("type", type);
 		return "admin/projectStockStatistics/list";
@@ -106,6 +107,7 @@ public class ProjectStockStatisticsController {
 	@RequestMapping(value = "/projectStockStatistics/revoke", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	@SystemControllerLog(description = "项目出入库撤销")
+	@RequiresPermissions(value = "projectStockStatistics:revoke")
 	public BasicDataResult revoke(@RequestParam(value = "id", defaultValue = "") String id) {
 		return this.projectStockStatisticsService.revoke(id);
 	}

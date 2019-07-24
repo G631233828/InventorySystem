@@ -125,9 +125,26 @@ public class UserServiceImpl extends GeneralServiceImpl<User> implements UserSer
 	 * @return
 	 * @throws Exception
 	 */
+//	public User findUserById(String id) {
+//		Query query = new Query();
+//		query.addCriteria(Criteria.where("_id").is(id));
+//		// User user= this.userDao.findOneById(id);
+//		User user = this.findOneByQuery(query, User.class);
+//		return user!=null?user:null;
+//		
+//	}
+	/**
+	 * 根据用户id 使用状态查询用户
+	 * 
+	 * @param id
+	 * @return
+	 * @throws Exception
+	 */
 	public User findUserById(String id) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("_id").is(id));
+		//query.addCriteria(Criteria.where("isDisable").is(isDisable));
+		query.addCriteria(Criteria.where("isDelete").is(false));
 		// User user= this.userDao.findOneById(id);
 		User user = this.findOneByQuery(query, User.class);
 		return user!=null?user:null;

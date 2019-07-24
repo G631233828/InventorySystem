@@ -1,11 +1,9 @@
 package zhongchiedu.controller.inventory;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,7 +20,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import lombok.extern.slf4j.Slf4j;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.framework.pagination.Pagination;
-import zhongchiedu.general.pojo.User;
 import zhongchiedu.inventory.pojo.Companys;
 import zhongchiedu.inventory.service.Impl.CompanyServiceImpl;
 import zhongchiedu.log.annotation.SystemControllerLog;
@@ -38,7 +35,7 @@ public class CompanysController {
 	@RequiresPermissions(value = "company:list")
 	@SystemControllerLog(description = "查询所有企业")
 	public String list(@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
-			@RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize, HttpSession session) {
+			@RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize, HttpSession session) {
 		Pagination<Companys> pagination = this.companyService.findpagination(pageNo, pageSize);
 		model.addAttribute("pageList", pagination);
 		return "admin/companys/list";

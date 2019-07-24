@@ -49,7 +49,7 @@ public class StockStatisticsController {
 	@RequiresPermissions(value = "stockStatistics:list")
 	@SystemControllerLog(description = "查询库存统计")
 	public String list(@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
-			@RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize, HttpSession session,
+			@RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize, HttpSession session,
 			@RequestParam(value = "search", defaultValue = "") String search,
 			@RequestParam(value = "start", defaultValue = "") String start,
 			@RequestParam(value = "end", defaultValue = "") String end,
@@ -66,6 +66,7 @@ public class StockStatisticsController {
 		model.addAttribute("end", end);
 		model.addAttribute("id", id);
 		model.addAttribute("type", type);
+		model.addAttribute("pageSize", pageSize);
 		return "admin/stockStatistics/list";
 	}
 
@@ -103,6 +104,7 @@ public class StockStatisticsController {
 	@RequestMapping(value = "/stockStatistics/revoke", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	@SystemControllerLog(description = "出入库撤销")
+	@RequiresPermissions(value = "stockStatistics:revoke")
 	public BasicDataResult revoke(@RequestParam(value = "id", defaultValue = "") String id) {
 		return this.stockStatisticsService.revoke(id);
 	}

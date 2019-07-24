@@ -46,7 +46,7 @@ public class LoginController {
 
 	@RequestMapping("/tologin")
 	@SystemControllerLog(description = "用户申请登陆")
-	public String login(User user, HttpServletRequest request, Map<String, Object> map, HttpSession session,Model model)
+	public String login(User user,boolean rememberMe, HttpServletRequest request, Map<String, Object> map, HttpSession session,Model model)
 			throws Exception {
 		if(Common.isEmpty(user.getAccountName())||Common.isEmpty(user.getPassWord())){
 			return "login";
@@ -59,7 +59,7 @@ public class LoginController {
 			String accountName = user.getAccountName();
 			String password = user.getPassWord();
 			if (accountName != "" && password != "") {
-				UsernamePasswordToken token = new UsernamePasswordToken(accountName, password);
+				UsernamePasswordToken token = new UsernamePasswordToken(accountName, password,rememberMe);
 				// token.setRememberMe(rememberMe);
 				Subject subject = SecurityUtils.getSubject();// 获得主体
 				try {
@@ -70,17 +70,17 @@ public class LoginController {
 						msg = "登录失败";
 					}
 				} catch (IncorrectCredentialsException e) {
-					msg = "登录密码错误. Password for account " + token.getPrincipal() + " wasincorrect.";
+					msg = "登录密码错误!";
 				} catch (ExcessiveAttemptsException e) {
-					msg = "登录失败次数过多";
+					msg = "登录失败次数过多!";
 				} catch (LockedAccountException e) {
-					msg = "帐号已被锁定. The account for username " + token.getPrincipal() + " was locked.";
+					msg = "帐号已被锁定!" ;
 				} catch (DisabledAccountException e) {
-					msg = "帐号已被禁用. The account for username " + token.getPrincipal() + "  was disabled.";
+					msg = "帐号已被禁用,请与管理员联系!" ;
 				} catch (ExpiredCredentialsException e) {
-					msg = "帐号已过期. the account for username " + token.getPrincipal() + "  was expired.";
+					msg = "帐号已过期!";
 				} catch (UnknownAccountException e) {
-					msg = "帐号不存在. There is no user with username of " + token.getPrincipal();
+					msg = "帐号不存在!";
 				} catch (UnauthorizedException e) {
 					msg = "您没有得到相应的授权！" + e.getMessage();
 				} finally {

@@ -48,7 +48,7 @@ public class LogController {
 	// @RequiresPermissions(value = "user:list")
 	// @SystemControllerLog(description = "查询所有用户")
 	public String list(@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
-			@RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize, HttpSession session) {
+			@RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize, HttpSession session) {
 		// 分页查询数据
 		Pagination<Log> pagination;
 		try {
@@ -68,7 +68,7 @@ public class LogController {
 	// @RequiresPermissions(value = "user:list")
 	// @SystemControllerLog(description = "查询所有用户")
 	public String errors(@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
-			@RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize, HttpSession session) {
+			@RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize, HttpSession session) {
 		// 分页查询数据
 		Pagination<Log> pagination;
 		try {

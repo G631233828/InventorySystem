@@ -52,7 +52,7 @@ public class RoleController {
 	@RequiresPermissions(value = "role:list")
 	@SystemControllerLog(description = "查询所有用户")
 	public String list(@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
-			@RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize, HttpSession session) {
+			@RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize, HttpSession session) {
 		// 分页查询数据
 		Pagination<Role> pagination;
 		pagination = this.roleService.findPaginationByQuery(new Query(), pageNo, pageSize, Role.class);

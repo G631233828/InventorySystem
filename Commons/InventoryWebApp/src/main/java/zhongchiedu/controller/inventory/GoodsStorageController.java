@@ -42,7 +42,7 @@ public class GoodsStorageController {
 	@RequiresPermissions(value = "goodsStorage:list")
 	@SystemControllerLog(description = "查询所有货架信息")
 	public String list(@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
-			@RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize, HttpSession session) {
+			@RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize, HttpSession session) {
 		Pagination<GoodsStorage> pagination = this.goodsStorageService.findpagination(pageNo, pageSize);
 		model.addAttribute("pageList", pagination);
 		return "admin/goodsStorage/list";

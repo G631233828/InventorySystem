@@ -221,13 +221,13 @@
 														th:text="${stockStatistics?.revoke == true}?'已撤销':'正常'"></label>
 													</td>
 													<td class="numeric">
-														<!-- <shiro:hasPermission
-															name="stockStatistics:edit"> -->
+														 <shiro:hasPermission
+															name="projectStockStatistics:revoke"> 
 														<button class="btn btn-primary btn-xs btcancle"
 															th:id="${stockStatistics?.id}"
 															th:onclick="|return revoke('${stockStatistics?.id}')|">
 															<i class="fa fa-edit"> </i>撤销
-														</button> <!-- </shiro:hasPermission> -->
+														</button>  </shiro:hasPermission>
 													</td>
 												</tr>
 												<!-- 菜单 -->

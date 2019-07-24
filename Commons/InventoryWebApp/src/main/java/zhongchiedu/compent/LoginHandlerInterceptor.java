@@ -47,11 +47,7 @@ public class LoginHandlerInterceptor implements HandlerInterceptor {
 			}else{
 				SecurityUtils.getSubject().logout();
 			}
-			
-			
 		}
-	
-	
 		
 		return true;
 
