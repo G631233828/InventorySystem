@@ -111,7 +111,7 @@ public class ShiroConfig {
 		// 防止xss读取cookie
 		simpleCookie.setHttpOnly(true);
 		simpleCookie.setPath("/");
-		simpleCookie.setMaxAge(2592000);
+		simpleCookie.setMaxAge(-1);
 		return simpleCookie;
 	}
 
@@ -165,10 +165,9 @@ public class ShiroConfig {
 		filterChainDefinitionMap.put("/api/**", "anon");
 		filterChainDefinitionMap.put("/assets/**", "anon");
 		filterChainDefinitionMap.put("/init/**", "anon");
-		filterChainDefinitionMap.put("/tologin", "addPrincipal,user");
-		filterChainDefinitionMap.put("/", "addPrincipal,user");
-		filterChainDefinitionMap.put("index", "addPrincipal,user");
-		filterChainDefinitionMap.put("toindex", "addPrincipal,user");
+		filterChainDefinitionMap.put("/tologin", "user,addPrincipal");
+		filterChainDefinitionMap.put("index", "user,addPrincipal");
+		filterChainDefinitionMap.put("toindex", "user,addPrincipal");
 		filterChainDefinitionMap.put("/img/**", "anon");
 		filterChainDefinitionMap.put("/wechat/**", "anon");
 		filterChainDefinitionMap.put("/Templates/**", "anon");
