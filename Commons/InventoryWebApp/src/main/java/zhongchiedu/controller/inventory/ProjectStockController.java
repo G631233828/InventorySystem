@@ -105,12 +105,12 @@ public class ProjectStockController {
 			@RequestParam(value = "scope", defaultValue = "") String scope,
 			@RequestParam(value = "paymentTime", defaultValue = "") String paymentTime,
 			@RequestParam(value = "supplier", defaultValue = "") String supplier,
-			@RequestParam(value = "projectedProcurementVolume", defaultValue = "0") long projectedProcurementVolume,
-			@RequestParam(value = "estimatedUnitPrice", defaultValue = "0") long estimatedUnitPrice,
-			@RequestParam(value = "actualPurchaseQuantity", defaultValue = "0") long actualPurchaseQuantity,
-			@RequestParam(value = "realCostUnitPrice", defaultValue = "0") long realCostUnitPrice,
-			@RequestParam(value = "paymentAmount", defaultValue = "0") long paymentAmount,
-			@RequestParam(value = "num", defaultValue = "0") long num) {
+			@RequestParam(value = "projectedProcurementVolume", defaultValue = "0") String projectedProcurementVolume,
+			@RequestParam(value = "estimatedUnitPrice", defaultValue = "0") String estimatedUnitPrice,
+			@RequestParam(value = "actualPurchaseQuantity", defaultValue = "0") String actualPurchaseQuantity,
+			@RequestParam(value = "realCostUnitPrice", defaultValue = "0") String realCostUnitPrice,
+			@RequestParam(value = "paymentAmount", defaultValue = "0") String paymentAmount,
+			@RequestParam(value = "num", defaultValue = "0") String num){
 		ProjectStock projectStock = new ProjectStock();
 		projectStock.setProjectName(projectName);
 		projectStock.setName(name);
@@ -118,12 +118,13 @@ public class ProjectStockController {
 		projectStock.setScope(scope);
 		projectStock.setPaymentTime(paymentTime);
 		projectStock.setSupplier(this.supplierService.findOneById(supplier, Supplier.class));
-		projectStock.setProjectedProcurementVolume(projectedProcurementVolume);
-		projectStock.setEstimatedUnitPrice(estimatedUnitPrice);
-		projectStock.setActualPurchaseQuantity(actualPurchaseQuantity);
-		projectStock.setRealCostUnitPrice(realCostUnitPrice);
-		projectStock.setPaymentAmount(paymentAmount);
-		projectStock.setNum(num);
+		projectStock.setProjectedProcurementVolume(Integer.valueOf(projectedProcurementVolume));
+		projectStock.setEstimatedUnitPrice(Double.valueOf(estimatedUnitPrice));
+		projectStock.setActualPurchaseQuantity(Integer.valueOf(actualPurchaseQuantity));
+		projectStock.setRealCostUnitPrice(Double.valueOf(realCostUnitPrice));
+		projectStock.setPaymentAmount(Double.valueOf(paymentAmount));
+		projectStock.setNum(Integer.valueOf(num));
+
 
 		this.projectStockService.saveOrUpdate(projectStock);
 		return "redirect:projectStocks";
@@ -139,12 +140,12 @@ public class ProjectStockController {
 			@RequestParam(value = "scope", defaultValue = "") String scope,
 			@RequestParam(value = "paymentTime", defaultValue = "") String paymentTime,
 			@RequestParam(value = "supplier", defaultValue = "") String supplier,
-			@RequestParam(value = "projectedProcurementVolume", defaultValue = "0") long projectedProcurementVolume,
-			@RequestParam(value = "estimatedUnitPrice", defaultValue = "0") long estimatedUnitPrice,
-			@RequestParam(value = "actualPurchaseQuantity", defaultValue = "0") long actualPurchaseQuantity,
-			@RequestParam(value = "realCostUnitPrice", defaultValue = "0") long realCostUnitPrice,
-			@RequestParam(value = "paymentAmount", defaultValue = "0") long paymentAmount,
-			@RequestParam(value = "num", defaultValue = "0") long num) {
+			@RequestParam(value = "projectedProcurementVolume", defaultValue = "0") String projectedProcurementVolume,
+			@RequestParam(value = "estimatedUnitPrice", defaultValue = "0") String estimatedUnitPrice,
+			@RequestParam(value = "actualPurchaseQuantity", defaultValue = "0") String actualPurchaseQuantity,
+			@RequestParam(value = "realCostUnitPrice", defaultValue = "0") String realCostUnitPrice,
+			@RequestParam(value = "paymentAmount", defaultValue = "0") String paymentAmount,
+			@RequestParam(value = "num", defaultValue = "0") String num) {
 		ProjectStock projectStock = new ProjectStock();
 		projectStock.setId(id);
 		projectStock.setProjectName(projectName);
@@ -153,12 +154,12 @@ public class ProjectStockController {
 		projectStock.setScope(scope);
 		projectStock.setPaymentTime(paymentTime);
 		projectStock.setSupplier(this.supplierService.findOneById(supplier, Supplier.class));
-		projectStock.setProjectedProcurementVolume(projectedProcurementVolume);
-		projectStock.setEstimatedUnitPrice(estimatedUnitPrice);
-		projectStock.setActualPurchaseQuantity(actualPurchaseQuantity);
-		projectStock.setRealCostUnitPrice(realCostUnitPrice);
-		projectStock.setPaymentAmount(paymentAmount);
-		projectStock.setNum(num);
+		projectStock.setProjectedProcurementVolume(Integer.valueOf(projectedProcurementVolume));
+		projectStock.setEstimatedUnitPrice(Double.valueOf(estimatedUnitPrice));
+		projectStock.setActualPurchaseQuantity(Integer.valueOf(actualPurchaseQuantity));
+		projectStock.setRealCostUnitPrice(Double.valueOf(realCostUnitPrice));
+		projectStock.setPaymentAmount(Double.valueOf(paymentAmount));
+		projectStock.setNum(Integer.valueOf(num));
 
 		this.projectStockService.saveOrUpdate(projectStock);
 		return "redirect:projectStocks";
@@ -330,4 +331,12 @@ public class ProjectStockController {
 
 	}
 
+	
+	
+	
+	
+	
+	
+	
+	
 }

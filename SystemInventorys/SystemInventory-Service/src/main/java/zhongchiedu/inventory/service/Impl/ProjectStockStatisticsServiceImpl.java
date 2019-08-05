@@ -152,7 +152,7 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 	@SystemServiceLog(description = "库存出库入库")
 	public BasicDataResult inOrOutstockStatistics(ProjectStockStatistics stockStatistics, HttpSession session) {
 
-		long num = stockStatistics.getNum();
+		Integer num = stockStatistics.getNum();
 		if (num <= 0) {
 			return BasicDataResult.build(400, "操作的数据有误！", null);
 		}
@@ -166,7 +166,7 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 			if (stockStatistics.isInOrOut()) {
 				// true == 入库
 				// 更新库存中的库存
-				long newNum = this.updateProjectStock(projectStock, num, true, false);
+				Integer newNum = this.updateProjectStock(projectStock, num, true, false);
 				stockStatistics.setStorageTime(Common.fromDateH());
 				stockStatistics.setNewNum(newNum);
 				stockStatistics.setActualPurchaseQuantity(projectStock.getActualPurchaseQuantity());
@@ -174,7 +174,7 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 				return BasicDataResult.build(200, "商品入库成功", stockStatistics);
 			} else {
 				// 出库
-				long newNum = this.updateProjectStock(projectStock, num, false, false);
+				Integer newNum = this.updateProjectStock(projectStock, num, false, false);
 				if (newNum == -1) {
 					// 出货数量不够
 					return BasicDataResult.build(400, "货物库存数量不足", null);
@@ -208,10 +208,10 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 	}
 
 	@SystemServiceLog(description = "更新库存信息")
-	public long updateProjectStock(ProjectStock projectStock, long num, boolean inOrOut, boolean revoke) {
+	public Integer updateProjectStock(ProjectStock projectStock, Integer num, boolean inOrOut, boolean revoke) {
 		lock.lock();
-		long oldnum = projectStock.getInventory();
-		long newnum = 0;
+		Integer oldnum = projectStock.getInventory();
+		Integer newnum = 0;
 		try {
 			if (inOrOut) {
 				// 入库
@@ -221,7 +221,7 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 				projectStock.setActualPurchaseQuantity(projectStock.getActualPurchaseQuantity() + num);
 				if (revoke) {
 					// 出库数量去除
-					long revokeNum = projectStock.getNum();
+					Integer revokeNum = projectStock.getNum();
 					if ((revokeNum - num) < 0) {
 						return -1;
 					}
@@ -290,7 +290,7 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 	public ProjectStockStatistics updateProjectStockStatistics(ProjectStockStatistics stockStatistics) {
 		lockinsert.lock();
 		try {
-			long oldnum = stockStatistics.getNum();// 入库，出库数量
+			Integer oldnum = stockStatistics.getNum();// 入库，出库数量
 			stockStatistics.setRevokeNum(oldnum);
 			stockStatistics.setRevoke(true);
 			this.save(stockStatistics);

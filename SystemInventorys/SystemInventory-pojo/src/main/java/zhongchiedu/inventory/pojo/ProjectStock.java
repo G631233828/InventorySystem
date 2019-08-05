@@ -30,21 +30,21 @@ public class ProjectStock extends GeneralBean<ProjectStock> {
 	private String model;//设备型号
 	private String scope;//使用范围
 	
-	private long projectedProcurementVolume=0;//预计采购量#
-	private long estimatedUnitPrice=0;//预计采购单价
-	private long projectedTotalPurchasePrice=0;//预计采购总价
+	private Integer projectedProcurementVolume=0;//预计采购量#
+	private Double estimatedUnitPrice=0.0;//预计采购单价
+	private Double projectedTotalPurchasePrice=0.0;//预计采购总价
 	
 	@DBRef
 	private Supplier supplier;//供应商
 	
-	private long actualPurchaseQuantity=0;//实际采购数量  #
-	private long realCostUnitPrice=0;//实际成本单价
-	private long totalActualCost=0;//实际成本总价
+	private Integer actualPurchaseQuantity=0;//实际采购数量  #
+	private Double realCostUnitPrice=0.0;//实际成本单价
+	private Double totalActualCost=0.0;//实际成本总价
 	
 	private String paymentTime;//付款时间
-	private long paymentAmount=0;//付款金额
+	private Double paymentAmount=0.0;//付款金额
 	
-	private long num=0;//出库数量
-	private long inventory = 0; //库存量
+	private Integer num=0;//出库数量
+	private Integer inventory = 0; //库存量
 
 }

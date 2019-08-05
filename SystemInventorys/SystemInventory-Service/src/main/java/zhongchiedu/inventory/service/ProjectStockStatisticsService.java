@@ -21,7 +21,7 @@ public interface ProjectStockStatisticsService extends GeneralService<ProjectSto
 	
 	public BasicDataResult inOrOutstockStatistics(ProjectStockStatistics projectStockStatistics,HttpSession session);
 	
-	public long updateProjectStock(ProjectStock projectStock,long num,boolean inOrOut,boolean revoke);
+	public Integer updateProjectStock(ProjectStock projectStock,Integer num,boolean inOrOut,boolean revoke);
 	
 	public BasicDataResult revoke(String id);
 	

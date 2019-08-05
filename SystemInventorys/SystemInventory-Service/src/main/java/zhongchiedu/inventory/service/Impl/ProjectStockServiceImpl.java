@@ -60,17 +60,17 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 				//更新实际采购单价
 				ProjectStock ed = this.findOneById(stock.getId(), ProjectStock.class);
 				//预计采购量
-				long projectedProcurementVolume = stock.getProjectedProcurementVolume();
+				Integer projectedProcurementVolume = stock.getProjectedProcurementVolume();
 				//预计采购单价
-				long estimatedUnitPrice = stock.getEstimatedUnitPrice();
+				Double estimatedUnitPrice = stock.getEstimatedUnitPrice();
 				//预计采购总价
-				long  projectedTotalPurchasePrice = 0;
+				Double  projectedTotalPurchasePrice = 0.0;
 				//实际采购数量
-				long actualPurchaseQuantity = ed.getActualPurchaseQuantity();
+				Integer actualPurchaseQuantity = ed.getActualPurchaseQuantity();
 				//实际成本单价
-				long realCostUnitPrice = stock.getRealCostUnitPrice();
+				Double realCostUnitPrice = stock.getRealCostUnitPrice();
 				//实际成本总价
-				long totalActualCost = 0;
+				Double totalActualCost = 0.0;
 				if(Common.isNotEmpty(projectedProcurementVolume)&&Common.isNotEmpty(estimatedUnitPrice)){
 					projectedTotalPurchasePrice = projectedProcurementVolume*estimatedUnitPrice;
 					stock.setProjectedTotalPurchasePrice(projectedTotalPurchasePrice);
@@ -89,12 +89,12 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 					stock.setInventory(stock.getActualPurchaseQuantity()-stock.getNum());
 				}
 				// insert
-				long projectedProcurementVolume = stock.getProjectedProcurementVolume();
-				long estimatedUnitPrice = stock.getEstimatedUnitPrice();
-				long  projectedTotalPurchasePrice = 0;
-				long actualPurchaseQuantity = stock.getActualPurchaseQuantity();
-				long realCostUnitPrice = stock.getRealCostUnitPrice();
-				long totalActualCost = 0;
+				Integer projectedProcurementVolume = stock.getProjectedProcurementVolume();
+				Double estimatedUnitPrice = stock.getEstimatedUnitPrice();
+				Double  projectedTotalPurchasePrice = 0.0;
+				Integer actualPurchaseQuantity = stock.getActualPurchaseQuantity();
+				Double realCostUnitPrice = stock.getRealCostUnitPrice();
+				Double totalActualCost = 0.0;
 				if(Common.isNotEmpty(projectedProcurementVolume)&&Common.isNotEmpty(estimatedUnitPrice)){
 					projectedTotalPurchasePrice = projectedProcurementVolume*estimatedUnitPrice;
 					stock.setProjectedTotalPurchasePrice(projectedTotalPurchasePrice);
@@ -291,10 +291,10 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 				
 				importProjectStock.setScope(resultexcel[i][j + 3].trim());// 使用范围
 
-				long projectedProcurementVolume = 0;
-				long estimatedUnitPrice = 0;
+				Integer projectedProcurementVolume = 0;
+				Double estimatedUnitPrice = 0.0;
 				try {
-					projectedProcurementVolume = Long.valueOf(resultexcel[i][j + 4]);//预计采购量
+					projectedProcurementVolume = Integer.valueOf(resultexcel[i][j + 4]);//预计采购量
 				} catch (NumberFormatException e) {
 					log.debug("导入文件过程中出现错误第" + (i + 1) + "行出现错误" + e);
 					String aa = e.getLocalizedMessage();
@@ -307,7 +307,7 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 
 				}
 				try {
-					estimatedUnitPrice = Long.valueOf(resultexcel[i][j + 5]);//预计采购单价
+					estimatedUnitPrice = Double.valueOf(resultexcel[i][j + 5]);//预计采购单价
 				} catch (NumberFormatException e) {
 					log.debug("导入文件过程中出现错误第" + (i + 1) + "行出现错误" + e);
 					String aa = e.getLocalizedMessage();
@@ -323,15 +323,15 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 				importProjectStock.setProjectedProcurementVolume(projectedProcurementVolume);// 预计采购量
 				importProjectStock.setEstimatedUnitPrice(estimatedUnitPrice);// 预计采购单价
 				
-				long projectedTotalPurchasePrice = 0;
+				Double projectedTotalPurchasePrice = 0.0;
 				if (Common.isNotEmpty(projectedProcurementVolume) && Common.isNotEmpty(estimatedUnitPrice)) {
 					projectedTotalPurchasePrice = projectedProcurementVolume * estimatedUnitPrice;
 				}
 				importProjectStock.setProjectedTotalPurchasePrice(projectedTotalPurchasePrice);// 预计采购总价
 
-				long actualPurchaseQuantity = 0; // 实际采购数量
+				Integer actualPurchaseQuantity = 0; // 实际采购数量
 				try {
-					actualPurchaseQuantity = Long.valueOf(resultexcel[i][j + 6]);
+					actualPurchaseQuantity = Integer.valueOf(resultexcel[i][j + 6]);
 				} catch (NumberFormatException e) {
 					log.debug("导入文件过程中出现错误第" + (i + 1) + "行出现错误" + e);
 					String aa = e.getLocalizedMessage();
@@ -344,9 +344,9 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 				}
 				importProjectStock.setActualPurchaseQuantity(actualPurchaseQuantity);// 实际采购数量
 
-				long realCostUnitPrice = 0; // 实际采购单价
+				Double realCostUnitPrice = 0.0; // 实际采购单价
 				try {
-					realCostUnitPrice = Long.valueOf(resultexcel[i][j + 7]);
+					realCostUnitPrice = Double.valueOf(resultexcel[i][j + 7]);
 				} catch (NumberFormatException e) {
 					log.debug("导入文件过程中出现错误第" + (i + 1) + "行出现错误" + e);
 					String aa = e.getLocalizedMessage();
@@ -358,7 +358,7 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 					}
 				}
 				importProjectStock.setRealCostUnitPrice(realCostUnitPrice);// 实际成本单价
-				long totalActualCost = 0;
+				Double totalActualCost = 0.0;
 				if (Common.isNotEmpty(actualPurchaseQuantity) && Common.isNotEmpty(realCostUnitPrice)) {
 					totalActualCost = actualPurchaseQuantity * realCostUnitPrice;
 				}
@@ -372,7 +372,7 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 				String paymentAmount = resultexcel[i][j + 9];
 				if(Common.isNotEmpty(paymentAmount)){
 					try {
-						importProjectStock.setPaymentAmount(Long.valueOf(paymentAmount));// 付款金额
+						importProjectStock.setPaymentAmount(Double.valueOf(paymentAmount));// 付款金额
 					} catch (NumberFormatException e) {
 						log.debug("导入文件过程中出现错误第" + (i + 1) + "行出现错误" + e);
 						String aa = e.getLocalizedMessage();
