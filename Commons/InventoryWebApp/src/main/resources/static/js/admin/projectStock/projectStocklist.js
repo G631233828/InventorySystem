@@ -155,6 +155,7 @@ function searchVal() {
 
 	var pageSize = $("#pageSize").val();
 	var search = $("#serach").val();
+	var projectName = $("#projectName").val();
 
 /*	if (search == null || search == "") {
 		swal({
@@ -164,14 +165,22 @@ function searchVal() {
 		});
 		return ;
 	}*/
-	window.location.href="projectStocks?pageSize="+pageSize+"&search="+search;
-
+	window.location.href="projectStocks?pageSize="+pageSize+"&search="+search+"&projectName="+projectName;
 }
 function searchSize() {
 	
 	var pageSize = $("#pageSize").val();
+	var projectName = $("#projectName").val();
 	var search = $("#serach").val();
-	window.location.href="projectStocks?pageSize="+pageSize+"&search="+search;
+	window.location.href="projectStocks?pageSize="+pageSize+"&search="+search+"&projectName="+projectName;
+	
+}
+function searchByName(){
+	
+	var pageSize = $("#pageSize").val();
+	var projectName = $("#projectName").val();
+	var search = $("#serach").val();
+	window.location.href="projectStocks?pageSize="+pageSize+"&search="+search+"&projectName="+projectName;
 	
 }
 

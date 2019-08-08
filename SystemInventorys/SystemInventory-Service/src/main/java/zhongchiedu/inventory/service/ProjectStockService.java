@@ -2,6 +2,7 @@ package zhongchiedu.inventory.service;
 
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -17,7 +18,7 @@ import zhongchiedu.inventory.pojo.Supplier;
 
 public interface ProjectStockService extends GeneralService<ProjectStock> {
 	
-	public Pagination<ProjectStock> findpagination(Integer pageNo,Integer pageSize,String search);
+	public Pagination<ProjectStock> findpagination(Integer pageNo,Integer pageSize,String search,String projectName);
 	
 	public void saveOrUpdate(ProjectStock stock);
 	
@@ -44,6 +45,8 @@ public interface ProjectStockService extends GeneralService<ProjectStock> {
 	public HSSFWorkbook export(String name);
 	
 	public List<ProjectStock> findLowProjectStock(int num);
+	
+	public Set findProjectNames();
 	
 	
 	

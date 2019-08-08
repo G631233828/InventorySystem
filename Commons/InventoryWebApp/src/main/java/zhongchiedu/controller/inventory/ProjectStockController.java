@@ -3,6 +3,7 @@ package zhongchiedu.controller.inventory;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -34,13 +35,11 @@ import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.inventory.pojo.GoodsStorage;
 import zhongchiedu.inventory.pojo.ProjectStock;
 import zhongchiedu.inventory.pojo.Stock;
-import zhongchiedu.inventory.pojo.StockStatistics;
 import zhongchiedu.inventory.pojo.Supplier;
 import zhongchiedu.inventory.pojo.Unit;
 import zhongchiedu.inventory.service.Impl.ColumnServiceImpl;
 import zhongchiedu.inventory.service.Impl.GoodsStorageServiceImpl;
 import zhongchiedu.inventory.service.Impl.ProjectStockServiceImpl;
-import zhongchiedu.inventory.service.Impl.StockServiceImpl;
 import zhongchiedu.inventory.service.Impl.SupplierServiceImpl;
 import zhongchiedu.inventory.service.Impl.UnitServiceImpl;
 import zhongchiedu.log.annotation.SystemControllerLog;
@@ -71,14 +70,19 @@ public class ProjectStockController {
 	public String list(@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
 			@RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize, HttpSession session,
 			@ModelAttribute("errorImport") String errorImport,
-			@RequestParam(value = "search", defaultValue = "") String search) {
+			@RequestParam(value = "search", defaultValue = "") String search,
+			@RequestParam(value = "projectName", defaultValue = "") String projectName
+			) {
 		model.addAttribute("errorImport", errorImport);
-		Pagination<ProjectStock> pagination = this.projectStockService.findpagination(pageNo, pageSize, search);
+		Pagination<ProjectStock> pagination = this.projectStockService.findpagination(pageNo, pageSize, search,projectName);
 		model.addAttribute("pageList", pagination);
 		List<String> listColums = this.columnService.findColumns("projectStock");
 		model.addAttribute("listColums", listColums);
 		model.addAttribute("pageSize", pageSize);
 		model.addAttribute("search", search);
+		Set set = this.projectStockService.findProjectNames();
+		model.addAttribute("projectName", set);
+		model.addAttribute("selectProjectName", projectName);
 
 		return "admin/projectStock/list";
 	}
