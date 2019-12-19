@@ -37,6 +37,8 @@ public class Stock extends GeneralBean<Stock> {
 	private Supplier supplier;//供应商
 	private long inventory = 0; //库存量
 	
+	private boolean receivables = false;//项目应收款
+	
 	
 	
 	

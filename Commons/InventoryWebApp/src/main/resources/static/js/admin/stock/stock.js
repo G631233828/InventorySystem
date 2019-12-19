@@ -41,10 +41,10 @@ $().ready(function() {
 			/*	"goodsStorage.id" : {
 					required : true
 				},*/
-	/*			price : {
-					required : true
+				price : {
+					number:true
 				},
-				maintenance : {
+				/*		maintenance : {
 					required : true
 				},*/
 			/*	"supplier.id" : {
@@ -71,10 +71,10 @@ $().ready(function() {
 			/*	"goodsStorage.id" : {
 					required : a+ "请选择存放货架位置"
 				},*/
-	/*			price : {
+				price : {
 					required : a+ "请输入设备单价"
 				},
-				maintenance : {
+				/*		maintenance : {
 					required : a+ "请输入设备维保"
 				},*/
 			/*	"supplier.id" : {

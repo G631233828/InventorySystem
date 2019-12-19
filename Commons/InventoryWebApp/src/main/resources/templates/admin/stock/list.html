@@ -162,6 +162,8 @@
 													th:style="${#lists.contains(listColums,'goodsStorage')}?'':'display:none;'">货架号/层</th>
 												<th class="numeric price"
 													th:style="${#lists.contains(listColums,'price')}?'':'display:none;'">单价</th>
+												<th class="numeric receivables"
+													th:style="${#lists.contains(listColums,'receivables')}?'':'display:none;'">应收款</th>
 												<th class="numeric unit"
 													th:style="${#lists.contains(listColums,'unit')}?'':'display:none;'">计量单位</th>
 												<th class="numeric maintenance"
@@ -205,6 +207,8 @@
 														th:text="|${stock?.goodsStorage?.shelfNumber}/${stock?.goodsStorage?.shelflevel}|"></td>
 													<td class="numeric price" id="price"
 														th:style="${#lists.contains(listColums,'price')}?'':'display:none;'">[[${stock?.price}]]</td>
+													<td class="numeric receivables" id="receivables"
+														th:style="${#lists.contains(listColums,'receivables')}?'':'display:none;'">[[${stock?.receivables}?'是':'否']]</td>
 													<td class="numeric unit" id="unit"
 														th:style="${#lists.contains(listColums,'unit')}?'':'display:none;'">[[${stock?.unit?.name}]]</td>
 													<td class="numeric maintenance" id="maintenance"

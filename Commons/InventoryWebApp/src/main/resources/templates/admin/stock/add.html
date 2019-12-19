@@ -118,7 +118,7 @@
 												<label class="col-lg-1 control-label">单价：</label>
 												<div class="col-lg-6">
 													<input class="form-control" id="price"
-														placeholder="请输入设备单价" name="price"
+														placeholder="请输入设备单价" name="price" onkeyup="this.value=this.value.replace(/[^0-9\.]/g,'')"
 														th:value="${stock?.price}" >
 												</div>
 											</div>
@@ -132,6 +132,17 @@
 															th:selected="${stock!=null && stock?.unit !=null}?${stock?.unit?.id}==${unit?.id}"
 															th:each="unit:${units}" th:value="${unit?.id}"
 															th:text="${unit?.name}"></option>
+													</select>
+												</div>
+											</div>
+											
+											<div class="form-group">
+												<label class="col-lg-1 control-label">项目应收款：</label>
+												<div class="col-lg-6">
+													<select id="receivables" name="receivables" class="form-control" >
+														<option value="0">---请选择项目应收款---</option>
+														<option th:selected="${stock!=null&&stock.receivables!=null}?${stock.receivables}" value="1">是</option>
+														<option th:selected="${stock!=null&&stock.receivables!=null}?${stock.receivables == false}" value="0">否</option>
 													</select>
 												</div>
 											</div>

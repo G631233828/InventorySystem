@@ -579,14 +579,42 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			} else {
 				cell.setCellValue("");
 			}
+		
 
 			cell = row.createCell(5);
 			cell.setCellStyle(style);
+			if (Common.isNotEmpty(stock.getPrice())) {
+				cell.setCellValue(stock.getPrice());
+			} else {
+				cell.setCellValue("");
+			}
+			
+			
+			
+			cell = row.createCell(6);
+			cell.setCellStyle(style);
 			cell.setCellValue(stock.getInventory());
+			
+			cell = row.createCell(7);
+			cell.setCellStyle(style);
+			if (Common.isNotEmpty(stock.getInventory())&&Common.isNotEmpty(stock.getPrice())) {
+				cell.setCellValue(stock.getInventory()*Double.valueOf(stock.getPrice()));
+			} else {
+				cell.setCellValue("");
+			}
+			
+			cell = row.createCell(8);
+			cell.setCellStyle(style);
+			cell.setCellValue(stock.isReceivables()?"是":"否");
+
 			j++;
 		}
 
 	}
+	
+	
+	
+	
 
 	/**
 	 * 设置title
@@ -600,7 +628,10 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		list.add("使用范围");
 		list.add("货架号/层");
 		list.add("计量单位 ");
+		list.add("单价");
 		list.add("当前库存");
+		list.add("总价");
+		list.add("应收款");
 		return list;
 	}
 
