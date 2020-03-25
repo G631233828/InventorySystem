@@ -7,6 +7,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.bson.types.ObjectId;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -17,6 +18,7 @@ import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.Common;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralServiceImpl;
+import zhongchiedu.general.pojo.Resource;
 import zhongchiedu.inventory.pojo.Companys;
 import zhongchiedu.inventory.pojo.GoodsStorage;
 import zhongchiedu.inventory.service.GoodsStorageService;
@@ -60,8 +62,11 @@ public class GoodsStorageServiceImpl extends GeneralServiceImpl<GoodsStorage> im
 
 	@Override
 	@SystemServiceLog(description="获取所有非禁用货架信息")
-	public List<GoodsStorage> findAllGoodsStorage(boolean isdisable) {
+	public List<GoodsStorage> findAllGoodsStorage(boolean isdisable,String areaId) {
 		Query query = new Query();
+		if(Common.isNotEmpty(areaId)) {
+			query.addCriteria(Criteria.where("area.$id").is(new ObjectId(areaId)));
+		}
 		query.addCriteria(Criteria.where("isDisable").is(isdisable == true ? true : false));
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		return this.find(query, GoodsStorage.class);
@@ -91,11 +96,14 @@ public class GoodsStorageServiceImpl extends GeneralServiceImpl<GoodsStorage> im
 
 	@Override
 	@SystemServiceLog(description="分页查询货架信息")
-	public Pagination<GoodsStorage> findpagination(Integer pageNo, Integer pageSize) {
+	public Pagination<GoodsStorage> findpagination(Integer pageNo, Integer pageSize,String searchArea) {
 		// 分页查询数据
 		Pagination<GoodsStorage> pagination = null;
 		try {
 			Query query = new Query();
+			if(Common.isNotEmpty(searchArea)) {
+				query.addCriteria(Criteria.where("area.$id").is(new ObjectId(searchArea)));
+			}
 			query.addCriteria(Criteria.where("isDelete").is(false));
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, GoodsStorage.class);
 			if (pagination == null)
@@ -137,6 +145,14 @@ public class GoodsStorageServiceImpl extends GeneralServiceImpl<GoodsStorage> im
 		
 		return BasicDataResult.build(200, goodsStorage.getIsDisable().equals(true)?"禁用成功":"启用成功",goodsStorage.getIsDisable());
 		
+	}
+
+	public List<GoodsStorage> findStorages(String areaId) {
+		Query query= new Query();
+		query.addCriteria(Criteria.where("area.$id").is(new ObjectId(areaId)));
+		query.addCriteria(Criteria.where("isDisable").is(false));
+		List<GoodsStorage> list = this.find(query,GoodsStorage.class);
+		return list.size()>0?list:null;
 	}
 
 

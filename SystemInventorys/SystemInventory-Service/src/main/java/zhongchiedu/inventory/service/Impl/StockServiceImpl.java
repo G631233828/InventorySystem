@@ -98,8 +98,11 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 	@Override
 	@SystemServiceLog(description="获取所有非禁用库存信息")
-	public List<Stock> findAllStock(boolean isdisable) {
+	public List<Stock> findAllStock(boolean isdisable,String areaId) {
 		Query query = new Query();
+		if(Common.isNotEmpty(areaId)) {
+			query.addCriteria(Criteria.where("area.$id").is(new ObjectId(areaId)));
+		}
 		query.addCriteria(Criteria.where("isDisable").is(isdisable == true ? true : false));
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		return this.find(query, Stock.class);
@@ -129,11 +132,15 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 	@Override
 	@SystemServiceLog(description="分页查询库存信息")
-	public Pagination<Stock> findpagination(Integer pageNo, Integer pageSize, String search) {
+	public Pagination<Stock> findpagination(Integer pageNo, Integer pageSize, String search,String searchArea) {
 		// 分页查询数据
 		Pagination<Stock> pagination = null;
 		try {
 			Query query = new Query();
+			
+			if(Common.isNotEmpty(searchArea)) {
+				query = query.addCriteria(Criteria.where("area.$id").is(new ObjectId(searchArea)));
+			}
 
 			if (Common.isNotEmpty(search)) {
 				query = this.findbySearch(search, query);
@@ -283,15 +290,23 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 	@Override
 	@SystemServiceLog(description="根据名称查询库存信息")
-	public BasicDataResult ajaxgetRepletes(String name) {
-		if (Common.isNotEmpty(name)) {
+	public BasicDataResult ajaxgetRepletes(String name,String areaId,String model) {
 			Query query = new Query();
-			query.addCriteria(Criteria.where("name").is(name));
+			
+			query.addCriteria(Criteria.where("area.$id").is(new ObjectId(areaId)));
+			query.addCriteria(Criteria.where("model").is(model));
 			query.addCriteria(Criteria.where("isDelete").is(false));
+			if(Common.isNotEmpty(name)) {
+				query.addCriteria(Criteria.where("name").is(name));
+			}
+			if(Common.isNotEmpty(areaId)) {
+				query.addCriteria(Criteria.where("area.$id").is(new ObjectId(areaId)));
+			}
+			if(Common.isNotEmpty(model)) {
+				query.addCriteria(Criteria.where("model").is(model));
+			}
 			Stock stock = this.findOneByQuery(query, Stock.class);
 			return stock != null ? BasicDataResult.build(206, "当前供应商信息已经存在，请检查", null) : BasicDataResult.ok();
-		}
-		return BasicDataResult.build(400, "未能获取到请求的信息", null);
 	}
 
 	@Override
@@ -470,7 +485,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 	@Override
 	@SystemServiceLog(description="导出库存信息")
-	public HSSFWorkbook export(String name) {
+	public HSSFWorkbook export(String name,String areaId) {
 		HSSFWorkbook wb = new HSSFWorkbook();
 
 		// 创建sheet
@@ -479,7 +494,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		List<String> title = this.title();
 		this.createHead(sheet, title, style, name);
 		this.createTitle(sheet, title, style);
-		this.createStock(sheet, title, style);
+		this.createStock(sheet, title, style,areaId);
 		sheet.setDefaultColumnWidth(12);
 		sheet.autoSizeColumn(1, true);
 		return wb;
@@ -515,10 +530,12 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	 */
 	public void createHead(HSSFSheet sheet, List<String> title, HSSFCellStyle style, String name) {
 		HSSFRow row = sheet.createRow(0);// 初始化excel第一行
-		for (int a = 0; a < title.size(); a++) {
-			HSSFCell cell = row.createCell(a);
-			cell.setCellValue(name);
-			sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, title.size() - 1));
+		HSSFCell cell = row.createCell(0);
+		cell.setCellValue(name);
+		cell.setCellStyle(style);
+		sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, title.size() - 1));
+		for (int a = 1; a < title.size(); a++) {
+			cell = row.createCell(a);
 			cell.setCellStyle(style);
 		}
 	}
@@ -542,28 +559,33 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	 * 
 	 * @param sheet
 	 */
-	public void createStock(HSSFSheet sheet, List<String> title, HSSFCellStyle style) {
+	public void createStock(HSSFSheet sheet, List<String> title, HSSFCellStyle style,String areaId) {
 
 		int j = 1;
 		// 获取所有的库存
-		List<Stock> list = this.findAllStock(false);
+		List<Stock> list = this.findAllStock(false,areaId);
 
 		for (Stock stock : list) {
 			// 获取所有的设备
 			HSSFRow row = sheet.createRow(j + 1);
+			
 			HSSFCell cell = row.createCell(0);
+			cell.setCellStyle(style);
+			cell.setCellValue(stock.getArea().getName());
+			
+			cell = row.createCell(1);
 			cell.setCellStyle(style);
 			cell.setCellValue(stock.getName());
 
-			cell = row.createCell(1);
+			cell = row.createCell(2);
 			cell.setCellStyle(style);
 			cell.setCellValue(stock.getModel());
 
-			cell = row.createCell(2);
+			cell = row.createCell(3);
 			cell.setCellStyle(style);
 			cell.setCellValue(stock.getScope());
 
-			cell = row.createCell(3);
+			cell = row.createCell(4);
 			cell.setCellStyle(style);
 			if (Common.isNotEmpty(stock.getGoodsStorage())) {
 				cell.setCellValue(
@@ -572,7 +594,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				cell.setCellValue("-/-");
 
 			}
-			cell = row.createCell(4);
+			cell = row.createCell(5);
 			cell.setCellStyle(style);
 			if (Common.isNotEmpty(stock.getUnit())) {
 				cell.setCellValue(stock.getUnit().getName());
@@ -581,7 +603,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			}
 		
 
-			cell = row.createCell(5);
+			cell = row.createCell(6);
 			cell.setCellStyle(style);
 			if (Common.isNotEmpty(stock.getPrice())) {
 				cell.setCellValue(stock.getPrice());
@@ -591,11 +613,11 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			
 			
 			
-			cell = row.createCell(6);
+			cell = row.createCell(7);
 			cell.setCellStyle(style);
 			cell.setCellValue(stock.getInventory());
 			
-			cell = row.createCell(7);
+			cell = row.createCell(8);
 			cell.setCellStyle(style);
 			if (Common.isNotEmpty(stock.getInventory())&&Common.isNotEmpty(stock.getPrice())) {
 				cell.setCellValue(stock.getInventory()*Double.valueOf(stock.getPrice()));
@@ -603,7 +625,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				cell.setCellValue("");
 			}
 			
-			cell = row.createCell(8);
+			cell = row.createCell(9);
 			cell.setCellStyle(style);
 			cell.setCellValue(stock.isReceivables()?"是":"否");
 
@@ -623,6 +645,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	 */
 	public List<String> title() {
 		List<String> list = new ArrayList<>();
+		list.add("区域");
 		list.add("设备名称");
 		list.add("品名型号");
 		list.add("使用范围");

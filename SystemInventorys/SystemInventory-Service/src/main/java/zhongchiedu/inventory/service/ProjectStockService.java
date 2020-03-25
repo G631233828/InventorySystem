@@ -18,13 +18,13 @@ import zhongchiedu.inventory.pojo.Supplier;
 
 public interface ProjectStockService extends GeneralService<ProjectStock> {
 	
-	public Pagination<ProjectStock> findpagination(Integer pageNo,Integer pageSize,String search,String projectName);
+	public Pagination<ProjectStock> findpagination(Integer pageNo,Integer pageSize,String search,String projectName,String searchArea);
 	
-	public void saveOrUpdate(ProjectStock stock);
+	public void saveOrUpdate(ProjectStock stock,String areaId);
 	
 	public BasicDataResult disable(String id);
 	
-	public List<ProjectStock> findAllProjectStock(boolean isdisable);
+	public List<ProjectStock> findAllProjectStock(boolean isdisable,String areaId);
 	
 	public String delete(String id);
 	
@@ -42,7 +42,7 @@ public interface ProjectStockService extends GeneralService<ProjectStock> {
 	
 	public BasicDataResult findOneById(String id);
 	
-	public HSSFWorkbook export(String name);
+	public HSSFWorkbook export(String name,String areaId);
 	
 	public List<ProjectStock> findLowProjectStock(int num);
 	

@@ -69,6 +69,8 @@
                                             <tr>
                                                 <td class="numeric">客户</td>
                                                 <td class="numeric" onclick="return selectColumn('customer');"><input type="checkbox" th:checked="${#lists.contains(listColums,'customer')}?'checked':'false'" id="ch_customer"></td>
+                                            <td class="numeric">区域</td>
+                                                <td class="numeric" onclick="return selectColumn('area');"><input type="checkbox" th:checked="${#lists.contains(listColums,'area')}?'checked':'false'" id="ch_area"></td>
                                             </tr>
                                            
                                         </tbody>

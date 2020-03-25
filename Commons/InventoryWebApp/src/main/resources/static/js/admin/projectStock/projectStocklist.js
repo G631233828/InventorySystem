@@ -156,7 +156,7 @@ function searchVal() {
 	var pageSize = $("#pageSize").val();
 	var search = $("#serach").val();
 	var projectName = $("#projectName").val();
-
+	var searchArea = $("#searchArea").val();
 /*	if (search == null || search == "") {
 		swal({
 			type : "warning",
@@ -165,24 +165,24 @@ function searchVal() {
 		});
 		return ;
 	}*/
-	window.location.href="projectStocks?pageSize="+pageSize+"&search="+search+"&projectName="+projectName;
+	window.location.href="projectStocks?pageSize="+pageSize+"&search="+search+"&projectName="+projectName+"&searchArea="+searchArea;
 }
-function searchSize() {
-	
-	var pageSize = $("#pageSize").val();
-	var projectName = $("#projectName").val();
-	var search = $("#serach").val();
-	window.location.href="projectStocks?pageSize="+pageSize+"&search="+search+"&projectName="+projectName;
-	
-}
-function searchByName(){
-	
-	var pageSize = $("#pageSize").val();
-	var projectName = $("#projectName").val();
-	var search = $("#serach").val();
-	window.location.href="projectStocks?pageSize="+pageSize+"&search="+search+"&projectName="+projectName;
-	
-}
+//function searchSize() {
+//	
+//	var pageSize = $("#pageSize").val();
+//	var projectName = $("#projectName").val();
+//	var search = $("#serach").val();
+//	window.location.href="projectStocks?pageSize="+pageSize+"&search="+search+"&projectName="+projectName;
+//	
+//}
+//function searchByName(){
+//	
+//	var pageSize = $("#pageSize").val();
+//	var projectName = $("#projectName").val();
+//	var search = $("#serach").val();
+//	window.location.href="projectStocks?pageSize="+pageSize+"&search="+search+"&projectName="+projectName;
+//	
+//}
 
 
 
@@ -198,7 +198,9 @@ function toExport(){
 	    'content' : "正在导出请稍等...",
 	    'closeTime' : 5000,
 	})
-	window.location.href = "projectStock/export";
+	
+		var areaId = $("#searchArea").val();
+	window.location.href = "projectStock/export?areaId="+areaId;
 }
 
 

@@ -46,5 +46,6 @@ public class ProjectStock extends GeneralBean<ProjectStock> {
 	
 	private Integer num=0;//出库数量
 	private Integer inventory = 0; //库存量
-
+	@DBRef
+	private Area area; //区域
 }

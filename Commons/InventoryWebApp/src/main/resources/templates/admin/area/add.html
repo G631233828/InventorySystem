@@ -42,7 +42,7 @@
 
 						<div style="margin: -20px 15px;" class="nest" id="Blank_PageClose">
 							<div class="title-alt">
-								<h6>货架管理</h6>
+								<h6>区域管理</h6>
 								<div class="titleClose">
 									<a class="gone" href="#Blank_PageClose"> <span
 										class="entypo-cancel"></span>
@@ -62,77 +62,24 @@
 									<!-- edit form column -->
 									<div class="col-md-12 personal-info">
 										<form class="form-horizontal" enctype="multipart/form-data"
-											id="goodsStorageForm" th:action="@{/goodsStorage}"
+											id="areaForm" th:action="@{/area}"
 											method="post">
 											<input type="hidden" name="_method" value="put"
-												th:if="${goodsStorage!=null}" /> <input type="hidden"
-												name="id" th:if="${goodsStorage!=null}"
-												th:value="${goodsStorage.id}">
+												th:if="${area!=null}" /> <input type="hidden"
+												name="id" th:if="${area!=null}"
+												th:value="${area.id}">
 												
-												
-												
-											<div class="form-group">
-												<label class="col-lg-1 control-label">所属企业：</label>
-												<div class="col-lg-6">
-													<div class="ui-select">
-														<select id="companys" name="companys.id" required="required"
-															class="form-control">
-															<option value="">---请选择所属企业---</option>
-															<option th:if="${company!=null}" th:value="${company.id}"
-																th:text="${company.name}"
-																th:selected="${goodsStorage!=null}?${goodsStorage.companys.id}==${company.id}"
-																th:each="company:${companys}">
-														</select>
-													</div>
-												</div>
-											</div>
-											
-											
-													
-											<div class="form-group">
-												<label class="col-lg-1 control-label">区域：</label>
-												<div class="col-lg-6">
 
-													<select id="area" name="area.id" class="form-control" required="required">
-														<option value="">---请选择区域---</option>
-														<option
-															th:selected="${goodsStorage!=null && goodsStorage?.area !=null}?${goodsStorage?.area?.id}==${area?.id}"
-															th:each="area:${areas}" th:value="${area?.id}"
-															th:text="${area?.name}"></option>
-													</select>
-												</div>
-											</div>
-
+											<input type="hidden" id="oldname" th:value="${area?.name}">
 											<div class="form-group">
-												<label class="col-lg-1 control-label">货架地址：</label>
+												<label class="col-lg-1 control-label">区域名称：</label>
 												<div class="col-lg-6">
-													<input class="form-control" id="address"
-														placeholder="请输入货架地址" name="address"
-														th:value="${goodsStorage?.address}" required="required">
-												</div>
-											</div>
-											<div class="form-group">
-												<label class="col-lg-1 control-label">货架号：</label>
-												<div class="col-lg-6">
-													<input class="form-control" id="shelfNumber" onkeyup="return checkshelf()"
-														placeholder="请输入货架号" name="shelfNumber"
-														th:value="${goodsStorage?.shelfNumber}"
-														required="required">
+													<input class="form-control" id="name"
+														placeholder="请输入区域名称" name="name"
+														th:value="${area?.name}" required="required">
 												</div>
 											</div>
 	
-											<input type="hidden" id="oldshelflevel" th:value="${goodsStorage?.shelflevel}">
-											<div class="form-group">
-												<label class="col-lg-1 control-label">货架层：</label>
-												<div class="col-lg-6">
-													<input class="form-control" id="shelflevel"
-														placeholder="请输入货架层" name="shelflevel"
-														th:value="${goodsStorage?.shelflevel}" required="required">
-												</div>
-											</div>
-
-
-
 
 											<div class="form-group">
 												<label class="col-lg-1 control-label">使用状态：</label>
@@ -141,9 +88,9 @@
 														<select name="isDisable" id="isDisable"
 															class="form-control" required>
 															<option value="false"
-																th:selected="${goodsStorage?.isDisable eq false}">启用中</option>
+																th:selected="${area?.isDisable eq false}">启用中</option>
 															<option value="true"
-																th:selected="${goodsStorage?.isDisable eq true}">禁用中</option>
+																th:selected="${area?.isDisable eq true}">禁用中</option>
 														</select>
 													</div>
 												</div>
@@ -154,8 +101,8 @@
 												<label class="col-lg-1 control-label"></label>
 												<div class="col-md-8">
 													<button type="submit" class="btn btn-success"
-														th:text="${goodsStorage!=null?'修改':'添加'}"></button>
-													<span></span> <input th:if="${goodsStorage} eq null"
+														th:text="${area!=null?'修改':'添加'}"></button>
+													<span></span> <input th:if="${area} eq null"
 														class="btn btn-default" value="重置" type="reset">
 												</div>
 											</div>
@@ -180,19 +127,18 @@
 	<!-- 右侧隐藏菜单end-->
 	<!-- 底部js -->
 	<div th:replace="public/public_js::pub_js"></div>
-
+	<div th:replace="public/public::myModal"></div>
 
 
 	<div th:replace="public/public_js::public_script"></div>
 	<div th:replace="public/public::footer"></div>
-	<div th:replace="public/public::myModal"></div>
 	<!-- Jquery Validate -->
 	<script type="text/javascript"
 		th:src="@{/plugs/validate/jquery.validate.min.js}"></script>
 	<script type="text/javascript"
 		th:src="@{/plugs/validate/messages_zh.min.js}"></script>
 	<script type="text/javascript" th:inline="javascript"
-		th:src="@{/js/admin/goodsStorage/goodsStorage.js}"></script>
+		th:src="@{/js/admin/area/area.js}"></script>
 	<div th:replace="public/public_js::validator"></div>
 
 

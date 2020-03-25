@@ -26,5 +26,7 @@ public class GoodsStorage extends GeneralBean<GoodsStorage> {
 	private String shelflevel;
 	@DBRef
 	private Companys companys;
+	@DBRef
+	private Area area;
 
 }

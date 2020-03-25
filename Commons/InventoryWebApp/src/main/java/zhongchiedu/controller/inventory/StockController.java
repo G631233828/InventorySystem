@@ -31,11 +31,12 @@ import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.Common;
 import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.framework.pagination.Pagination;
+import zhongchiedu.inventory.pojo.Area;
 import zhongchiedu.inventory.pojo.GoodsStorage;
 import zhongchiedu.inventory.pojo.Stock;
-import zhongchiedu.inventory.pojo.StockStatistics;
 import zhongchiedu.inventory.pojo.Supplier;
 import zhongchiedu.inventory.pojo.Unit;
+import zhongchiedu.inventory.service.Impl.AreaServiceImpl;
 import zhongchiedu.inventory.service.Impl.ColumnServiceImpl;
 import zhongchiedu.inventory.service.Impl.GoodsStorageServiceImpl;
 import zhongchiedu.inventory.service.Impl.StockServiceImpl;
@@ -63,20 +64,27 @@ public class StockController {
 
 	private @Autowired UnitServiceImpl unitService;
 
+	private @Autowired AreaServiceImpl areaService;
+
 	@GetMapping("stocks")
 	@RequiresPermissions(value = "stock:list")
 	@SystemControllerLog(description = "查询所有库存管理")
 	public String list(@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
 			@RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize, HttpSession session,
 			@ModelAttribute("errorImport") String errorImport,
-			@RequestParam(value = "search", defaultValue = "") String search) {
+			@RequestParam(value = "search", defaultValue = "") String search,
+			@RequestParam(value = "searchArea", defaultValue = "") String searchArea) {
+		// 区域
+		List<Area> areas = this.areaService.findAllArea(false);
+		model.addAttribute("areas", areas);
 		model.addAttribute("errorImport", errorImport);
-		Pagination<Stock> pagination = this.stockService.findpagination(pageNo, pageSize, search);
+		Pagination<Stock> pagination = this.stockService.findpagination(pageNo, pageSize, search, searchArea);
 		model.addAttribute("pageList", pagination);
 		List<String> listColums = this.columnService.findColumns("stock");
 		model.addAttribute("listColums", listColums);
 		model.addAttribute("pageSize", pageSize);
 		model.addAttribute("search", search);
+		model.addAttribute("searchArea", searchArea);
 
 		return "admin/stock/list";
 	}
@@ -87,12 +95,15 @@ public class StockController {
 	@GetMapping("/stock")
 	@RequiresPermissions(value = "stock:add")
 	public String addPage(Model model) {
-		// 所有货架
-		List<GoodsStorage> list = this.goodsStorageService.findAllGoodsStorage(false);
-		model.addAttribute("goodsStorages", list);
+//		// 所有货架
+//		List<GoodsStorage> list = this.goodsStorageService.findAllGoodsStorage(false);
+//		model.addAttribute("goodsStorages", list);
 		// 所有供应商
 		List<Supplier> syslist = this.supplierService.findAllSupplier(false);
 		model.addAttribute("suppliers", syslist);
+		// 区域
+		List<Area> areas = this.areaService.findAllArea(false);
+		model.addAttribute("areas", areas);
 		// 计量单位
 		List<Unit> listUnits = this.unitService.findAllUnit(false);
 		model.addAttribute("units", listUnits);
@@ -127,12 +138,18 @@ public class StockController {
 	public String toeditPage(@PathVariable String id, Model model) {
 		Stock stock = this.stockService.findOneById(id, Stock.class);
 		model.addAttribute("stock", stock);
+		
 		// 所有货架
-		List<GoodsStorage> list = this.goodsStorageService.findAllGoodsStorage(false);
+		List<GoodsStorage> list = this.goodsStorageService.findAllGoodsStorage(false,stock.getArea().getId());
 		model.addAttribute("goodsStorages", list);
+		
+		
 		// 所有供应商
 		List<Supplier> syslist = this.supplierService.findAllSupplier(false);
 		model.addAttribute("suppliers", syslist);
+		// 区域
+		List<Area> areas = this.areaService.findAllArea(false);
+		model.addAttribute("areas", areas);
 		// 计量单位
 		List<Unit> listUnits = this.unitService.findAllUnit(false);
 		model.addAttribute("units", listUnits);
@@ -159,10 +176,29 @@ public class StockController {
 	 */
 	@RequestMapping(value = "/stock/ajaxgetRepletes", method = RequestMethod.POST)
 	@ResponseBody
-	public BasicDataResult ajaxgetRepletes(@RequestParam(value = "name", defaultValue = "") String name) {
-		return this.stockService.ajaxgetRepletes(name);
+	public BasicDataResult ajaxgetRepletes(@RequestParam(value = "name", defaultValue = "") String name,@RequestParam(value = "areaId", defaultValue = "") String areaId,@RequestParam(value = "model", defaultValue = "") String model) {
+		return this.stockService.ajaxgetRepletes(name,areaId,model);
 	}
 
+	
+	
+	/**
+	 * 根据选择的目录获取菜单
+	 * @param parentId
+	 * @return
+	 */
+	@RequestMapping(value="/getStorages",method=RequestMethod.POST,produces="application/json;charset=UTF-8")
+	@ResponseBody
+	public BasicDataResult getparentmenu(@RequestParam(value = "areaId", defaultValue = "") String areaId){
+
+		List<GoodsStorage> list = this.goodsStorageService.findStorages(areaId);
+		
+		return list!=null?BasicDataResult.build(200, "success",list):BasicDataResult.build(400, "error",null);
+	}
+	
+	
+	
+	
 	@RequestMapping(value = "/stock/disable", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public BasicDataResult toDisable(@RequestParam(value = "id", defaultValue = "") String id) {
@@ -237,22 +273,26 @@ public class StockController {
 	/**
 	 * 导出excel
 	 */
-	@RequestMapping(value="/stock/export")
-	public void exportStock(HttpServletResponse response) {
-			try{
-				response.setContentType("application/vnd.ms-excel");
-				String name = Common.fromDateYM()+"库存报表";
-				String fileName = new String((name).getBytes("gb2312"), "ISO8859-1");
-				HSSFWorkbook wb = this.stockService.export(name);
-				response.setHeader("Content-disposition", "attachment;filename=" + fileName+".xls");
-				OutputStream ouputStream = response.getOutputStream();
-				wb.write(ouputStream);
-				ouputStream.flush();
-				ouputStream.close();
-			}catch(IOException e){
-				e.printStackTrace();
-			}
-			
+	@RequestMapping(value = "/stock/export")
+	public void exportStock(HttpServletResponse response,@RequestParam(value = "areaId", defaultValue = "") String areaId) {
+		try {
+			response.setContentType("application/vnd.ms-excel");
+			String name = Common.fromDateYM() + "库存报表";
+			String fileName = new String((name).getBytes("gb2312"), "ISO8859-1");
+			HSSFWorkbook wb = this.stockService.export(name,areaId);
+			response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xls");
+			OutputStream ouputStream = response.getOutputStream();
+			wb.write(ouputStream);
+			ouputStream.flush();
+			ouputStream.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 	}
+	
+	
+	
+	
 
 }

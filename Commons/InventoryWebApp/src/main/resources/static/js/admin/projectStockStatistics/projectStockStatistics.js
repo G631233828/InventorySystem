@@ -16,13 +16,13 @@ function searchVal() {
 	var start = $("#start").val();
 	var end = $("#end").val();
 	var type = $("#type").val();
-	
+	var searchArea = $("#searchArea").val();
 	/*
 	 * if (search == null || search == "") { swal({ type : "warning", title :
 	 * "", text : "查询内容不能为空!!", }); return ; }
 	 */
 	window.location.href = "projectStockStatisticss?pageSize=" + pageSize + "&search="
-			+ search + "&start=" + start + "&end=" + end + "&type=" + type;
+			+ search + "&start=" + start + "&end=" + end + "&type=" + type+"&searchArea="+searchArea;
 }
 // function searchSize() {
 //	
@@ -48,7 +48,8 @@ function toExport(){
 	    'content' : "正在导出请稍等...",
 	    'closeTime' : 5000,
 	})
-	window.location.href = "projectStockStatistics/export?search="+search+"&start="+start+"&end="+end+"&type="+type;
+	var areaId = $("#searchArea").val();
+	window.location.href = "projectStockStatistics/export?search="+search+"&start="+start+"&end="+end+"&type="+type+"&areaId="+areaId;;
 	
 }
 

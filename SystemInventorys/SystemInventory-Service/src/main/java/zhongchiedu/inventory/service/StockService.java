@@ -17,17 +17,17 @@ import zhongchiedu.inventory.pojo.StockStatistics;
 
 public interface StockService extends GeneralService<Stock> {
 	
-	public Pagination<Stock> findpagination(Integer pageNo,Integer pageSize,String search);
+	public Pagination<Stock> findpagination(Integer pageNo,Integer pageSize,String search,String searchArea);
 	
 	public void saveOrUpdate(Stock stock);
 	
 	public BasicDataResult disable(String id);
 	
-	public List<Stock> findAllStock(boolean isdisable);
+	public List<Stock> findAllStock(boolean isdisable,String areaId);
 	
 	public String delete(String id);
 	
-	public BasicDataResult ajaxgetRepletes(String name);
+	public BasicDataResult ajaxgetRepletes(String name,String areaId,String model);
 	
 	public BasicDataResult todisable(String id);
 	
@@ -41,7 +41,7 @@ public interface StockService extends GeneralService<Stock> {
 	
 	public BasicDataResult findOneById(String id);
 	
-	public HSSFWorkbook export(String name);
+	public HSSFWorkbook export(String name,String areaId);
 	
 	public List<Stock> findLowStock(int num);
 	

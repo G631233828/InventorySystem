@@ -23,7 +23,9 @@ import lombok.extern.slf4j.Slf4j;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.Common;
 import zhongchiedu.framework.pagination.Pagination;
+import zhongchiedu.inventory.pojo.Area;
 import zhongchiedu.inventory.pojo.StockStatistics;
+import zhongchiedu.inventory.service.Impl.AreaServiceImpl;
 import zhongchiedu.inventory.service.Impl.ColumnServiceImpl;
 import zhongchiedu.inventory.service.Impl.StockServiceImpl;
 import zhongchiedu.inventory.service.Impl.StockStatisticsServiceImpl;
@@ -45,6 +47,8 @@ public class StockStatisticsController {
 
 	private @Autowired ColumnServiceImpl columnService;
 
+	private @Autowired AreaServiceImpl areaService;
+
 	@GetMapping("stockStatisticss")
 	@RequiresPermissions(value = "stockStatistics:list")
 	@SystemControllerLog(description = "查询库存统计")
@@ -54,10 +58,14 @@ public class StockStatisticsController {
 			@RequestParam(value = "start", defaultValue = "") String start,
 			@RequestParam(value = "end", defaultValue = "") String end,
 			@RequestParam(value = "type", defaultValue = "") String type,
-			@RequestParam(value = "id", defaultValue = "") String id) {
-
+			@RequestParam(value = "id", defaultValue = "") String id,
+			@RequestParam(value = "searchArea", defaultValue = "") String searchArea
+			) {
+		// 区域
+		List<Area> areas = this.areaService.findAllArea(false);
+		model.addAttribute("areas", areas);
 		Pagination<StockStatistics> pagination = this.stockStatisticsService.findpagination(pageNo, pageSize, search,
-				start, end, type, id);
+				start, end, type, id,searchArea);
 		model.addAttribute("pageList", pagination);
 		List<String> listColums = this.columnService.findColumns("stockStatistics");
 		model.addAttribute("listColums", listColums);
@@ -67,6 +75,7 @@ public class StockStatisticsController {
 		model.addAttribute("id", id);
 		model.addAttribute("type", type);
 		model.addAttribute("pageSize", pageSize);
+		model.addAttribute("searchArea", searchArea);
 		return "admin/stockStatistics/list";
 	}
 
@@ -80,7 +89,7 @@ public class StockStatisticsController {
 
 	@RequestMapping(value = "/stockStatistics/out", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	 @RequiresPermissions(value = "stockStatistics:out")
+	@RequiresPermissions(value = "stockStatistics:out")
 	@SystemControllerLog(description = "设备出库")
 	public BasicDataResult out(@ModelAttribute("stockStatistics") StockStatistics stockStatistics,
 			HttpSession session) {
@@ -120,7 +129,9 @@ public class StockStatisticsController {
 			@RequestParam(value = "start", defaultValue = "") String start,
 			@RequestParam(value = "end", defaultValue = "") String end,
 			@RequestParam(value = "type", defaultValue = "") String type,
-			@RequestParam(value = "id", defaultValue = "") String id, HttpServletResponse response) {
+			@RequestParam(value = "id", defaultValue = "") String id,
+			@RequestParam(value = "areaId", defaultValue = "") String areaId,
+			HttpServletResponse response) {
 		try {
 
 			String name = "";
@@ -131,12 +142,12 @@ public class StockStatisticsController {
 			} else {
 				name = "出库入库统计记录";
 			}
-			String exportName = Common.fromDateYMD()+name;
+			String exportName = Common.fromDateYMD() + name;
 
-			HSSFWorkbook wb = this.stockStatisticsService.export(search, start, end, type, exportName);
+			HSSFWorkbook wb = this.stockStatisticsService.export(search, start, end, type, exportName,areaId);
 			response.setContentType("application/vnd.ms-excel");
 			String fileName = new String((exportName).getBytes("gb2312"), "ISO8859-1");
-			response.setHeader("Content-disposition", "attachment;filename=" + fileName+".xls");
+			response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xls");
 			OutputStream ouputStream = response.getOutputStream();
 			wb.write(ouputStream);
 			ouputStream.flush();

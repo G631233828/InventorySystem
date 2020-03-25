@@ -39,9 +39,11 @@ import zhongchiedu.common.utils.ExcelReadUtil;
 import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralServiceImpl;
+import zhongchiedu.inventory.pojo.Area;
 import zhongchiedu.inventory.pojo.ProcessInfo;
 import zhongchiedu.inventory.pojo.ProjectStock;
 import zhongchiedu.inventory.pojo.Supplier;
+import zhongchiedu.inventory.service.AreaService;
 import zhongchiedu.inventory.service.ProjectStockService;
 import zhongchiedu.log.annotation.SystemServiceLog;
 
@@ -50,12 +52,17 @@ import zhongchiedu.log.annotation.SystemServiceLog;
 public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> implements ProjectStockService {
 
 	private @Autowired SupplierServiceImpl supplierService;
+	
+	private @Autowired AreaService areaService;
 
 	@Override
 	@SystemServiceLog(description = "编辑项目库存信息")
-	public void saveOrUpdate(ProjectStock stock) {
+	public void saveOrUpdate(ProjectStock stock,String areaId) {
 		if (Common.isNotEmpty(stock)) {
-
+			if(Common.isNotEmpty(areaId)) {
+				Area area = this.areaService.findOneById(areaId, Area.class);
+				stock.setArea(area);
+			}
 			if (Common.isNotEmpty(stock.getId())) {
 				// update
 				// 更新预计采购数量、预计采购单价
@@ -127,8 +134,11 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 
 	@Override
 	@SystemServiceLog(description = "获取所有非禁用项目库存信息")
-	public List<ProjectStock> findAllProjectStock(boolean isdisable) {
+	public List<ProjectStock> findAllProjectStock(boolean isdisable,String areaId) {
 		Query query = new Query();
+		if(Common.isNotEmpty(areaId)) {
+			query.addCriteria(Criteria.where("area.$id").is(new ObjectId(areaId)));
+		}
 		query.addCriteria(Criteria.where("isDisable").is(isdisable == true ? true : false));
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		return this.find(query, ProjectStock.class);
@@ -159,11 +169,14 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 	@Override
 	@SystemServiceLog(description = "分页查询项目库存信息")
 	public Pagination<ProjectStock> findpagination(Integer pageNo, Integer pageSize, String search,
-			String projectName) {
+			String projectName,String searchArea) {
 		// 分页查询数据
 		Pagination<ProjectStock> pagination = null;
 		try {
 			Query query = new Query();
+			if(Common.isNotEmpty(searchArea)) {
+				query = query.addCriteria(Criteria.where("area.$id").is(new ObjectId(searchArea)));
+			}
 			query = this.findbySearch(search, projectName, query);
 			query.addCriteria(Criteria.where("isDelete").is(false));
 			query.with(new Sort(new Order(Direction.DESC, "createTime")));
@@ -534,7 +547,7 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 
 	@Override
 	@SystemServiceLog(description = "导出项目库存信息")
-	public HSSFWorkbook export(String name) {
+	public HSSFWorkbook export(String name,String areaId) {
 		HSSFWorkbook wb = new HSSFWorkbook();
 
 		// 创建sheet
@@ -543,7 +556,7 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 		List<String> title = this.title();
 		this.createHead(sheet, title, style, name);
 		this.createTitle(sheet, title, style);
-		this.createProjectStock(sheet, title, style);
+		this.createProjectStock(sheet, title, style,areaId);
 		sheet.setDefaultColumnWidth(12);
 		sheet.autoSizeColumn(1, true);
 		return wb;
@@ -579,10 +592,12 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 	 */
 	public void createHead(HSSFSheet sheet, List<String> title, HSSFCellStyle style, String name) {
 		HSSFRow row = sheet.createRow(0);// 初始化excel第一行
-		for (int a = 0; a < title.size(); a++) {
-			HSSFCell cell = row.createCell(a);
-			cell.setCellValue(name);
-			sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, title.size() - 1));
+		HSSFCell cell = row.createCell(0);
+		cell.setCellValue(name);
+		cell.setCellStyle(style);
+		sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, title.size() - 1));
+		for (int a = 1; a < title.size(); a++) {
+			cell = row.createCell(a);
 			cell.setCellStyle(style);
 		}
 	}
@@ -606,68 +621,73 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 	 * 
 	 * @param sheet
 	 */
-	public void createProjectStock(HSSFSheet sheet, List<String> title, HSSFCellStyle style) {
+	public void createProjectStock(HSSFSheet sheet, List<String> title, HSSFCellStyle style,String areaId) {
 
 		int j = 1;
 		// 获取所有的项目库存
-		List<ProjectStock> list = this.findAllProjectStock(false);
+		List<ProjectStock> list = this.findAllProjectStock(false,areaId);
 		for (ProjectStock stock : list) {
 			// 获取所有的设备
 			HSSFRow row = sheet.createRow(j + 1);
 
 			HSSFCell cell = row.createCell(0);
 			cell.setCellStyle(style);
-			cell.setCellValue(stock.getProjectName());// 项目名称
-
+			cell.setCellValue(stock.getArea().getName());// 项目名称
+			
 			cell = row.createCell(1);
 			cell.setCellStyle(style);
-			cell.setCellValue(Common.isNotEmpty(stock.getSupplier()) ? stock.getSupplier().getName() : "");// 供应商
+			cell.setCellValue(stock.getProjectName());// 项目名称
+
 
 			cell = row.createCell(2);
 			cell.setCellStyle(style);
-			cell.setCellValue(stock.getName());// 设备名称
+			cell.setCellValue(Common.isNotEmpty(stock.getSupplier()) ? stock.getSupplier().getName() : "");// 供应商
 
 			cell = row.createCell(3);
 			cell.setCellStyle(style);
-			cell.setCellValue(stock.getModel());// 型号
+			cell.setCellValue(stock.getName());// 设备名称
 
 			cell = row.createCell(4);
 			cell.setCellStyle(style);
-			cell.setCellValue(stock.getScope()); // 使用范围
+			cell.setCellValue(stock.getModel());// 型号
 
 			cell = row.createCell(5);
 			cell.setCellStyle(style);
-			cell.setCellValue(stock.getProjectedProcurementVolume());// 预计采购数量
+			cell.setCellValue(stock.getScope()); // 使用范围
 
 			cell = row.createCell(6);
 			cell.setCellStyle(style);
-			cell.setCellValue(stock.getEstimatedUnitPrice());// 预计采购单价
+			cell.setCellValue(stock.getProjectedProcurementVolume());// 预计采购数量
 
 			cell = row.createCell(7);
 			cell.setCellStyle(style);
-			cell.setCellValue(stock.getProjectedTotalPurchasePrice());// 预计总价
+			cell.setCellValue(stock.getEstimatedUnitPrice());// 预计采购单价
 
 			cell = row.createCell(8);
 			cell.setCellStyle(style);
-			cell.setCellValue(stock.getActualPurchaseQuantity());// 实际采购数量
+			cell.setCellValue(stock.getProjectedTotalPurchasePrice());// 预计总价
 
 			cell = row.createCell(9);
 			cell.setCellStyle(style);
-			cell.setCellValue(stock.getRealCostUnitPrice());// 实际成本单价
+			cell.setCellValue(stock.getActualPurchaseQuantity());// 实际采购数量
 
 			cell = row.createCell(10);
 			cell.setCellStyle(style);
-			cell.setCellValue(stock.getTotalActualCost());// 实际成本总价
+			cell.setCellValue(stock.getRealCostUnitPrice());// 实际成本单价
 
 			cell = row.createCell(11);
 			cell.setCellStyle(style);
-			cell.setCellValue(stock.getPaymentTime());// 付款时间
+			cell.setCellValue(stock.getTotalActualCost());// 实际成本总价
 
 			cell = row.createCell(12);
 			cell.setCellStyle(style);
-			cell.setCellValue(stock.getPaymentAmount());// 付款金额
+			cell.setCellValue(stock.getPaymentTime());// 付款时间
 
 			cell = row.createCell(13);
+			cell.setCellStyle(style);
+			cell.setCellValue(stock.getPaymentAmount());// 付款金额
+
+			cell = row.createCell(14);
 			cell.setCellStyle(style);
 			cell.setCellValue(stock.getInventory());// 剩余库存量
 
@@ -687,6 +707,7 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 	 */
 	public List<String> title() {
 		List<String> list = new ArrayList<>();
+		list.add("区域");
 		list.add("项目名称");
 		list.add("供应商");
 		list.add("设备名称");

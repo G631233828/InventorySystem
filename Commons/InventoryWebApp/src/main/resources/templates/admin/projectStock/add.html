@@ -6,7 +6,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" th:href="@{/assets/css/bootstrap-select.css}">
 <link rel="stylesheet" th:href="@{/plugs/datapicker/datepicker3.css}">
-<script type="text/javascript" th:src="@{/plugs/datapicker/bootstrap-datepicker.js}"></script>
+<script type="text/javascript"
+	th:src="@{/plugs/datapicker/bootstrap-datepicker.js}"></script>
 </head>
 
 <body>
@@ -73,6 +74,21 @@
 												th:value="${projectStock.id}"> <input type="hidden"
 												id="oldname" th:value="${projectStock?.name}">
 
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label">区域：</label>
+												<div class="col-lg-6">
+
+													<select id="area" name="areaId" class="form-control" required="required">
+														<option value="">---请选择区域---</option>
+														<option
+															th:selected="${projectStock!=null && projectStock?.area !=null}?${projectStock?.area?.id}==${area?.id}"
+															th:each="area:${areas}" th:value="${area?.id}"
+															th:text="${area?.name}"></option>
+													</select>
+												</div>
+											</div>
+
 											<div class="form-group">
 												<label class="col-lg-1 control-label">项目名称：</label>
 												<div class="col-lg-6">
@@ -94,8 +110,8 @@
 												<label class="col-lg-1 control-label">供应商：</label>
 												<div class="col-lg-6">
 													<select multiple class="selectpicker form-control"
-														id="number-multiple" data-container="body"
-														name="supplier" title="请选择供应商" data-live-search="true"
+														id="number-multiple" data-container="body" name="supplier"
+														title="请选择供应商" data-live-search="true"
 														data-hide-disabled="true" data-actions-box="false"
 														data-virtual-scroll="false" data-max-options="1"></select>
 												</div>
@@ -141,7 +157,8 @@
 											<div class="form-group">
 												<label class="col-lg-1 control-label">实际采购量：</label>
 												<div class="col-lg-6">
-													<input class="form-control" id="actualPurchaseQuantity" th:disabled="${projectStock == null}?false:disabled"
+													<input class="form-control" id="actualPurchaseQuantity"
+														th:disabled="${projectStock == null}?false:disabled"
 														placeholder="请输入实际采购量" name="actualPurchaseQuantity"
 														th:value="${projectStock?.actualPurchaseQuantity}">
 												</div>
@@ -181,7 +198,7 @@
 												</div>
 											</div>
 
-<!-- 
+											<!-- 
 											<div class="form-group" >
 												<label class="col-lg-1 control-label">出库数量：</label>
 												<div class="col-lg-6">

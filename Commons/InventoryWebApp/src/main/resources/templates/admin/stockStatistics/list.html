@@ -69,17 +69,21 @@
 							<div class="body-nest" id="tableStatic">
 
 								<div class="row" style="margin-bottom: 10px;">
-									<div class="col-sm-8 form-inline">
-										<select class="filter-status form-control" id="pageSize"
+									<div class="col-sm-12 form-inline">
+										<select class="filter-status form-control" id="searchArea"
+											onchange="return searchVal()">
+											<option value="">--选择区域--</option>
+											<option th:selected="${searchArea}==${area?.id}"
+												th:each="area:${areas}" th:value="${area?.id}"
+												th:text="${area?.name}"></option>
+
+										</select>
+										 <select class="filter-status form-control" id="pageSize"
 											onchange="return searchVal()">
 											<option value="10" th:selected="${pageSize == 10}">10
-											
 											<option value="20" th:selected="${pageSize == 20}">20
-											
 											<option value="50" th:selected="${pageSize == 50}">50
-											
 											<option value="100" th:selected="${pageSize == 100}">100
-											
 										</select> <input class="form-control" id="serach" placeholder="模糊匹配"
 											th:value="${search}" type="text"> <input
 											class="form-control datepicker" readonly="readonly"
@@ -90,11 +94,8 @@
 										<select class="filter-status form-control" id="type"
 											name="type">
 											<option value="all" th:selected="${type == 'all'}">所有
-											
 											<option value="in" th:selected="${type == 'in'}">入库
-											
 											<option value="out" th:selected="${type == 'out'}">出库
-											
 										</select>
 
 										<button class="btn btn-default btn-sm"
@@ -112,7 +113,7 @@
 									</div>
 								</div>
 
-								<div class="col-sm-6"></div>
+								<!-- <div class="col-sm-6"></div> -->
 
 							</div>
 
@@ -132,6 +133,8 @@
 															for="checkall"></label>
 													</div>
 												</th> -->
+												<th class="numeric area"
+													th:style="${#lists.contains(listColums,'area')}?'':'display:none;'">区域</th>
 												<th class="numeric stockName"
 													th:style="${#lists.contains(listColums,'stockName')}?'':'display:none;'">设备名称</th>
 												<th class="numeric stockModel"
@@ -175,7 +178,8 @@
 																th:for="${stockStatistics.id}"></label>
 														</div>
 													</td> -->
-
+													<td class="numeric area" id="area"
+														th:style="${#lists.contains(listColums,'area')}?'':'display:none;'">[[${stockStatistics?.area?.name}]]</td>
 													<td class="numeric stockName" id="stockName"
 														th:style="${#lists.contains(listColums,'stockName')}?'':'display:none;'">[[${stockStatistics?.stock?.name}]]</td>
 													<td class="numeric stockModel" id="stockModel"
@@ -213,15 +217,14 @@
 														th:style="${stockStatistics?.revoke == true}?'color:red':'color:green'"
 														th:text="${stockStatistics?.revoke == true}?'已撤销':'正常'"></label>
 													</td>
-													<td class="numeric">
-														 <shiro:hasPermission
-															name="stockStatistics:revoke"> 
-														<button class="btn btn-primary btn-xs btcancle"
-															th:id="${stockStatistics?.id}"
-															th:onclick="|return revoke('${stockStatistics?.id}')|">
-															<i class="fa fa-edit"> </i>撤销
-														</button>  </shiro:hasPermission>
-													</td>
+													<td class="numeric"><shiro:hasPermission
+															name="stockStatistics:revoke">
+															<button class="btn btn-primary btn-xs btcancle"
+																th:id="${stockStatistics?.id}"
+																th:onclick="|return revoke('${stockStatistics?.id}')|">
+																<i class="fa fa-edit"> </i>撤销
+															</button>
+														</shiro:hasPermission></td>
 												</tr>
 												<!-- 菜单 -->
 											</th:block>
@@ -247,16 +250,16 @@
 											<ul class="pagination pagination-split pull-right"
 												style="margin-top: 0px;">
 												<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
-													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList.upPage},pageSize=${pageSize},search=${search})}">上一页</a>
+													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList.upPage},pageSize=${pageSize},search=${search},searchArea=${searchArea})}">上一页</a>
 												</li>
 												<li th:each="page:${pageList.navigatepageNums}"
 													th:class="${page  == pageList.pageNo}?active:''"><a
-													th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/stockStatisticss(pageNo=${page},pageSize=${pageSize},search=${search})}">[[${page}]]</a>
+													th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/stockStatisticss(pageNo=${page},pageSize=${pageSize},search=${search},searchArea=${searchArea})}">[[${page}]]</a>
 												</li>
 												<li
 													th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
 													<a
-													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList.nextPage},pageSize=${pageSize},search=${search})}">下一页</a>
+													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList.nextPage},pageSize=${pageSize},search=${search},searchArea=${searchArea})}">下一页</a>
 												</li>
 											</ul>
 										</div>

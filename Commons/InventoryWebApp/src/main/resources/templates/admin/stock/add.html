@@ -71,6 +71,20 @@
 
 
 
+											<div class="form-group">
+												<label class="col-lg-1 control-label">区域：</label>
+												<div class="col-lg-6">
+
+													<select id="area" name="area.id" class="form-control" required="required"
+													onchange="return getgoodsStorages()">
+														<option value="">---请选择区域---</option>
+														<option
+															th:selected="${stock!=null && stock?.area !=null}?${stock?.area?.id}==${area?.id}"
+															th:each="area:${areas}" th:value="${area?.id}"
+															th:text="${area?.name}"></option>
+													</select>
+												</div>
+											</div>
 
 
 											<div class="form-group">
@@ -104,11 +118,11 @@
 													<select id="goodsStorage" name="goodsStorage.id"
 														class="form-control">
 														<option value="">---请选择存放货架---</option>
-														<option
+														 <option
 															th:selected="${stock!=null && stock?.goodsStorage !=null}?${stock?.goodsStorage?.id}==${goodsStorage?.id}"
 															th:each="goodsStorage:${goodsStorages}"
 															th:value="${goodsStorage?.id}"
-															th:text="|${goodsStorage?.shelfNumber}/${goodsStorage?.shelflevel}|"></option>
+															th:text="|${goodsStorage?.address}-->${goodsStorage?.shelfNumber}/${goodsStorage?.shelflevel}|"></option>
 													</select>
 												</div>
 											</div>
@@ -118,15 +132,16 @@
 												<label class="col-lg-1 control-label">单价：</label>
 												<div class="col-lg-6">
 													<input class="form-control" id="price"
-														placeholder="请输入设备单价" name="price" onkeyup="this.value=this.value.replace(/[^0-9\.]/g,'')"
-														th:value="${stock?.price}" >
+														placeholder="请输入设备单价" name="price"
+														onkeyup="this.value=this.value.replace(/[^0-9\.]/g,'')"
+														th:value="${stock?.price}">
 												</div>
 											</div>
 
 											<div class="form-group">
 												<label class="col-lg-1 control-label">计量单位：</label>
 												<div class="col-lg-6">
-													<select id="unit" name="unit.id" class="form-control" >
+													<select id="unit" name="unit.id" class="form-control">
 														<option value="">---请选择设备计量单位---</option>
 														<option
 															th:selected="${stock!=null && stock?.unit !=null}?${stock?.unit?.id}==${unit?.id}"
@@ -135,14 +150,19 @@
 													</select>
 												</div>
 											</div>
-											
+
 											<div class="form-group">
 												<label class="col-lg-1 control-label">项目应收款：</label>
 												<div class="col-lg-6">
-													<select id="receivables" name="receivables" class="form-control" >
+													<select id="receivables" name="receivables"
+														class="form-control">
 														<option value="0">---请选择项目应收款---</option>
-														<option th:selected="${stock!=null&&stock.receivables!=null}?${stock.receivables}" value="1">是</option>
-														<option th:selected="${stock!=null&&stock.receivables!=null}?${stock.receivables == false}" value="0">否</option>
+														<option
+															th:selected="${stock!=null&&stock.receivables!=null}?${stock.receivables}"
+															value="1">是</option>
+														<option
+															th:selected="${stock!=null&&stock.receivables!=null}?${stock.receivables == false}"
+															value="0">否</option>
 													</select>
 												</div>
 											</div>
@@ -168,19 +188,20 @@
 
 
 
-										<div class="form-group">
+											<div class="form-group">
 												<label class="col-lg-1 control-label">供应商：</label>
 												<div class="col-lg-6">
 													<select multiple class="selectpicker form-control"
-														id="number-multiple" data-container="body" name="supplier.id"
-														 title="请选择供应商" data-live-search="true"
+														id="number-multiple" data-container="body"
+														name="supplier.id" title="请选择供应商" data-live-search="true"
 														data-hide-disabled="true" data-actions-box="false"
 														data-virtual-scroll="false" data-max-options="1"></select>
 												</div>
 											</div>
 
 
-<!-- 
+
+											<!-- 
 											<div class="form-group">
 												<label class="col-lg-1 control-label">供应商：</label>
 												<div class="col-lg-6">

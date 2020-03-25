@@ -77,6 +77,8 @@
                                             <tr>
                                                 <td class="numeric">出库数量</td>
                                                 <td class="numeric" onclick="return selectColumn('num');"><input type="checkbox" th:checked="${#lists.contains(listColums,'num')}?'checked':'false'" id="ch_num"></td>
+                                          		<td class="numeric">区域</td>
+                                                <td class="numeric" onclick="return selectColumn('area');"><input type="checkbox" th:checked="${#lists.contains(listColums,'area')}?'checked':'false'" id="ch_area"></td>
                                             </tr>
                                            
                                         </tbody>

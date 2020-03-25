@@ -48,17 +48,22 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 	@Override
 	@SystemServiceLog(description = "分页查询库存统计信息")
 	public Pagination<ProjectStockStatistics> findpagination(Integer pageNo, Integer pageSize, String search,
-			String start, String end, String type, String id) {
+			String start, String end, String type, String id, String searchArea) {
 
 		// 分页查询数据
 		Pagination<ProjectStockStatistics> pagination = null;
 		try {
 			Query query = new Query();
 
+			if (Common.isNotEmpty(searchArea)) {
+				query = query.addCriteria(Criteria.where("area.$id").is(new ObjectId(searchArea)));
+			}
+
 			if (Common.isNotEmpty(id)) {
 				query.addCriteria(Criteria.where("projectStock.$id").is(new ObjectId(id)));
 			}
-			query = this.findbySearch(search, start, end, type, query);
+			query = this.findbySearch(search.trim(), start, end, type, query);
+			
 			query.with(new Sort(new Order(Direction.DESC, "createTime")));
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, ProjectStockStatistics.class);
 			if (pagination == null)
@@ -83,7 +88,9 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 		}
 
 		if (Common.isNotEmpty(search)) {
+			
 			List<Object> stockId = this.findProjectStocks(search);
+			
 			List<Object> userId = this.findUsers(search);
 			ca1.orOperator(Criteria.where("projectStock.$id").in(stockId), Criteria.where("user.$id").in(userId),
 					Criteria.where("name").regex(search), Criteria.where("personInCharge").regex(search),
@@ -114,9 +121,11 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 		Query query = new Query();
 		Criteria ca = new Criteria();
 
-		query.addCriteria(ca.orOperator(Criteria.where("name").regex(search), Criteria.where("model").regex(search)));
-		query.addCriteria(Criteria.where("isDelete").is(false));
-		query.with(new Sort(new Order(Direction.DESC, "createTime")));
+		query.addCriteria(ca.orOperator(Criteria.where("projectName").regex(search),Criteria.where("name").regex(search), Criteria.where("model").regex(search)));
+		
+		 query.addCriteria(Criteria.where("isDelete").is(false)); query.with(new
+		 Sort(new Order(Direction.DESC, "createTime")));
+		
 		List<ProjectStock> lists = this.projectStockService.find(query, ProjectStock.class);
 		for (ProjectStock li : lists) {
 			list.add(new ObjectId(li.getId()));
@@ -125,8 +134,11 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 	}
 
 	@SystemServiceLog(description = "条件查询库统计信息")
-	public List<ProjectStock> findStocksBySearch(String search) {
+	public List<ProjectStock> findStocksBySearch(String search, String areaId) {
 		Query query = new Query();
+		if (Common.isNotEmpty(areaId)) {
+			query.addCriteria(Criteria.where("area.$id").is(new ObjectId(areaId)));
+		}
 		Criteria ca = new Criteria();
 		query.addCriteria(ca.orOperator(Criteria.where("name").regex(search), Criteria.where("model").regex(search)));
 		query.addCriteria(Criteria.where("isDelete").is(false));
@@ -150,8 +162,10 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 
 	@Override
 	@SystemServiceLog(description = "库存出库入库")
-	public BasicDataResult inOrOutstockStatistics(ProjectStockStatistics stockStatistics, HttpSession session) {
+	public  BasicDataResult inOrOutstockStatistics(ProjectStockStatistics stockStatistics, HttpSession session) {
 
+		
+		
 		Integer num = stockStatistics.getNum();
 		if (num <= 0) {
 			return BasicDataResult.build(400, "操作的数据有误！", null);
@@ -163,6 +177,7 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 			User user = (User) session.getAttribute(Contents.USER_SESSION);
 			stockStatistics.setUser(user);
 			stockStatistics.setRevoke(false);
+			stockStatistics.setArea(projectStock.getArea());
 			if (stockStatistics.isInOrOut()) {
 				// true == 入库
 				// 更新库存中的库存
@@ -200,6 +215,8 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 
 		lockinsert.lock();
 		try {
+			System.out.println(lockinsert.toString());
+			System.out.println(lockinsert.hashCode());
 			this.insert(stockStatistics);
 		} finally {
 			lockinsert.unlock();
@@ -303,7 +320,7 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 
 	@Override
 	@SystemServiceLog(description = "导出库存统计信息")
-	public HSSFWorkbook export(String search, String start, String end, String type, String name) {
+	public HSSFWorkbook export(String search, String start, String end, String type, String name, String areaId) {
 
 		HSSFWorkbook wb = new HSSFWorkbook();
 		HSSFSheet sheet = null;
@@ -331,7 +348,7 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 			List<String> title = this.title();
 			this.createHead(sheet, title, style, start + " \t" + end + i);
 			this.createTitle(sheet, title, style);
-			this.createStock(sheet, title, style, search, start, end, type);
+			this.createStock(sheet, title, style, search, start, end, type, areaId);
 			sheet.createFreezePane(2, 0, 2, 0);
 			sheet.setDefaultColumnWidth(20);
 			sheet.autoSizeColumn(1, true);
@@ -369,10 +386,12 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 	 */
 	public void createHead(HSSFSheet sheet, List<String> title, HSSFCellStyle style, String name) {
 		HSSFRow row = sheet.createRow(0);// 初始化excel第一行
-		for (int a = 0; a < title.size(); a++) {
-			HSSFCell cell = row.createCell(a);
-			cell.setCellValue(name);
-			sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 10));
+		HSSFCell cell = row.createCell(0);
+		cell.setCellValue(name);
+		cell.setCellStyle(style);
+		sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, title.size() - 1));
+		for (int a = 1; a < title.size(); a++) {
+			cell = row.createCell(a);
 			cell.setCellStyle(style);
 		}
 	}
@@ -397,11 +416,11 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 	 * @param sheet
 	 */
 	public void createStock(HSSFSheet sheet, List<String> title, HSSFCellStyle style, String search, String start,
-			String end, String type) {
+			String end, String type, String areaId) {
 
 		int j = 1;
 
-		List<ProjectStock> listStock = this.findStocksBySearch(search);
+		List<ProjectStock> listStock = this.findStocksBySearch(search, areaId);
 		// 获取所有的库存
 		List<ProjectStockStatistics> list = this.findProjectStockStatistics(search, start, end, type);
 		String msg = "";
@@ -417,16 +436,20 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 			HSSFRow row = sheet.createRow(j + 1);
 			HSSFCell cell = row.createCell(0);
 			cell.setCellStyle(style);
-			cell.setCellValue(stock.getProjectName());
+			cell.setCellValue(stock.getArea().getName());
 
 			cell = row.createCell(1);
 			cell.setCellStyle(style);
-			cell.setCellValue(stock.getName());
+			cell.setCellValue(stock.getProjectName());
 
 			cell = row.createCell(2);
 			cell.setCellStyle(style);
+			cell.setCellValue(stock.getName());
+
+			cell = row.createCell(3);
+			cell.setCellStyle(style);
 			cell.setCellValue(stock.getModel());
-			int l = 2;
+			int l = 3;
 			for (ProjectStockStatistics st : list) {
 				if (stock.getId().equals(st.getProjectStock().getId())) {
 					cell = row.createCell(l + 1);
@@ -472,6 +495,7 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 	 */
 	public List<String> title() {
 		List<String> list = new ArrayList<>();
+		list.add("区域");
 		list.add("项目名称");
 		list.add("设备名称");
 		list.add("品名型号");

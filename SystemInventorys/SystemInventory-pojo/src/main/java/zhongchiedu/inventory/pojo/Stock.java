@@ -38,6 +38,8 @@ public class Stock extends GeneralBean<Stock> {
 	private long inventory = 0; //库存量
 	
 	private boolean receivables = false;//项目应收款
+	@DBRef
+	private Area area;
 	
 	
 	

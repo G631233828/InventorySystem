@@ -106,21 +106,23 @@
 							<div class="body-nest" id="tableStatic">
 
 								<div class="row" style="margin-bottom: 10px;">
-									<div class="col-sm-3 form-inline">
-										<select class="filter-status form-control" id="pageSize"
-											onchange="return searchSize()">
+									<div class="col-sm-5 form-inline">
+
+										<select class="filter-status form-control" id="searchArea"
+											onchange="return searchVal()">
+											<option value="">--选择区域--</option>
+											<option
+												th:selected="${searchArea}==${area?.id}"
+												th:each="area:${areas}" th:value="${area?.id}"
+												th:text="${area?.name}"></option>
+												
+										</select>
+										 <select class="filter-status form-control" id="pageSize"
+											onchange="return searchVal()">
 											<option value="10" th:selected="${pageSize == 10}">10
-
-											
 											<option value="20" th:selected="${pageSize == 20}">20
-
-											
 											<option value="50" th:selected="${pageSize == 50}">50
-
-											
 											<option value="100" th:selected="${pageSize == 100}">100
-
-											
 										</select> <input class="form-control" id="serach" placeholder="模糊匹配"
 											th:value="${search}" type="text">
 										<button class="btn btn-default btn-sm"
@@ -150,6 +152,8 @@
 															for="checkall"></label>
 													</div>
 												</th>
+												<th class="numeric area"
+													th:style="${#lists.contains(listColums,'area')}?'':'display:none;'">区域</th>
 												<th class="numeric name"
 													th:style="${#lists.contains(listColums,'name')}?'':'display:none;'">设备名称</th>
 												<th class="numeric model"
@@ -191,7 +195,8 @@
 																th:for="${stock.id}"></label>
 														</div>
 													</td>
-
+													<td class="numeric area" id="area"
+														th:style="${#lists.contains(listColums,'area')}?'':'display:none;'">[[${stock?.area?.name}]]</td>
 													<td class="numeric name" id="name"
 														th:style="${#lists.contains(listColums,'name')}?'':'display:none;'">
 														<a href="javascript:;"
@@ -273,16 +278,16 @@
 											<ul class="pagination pagination-split pull-right"
 												style="margin-top: 0px;">
 												<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
-													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/stocks(pageNo=${pageList.upPage},pageSize=${pageSize},search=${search},id=${id})}">上一页</a>
+													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/stocks(pageNo=${pageList.upPage},pageSize=${pageSize},search=${search},id=${id},searchArea=${searchArea})}">上一页</a>
 												</li>
 												<li th:each="page:${pageList.navigatepageNums}"
 													th:class="${page  == pageList.pageNo}?active:''"><a
-													th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/stocks(pageNo=${page},pageSize=${pageSize},search=${search},id=${id})}">[[${page}]]</a>
+													th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/stocks(pageNo=${page},pageSize=${pageSize},search=${search},id=${id},searchArea=${searchArea})}">[[${page}]]</a>
 												</li>
 												<li
 													th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
 													<a
-													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/stocks(pageNo=${pageList.nextPage},pageSize=${pageSize},search=${search},id=${id})}">下一页</a>
+													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/stocks(pageNo=${pageList.nextPage},pageSize=${pageSize},search=${search},id=${id},searchArea=${searchArea})}">下一页</a>
 												</li>
 											</ul>
 										</div>

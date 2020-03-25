@@ -32,11 +32,13 @@ import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.Common;
 import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.framework.pagination.Pagination;
+import zhongchiedu.inventory.pojo.Area;
 import zhongchiedu.inventory.pojo.GoodsStorage;
 import zhongchiedu.inventory.pojo.ProjectStock;
 import zhongchiedu.inventory.pojo.Stock;
 import zhongchiedu.inventory.pojo.Supplier;
 import zhongchiedu.inventory.pojo.Unit;
+import zhongchiedu.inventory.service.Impl.AreaServiceImpl;
 import zhongchiedu.inventory.service.Impl.ColumnServiceImpl;
 import zhongchiedu.inventory.service.Impl.GoodsStorageServiceImpl;
 import zhongchiedu.inventory.service.Impl.ProjectStockServiceImpl;
@@ -64,6 +66,8 @@ public class ProjectStockController {
 
 	private @Autowired UnitServiceImpl unitService;
 
+	private @Autowired AreaServiceImpl areaService;
+
 	@GetMapping("projectStocks")
 	@RequiresPermissions(value = "projectStock:list")
 	@SystemControllerLog(description = "查询所有项目库存管理")
@@ -71,10 +75,11 @@ public class ProjectStockController {
 			@RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize, HttpSession session,
 			@ModelAttribute("errorImport") String errorImport,
 			@RequestParam(value = "search", defaultValue = "") String search,
-			@RequestParam(value = "projectName", defaultValue = "") String projectName
-			) {
+			@RequestParam(value = "projectName", defaultValue = "") String projectName,
+			@RequestParam(value = "searchArea", defaultValue = "") String searchArea) {
 		model.addAttribute("errorImport", errorImport);
-		Pagination<ProjectStock> pagination = this.projectStockService.findpagination(pageNo, pageSize, search,projectName);
+		Pagination<ProjectStock> pagination = this.projectStockService.findpagination(pageNo, pageSize, search,
+				projectName, searchArea);
 		model.addAttribute("pageList", pagination);
 		List<String> listColums = this.columnService.findColumns("projectStock");
 		model.addAttribute("listColums", listColums);
@@ -83,7 +88,13 @@ public class ProjectStockController {
 		Set set = this.projectStockService.findProjectNames();
 		model.addAttribute("projectName", set);
 		model.addAttribute("selectProjectName", projectName);
-
+		
+		model.addAttribute("searchArea", searchArea);
+		
+		// 区域
+		List<Area> areas = this.areaService.findAllArea(false);
+		model.addAttribute("areas", areas);
+		
 		return "admin/projectStock/list";
 	}
 
@@ -96,6 +107,9 @@ public class ProjectStockController {
 		// 所有供应商
 		List<Supplier> syslist = this.supplierService.findAllSupplier(false);
 		model.addAttribute("suppliers", syslist);
+		// 区域
+		List<Area> areas = this.areaService.findAllArea(false);
+		model.addAttribute("areas", areas);
 
 		return "admin/projectStock/add";
 	}
@@ -114,7 +128,9 @@ public class ProjectStockController {
 			@RequestParam(value = "actualPurchaseQuantity", defaultValue = "0") String actualPurchaseQuantity,
 			@RequestParam(value = "realCostUnitPrice", defaultValue = "0") String realCostUnitPrice,
 			@RequestParam(value = "paymentAmount", defaultValue = "0") String paymentAmount,
-			@RequestParam(value = "num", defaultValue = "0") String num){
+			@RequestParam(value = "num", defaultValue = "0") String num,
+			@RequestParam(value = "areaId", defaultValue = "") String areaId
+			) {
 		ProjectStock projectStock = new ProjectStock();
 		projectStock.setProjectName(projectName);
 		projectStock.setName(name);
@@ -127,10 +143,10 @@ public class ProjectStockController {
 		projectStock.setActualPurchaseQuantity(Integer.valueOf(actualPurchaseQuantity));
 		projectStock.setRealCostUnitPrice(Double.valueOf(realCostUnitPrice));
 		projectStock.setPaymentAmount(Double.valueOf(paymentAmount));
+		projectStock.setInventory(Integer.valueOf(actualPurchaseQuantity));
 		projectStock.setNum(Integer.valueOf(num));
 
-
-		this.projectStockService.saveOrUpdate(projectStock);
+		this.projectStockService.saveOrUpdate(projectStock,areaId);
 		return "redirect:projectStocks";
 	}
 
@@ -149,7 +165,9 @@ public class ProjectStockController {
 			@RequestParam(value = "actualPurchaseQuantity", defaultValue = "0") String actualPurchaseQuantity,
 			@RequestParam(value = "realCostUnitPrice", defaultValue = "0") String realCostUnitPrice,
 			@RequestParam(value = "paymentAmount", defaultValue = "0") String paymentAmount,
-			@RequestParam(value = "num", defaultValue = "0") String num) {
+			@RequestParam(value = "num", defaultValue = "0") String num,
+			@RequestParam(value = "areaId", defaultValue = "") String areaId
+			) {
 		ProjectStock projectStock = new ProjectStock();
 		projectStock.setId(id);
 		projectStock.setProjectName(projectName);
@@ -165,7 +183,7 @@ public class ProjectStockController {
 		projectStock.setPaymentAmount(Double.valueOf(paymentAmount));
 		projectStock.setNum(Integer.valueOf(num));
 
-		this.projectStockService.saveOrUpdate(projectStock);
+		this.projectStockService.saveOrUpdate(projectStock,areaId);
 		return "redirect:projectStocks";
 	}
 
@@ -183,6 +201,9 @@ public class ProjectStockController {
 		// 所有供应商
 		List<Supplier> syslist = this.supplierService.findAllSupplier(false);
 		model.addAttribute("suppliers", syslist);
+		// 区域
+		List<Area> areas = this.areaService.findAllArea(false);
+		model.addAttribute("areas", areas);
 		return "admin/projectStock/add";
 
 	}
@@ -205,7 +226,7 @@ public class ProjectStockController {
 		model.addAttribute("stock", stock);
 
 		// 所有货架
-		List<GoodsStorage> list = this.goodsStorageService.findAllGoodsStorage(false);
+		List<GoodsStorage> list = this.goodsStorageService.findAllGoodsStorage(false,"");
 		model.addAttribute("goodsStorages", list);
 		// 所有供应商
 		List<Supplier> syslist = this.supplierService.findAllSupplier(false);
@@ -214,6 +235,9 @@ public class ProjectStockController {
 		List<Unit> listUnits = this.unitService.findAllUnit(false);
 		model.addAttribute("units", listUnits);
 
+		// 区域
+		List<Area> areas = this.areaService.findAllArea(false);
+		model.addAttribute("areas", areas);
 		return "admin/stock/add";
 
 	}
@@ -318,12 +342,12 @@ public class ProjectStockController {
 	 * 导出excel
 	 */
 	@RequestMapping(value = "/projectStock/export")
-	public void exportStock(HttpServletResponse response) {
+	public void exportStock(HttpServletResponse response,@RequestParam(value = "areaId", defaultValue = "") String areaId) {
 		try {
 			response.setContentType("application/vnd.ms-excel");
 			String name = Common.fromDateYM() + "项目库存报表";
 			String fileName = new String((name).getBytes("gb2312"), "ISO8859-1");
-			HSSFWorkbook wb = this.projectStockService.export(name);
+			HSSFWorkbook wb = this.projectStockService.export(name,areaId);
 			response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xls");
 			OutputStream ouputStream = response.getOutputStream();
 			wb.write(ouputStream);
@@ -335,12 +359,4 @@ public class ProjectStockController {
 
 	}
 
-	
-	
-	
-	
-	
-	
-	
-	
 }

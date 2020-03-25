@@ -107,22 +107,32 @@
 
 								<div class="row" style="margin-bottom: 10px;">
 									<div class="col-sm-12 form-inline">
-										<select class="filter-status form-control" id="pageSize"
-											onchange="return searchSize()">
+
+										<select class="filter-status form-control" id="searchArea"
+											onchange="return searchVal()">
+											<option value="">--选择区域--</option>
+											<option th:selected="${searchArea}==${area?.id}"
+												th:each="area:${areas}" th:value="${area?.id}"
+												th:text="${area?.name}"></option>
+
+										</select> <select class="filter-status form-control" id="pageSize"
+											onchange="return searchVal()">
 											<option value="10" th:selected="${pageSize == 10}">10
+											
 											<option value="20" th:selected="${pageSize == 20}">20
+											
 											<option value="50" th:selected="${pageSize == 50}">50
+											
 											<option value="100" th:selected="${pageSize == 100}">100
-										</select>
-										
-										<select class="filter-status form-control" id="projectName"
-											onchange="return searchByName()">
+											
+										</select> <select class="filter-status form-control" id="projectName"
+											onchange="return searchVal()">
 											<option value="">选择项目名称
+											<option th:value="${name}" th:each="name:${projectName}"
+												th:selected="${name == selectProjectName}">[[${name}]]
+
 											
-											<option th:value="${name}"  th:each="name:${projectName}" th:selected="${name == selectProjectName}">[[${name}]]
-											
-										</select>
-										 <input class="form-control" id="serach" placeholder="模糊匹配"
+										</select> <input class="form-control" id="serach" placeholder="模糊匹配"
 											th:value="${search}" type="text">
 										<button class="btn btn-default btn-sm"
 											onclick="return searchVal()">
@@ -150,6 +160,8 @@
 															for="checkall"></label>
 													</div>
 												</th>
+												<th class="numeric area"
+													th:style="${#lists.contains(listColums,'area')}?'':'display:none;'">区域</th>
 												<th class="numeric projectName"
 													th:style="${#lists.contains(listColums,'projectName')}?'':'display:none;'">项目名称</th>
 												<th class="numeric supplier"
@@ -160,34 +172,34 @@
 													th:style="${#lists.contains(listColums,'model')}?'':'display:none;'">设备型号</th>
 												<th class="numeric scope"
 													th:style="${#lists.contains(listColums,'scope')}?'':'display:none;'">使用范围</th>
-													
+
 												<th class="numeric projectedProcurementVolume"
 													th:style="${#lists.contains(listColums,'projectedProcurementVolume')}?'':'display:none;'">预计采购量</th>
-													
+
 												<th class="numeric estimatedUnitPrice"
 													th:style="${#lists.contains(listColums,'estimatedUnitPrice')}?'':'display:none;'">预计采购单价</th>
-													
+
 												<th class="numeric projectedTotalPurchasePrice"
 													th:style="${#lists.contains(listColums,'projectedTotalPurchasePrice')}?'':'display:none;'">预计采购总价</th>
-													
+
 												<th class="numeric actualPurchaseQuantity"
 													th:style="${#lists.contains(listColums,'actualPurchaseQuantity')}?'':'display:none;'">实际采购数量</th>
-													
+
 												<th class="numeric realCostUnitPrice"
 													th:style="${#lists.contains(listColums,'realCostUnitPrice')}?'':'display:none;'">实际成本单价</th>
-													
+
 												<th class="numeric totalActualCost"
 													th:style="${#lists.contains(listColums,'totalActualCost')}?'':'display:none;'">实际成本总价</th>
-													
+
 												<th class="numeric paymentTime"
 													th:style="${#lists.contains(listColums,'paymentTime')}?'':'display:none;'">付款时间</th>
-													
+
 												<th class="numeric paymentAmount"
 													th:style="${#lists.contains(listColums,'paymentAmount')}?'':'display:none;'">付款金额</th>
-													
+
 												<th class="numeric inventory"
 													th:style="${#lists.contains(listColums,'inventory')}?'':'display:none;'">库存量</th>
-													
+
 												<th class="numeric num"
 													th:style="${#lists.contains(listColums,'num')}?'':'display:none;'">出库数量</th>
 												<th class="numeric">使用状态</th>
@@ -202,15 +214,17 @@
 													<td class="numeric">
 														<div class="checkbox checkbox-inline"
 															style="margin-top: 0px;">
-															<input type="checkbox" name="ids" th:id="${projectStock.id}"
-																class="numeric" th:value="${projectStock.id}"> <label
+															<input type="checkbox" name="ids"
+																th:id="${projectStock.id}" class="numeric"
+																th:value="${projectStock.id}"> <label
 																th:for="${projectStock.id}"></label>
 														</div>
 													</td>
-
+													<td class="numeric area" id="area"
+														th:style="${#lists.contains(listColums,'area')}?'':'display:none;'">[[${projectStock?.area?.name}]]</td>
 													<td class="numeric projectName" id="projectName"
 														th:style="${#lists.contains(listColums,'projectName')}?'':'display:none;'">[[${projectStock?.projectName}]]</td>
-														<td class="numeric supplier" id="supplier"
+													<td class="numeric supplier" id="supplier"
 														th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'">
 														<a href="javascript:;"
 														th:onclick="|return showSupplier('${projectStock?.supplier?.id}')|">[[${projectStock?.supplier?.name}]]</a>
@@ -221,38 +235,43 @@
 														th:style="${#lists.contains(listColums,'model')}?'':'display:none;'">[[${projectStock?.model}]]</td>
 													<td class="numeric scope" id="scope"
 														th:style="${#lists.contains(listColums,'scope')}?'':'display:none;'">[[${projectStock?.scope}]]</td>
-														
-													<td class="numeric projectedProcurementVolume" id="projectedProcurementVolume"
+
+													<td class="numeric projectedProcurementVolume"
+														id="projectedProcurementVolume"
 														th:style="${#lists.contains(listColums,'projectedProcurementVolume')}?'':'display:none;'"
 														th:text="${projectStock?.projectedProcurementVolume}"></td>
-														
-													<td class="numeric estimatedUnitPrice" id="estimatedUnitPrice"
+
+													<td class="numeric estimatedUnitPrice"
+														id="estimatedUnitPrice"
 														th:style="${#lists.contains(listColums,'estimatedUnitPrice')}?'':'display:none;'">[[${projectStock?.estimatedUnitPrice}]]</td>
-														
-													<td class="numeric projectedTotalPurchasePrice" id="projectedTotalPurchasePrice"
+
+													<td class="numeric projectedTotalPurchasePrice"
+														id="projectedTotalPurchasePrice"
 														th:style="${#lists.contains(listColums,'projectedTotalPurchasePrice')}?'':'display:none;'">[[${projectStock?.projectedTotalPurchasePrice}]]</td>
-														
-													<td class="numeric actualPurchaseQuantity" th:id="|actualPurchaseQuantity_${projectStock?.id}|"
+
+													<td class="numeric actualPurchaseQuantity"
+														th:id="|actualPurchaseQuantity_${projectStock?.id}|"
 														th:style="${#lists.contains(listColums,'actualPurchaseQuantity')}?'':'display:none;'">[[${projectStock?.actualPurchaseQuantity}]]</td>
-														
-													<td class="numeric realCostUnitPrice" id="realCostUnitPrice"
+
+													<td class="numeric realCostUnitPrice"
+														id="realCostUnitPrice"
 														th:style="${#lists.contains(listColums,'realCostUnitPrice')}?'':'display:none;'">[[${projectStock?.realCostUnitPrice}]]</td>
-														
+
 													<td class="numeric totalActualCost" id="totalActualCost"
 														th:style="${#lists.contains(listColums,'totalActualCost')}?'':'display:none;'">[[${projectStock?.totalActualCost}]]</td>
-														
+
 													<td class="numeric paymentTime" id="paymentTime"
 														th:style="${#lists.contains(listColums,'paymentTime')}?'':'display:none;'">[[${projectStock?.paymentTime}]]</td>
-														
+
 													<td class="numeric paymentAmount" id="paymentAmount"
 														th:style="${#lists.contains(listColums,'paymentAmount')}?'':'display:none;'">[[${projectStock?.paymentAmount}]]</td>
 													<td class="numeric inventory"
 														th:id="|inventory_${projectStock?.id}|"
 														th:style="${#lists.contains(listColums,'inventory')}?'':'display:none;'"><label
 														th:style="${projectStock?.inventory > 5}?'color:green':${projectStock?.inventory == 0?'color:red':'color:blue'}">[[${projectStock?.inventory}]]</label></td>
-													<td class="numeric num"  th:id="|num_${projectStock?.id}|"
+													<td class="numeric num" th:id="|num_${projectStock?.id}|"
 														th:style="${#lists.contains(listColums,'num')}?'':'display:none;'">[[${projectStock?.num}]]</td>
-												
+
 													<td class="numeric" th:id="disBtn+${projectStock.id}"
 														th:utext="${projectStock.isDisable eq true }?|<button type='button' onclick=toDisable('${projectStock.id}','projectStock') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${projectStock.id}','projectStock') class='btn btn-success'>启用</button>|"></td>
 													<td class="numeric"><shiro:hasPermission
@@ -261,24 +280,18 @@
 																th:onclick="|return showStockStatistics('${projectStock.id}')|">
 																<i class="entypo-download"> </i>入库
 															</button>
-														</shiro:hasPermission> 
-														
-														<shiro:hasPermission name="projectStockStatistics:out">
+														</shiro:hasPermission> <shiro:hasPermission name="projectStockStatistics:out">
 															<button class="btn source btn-xs"
 																th:onclick="|return showStockStatistics2('${projectStock.id}')|">
 																<i class="entypo-upload"> </i>出库
 															</button>
-														</shiro:hasPermission> 
-														
-														<shiro:hasPermission name="projectStockStatistics:toStock">
+														</shiro:hasPermission> <shiro:hasPermission
+															name="projectStockStatistics:toStock">
 															<button class="btn source btn-xs"
 																th:onclick="|return toeditPage('${projectStock.id}','projectStockToStock')|">
 																<i class="entypo-download"> </i>添加至库存
 															</button>
-														</shiro:hasPermission> 
-														
-														
-														<shiro:hasPermission name="projectStock:edit">
+														</shiro:hasPermission> <shiro:hasPermission name="projectStock:edit">
 															<button class="btn btn-primary btn-xs"
 																th:onclick="|return toeditPage('${projectStock.id}','projectStock')|">
 																<i class="fa fa-edit"> </i>编辑
@@ -314,16 +327,16 @@
 											<ul class="pagination pagination-split pull-right"
 												style="margin-top: 0px;">
 												<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
-													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/projectStocks(pageNo=${pageList.upPage},pageSize=${pageSize},search=${search},id=${id},projectName=${selectProjectName})}">上一页</a>
+													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/projectStocks(pageNo=${pageList.upPage},pageSize=${pageSize},search=${search},id=${id},projectName=${selectProjectName},searchArea=${searchArea})}">上一页</a>
 												</li>
 												<li th:each="page:${pageList.navigatepageNums}"
 													th:class="${page  == pageList.pageNo}?active:''"><a
-													th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/projectStocks(pageNo=${page},pageSize=${pageSize},search=${search},id=${id},projectName=${selectProjectName})}">[[${page}]]</a>
+													th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/projectStocks(pageNo=${page},pageSize=${pageSize},search=${search},id=${id},projectName=${selectProjectName},searchArea=${searchArea})}">[[${page}]]</a>
 												</li>
 												<li
 													th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
 													<a
-													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/projectStocks(pageNo=${pageList.nextPage},pageSize=${pageSize},search=${search},id=${id},projectName=${selectProjectName})}">下一页</a>
+													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/projectStocks(pageNo=${pageList.nextPage},pageSize=${pageSize},search=${search},id=${id},projectName=${selectProjectName},searchArea=${searchArea})}">下一页</a>
 												</li>
 											</ul>
 										</div>

@@ -1,10 +1,14 @@
 
+var flag = true;
+
 $().ready(function() {
 
 		$("#commentForm").validate();
 		var a = "<i class='fa fa-times-circle'></i> ";
 		$("#stockStatisticsForm").validate({
 			submitHandler:function(form){
+				if(flag){
+					flag = false;
 				// 校验通过后通过ajax的方式提交
 				$.ajax({
 					dataType:"json",
@@ -13,6 +17,7 @@ $().ready(function() {
 					data:$("#stockStatisticsForm").serialize(),
 					success:function(data){
 						if(data.status == 200){
+							flag = true;
 							var  newInventory = data.data.newNum;
 							var  newactualPurchaseQuantity = data.data.actualPurchaseQuantity;
 							var id = $("#projectStockId").val();
@@ -34,6 +39,7 @@ $().ready(function() {
 							    'closeTime' : 2000,
 							})
 						}else{
+							flag = true;
 							// 判断是否已存在，如果已存在则直接显示
 						 jqueryAlert({
 							    'icon'    : getRootPath() +'/plugs/alert/img/error.png',
@@ -44,7 +50,8 @@ $().ready(function() {
 						
 					}
 				});
-			},
+			}
+		},
 			
 			rules : {
 				num : {
@@ -65,15 +72,6 @@ $().ready(function() {
 
 
 })
-
-
-
-
-
-
-
-
-
 
 
 

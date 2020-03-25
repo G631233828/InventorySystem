@@ -160,21 +160,38 @@ function searchVal() {
 
 	var pageSize = $("#pageSize").val();
 	var search = $("#serach").val();
+	var searchArea = $("#searchArea").val();
 
 /*
  * if (search == null || search == "") { swal({ type : "warning", title : "",
  * text : "查询内容不能为空!!", }); return ; }
  */
-	window.location.href="stocks?pageSize="+pageSize+"&search="+search;
+	window.location.href="stocks?pageSize="+pageSize+"&search="+search+"&searchArea="+searchArea;
 
 }
-function searchSize() {
-	
-	var pageSize = $("#pageSize").val();
-	var search = $("#serach").val();
-	window.location.href="stocks?pageSize="+pageSize+"&search="+search;
-	
-}
+
+
+//function searchArea() {
+//	
+//	var pageSize = $("#pageSize").val();
+//	var search = $("#serach").val();
+//	window.location.href="stocks?pageSize="+pageSize+"&search="+search+"&searchArea="+searchArea;
+//
+//	
+//}
+//
+//
+//
+//
+//
+//
+//function searchSize() {
+//	
+//	var pageSize = $("#pageSize").val();
+//	var search = $("#serach").val();
+//	window.location.href="stocks?pageSize="+pageSize+"&search="+search;
+//	
+//}
 
 
 
@@ -190,7 +207,10 @@ function toExport(){
 	    'content' : "正在导出请稍等...",
 	    'closeTime' : 5000,
 	})
-	window.location.href = "stock/export";
+	var areaId = $("#searchArea").val();
+	
+	
+	window.location.href = "stock/export?areaId="+areaId;
 	
 	
 }

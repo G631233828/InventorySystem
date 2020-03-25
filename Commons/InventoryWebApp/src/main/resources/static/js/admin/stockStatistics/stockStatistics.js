@@ -10,19 +10,19 @@ function clearaa() {
 }
 
 function searchVal() {
-
 	var pageSize = $("#pageSize").val();
 	var search = $("#serach").val();
 	var start = $("#start").val();
 	var end = $("#end").val();
 	var type = $("#type").val();
+	var searchArea = $("#searchArea").val();
 	
 	/*
 	 * if (search == null || search == "") { swal({ type : "warning", title :
 	 * "", text : "查询内容不能为空!!", }); return ; }
 	 */
 	window.location.href = "stockStatisticss?pageSize=" + pageSize + "&search="
-			+ search + "&start=" + start + "&end=" + end + "&type=" + type;
+			+ search + "&start=" + start + "&end=" + end + "&type=" + type+"&searchArea="+searchArea;
 }
 // function searchSize() {
 //	
@@ -43,12 +43,14 @@ function toExport(){
 	var start = $("#start").val();
 	var end = $("#end").val();
 	var type = $("#type").val();
+	var areaId = $("#searchArea").val();
+	alert(areaId)
 	jqueryAlert({
 	    'icon'    : getRootPath() +'/plugs/alert/img/right.png',
 	    'content' : "正在导出请稍等...",
 	    'closeTime' : 5000,
 	})
-	window.location.href = "stockStatistics/export?search="+search+"&start="+start+"&end="+end+"&type="+type;
+	window.location.href = "stockStatistics/export?search="+search+"&start="+start+"&end="+end+"&type="+type+"&areaId="+areaId;
 	
 }
 

@@ -4,6 +4,9 @@ $().ready(function() {
 		var a = "<i class='fa fa-times-circle'></i> ";
 		$("#projectStockForm").validate({
 			rules : {
+				"area.id" : {
+					required : true,
+				},
 				name : {
 					required : true,
 				},
@@ -21,34 +24,38 @@ $().ready(function() {
 				},
 				paymentAmount : {
 					number:true
-				},
+				}
 	/*			num : {
 					number:true,
 				},*/
 			
 			},
 			messages : {
+				"area.id":{
+					required :a+"请选择区域"
+				},
 				name : {
 					required : a + "请输入设备名称"
 				},
 				projectedProcurementVolume : {
-					number : a + "请输入正确的预计采购量"
+					required : a + "请输入正确的预计采购量"
 				},
 				estimatedUnitPrice : {
-					number : a + "请输入正确的预计采购单价"
+					required : a + "请输入正确的预计采购单价"
 				},
 				actualPurchaseQuantity : {
-					number : a + "请输入正确的实际采购量"
+					required : a + "请输入正确的实际采购量"
 				},
 				realCostUnitPrice : {
-					number : a + "请输入正确的实际采购单价"
+					required : a + "请输入正确的实际采购单价"
 				},
 				paymentAmount : {
-					number : a + "请输入正确的付款金额"
+					required : a + "请输入正确的付款金额"
 				},
-				num : {
-					number : a + "请输入正确的出库数量",
-				}
+//				num : {
+//					number : a + "请输入正确的出库数量",
+//				}
+				
 			
 			}
 		});

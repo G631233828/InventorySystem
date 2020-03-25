@@ -5,18 +5,19 @@ import java.util.List;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralService;
+import zhongchiedu.general.pojo.Resource;
 import zhongchiedu.inventory.pojo.Companys;
 import zhongchiedu.inventory.pojo.GoodsStorage;
 
 public interface GoodsStorageService extends GeneralService<GoodsStorage> {
 	
-	public Pagination<GoodsStorage> findpagination(Integer pageNo,Integer pageSize);
+	public Pagination<GoodsStorage> findpagination(Integer pageNo,Integer pageSize,String searchArea);
 	
 	public void saveOrUpdate(GoodsStorage goodsStorage);
 	
 	public BasicDataResult disable(String id);
 	
-	public List<GoodsStorage> findAllGoodsStorage(boolean isdisable);
+	public List<GoodsStorage> findAllGoodsStorage(boolean isdisable,String areaId);
 	
 	public String delete(String id);
 	
@@ -24,5 +25,5 @@ public interface GoodsStorageService extends GeneralService<GoodsStorage> {
 	
 	public BasicDataResult todisable(String id);
 	
-
+	public List<GoodsStorage> findStorages(String areaId);
 }

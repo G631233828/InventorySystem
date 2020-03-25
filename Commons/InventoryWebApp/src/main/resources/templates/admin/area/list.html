@@ -42,41 +42,33 @@
 				<div class="row">
 
 
-					<div class="col-sm-12 form-inline">
-
+					<div class="col-sm-12">
+						
 						<div class="nest" id="tableStaticClose">
 							<div class="title-alt">
 								<div>
-									<select class="filter-status form-control" id="searchArea"
-											onchange="return searchVal()">
-											<option value="">--选择区域--</option>
-											<option
-												th:selected="${searchArea}==${area?.id}"
-												th:each="area:${areas}" th:value="${area?.id}"
-												th:text="${area?.name}"></option>
-												
-										</select>
-								
-									<shiro:hasPermission name="goodsStorage:add">
+									<shiro:hasPermission name="area:add">
 										<button class="btn btn-default btn-sm"
-											th:onclick="|window.location.href='@{/goodsStorage}'|">
+											th:onclick="|window.location.href='@{/area}'|">
 											<i class="glyphicon glyphicon-plus"> </i> 添加
 										</button>
 									</shiro:hasPermission>
 
-									<shiro:hasPermission name="goodsStorage:edit">
+									<shiro:hasPermission name="area:edit">
 										<button class="btn btn-primary btn-sm"
-											onclick="return toeditPage('','goodsStorage')">
+											onclick="return toeditPage('','area')">
 											<i class="fa fa-edit"> </i>编辑
 										</button>
 									</shiro:hasPermission>
 
-									<shiro:hasPermission name="goodsStorage:delete">
+									<shiro:hasPermission name="area:delete">
 										<button class="btn btn-danger btn-sm"
-											th:onclick="|return del('','@{/goodsStorage/}')|">
+											th:onclick="|return del('','@{/area/}')|">
 											<i class="fa fa-trash-o"> </i>删除
 										</button>
 									</shiro:hasPermission>
+
+						
 
 								</div>
 
@@ -93,6 +85,32 @@
 
 							</div>
 
+							<!-- 搜索  下拉  start-->
+							<!-- 	<div class="mail_header">
+								<div class="col-sm-6">
+									<div class="row" style="margin-bottom: 10px;">
+									
+										<div class="col-sm-2">
+										<select class="filter-status form-control">
+												<option value="10">10
+												<option value="25">25
+												<option value="50">50
+												<option value="100">100
+											</select>
+										</div>
+										<div class="col-sm-3">
+											<input class="form-control" id="filter"
+												placeholder="查找类目..." type="text">
+										
+											
+										</div>
+									</div>
+								</div>
+							</div> -->
+							<!-- 搜索  下拉  end-->
+
+
+
 							<div class="body-nest" id="tableStatic">
 
 								<section id="flip-scroll">
@@ -107,44 +125,36 @@
 															for="checkall"></label>
 													</div>
 												</th>
-												<th class="numeric">区域</th>
-												<th class="numeric">货架地址</th>
-												<th class="numeric">货架号</th>
-												<th class="numeric">货架层</th>
+												<th class="numeric">名称</th>
 												<th class="numeric">使用状态</th>
 												<th class="numeric">操作</th>
 											</tr>
 										</thead>
 										<tbody>
 											<!-- 目录 -->
-											<th:block th:each="goodsStorage:${pageList.datas}">
+											<th:block th:each="area:${pageList.datas}">
 												<tr>
 													<td class="numeric">
 														<div class="checkbox checkbox-inline"
 															style="margin-top: 0px;">
-															<input type="checkbox" name="ids"
-																th:id="${goodsStorage.id}" class="numeric"
-																th:value="${goodsStorage.id}"> <label
-																th:for="${goodsStorage.id}"></label>
+															<input type="checkbox" name="ids" th:id="${area.id}"
+																class="numeric" th:value="${area.id}"> <label
+																th:for="${area.id}"></label>
 														</div>
 													</td>
 
-													<td class="numeric">[[${goodsStorage?.area?.name}]]</td>
-													<td class="numeric">[[${goodsStorage?.address}]]</td>
-													<td class="numeric">[[${goodsStorage?.shelfNumber}]]</td>
-													<td class="numeric">[[${goodsStorage?.shelflevel}]]</td>
-													<td class="numeric" th:id="disBtn+${goodsStorage.id}"
-														th:utext="${goodsStorage.isDisable eq true }?|<button type='button' onclick=toDisable('${goodsStorage.id}','goodsStorage') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${goodsStorage.id}','goodsStorage') class='btn btn-success'>启用</button>|"></td>
+													<td class="numeric">[[${area.name}]]</td>
+													<td class="numeric" th:id="disBtn+${area.id}"
+														th:utext="${area.isDisable eq true }?|<button type='button' onclick=toDisable('${area.id}','area') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${area.id}','area') class='btn btn-success'>启用</button>|"></td>
 													<td class="numeric"><shiro:hasPermission
-															name="goodsStorage:edit"> 
+															name="area:edit">
 															<button class="btn btn-primary btn-xs"
-																th:onclick="|return toeditPage('${goodsStorage.id}','goodsStorage')|">
+																th:onclick="|return toeditPage('${area.id}','area')|">
 																<i class="fa fa-edit"> </i>编辑
 															</button>
-
-														</shiro:hasPermission> <shiro:hasPermission name="goodsStorage:delete">
+														</shiro:hasPermission> <shiro:hasPermission name="area:delete">
 															<button class="btn btn-danger btn-xs"
-																th:onclick="|return del('@{/goodsStorage/}${goodsStorage.id}','')|">
+																th:onclick="|return del('@{/area/}${area.id}','')|">
 																<i class="fa fa-trash-o"> </i>删除
 															</button>
 														</shiro:hasPermission></td>
@@ -173,16 +183,16 @@
 												<ul class="pagination pagination-split pull-right"
 													style="margin-top: 0px;">
 													<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
-														th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/goodsStorages?pageNo=}+${pageList.upPage}">上一页</a>
+														th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/areas?pageNo=}+${pageList.upPage}">上一页</a>
 													</li>
 													<li th:each="page:${pageList.navigatepageNums}"
 														th:class="${page  == pageList.pageNo}?active:''"><a
-														th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/goodsStorages?pageNo=}+${page}">[[${page}]]</a>
+														th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/areas?pageNo=}+${page}">[[${page}]]</a>
 													</li>
 													<li
 														th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
 														<a
-														th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/goodsStorages?pageNo=}+${pageList.nextPage}">下一页</a>
+														th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/areas?pageNo=}+${pageList.nextPage}">下一页</a>
 													</li>
 												</ul>
 											</div>
@@ -207,11 +217,11 @@
 		</div>
 	</div>
 	<!--  END OF PAPER WRAP -->
+	<script type="text/javascript"
+		th:src="@{/plugs/prettyfile/bootstrap-prettyfile.js}"></script>
 	<!-- 右侧隐藏菜单start -->
 	<div th:replace="public/public::right"></div>
 	<!-- 右侧隐藏菜单end-->
-	<script type="text/javascript" th:inline="javascript"
-		th:src="@{/js/admin/goodsStorage/goodsLists.js}"></script>
 	<!-- 底部js -->
 	<div th:replace="public/public_js::pub_js"></div>
 	<div th:replace="public/public_js::public_script"></div>
@@ -219,8 +229,6 @@
 	<!-- Sweet alert -->
 	<script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
 	<div th:replace="public/public_js::validator"></div>
-
-
 
 </body>
 

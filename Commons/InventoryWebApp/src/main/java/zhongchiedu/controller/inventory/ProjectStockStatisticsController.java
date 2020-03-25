@@ -23,8 +23,10 @@ import lombok.extern.slf4j.Slf4j;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.Common;
 import zhongchiedu.framework.pagination.Pagination;
+import zhongchiedu.inventory.pojo.Area;
 import zhongchiedu.inventory.pojo.ProjectStockStatistics;
 import zhongchiedu.inventory.pojo.StockStatistics;
+import zhongchiedu.inventory.service.Impl.AreaServiceImpl;
 import zhongchiedu.inventory.service.Impl.ColumnServiceImpl;
 import zhongchiedu.inventory.service.Impl.ProjectStockServiceImpl;
 import zhongchiedu.inventory.service.Impl.ProjectStockStatisticsServiceImpl;
@@ -47,6 +49,8 @@ public class ProjectStockStatisticsController {
 	private @Autowired ProjectStockServiceImpl projectStockService;
 
 	private @Autowired ColumnServiceImpl columnService;
+	
+	private @Autowired AreaServiceImpl areaService;
 
 	@GetMapping("projectStockStatisticss")
 	@RequiresPermissions(value = "projectStockStatistics:list")
@@ -57,10 +61,11 @@ public class ProjectStockStatisticsController {
 			@RequestParam(value = "start", defaultValue = "") String start,
 			@RequestParam(value = "end", defaultValue = "") String end,
 			@RequestParam(value = "type", defaultValue = "") String type,
-			@RequestParam(value = "id", defaultValue = "") String id) {
+			@RequestParam(value = "id", defaultValue = "") String id,
+			@RequestParam(value = "searchArea", defaultValue = "") String searchArea) {
 
-		Pagination<ProjectStockStatistics> pagination = this.projectStockStatisticsService.findpagination(pageNo, pageSize, search,
-				start, end, type, id);
+		Pagination<ProjectStockStatistics> pagination = this.projectStockStatisticsService.findpagination(pageNo,
+				pageSize, search, start, end, type, id,searchArea);
 		model.addAttribute("pageList", pagination);
 		List<String> listColums = this.columnService.findColumns("projectStockStatistics");
 		model.addAttribute("listColums", listColums);
@@ -70,6 +75,10 @@ public class ProjectStockStatisticsController {
 		model.addAttribute("pageSize", pageSize);
 		model.addAttribute("id", id);
 		model.addAttribute("type", type);
+		// 区域
+		List<Area> areas = this.areaService.findAllArea(false);
+		model.addAttribute("areas", areas);
+		model.addAttribute("searchArea", searchArea);
 		return "admin/projectStockStatistics/list";
 	}
 
@@ -77,15 +86,16 @@ public class ProjectStockStatisticsController {
 	@ResponseBody
 	@RequiresPermissions(value = "projectStockStatistics:in")
 	@SystemControllerLog(description = "项目设备入库")
-	public BasicDataResult in(@ModelAttribute("projectStockStatistics") ProjectStockStatistics projectStockStatistics, HttpSession session) {
+	public synchronized BasicDataResult in(@ModelAttribute("projectStockStatistics") ProjectStockStatistics projectStockStatistics,
+			HttpSession session) {
 		return this.projectStockStatisticsService.inOrOutstockStatistics(projectStockStatistics, session);
 	}
 
 	@RequestMapping(value = "/projectStockStatistics/out", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	 @RequiresPermissions(value = "projectStockStatistics:out")
+	@RequiresPermissions(value = "projectStockStatistics:out")
 	@SystemControllerLog(description = "项目设备出库")
-	public BasicDataResult out(@ModelAttribute("projectStockStatistics") ProjectStockStatistics projectStockStatistics,
+	public synchronized BasicDataResult out(@ModelAttribute("projectStockStatistics") ProjectStockStatistics projectStockStatistics,
 			HttpSession session) {
 		return this.projectStockStatisticsService.inOrOutstockStatistics(projectStockStatistics, session);
 
@@ -123,7 +133,9 @@ public class ProjectStockStatisticsController {
 			@RequestParam(value = "start", defaultValue = "") String start,
 			@RequestParam(value = "end", defaultValue = "") String end,
 			@RequestParam(value = "type", defaultValue = "") String type,
-			@RequestParam(value = "id", defaultValue = "") String id, HttpServletResponse response) {
+			@RequestParam(value = "id", defaultValue = "") String id,
+			@RequestParam(value = "areaId", defaultValue = "") String areaId,
+			HttpServletResponse response) {
 		try {
 
 			String name = "";
@@ -134,12 +146,12 @@ public class ProjectStockStatisticsController {
 			} else {
 				name = "项目出库入库统计记录";
 			}
-			String exportName = Common.fromDateYMD()+name;
+			String exportName = Common.fromDateYMD() + name;
 
-			HSSFWorkbook wb = this.projectStockStatisticsService.export(search, start, end, type, exportName);
+			HSSFWorkbook wb = this.projectStockStatisticsService.export(search, start, end, type, exportName,areaId);
 			response.setContentType("application/vnd.ms-excel");
 			String fileName = new String((exportName).getBytes("gb2312"), "ISO8859-1");
-			response.setHeader("Content-disposition", "attachment;filename=" + fileName+".xls");
+			response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xls");
 			OutputStream ouputStream = response.getOutputStream();
 			wb.write(ouputStream);
 			ouputStream.flush();

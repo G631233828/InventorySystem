@@ -22,8 +22,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import lombok.extern.slf4j.Slf4j;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.framework.pagination.Pagination;
+import zhongchiedu.general.pojo.Resource;
+import zhongchiedu.inventory.pojo.Area;
 import zhongchiedu.inventory.pojo.Companys;
 import zhongchiedu.inventory.pojo.GoodsStorage;
+import zhongchiedu.inventory.service.Impl.AreaServiceImpl;
 import zhongchiedu.inventory.service.Impl.CompanyServiceImpl;
 import zhongchiedu.inventory.service.Impl.GoodsStorageServiceImpl;
 import zhongchiedu.log.annotation.SystemControllerLog;
@@ -37,14 +40,21 @@ public class GoodsStorageController {
 
 	@Autowired
 	private CompanyServiceImpl companyService;
+	
+	private @Autowired AreaServiceImpl areaService;
 
 	@GetMapping("goodsStorages")
 	@RequiresPermissions(value = "goodsStorage:list")
 	@SystemControllerLog(description = "查询所有货架信息")
 	public String list(@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
-			@RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize, HttpSession session) {
-		Pagination<GoodsStorage> pagination = this.goodsStorageService.findpagination(pageNo, pageSize);
+			@RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize, HttpSession session,
+			@RequestParam(value = "searchArea", defaultValue = "") String searchArea) {
+		Pagination<GoodsStorage> pagination = this.goodsStorageService.findpagination(pageNo, pageSize,searchArea);
 		model.addAttribute("pageList", pagination);
+		// 区域
+		List<Area> areas = this.areaService.findAllArea(false);
+		model.addAttribute("areas", areas);
+		model.addAttribute("searchArea", searchArea);
 		return "admin/goodsStorage/list";
 	}
 
@@ -56,6 +66,9 @@ public class GoodsStorageController {
 	public String addPage(Model model) {
 		List<Companys> list = this.companyService.findAllCompany(false);
 		model.addAttribute("companys", list);
+		// 区域
+		List<Area> areas = this.areaService.findAllArea(false);
+		model.addAttribute("areas", areas);
 		return "admin/goodsStorage/add";
 	}
 
@@ -88,6 +101,9 @@ public class GoodsStorageController {
 		model.addAttribute("goodsStorage", goodsStorage);
 		List<Companys> list = this.companyService.findAllCompany(false);
 		model.addAttribute("companys", list);
+		// 区域
+		List<Area> areas = this.areaService.findAllArea(false);
+		model.addAttribute("areas", areas);
 		return "admin/goodsStorage/add";
 
 	}
@@ -101,6 +117,8 @@ public class GoodsStorageController {
 		log.info("删除货架" + id + "成功");
 		return "redirect:/goodsStorages";
 	}
+	
+	
 
 	/**
 	 * 通过ajax获取是否存在重复账号的信息

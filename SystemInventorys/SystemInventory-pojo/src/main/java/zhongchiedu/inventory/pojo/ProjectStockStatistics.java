@@ -45,7 +45,8 @@ public class ProjectStockStatistics extends GeneralBean<ProjectStockStatistics> 
 	private String personInCharge;//责任人
 	private String projectName;   //项目名
 	private String customer;//客户
-	
+	@DBRef
+	private Area area;
 
 	
 

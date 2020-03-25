@@ -63,6 +63,8 @@
                                             <tr>
                                                 <td class="numeric">应收款</td>
                                                 <td class="numeric" onclick="return selectColumn('receivables');"><input type="checkbox" th:checked="${#lists.contains(listColums,'receivables')}?'checked':'false'" id="ch_receivables"></td>
+                                                <td class="numeric">区域</td>
+                                                <td class="numeric" onclick="return selectColumn('area');"><input type="checkbox" th:checked="${#lists.contains(listColums,'area')}?'checked':'false'" id="ch_area"></td>
                                             </tr>
                                            
                                         </tbody>

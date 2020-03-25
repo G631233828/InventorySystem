@@ -1,0 +1,27 @@
+package zhongchiedu.inventory.pojo;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import zhongchiedu.framework.pojo.GeneralBean;
+
+/**
+ * 区域管理
+ * @author fliay
+ *
+ */
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+public class Area extends GeneralBean<Area> {
+
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7036888586992963311L;
+	
+	private String name;
+}
