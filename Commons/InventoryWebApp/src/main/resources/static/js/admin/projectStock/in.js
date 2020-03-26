@@ -20,6 +20,7 @@ $().ready(function() {
 							flag = true;
 							var  newInventory = data.data.newNum;
 							var  newactualPurchaseQuantity = data.data.actualPurchaseQuantity;
+							var totalActualCost = data.data.totalActualCost;
 							var id = $("#projectStockId").val();
 							if(newInventory > 5){
 								$("#inventory_"+id).css("color","green");
@@ -30,6 +31,7 @@ $().ready(function() {
 							}
 							$("#inventory_"+id).text(newInventory);
 							$("#actualPurchaseQuantity_"+id).text(newactualPurchaseQuantity);
+							$("#totalActualCost_"+id).text(totalActualCost);
 							$("#myprojectStockStatistics").modal('hide');
 							
 							// 判断是否已存在，如果已存在则直接显示

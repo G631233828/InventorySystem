@@ -185,6 +185,7 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 				stockStatistics.setStorageTime(Common.fromDateH());
 				stockStatistics.setNewNum(newNum);
 				stockStatistics.setActualPurchaseQuantity(projectStock.getActualPurchaseQuantity());
+				stockStatistics.setTotalActualCost(projectStock.getTotalActualCost());
 				lockInsert(stockStatistics);
 				return BasicDataResult.build(200, "商品入库成功", stockStatistics);
 			} else {
@@ -196,7 +197,7 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 				}
 				stockStatistics.setDepotTime(Common.fromDateH());
 				stockStatistics.setNewNum(newNum);
-				stockStatistics.setNum(projectStock.getNum());
+//				stockStatistics.setNum(projectStock.getNum());
 				stockStatistics.setActualPurchaseQuantity(projectStock.getActualPurchaseQuantity());
 				lockInsert(stockStatistics);
 				return BasicDataResult.build(200, "商品出库成功", stockStatistics);
@@ -229,13 +230,17 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 		lock.lock();
 		Integer oldnum = projectStock.getInventory();
 		Integer newnum = 0;
+		//实际库存量
+		int actualpurchase =  projectStock.getActualPurchaseQuantity();
 		try {
 			if (inOrOut) {
 				// 入库
 				newnum = oldnum + num;
 				projectStock.setInventory(newnum);
 				projectStock.setIsDelete(false);
-				projectStock.setActualPurchaseQuantity(projectStock.getActualPurchaseQuantity() + num);
+				
+				
+				projectStock.setActualPurchaseQuantity(actualpurchase + num);
 				if (revoke) {
 					// 出库数量去除
 					Integer revokeNum = projectStock.getNum();
@@ -243,7 +248,10 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 						return -1;
 					}
 					projectStock.setNum(revokeNum - num);
+					projectStock.setActualPurchaseQuantity(actualpurchase);
 				}
+					projectStock.setTotalActualCost(projectStock.getRealCostUnitPrice()*projectStock.getActualPurchaseQuantity());
+				
 
 				this.projectStockService.save(projectStock);
 				return newnum;
@@ -255,9 +263,13 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 				newnum = oldnum - num;
 				projectStock.setInventory(newnum);
 				projectStock.setIsDelete(false);
-				if (!revoke) {
+				if (revoke) {
+					projectStock.setActualPurchaseQuantity(actualpurchase-num);
+					projectStock.setNum(projectStock.getNum());
+				}else {
 					projectStock.setNum(projectStock.getNum() + num);
 				}
+				projectStock.setTotalActualCost(projectStock.getRealCostUnitPrice()*projectStock.getActualPurchaseQuantity());
 				this.projectStockService.save(projectStock);
 				return newnum;
 			}
@@ -285,10 +297,10 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 
 		long newNum = 0L;
 		if (Common.isNotEmpty(st.getStorageTime())) {
-			// 撤销出库
+			// 撤销入库   :::撤销出库之后 原数据中库存量增加  实际采购不变
 			newNum = this.updateProjectStock(projectStock, st.getNum(), false, true);
 		} else {
-			// 撤销入库
+			// 撤销出库  :::撤销人库之后 原数据中库存量减少  实际采购减少
 			newNum = this.updateProjectStock(projectStock, st.getNum(), true, true);
 		}
 		if (newNum == -1) {

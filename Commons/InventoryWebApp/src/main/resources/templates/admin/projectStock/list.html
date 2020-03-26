@@ -257,7 +257,7 @@
 														id="realCostUnitPrice"
 														th:style="${#lists.contains(listColums,'realCostUnitPrice')}?'':'display:none;'">[[${projectStock?.realCostUnitPrice}]]</td>
 
-													<td class="numeric totalActualCost" id="totalActualCost"
+													<td class="numeric totalActualCost"  th:id="|totalActualCost_${projectStock?.id}|"
 														th:style="${#lists.contains(listColums,'totalActualCost')}?'':'display:none;'">[[${projectStock?.totalActualCost}]]</td>
 
 													<td class="numeric paymentTime" id="paymentTime"

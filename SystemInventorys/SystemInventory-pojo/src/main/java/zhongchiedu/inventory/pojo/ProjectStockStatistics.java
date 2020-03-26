@@ -1,5 +1,6 @@
 package zhongchiedu.inventory.pojo;
 
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import lombok.AllArgsConstructor;
@@ -47,7 +48,8 @@ public class ProjectStockStatistics extends GeneralBean<ProjectStockStatistics> 
 	private String customer;//客户
 	@DBRef
 	private Area area;
-
+	@Transient
+	private Double totalActualCost;
 	
 
 
