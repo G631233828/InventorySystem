@@ -448,8 +448,11 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 			HSSFRow row = sheet.createRow(j + 1);
 			HSSFCell cell = row.createCell(0);
 			cell.setCellStyle(style);
+			if(Common.isNotEmpty(stock.getArea())) {
 			cell.setCellValue(stock.getArea().getName());
-
+			}else {
+				cell.setCellValue("");
+			}
 			cell = row.createCell(1);
 			cell.setCellStyle(style);
 			cell.setCellValue(stock.getProjectName());

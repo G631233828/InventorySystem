@@ -155,7 +155,7 @@ function searchVal() {
 
 	var pageSize = $("#pageSize").val();
 	var search = $("#serach").val();
-	var projectName = $("#projectName").val();
+	var projectName = $("#number-multiple").val();
 	var searchArea = $("#searchArea").val();
 /*	if (search == null || search == "") {
 		swal({

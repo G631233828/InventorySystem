@@ -112,19 +112,19 @@
 											onchange="return searchVal()">
 											<option value="">--选择区域--</option>
 											<option
-												th:selected="${searchArea}==${area?.id}"
+												th:selected="${session.searchArea}==${area?.id}"
 												th:each="area:${areas}" th:value="${area?.id}"
 												th:text="${area?.name}"></option>
 												
 										</select>
 										 <select class="filter-status form-control" id="pageSize"
 											onchange="return searchVal()">
-											<option value="10" th:selected="${pageSize == 10}">10
-											<option value="20" th:selected="${pageSize == 20}">20
-											<option value="50" th:selected="${pageSize == 50}">50
-											<option value="100" th:selected="${pageSize == 100}">100
+											<option value="10" th:selected="${session.pageSize == 10}">10
+											<option value="20" th:selected="${session.pageSize == 20}">20
+											<option value="50" th:selected="${session.pageSize == 50}">50
+											<option value="100" th:selected="${session.pageSize == 100}">100
 										</select> <input class="form-control" id="serach" placeholder="模糊匹配"
-											th:value="${search}" type="text">
+											th:value="${session.search}" type="text">
 										<button class="btn btn-default btn-sm"
 											onclick="return searchVal()">
 											<i class="entypo-search"> </i> 搜索
@@ -278,16 +278,24 @@
 											<ul class="pagination pagination-split pull-right"
 												style="margin-top: 0px;">
 												<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
-													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/stocks(pageNo=${pageList.upPage},pageSize=${pageSize},search=${search},id=${id},searchArea=${searchArea})}">上一页</a>
+													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/stocks(pageNo=1,pageSize=${session.pageSize},search=${session.search},id=${id},searchArea=${session.searchArea})}">首页</a>
+												</li>
+												<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
+													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/stocks(pageNo=${pageList.upPage},pageSize=${session.pageSize},search=${session.search},id=${id},searchArea=${session.searchArea})}">上一页</a>
 												</li>
 												<li th:each="page:${pageList.navigatepageNums}"
 													th:class="${page  == pageList.pageNo}?active:''"><a
-													th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/stocks(pageNo=${page},pageSize=${pageSize},search=${search},id=${id},searchArea=${searchArea})}">[[${page}]]</a>
+													th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/stocks(pageNo=${page},pageSize=${session.pageSize},search=${session.search},id=${id},searchArea=${session.searchArea})}">[[${page}]]</a>
 												</li>
 												<li
 													th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
 													<a
-													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/stocks(pageNo=${pageList.nextPage},pageSize=${pageSize},search=${search},id=${id},searchArea=${searchArea})}">下一页</a>
+													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/stocks(pageNo=${pageList.nextPage},pageSize=${session.pageSize},search=${session.search},id=${id},searchArea=${session.searchArea})}">下一页</a>
+												</li>
+												<li
+													th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
+													<a
+													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/stocks(pageNo=${pageList.totalPage},pageSize=${session.pageSize},search=${session.search},id=${id},searchArea=${session.searchArea})}">尾页</a>
 												</li>
 											</ul>
 										</div>

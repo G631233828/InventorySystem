@@ -37,6 +37,7 @@ import zhongchiedu.common.utils.ExcelReadUtil;
 import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralServiceImpl;
+import zhongchiedu.inventory.pojo.Area;
 import zhongchiedu.inventory.pojo.Brand;
 import zhongchiedu.inventory.pojo.Category;
 import zhongchiedu.inventory.pojo.GoodsStorage;
@@ -45,6 +46,7 @@ import zhongchiedu.inventory.pojo.Stock;
 import zhongchiedu.inventory.pojo.Supplier;
 import zhongchiedu.inventory.pojo.SystemClassification;
 import zhongchiedu.inventory.pojo.Unit;
+import zhongchiedu.inventory.service.AreaService;
 import zhongchiedu.inventory.service.StockService;
 import zhongchiedu.log.annotation.SystemServiceLog;
 
@@ -63,6 +65,8 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	private @Autowired GoodsStorageServiceImpl goodsStorageService;
 
 	private @Autowired BrandServiceImpl brandService;
+	
+	private @Autowired AreaService areaService;
 
 	@Override
 	@SystemServiceLog(description="编辑库存信息")
@@ -146,7 +150,8 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				query = this.findbySearch(search, query);
 			}
 			query.addCriteria(Criteria.where("isDelete").is(false));
-			query.with(new Sort(new Order(Direction.DESC, "createTime")));
+			//query.with(new Sort(new Order(Direction.DESC, "createTime")));
+			query.with(new Sort(new Order(Direction.DESC, "inventory")));
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, Stock.class);
 			if (pagination == null)
 				pagination = new Pagination<Stock>();
@@ -352,31 +357,40 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				Stock stock = null; // 库存信息
 				Supplier supplier = null;
 				Unit unit = null;
-				String name = resultexcel[i][j].trim();// 设备名称
+				String areaName = resultexcel[i][j].trim();//区域名称
+				//通过区域名称查询区域是否存在
+				Area getarea = this.areaService.findByName(areaName);
+				if (Common.isEmpty(getarea)) {
+					error += "<span class='entypo-attention'></span>导入文件过程中，第<b>&nbsp&nbsp" + (i + 1)
+							+ "行出现未添加的区域，请手动去修改该条信息或创建区域！&nbsp&nbsp</b></br>";
+					return error;
+				}
+				importStock.setArea(getarea);
+				String name = resultexcel[i][j+1].trim();// 设备名称
 				if (Common.isEmpty(name)) {
 					error += "<span class='entypo-attention'></span>导入文件过程中出现设备名称为空，第<b>&nbsp&nbsp" + (i + 1)
 							+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
 					continue;
 				}
 				importStock.setName(name); // 设备名称
-				String model = resultexcel[i][j + 1].trim();
+				String model = resultexcel[i][j + 2].trim();
 				if (Common.isEmpty(name)) {
 					error += "<span class='entypo-attention'></span>导入文件过程中出现设备型号为空，第<b>&nbsp&nbsp" + (i + 1)
 							+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
 					continue;
 				}
 				importStock.setModel(model);// 设备型号
-				importStock.setScope(resultexcel[i][j + 2].trim());// 使用范围
-				importStock.setPrice(resultexcel[i][j + 3].trim());// 价格
+				importStock.setScope(resultexcel[i][j + 3].trim());// 使用范围
+				importStock.setPrice(resultexcel[i][j + 4].trim());// 价格
 
-				String unitName = resultexcel[i][j + 4].trim();
+				String unitName = resultexcel[i][j + 5].trim();
 				if (Common.isNotEmpty(unitName)) {
 					// 根据供应商名称查找，看供应商是否存在
 					unit = this.unitService.findByName(unitName);
 				}
 				importStock.setUnit(unit);
-				importStock.setMaintenance(resultexcel[i][j + 5].trim());// 维保
-				String supplierName = resultexcel[i][j + 6].trim();// 供应商名称
+				importStock.setMaintenance(resultexcel[i][j + 6].trim());// 维保
+				String supplierName = resultexcel[i][j + 7].trim();// 供应商名称
 				if (Common.isNotEmpty(supplierName)) {
 					// 根据供应商名称查找，看供应商是否存在
 					supplier = this.supplierService.findByName(supplierName);

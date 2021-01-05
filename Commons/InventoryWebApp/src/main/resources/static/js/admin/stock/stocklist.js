@@ -34,12 +34,14 @@ function showStockStatistics(o) {
 				var name = datas.name;
 				var inventory = datas.inventory;
 				var stockid = datas.id;
+				var description =datas.description;
 				var unit = "";
 				if(datas.unit!=null){
 					unit = datas.unit.name;
 				}
 				$("#stockId").val(stockid);
 				$("#stockName").text(name);
+				$("#description").text(description);
 				$("#loadinventory").text(inventory+"  "+unit);
 				
 			}
@@ -67,11 +69,13 @@ function showStockStatistics2(o) {
 				var name = datas.name;
 				var inventory = datas.inventory;
 				var stockid = datas.id;
+				var description =datas.description;
 				var unit = "";
 				if(datas.unit!=null){
 					unit = datas.unit.name;
 				}
 				$("#stockIdOut").val(stockid);
+				$("#descriptionOut").text(description);
 				$("#stockNameOut").text(name);
 				$("#loadinventoryOut").text(inventory+"  "+unit);
 				

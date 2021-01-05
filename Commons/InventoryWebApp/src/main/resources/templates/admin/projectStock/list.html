@@ -9,6 +9,11 @@
 <link th:href="@{/plugs/sweetalert/sweetalert.css}" rel="stylesheet">
 <link th:href="@{/plugs/alert/css/alert.css}" rel="stylesheet">
 <script type="text/javascript" th:src="@{/plugs/alert/js/alert.js}"></script>
+<link rel="stylesheet" th:href="@{/assets/css/bootstrap-select.css}">
+
+
+
+
 </head>
 
 <body>
@@ -118,21 +123,46 @@
 										</select> <select class="filter-status form-control" id="pageSize"
 											onchange="return searchVal()">
 											<option value="10" th:selected="${pageSize == 10}">10
+
+
+
+
 											
 											<option value="20" th:selected="${pageSize == 20}">20
+
+
+
+
 											
 											<option value="50" th:selected="${pageSize == 50}">50
+
+
+
+
 											
 											<option value="100" th:selected="${pageSize == 100}">100
+
+
+
+
 											
-										</select> <select class="filter-status form-control" id="projectName"
+										</select> <select multiple class="selectpicker form-control"
+											onchange="return searchVal()" id="number-multiple"
+											data-container="body" name="projectName" title="选择项目名称"
+											data-live-search="true" data-hide-disabled="true"
+											data-actions-box="false" data-virtual-scroll="false"
+											data-max-options="1"></select>
+
+
+
+										<!-- 	<select class="filter-status form-control" id="projectName"
 											onchange="return searchVal()">
 											<option value="">选择项目名称
 											<option th:value="${name}" th:each="name:${projectName}"
 												th:selected="${name == selectProjectName}">[[${name}]]
+										</select>  -->
 
-											
-										</select> <input class="form-control" id="serach" placeholder="模糊匹配"
+										<input class="form-control" id="serach" placeholder="模糊匹配"
 											th:value="${search}" type="text">
 										<button class="btn btn-default btn-sm"
 											onclick="return searchVal()">
@@ -257,7 +287,8 @@
 														id="realCostUnitPrice"
 														th:style="${#lists.contains(listColums,'realCostUnitPrice')}?'':'display:none;'">[[${projectStock?.realCostUnitPrice}]]</td>
 
-													<td class="numeric totalActualCost"  th:id="|totalActualCost_${projectStock?.id}|"
+													<td class="numeric totalActualCost"
+														th:id="|totalActualCost_${projectStock?.id}|"
 														th:style="${#lists.contains(listColums,'totalActualCost')}?'':'display:none;'">[[${projectStock?.totalActualCost}]]</td>
 
 													<td class="numeric paymentTime" id="paymentTime"
@@ -327,6 +358,9 @@
 											<ul class="pagination pagination-split pull-right"
 												style="margin-top: 0px;">
 												<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
+													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/projectStocks(pageNo=1,pageSize=${pageSize},search=${search},id=${id},projectName=${selectProjectName},searchArea=${searchArea})}">首页</a>
+												</li>
+												<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
 													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/projectStocks(pageNo=${pageList.upPage},pageSize=${pageSize},search=${search},id=${id},projectName=${selectProjectName},searchArea=${searchArea})}">上一页</a>
 												</li>
 												<li th:each="page:${pageList.navigatepageNums}"
@@ -337,6 +371,11 @@
 													th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
 													<a
 													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/projectStocks(pageNo=${pageList.nextPage},pageSize=${pageSize},search=${search},id=${id},projectName=${selectProjectName},searchArea=${searchArea})}">下一页</a>
+												</li>
+												<li
+													th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
+													<a
+													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/projectStocks(pageNo=${pageList.totalPage},pageSize=${pageSize},search=${search},id=${id},projectName=${selectProjectName},searchArea=${searchArea})}">尾页</a>
 												</li>
 											</ul>
 										</div>
@@ -367,6 +406,8 @@
 	<!-- 引入projectStocklist.js -->
 	<script type="text/javascript" th:inline="javascript"
 		th:src="@{/js/admin/projectStock/projectStocklist.js}"></script>
+	<script th:src="@{/assets/js/select/bootstrap-select.js}"
+		type="text/javascript"></script>
 	<script type="text/javascript" th:inline="javascript"
 		th:src="@{/js/admin/projectStock/in.js}"></script>
 	<script type="text/javascript" th:inline="javascript"
@@ -389,6 +430,31 @@
 	<!-- Sweet alert -->
 	<script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
 	<div th:replace="public/public_js::validator"></div>
+
+	<script type="text/javascript" th:inline="javascript">
+
+$(function(){
+var options = [], _options;
+/* <![CDATA[ */
+	 var data = [[${projectName}]];
+	 /*]]>*/
+	  for (var i = 0; i < data.length; i++) {
+	    var option = '<option value="' + data[i]+ '">' + data[i] + '</option>';
+	    options.push(option);
+	  }
+	  _options = options.join('');
+	  /* <![CDATA[ */  $('#number-multiple')[0].innerHTML = _options;
+	     $("#number-multiple").selectpicker('val',[[${selectProjectName}]]); 
+			  $("#number-multiple").selectpicker('refresh');
+		  $('#number-multiple').selectpicker('render')/*]]>*/
+})	  
+	  
+
+</script>
+
+
+
+
 </body>
 
 </html>

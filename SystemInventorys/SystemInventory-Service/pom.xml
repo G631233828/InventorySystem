@@ -27,7 +27,7 @@
 		</dependency>
 		<dependency>
 			<groupId>zhongchiedu.com</groupId>
-			<artifactId>SystemFunction-service</artifactId>
+			<artifactId>SystemFunction-Service</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

@@ -74,6 +74,12 @@ public class StockController {
 			@ModelAttribute("errorImport") String errorImport,
 			@RequestParam(value = "search", defaultValue = "") String search,
 			@RequestParam(value = "searchArea", defaultValue = "") String searchArea) {
+		
+//		pageNo = (Integer) session.getAttribute("pageNo")!=null?(Integer) session.getAttribute("pageNo"):pageNo;
+//		pageSize = (Integer) session.getAttribute("pageSize")!=null?(Integer) session.getAttribute("pageSize"):pageSize;
+//		search =  (String)session.getAttribute("search")!=null?(String) session.getAttribute("search"):search;
+//		searchArea = (String)session.getAttribute("searchArea")!=null? (String) session.getAttribute("searchArea"):searchArea;
+		
 		// 区域
 		List<Area> areas = this.areaService.findAllArea(false);
 		model.addAttribute("areas", areas);
@@ -82,9 +88,15 @@ public class StockController {
 		model.addAttribute("pageList", pagination);
 		List<String> listColums = this.columnService.findColumns("stock");
 		model.addAttribute("listColums", listColums);
-		model.addAttribute("pageSize", pageSize);
-		model.addAttribute("search", search);
-		model.addAttribute("searchArea", searchArea);
+		
+		session.setAttribute("pageNo", pageNo);
+		session.setAttribute("pageSize", pageSize);
+		session.setAttribute("search", search);
+		session.setAttribute("searchArea", searchArea);
+		
+//		model.addAttribute("pageSize", pageSize);
+//		model.addAttribute("search", search);
+//		model.addAttribute("searchArea", searchArea);
 
 		return "admin/stock/list";
 	}
@@ -114,17 +126,27 @@ public class StockController {
 	@PostMapping("/stock")
 	@RequiresPermissions(value = "stock:add")
 	@SystemControllerLog(description = "添加设备")
-	public String addUser(@ModelAttribute("stock") Stock stock) {
+	public String addUser(@ModelAttribute("stock") Stock stock,HttpSession session) {
 		this.stockService.saveOrUpdate(stock);
-		return "redirect:stocks";
+		Integer pageNo = (Integer) session.getAttribute("pageNo");
+		Integer pageSize = (Integer) session.getAttribute("pageSize");
+		String search =  (String)session.getAttribute("search");
+		String searchArea = (String)session.getAttribute("searchArea");
+		
+		
+		return "redirect:stocks?pageNo="+pageNo+"&pageSize="+pageSize+"&search="+search+"&searchArea="+searchArea;
 	}
 
 	@PutMapping("/stock")
 	@RequiresPermissions(value = "stock:edit")
 	@SystemControllerLog(description = "修改设备")
-	public String edit(@ModelAttribute("stock") Stock stock) {
+	public String edit(@ModelAttribute("stock") Stock stock,HttpSession session) {
+		Integer pageNo = (Integer) session.getAttribute("pageNo");
+		Integer pageSize = (Integer) session.getAttribute("pageSize");
+		String search =  (String)session.getAttribute("search");
+		String searchArea = (String)session.getAttribute("searchArea");
 		this.stockService.saveOrUpdate(stock);
-		return "redirect:stocks";
+		return "redirect:stocks?pageNo="+pageNo+"&pageSize="+pageSize+"&search="+search+"&searchArea="+searchArea;
 	}
 
 	/**
@@ -138,12 +160,9 @@ public class StockController {
 	public String toeditPage(@PathVariable String id, Model model) {
 		Stock stock = this.stockService.findOneById(id, Stock.class);
 		model.addAttribute("stock", stock);
-		
 		// 所有货架
 		List<GoodsStorage> list = this.goodsStorageService.findAllGoodsStorage(false,stock.getArea().getId());
 		model.addAttribute("goodsStorages", list);
-		
-		
 		// 所有供应商
 		List<Supplier> syslist = this.supplierService.findAllSupplier(false);
 		model.addAttribute("suppliers", syslist);
@@ -160,11 +179,16 @@ public class StockController {
 	@DeleteMapping("/stock/{id}")
 	@RequiresPermissions(value = "stock:delete")
 	@SystemControllerLog(description = "删除设备")
-	public String delete(@PathVariable String id) {
+	public String delete(@PathVariable String id,HttpSession session) {
+		Integer pageNo = (Integer) session.getAttribute("pageNo");
+		Integer pageSize = (Integer) session.getAttribute("pageSize");
+		String search =  (String)session.getAttribute("search");
+		String searchArea = (String)session.getAttribute("searchArea");
 		log.info("删除设备" + id);
 		this.stockService.delete(id);
 		log.info("删除设备" + id + "成功");
-		return "redirect:/stocks";
+		return "redirect:stocks?pageNo="+pageNo+"&pageSize="+pageSize+"&search="+search+"&searchArea="+searchArea;
+		
 	}
 
 	/**

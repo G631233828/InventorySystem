@@ -25,64 +25,81 @@
 						<div class="row">
 							<!-- edit form column -->
 							<div class="col-md-12 personal-info">
-							
+
 								<form class="form-horizontal" enctype="multipart/form-data"
 									id="OutstockStatisticsForm">
 									<div class="form-group">
 										<div class="row">
 											<label class="col-lg-2  text-info ">出商品名称：</label>
 											<div class="col-lg-4">
-												<p  class="text-info stockval" id="stockNameOut" ></p>
-												<input type="hidden" class="text-info stockval" name="stock.id" id="stockIdOut">
+												<p class="text-info stockval" id="stockNameOut"></p>
+												<input type="hidden" class="text-info stockval"
+													name="stock.id" id="stockIdOut">
 											</div>
-											
+
 										</div>
 									</div>
 									<div class="form-group">
 										<div class="row">
 											<label class="col-lg-2  text-info ">库存量：</label>
 											<div class="col-lg-4">
-												<p  class="text-info stockval"  id="loadinventoryOut"></p>
+												<p class="text-info stockval" id="loadinventoryOut"></p>
 											</div>
-											
+
 										</div>
 									</div>
-									
+
 									<div class="form-group">
 										<div class="row">
-										<label class="col-lg-2  text-info " style="margin-top: 3px;">负责人：</label>
+											<label class="col-lg-2  text-info " style="margin-top: 3px;">负责人：</label>
 											<div class="col-lg-4 ">
-												<input type="text" class="form-control stockval" name="personInCharge" id="personInChargeOut">
+												<input type="text" class="form-control stockval"
+													name="personInCharge" id="personInChargeOut">
 											</div>
-										<label class="col-lg-2  text-info " style="margin-top: 3px;">项目名称：</label>
+											<label class="col-lg-2  text-info " style="margin-top: 3px;">项目名称：</label>
 											<div class="col-lg-4 ">
-												<input type="text" class="form-control stockval" name="projectName" id="projectNameOut">
+												<input type="text" class="form-control stockval"
+													name="projectName" id="projectNameOut">
 											</div>
 										</div>
 									</div>
-									
+
 									<div class="form-group">
 										<div class="row">
-										<label class="col-lg-2  text-info " style="margin-top: 3px;">客户：</label>
+											<label class="col-lg-2  text-info " style="margin-top: 3px;">客户：</label>
 											<div class="col-lg-4 ">
-												<input type="text" class="form-control stockval" name="customer" id="customerOut">
+												<input type="text" class="form-control stockval"
+													name="customer" id="customerOut">
 											</div>
 											<label class="col-lg-2  text-info " style="margin-top: 3px;">出库数量：</label>
 											<div class="col-lg-4 ">
-												<input type="text" class="form-control stockval" name="num" id="numOut" required="required">
+												<input type="text" class="form-control stockval" name="num"
+													id="numOut" required="required">
 											</div>
 										</div>
 									</div>
-									
-									
-									
+
+									<div class="form-group">
+										<div class="row">
+											<label class="col-lg-2  text-info " style="margin-top: 3px;">备注：</label>
+											<div class="col-lg-8 ">
+												<textarea id="descriptionOut"
+													style="height: 150px !important; margin: 20px 0; resize: none;"
+													class="form-control" placeholder="备注" name="description"></textarea>
+											</div>
+										</div>
+
+									</div>
+
+
+
 									<input type="hidden" name="InOrOut" value="false">
 
 									<div class="form-group">
 										<label class="col-lg-1 control-label"></label>
 										<div class="col-md-8">
-											<button type="submit" class="btn btn-success" >出库</button>
-											
+											<button type="submit" class="btn btn-success">出库</button>
+
 										</div>
 									</div>
 								</form>

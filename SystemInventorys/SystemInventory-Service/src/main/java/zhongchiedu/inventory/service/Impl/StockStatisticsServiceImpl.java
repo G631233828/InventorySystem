@@ -162,6 +162,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		}
 		String id = stockStatistics.getStock().getId();// 获取库存设备id
 		Stock stock = this.stockService.findOneById(id, Stock.class);
+		stock.setDescription(stockStatistics.getDescription());
 		if (Common.isNotEmpty(stock)) {
 			User user = (User) session.getAttribute(Contents.USER_SESSION);
 			stockStatistics.setUser(user);

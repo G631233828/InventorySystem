@@ -159,6 +159,8 @@
 													th:style="${#lists.contains(listColums,'customer')}?'':'display:none;'">客户</th>
 												<th class="numeric user"
 													th:style="${#lists.contains(listColums,'user')}?'':'display:none;'">操作人</th>
+												<th class="numeric description"
+													th:style="${#lists.contains(listColums,'description')}?'':'display:none;'">备注</th>
 												<th class="numeric revoke"
 													th:style="${#lists.contains(listColums,'revoke')}?'':'display:none;'">状态</th>
 
@@ -211,12 +213,16 @@
 														th:text="${stockStatistics.customer != null}?${stockStatistics?.customer}:'--------'"></td>
 													<td class="numeric user" id="user"
 														th:style="${#lists.contains(listColums,'user')}?'':'display:none;'">[[${stockStatistics?.user?.userName}]]</td>
+													<td class="numeric description" id="description"  th:title="${stockStatistics.description}"
+														th:style="${#lists.contains(listColums,'description')}?'':'display:none;'">[[${#strings.abbreviate(stockStatistics?.description,50)}]]</td>
+													
 													<td class="numeric revoke" id="revoke"
 														th:style="${#lists.contains(listColums,'revoke')}?'':'display:none;'">
 														<label th:id="|revoke${stockStatistics?.id}|"
 														th:style="${stockStatistics?.revoke == true}?'color:red':'color:green'"
 														th:text="${stockStatistics?.revoke == true}?'已撤销':'正常'"></label>
 													</td>
+												
 													<td class="numeric"><shiro:hasPermission
 															name="stockStatistics:revoke">
 															<button class="btn btn-primary btn-xs btcancle"
@@ -244,22 +250,30 @@
 											<div class="dataTables_info hidden-xs"
 												style="margin-top: 0px;" role="status" aria-live="polite"
 												th:text="|每页显示${pageList?.pageSize}行
-										－ 当前页${pageList.pageNo}页 － 共${pageList.totalPage}页|"></div>
+										－ 当前页${pageList?.pageNo}页 － 共${pageList?.totalPage}页|"></div>
 										</div>
 										<div class="col-md-6">
 											<ul class="pagination pagination-split pull-right"
 												style="margin-top: 0px;">
-												<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
-													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList.upPage},pageSize=${pageSize},search=${search},searchArea=${searchArea})}">上一页</a>
+												<li th:class="${pageList?.pageNo } eq 1 ?disabled:''"><a
+													th:href="${pageList?.pageNo} eq 1?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.upPage},pageSize=1,search=${search},searchArea=${searchArea},type=${type})}">首页</a>
 												</li>
-												<li th:each="page:${pageList.navigatepageNums}"
-													th:class="${page  == pageList.pageNo}?active:''"><a
-													th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/stockStatisticss(pageNo=${page},pageSize=${pageSize},search=${search},searchArea=${searchArea})}">[[${page}]]</a>
+												<li th:class="${pageList?.pageNo } eq 1 ?disabled:''"><a
+													th:href="${pageList?.pageNo} eq 1?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.upPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type})}">上一页</a>
+												</li>
+												<li th:each="page:${pageList?.navigatepageNums}"
+													th:class="${page  == pageList?.pageNo}?active:''"><a
+													th:href="${page eq pageList?.pageNo}?'javascript:void(0)':@{/stockStatisticss(pageNo=${page},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type})}">[[${page}]]</a>
 												</li>
 												<li
-													th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
+													th:class="${pageList?.pageNo eq pageList?.totalPage}?disabled:''">
 													<a
-													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList.nextPage},pageSize=${pageSize},search=${search},searchArea=${searchArea})}">下一页</a>
+													th:href="${pageList?.pageNo eq pageList?.totalPage}?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.nextPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type})}">下一页</a>
+												</li>
+												<li
+													th:class="${pageList?.pageNo eq pageList?.totalPage}?disabled:''">
+													<a
+													th:href="${pageList?.pageNo eq pageList?.totalPage}?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.totalPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type})}">尾页</a>
 												</li>
 											</ul>
 										</div>

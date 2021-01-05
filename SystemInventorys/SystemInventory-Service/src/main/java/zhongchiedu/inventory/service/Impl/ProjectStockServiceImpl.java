@@ -285,8 +285,18 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 				ProjectStock stock = null; // 项目库存信息
 				List<Supplier> supplier = null;
 				Supplier supp = null;
-
-				String projectName = resultexcel[i][j].trim();// 项目名称
+				String areaName = resultexcel[i][j].trim();//区域
+				//通过区域名称查询区域是否存在
+				Area getarea = this.areaService.findByName(areaName);
+				if (Common.isEmpty(getarea)) {
+					error += "<span class='entypo-attention'></span>导入文件过程中，第<b>&nbsp&nbsp" + (i + 1)
+							+ "行出现未添加的区域，请手动去修改该条信息或创建区域！&nbsp&nbsp</b></br>";
+					return error;
+				}
+				
+				importProjectStock.setArea(getarea);
+				
+				String projectName = resultexcel[i][j+1].trim();// 项目名称
 				if (Common.isEmpty(projectName)) {
 					error += "<span class='entypo-attention'></span>导入文件过程中，第<b>&nbsp&nbsp" + (i + 1)
 							+ "行出现项目名称为空，请手动去修改该条信息！&nbsp&nbsp</b></br>";
@@ -294,7 +304,8 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 				}
 				importProjectStock.setProjectName(projectName);
 
-				String name = resultexcel[i][j + 1].trim();// 设备名称
+			
+				String name = resultexcel[i][j + 2].trim();// 设备名称
 				if (Common.isEmpty(name)) {
 					error += "<span class='entypo-attention'></span>导入文件过程中出现设备名称为空，第<b>&nbsp&nbsp" + (i + 1)
 							+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
@@ -302,15 +313,15 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 				}
 				importProjectStock.setName(name); // 设备名称
 
-				String model = resultexcel[i][j + 2].trim();
+				String model = resultexcel[i][j + 3].trim();
 				importProjectStock.setModel(model);// 设备型号
 
-				importProjectStock.setScope(resultexcel[i][j + 3].trim());// 使用范围
+				importProjectStock.setScope(resultexcel[i][j + 4].trim());// 使用范围
 
 				Integer projectedProcurementVolume = 0;
 				Double estimatedUnitPrice = 0.0;
 				try {
-					projectedProcurementVolume = Integer.valueOf(resultexcel[i][j + 4]);// 预计采购量
+					projectedProcurementVolume = Integer.valueOf(resultexcel[i][j + 5]);// 预计采购量
 				} catch (NumberFormatException e) {
 					log.debug("导入文件过程中出现错误第" + (i + 1) + "行出现错误" + e);
 					String aa = e.getLocalizedMessage();
@@ -323,7 +334,7 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 
 				}
 				try {
-					estimatedUnitPrice = Double.valueOf(resultexcel[i][j + 5]);// 预计采购单价
+					estimatedUnitPrice = Double.valueOf(resultexcel[i][j + 6]);// 预计采购单价
 				} catch (NumberFormatException e) {
 					log.debug("导入文件过程中出现错误第" + (i + 1) + "行出现错误" + e);
 					String aa = e.getLocalizedMessage();
@@ -347,7 +358,7 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 
 				Integer actualPurchaseQuantity = 0; // 实际采购数量
 				try {
-					actualPurchaseQuantity = Integer.valueOf(resultexcel[i][j + 6]);
+					actualPurchaseQuantity = Integer.valueOf(resultexcel[i][j + 7]);
 				} catch (NumberFormatException e) {
 					log.debug("导入文件过程中出现错误第" + (i + 1) + "行出现错误" + e);
 					String aa = e.getLocalizedMessage();
@@ -362,7 +373,7 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 
 				Double realCostUnitPrice = 0.0; // 实际采购单价
 				try {
-					realCostUnitPrice = Double.valueOf(resultexcel[i][j + 7]);
+					realCostUnitPrice = Double.valueOf(resultexcel[i][j + 8]);
 				} catch (NumberFormatException e) {
 					log.debug("导入文件过程中出现错误第" + (i + 1) + "行出现错误" + e);
 					String aa = e.getLocalizedMessage();
@@ -380,12 +391,12 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 				}
 				importProjectStock.setTotalActualCost(totalActualCost);// 计算实际成本总价
 
-				importProjectStock.setPaymentTime(resultexcel[i][j + 8]);// 付款时间
+				importProjectStock.setPaymentTime(resultexcel[i][j + 9]);// 付款时间
 
 				// long paymentAmount = 0;
 				//
 
-				String paymentAmount = resultexcel[i][j + 9];
+				String paymentAmount = resultexcel[i][j + 10];
 				if (Common.isNotEmpty(paymentAmount)) {
 					try {
 						importProjectStock.setPaymentAmount(Double.valueOf(paymentAmount));// 付款金额
@@ -423,7 +434,7 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 				 * }
 				 */
 
-				String supplierName = resultexcel[i][j + 10].trim();// 供应商名称
+				String supplierName = resultexcel[i][j + 11].trim();// 供应商名称
 				if (Common.isNotEmpty(supplierName)) {
 					// 根据供应商名称查找，看供应商是否存在
 					supplier = this.supplierService.findByRegxName(supplierName);
