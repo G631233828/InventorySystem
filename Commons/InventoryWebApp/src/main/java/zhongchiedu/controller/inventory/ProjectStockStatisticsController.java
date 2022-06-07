@@ -22,16 +22,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import lombok.extern.slf4j.Slf4j;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.Common;
+import zhongchiedu.common.utils.Contents;
 import zhongchiedu.framework.pagination.Pagination;
+import zhongchiedu.general.pojo.User;
 import zhongchiedu.inventory.pojo.Area;
 import zhongchiedu.inventory.pojo.ProjectStockStatistics;
-import zhongchiedu.inventory.pojo.StockStatistics;
 import zhongchiedu.inventory.service.Impl.AreaServiceImpl;
 import zhongchiedu.inventory.service.Impl.ColumnServiceImpl;
 import zhongchiedu.inventory.service.Impl.ProjectStockServiceImpl;
 import zhongchiedu.inventory.service.Impl.ProjectStockStatisticsServiceImpl;
-import zhongchiedu.inventory.service.Impl.StockServiceImpl;
-import zhongchiedu.inventory.service.Impl.StockStatisticsServiceImpl;
 import zhongchiedu.log.annotation.SystemControllerLog;
 
 /**
@@ -88,7 +87,8 @@ public class ProjectStockStatisticsController {
 	@SystemControllerLog(description = "项目设备入库")
 	public synchronized BasicDataResult in(@ModelAttribute("projectStockStatistics") ProjectStockStatistics projectStockStatistics,
 			HttpSession session) {
-		return this.projectStockStatisticsService.inOrOutstockStatistics(projectStockStatistics, session);
+		 User user =(User)session.getAttribute(Contents.USER_SESSION);
+		return this.projectStockStatisticsService.inOrOutstockStatistics(projectStockStatistics, user);
 	}
 
 	@RequestMapping(value = "/projectStockStatistics/out", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
@@ -97,7 +97,8 @@ public class ProjectStockStatisticsController {
 	@SystemControllerLog(description = "项目设备出库")
 	public synchronized BasicDataResult out(@ModelAttribute("projectStockStatistics") ProjectStockStatistics projectStockStatistics,
 			HttpSession session) {
-		return this.projectStockStatisticsService.inOrOutstockStatistics(projectStockStatistics, session);
+	 User user =(User)session.getAttribute(Contents.USER_SESSION);
+		return this.projectStockStatisticsService.inOrOutstockStatistics(projectStockStatistics,user);
 
 	}
 

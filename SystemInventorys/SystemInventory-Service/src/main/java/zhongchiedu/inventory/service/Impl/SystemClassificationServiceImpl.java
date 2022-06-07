@@ -62,21 +62,7 @@ public class SystemClassificationServiceImpl extends GeneralServiceImpl<SystemCl
 		}
 	}
 
-	@Override
-	@SystemServiceLog(description="启用禁用系统分类信息")
-	public BasicDataResult disable(String id) {
-		if (Common.isEmpty(id)) {
-			return BasicDataResult.build(400, "无法禁用，请求出现问题，请刷新界面!", null);
-		}
-		SystemClassification systemClassification = this.findOneById(id, SystemClassification.class);
-		if (Common.isEmpty(systemClassification)) {
-			return BasicDataResult.build(400, "禁用失败，该条信息可能已被删除", null);
-		}
-		systemClassification.setIsDisable(systemClassification.getIsDisable().equals(true) ? false : true);
-		this.save(systemClassification);
-		return BasicDataResult.build(200, systemClassification.getIsDisable().equals(true) ? "禁用成功" : "恢复成功",
-				systemClassification.getIsDisable());
-	}
+
 
 	@Override
 	@SystemServiceLog(description="获取所有非禁用系统分类信息")

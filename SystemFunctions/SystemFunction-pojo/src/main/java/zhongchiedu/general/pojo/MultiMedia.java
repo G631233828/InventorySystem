@@ -22,10 +22,14 @@ public class MultiMedia extends GeneralBean<MultiMedia>{/**
 	private String dir;//文件卷
 	private String extension;//文件扩展名
 	private String fileType;//文件类别
-	private long fileSize;//文件大小
+	private String fileSize;//文件大小
 	private String fileSizeStr;//单位 MB KB B
 	private String belong;//归属
-	
+	private String thumbnailName;//缩略图名称
+	private String videoTime;//视频时间
+	private int views;//浏览次数
+	private String title;
+	private String author;
 	
 	
 	

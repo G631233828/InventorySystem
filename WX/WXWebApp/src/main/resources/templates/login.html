@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<title>库存管理系统微信端登陆</title>
+<meta
+	content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0"
+	name="viewport">
+<meta content="yes" name="apple-mobile-web-app-capable">
+<meta content="black" name="apple-mobile-web-app-status-bar-style">
+<meta content="telephone=no" name="format-detection">
+<link th:href="@{/assets/login/css/style.css}" rel="stylesheet"
+	type="text/css">
+<script type="text/javascript" th:src="@{/assets/login/js/jquery.min.js}"></script>
+<script type="text/javascript" th:src="@{/assets/login/js/form.js}"></script>
+<style type="text/css">
+	.systemName{
+		font-size: 1.7rem;
+		margin: 0 auto;
+	}
+
+</style>
+
+</head>
+<body style="">
+	<section class="aui-flexView">
+		<header class="aui-navBar aui-navBar-fixed">
+			<a href="javascript:;" class="aui-navBar-item"> <i
+				class="icon icon-return"></i>
+			</a>
+			<div class="aui-center">
+				<span class="aui-center-title"></span>
+			</div>
+			<a href="javascript:;" class="aui-navBar-item"> <i
+				class="icon icon-info"></i>
+			</a>
+		</header>
+		<section class="aui-scrollView">
+
+			<div class="systemName">
+					<center>库存管理系统</center>
+			</div>
+			<form  th:action="@{/wechat/tologin}" id="tologin" method="post">
+			<div class="aui-account-input">
+				<div class="b-line">
+					<input type="text" name="username" placeholder="请输入用户名" id="login_phone">
+					<label class="err err-top40" id="login_phone_text"
+						style="display: block;">用户名不能为空</label>
+				</div>
+				<div class="">
+					<input type="password"  name="password" placeholder="请输入密码 " id="login_password">
+					<label class="err err-top40" id="login_password_text"
+						style="display: block;">密码不能为空</label>
+				</div>
+				
+				<input type="hidden" th:value="${openId}" name="openId">
+			</div>
+			
+			</form>
+			<div class="aui-account-button">
+				<button id="login_submit">登录</button>
+			</div>
+			
+			
+
+
+		</section>
+	</section>
+
+	<script type="text/javascript">
+		$(function() {
+			var regconfig = [ {
+				eleinput : "login_phone",
+				eletext : "login_phone_text",
+				rule : [ {
+					reg : /^.+$/,
+					text : "用户名不能为空"
+				}]
+			}, {
+				eleinput : "login_password",
+				eletext : "login_password_text",
+				rule : [ {
+					reg : /^.+$/,
+					text : "密码不能为空"
+				} ]
+			} ];
+			tbdValidate(regconfig, {
+				elesubmit : "login_submit",//提交按钮
+				funsubmit : function() {//验证通过可提交回调
+					//信息提交接口
+					$("#tologin").submit();
+				},
+				funerr : function() {//不可提交回调
+
+				},
+				funerrlist : function(errlist) {
+					$('#' + errlist[0]).focus();
+				}
+			});
+
+		});
+	</script>
+
+</body>
+</html>

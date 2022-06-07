@@ -16,11 +16,13 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
@@ -40,10 +42,14 @@ import zhongchiedu.log.annotation.SystemServiceLog;
 @Slf4j
 public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatistics> implements StockStatisticsService {
 
+	@Lazy
 	private @Autowired StockServiceImpl stockService;
 
 	private @Autowired UserServiceImpl userServiceService;
 
+	@Autowired
+	private RedisTemplate redisTemplate;
+	
 	@Override
 	@SystemServiceLog(description="分页查询库存统计信息")
 	public Pagination<StockStatistics> findpagination(Integer pageNo, Integer pageSize, String search, String start,
@@ -118,7 +124,10 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		Query query = new Query();
 		Criteria ca = new Criteria();
 
-		query.addCriteria(ca.orOperator(Criteria.where("name").regex(search), Criteria.where("model").regex(search)));
+		query.addCriteria(ca.orOperator(Criteria.where("name").regex(search), Criteria.where("model").regex(search)
+				, Criteria.where("entryName").regex(search),Criteria.where("itemNo").regex(search),
+				Criteria.where("projectLeader").regex(search)
+				));
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		List<Stock> lists = this.stockService.find(query, Stock.class);
 		for (Stock li : lists) {
@@ -154,7 +163,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 	@Override
 	@SystemServiceLog(description="库存出库入库")
-	public BasicDataResult inOrOutstockStatistics(StockStatistics stockStatistics, HttpSession session) {
+	public BasicDataResult inOrOutstockStatistics(StockStatistics stockStatistics,User user) {
 
 		long num = stockStatistics.getNum();
 		if (num <= 0) {
@@ -162,9 +171,9 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		}
 		String id = stockStatistics.getStock().getId();// 获取库存设备id
 		Stock stock = this.stockService.findOneById(id, Stock.class);
-		stock.setDescription(stockStatistics.getDescription());
-		if (Common.isNotEmpty(stock)) {
-			User user = (User) session.getAttribute(Contents.USER_SESSION);
+		if (stock!=null) {
+			
+			stock.setDescription(stockStatistics.getDescription());
 			stockStatistics.setUser(user);
 			stockStatistics.setRevoke(false);
 			stockStatistics.setArea(stock.getArea());
@@ -186,6 +195,8 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				stockStatistics.setDepotTime(Common.fromDateH());
 				stockStatistics.setNewNum(newNum);
 				lockInsert(stockStatistics);
+				//刷新redis中的projectName
+				this.redisTemplate.delete("projectNames");
 				return BasicDataResult.build(200, "商品出库成功", stockStatistics);
 			}
 		} else {
@@ -408,7 +419,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			
 			HSSFCell cell = row.createCell(0);
 			cell.setCellStyle(style);
-			cell.setCellValue(stock.getArea().getName());
+			cell.setCellValue(stock.getArea()!=null?stock.getArea().getName():"");
 			
 			cell = row.createCell(1);
 			cell.setCellStyle(style);
@@ -419,10 +430,14 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			cell.setCellValue(stock.getModel());
 			
 			int l = 2;
+
 			for (StockStatistics st : list) {
+				
+				if(st.getStock()!=null) {
 				if (stock.getId().equals(st.getStock().getId())) {
 					cell = row.createCell(l+1);
 					cell.setCellStyle(style);
+					System.out.println(111);
 					if (st.isInOrOut()) {
 						cell.setCellValue(st.getStorageTime());
 					} else {
@@ -450,6 +465,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 					}else{
 						l= l+2;
 					}
+				}
 				}
 			}
 			j++;
@@ -495,6 +511,14 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		}
 		List<StockStatistics> list = this.find(query, StockStatistics.class);
 		return list;
+	}
+
+	@Override
+	public List<StockStatistics> findAllStockStatics() {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("isDelete").is(false));
+		query.addCriteria(Criteria.where("isDisable").is(false));
+		return this.find(query, StockStatistics.class);
 	}
 
 }

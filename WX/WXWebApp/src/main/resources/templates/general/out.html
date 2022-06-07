@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>库存管理系统-取货登记</title>
+<meta
+	content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0"
+	name="viewport">
+<meta content="yes" name="apple-mobile-web-app-capable">
+<meta content="black" name="apple-mobile-web-app-status-bar-style">
+<meta content="telephone=no" name="format-detection">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=0">
+<th:block th:replace="public/public_css::pub_css"></th:block>
+<th:block th:replace="public/public_js::pub_js"></th:block>
+    <script type="text/javascript" th:src="@{/assets/canvas/flexible.debug.js}"></script>
+    <script type="text/javascript" th:src="@{/assets/canvas/zepto.js}"></script>
+    <script type="text/javascript" th:src="@{/assets/canvas/touch.js}"></script>
+    <script type="text/javascript" th:src="@{/assets/canvas/flexible.debug.js}"></script>
+    <script type="text/javascript" th:src="@{/assets/canvas/flexible_css.debug.js}"></script>
+
+<script>
+var add =false;
+var edit =false;
+var del =false;
+var isSign = false;
+</script>
+<script type="text/javascript">
+
+$(function(){
+	  $(document).on("click","#btn",function(){
+		 
+		
+          var name = $("#name").val();
+          var model = $("#model").val();
+          var username = $("#username").val();
+          var phone = $("#phone").val();
+          var num = $("#num").val();
+          if(name==""){
+              $.toptip("请输入设备名称");
+              return false;
+          }else  if(model==""){
+              $.toptip("请输入设备型号");
+              return false;
+          }else if(username==""){
+              $.toptip("请输入取货人姓名");
+              return false;
+          }else if(phone==""){
+        	  $.toptip("请输入取货人手机号");
+              return false;
+          }else if(!regphone.test(phone)){
+        	  $.toptip("请输入正确的手机号");
+              return false;
+          }else if(num==""||num<=0){
+        	  $.toptip("请输入正确的取货数量");
+              return false;
+          }else if(!number.test(num)){
+        	  $.toptip("请输入数字");
+              return false;
+        	  
+          }
+           else{
+        	   if(isSign){
+        		   $("#btn").attr("disabled",true);
+        		   $.toptip("提交成功",'success');
+                   $("#projectPickupForm").submit();
+        	   }else{
+        		   $.toptip("请先签名");
+        		   return false;
+        		   
+        	   }
+        	   
+             
+          }
+      })
+})
+
+
+ 
+</script>
+
+
+
+
+</head>
+
+<body  class="page-bg">
+
+
+<div class="weui-cells weui-cells_form">
+  
+	<form th:action="@{/wechat/projectPickup}" id="projectPickupForm" method="post">
+    <div class="weui-cell">
+        <div class="weui-cell__hd">
+            <label class="weui-label">微信昵称：</label>
+        </div>
+        <div class="weui-cell__bd">
+            <input class="weui-input" placeholder="微信昵称"  type="text" readonly="readonly" th:value="${userInfo.nickname}" >
+        </div>
+		<input type="hidden" th:value="${userInfo.openid}" name="openId">
+    </div>
+
+    <div class="weui-cell">
+        <div class="weui-cell__hd">
+            <label class="weui-label">设备名称</label>
+        </div>
+        <div class="weui-cell__bd">
+            <input class="weui-input" placeholder="设备名称" th:value="${stock.name}"  type="text" name="name" id="name" >
+        </div>
+
+    </div>
+    
+    <div class="weui-cell">
+        <div class="weui-cell__hd">
+            <label class="weui-label">设备型号</label>
+        </div>
+        <div class="weui-cell__bd">
+            <input class="weui-input" placeholder="设备型号" th:value="${stock.model}"  type="text" name="model" id="model" >
+        </div>
+    </div>
+    
+    <input type="hidden" name="stock.id" th:value="${stock.id}">
+    
+    <div class="weui-cell">
+        <div class="weui-cell__hd">
+            <label class="weui-label">取货人姓名</label>
+        </div>
+        <div class="weui-cell__bd">
+            <input class="weui-input" placeholder="取货人姓名"  type="text" th:value="${getwXUserInfo?.username}" name="username" id="username" >
+        </div>
+    </div>
+    <div class="weui-cell">
+        <div class="weui-cell__hd">
+            <label class="weui-label">取货人手机号</label>
+        </div>
+        <div class="weui-cell__bd">
+            <input class="weui-input" placeholder="取货人手机号"   type="text" th:value="${getwXUserInfo?.phone}" name="phone" id="phone" >
+        </div>
+    </div>
+    <div class="weui-cell">
+        <div class="weui-cell__hd">
+            <label class="weui-label">项目名称</label>
+        </div>
+        <div class="weui-cell__bd">
+            <input class="weui-input" placeholder="项目名称"   type="text"  name="entryName" id="entryName" >
+        </div>
+    </div>
+    <div class="weui-cell">
+        <div class="weui-cell__hd">
+            <label class="weui-label">项目编号</label>
+        </div>
+        <div class="weui-cell__bd">
+            <input class="weui-input" placeholder="项目编号"   type="text"  name="itemNo" id="itemNo" >
+        </div>
+    </div>
+    <div class="weui-cell">
+        <div class="weui-cell__hd">
+            <label class="weui-label">项目负责人</label>
+        </div>
+        <div class="weui-cell__bd">
+            <input class="weui-input" placeholder="项目负责人"   type="text"  name="projectLeader" id="projectLeader" >
+        </div>
+    </div>
+
+    
+        <div class="weui-cell">
+       <div class="weui-cell__hd">
+            <label class="weui-label">取货数量</label>
+        </div>
+        <div class="weui-cell__bd">
+            <input class="weui-input" onkeyup="this.value=this.value.replace(/[^0-9\.]/g,'')" placeholder="取货数量" id="num" name="num" type="number">
+        </div>
+    </div> 
+    
+    
+        <h1 class="weui-pay-title">请签名确认</h1>
+      <canvas id='canvas'></canvas>
+      
+     <input type="hidden" name="sign" id="sign">
+     
+    <div id="canvas-btn">  
+        <div id="clear_btn" class="weui-btn weui-btn_mini weui-btn_warn">重签</div>  
+       <!--  <div id="save_btn" style="float: right" class="weui-btn weui-btn_mini weui-btn_primary">保存</div>  -->
+        <div class="cleaerfix"></div>  
+    </div> 
+   
+    
+   <div class="weui-btn-area">
+    <button class="weui-btn weui-btn_primary" onclick="javascript:" id="btn">确定</button>
+</div>
+    
+    
+       
+    </form> 
+    
+    
+</div>
+
+
+
+
+ <script>
+   	//获取页面尺寸  
+    var canvasWidth = document.body.clientWidth;  
+   // var canvasHeight = canvasWidth;  
+    var canvasHeight = 200;  
+    //声明canvas  
+    var canvas = document.getElementById('canvas');  
+    var context = canvas.getContext('2d');  
+    //设置canvas尺寸  
+    canvas.width = canvasWidth * 0.98;  
+    canvas.height = canvasHeight;  
+    //画笔颜色  
+    var strokeColor = "#000";  
+    //鼠标  
+    isMouseDown = false;  
+    //上一次绘制的的坐标  
+    var lastLoc = {x:0,y:0};  
+    //初始记录事件  
+    var lastTimestamp = 0;  
+    //上一次线条宽度  
+    var lastLineWidth = -1;  
+    //var   
+    var maxV = 10;  
+    var minV = 0.1;  
+    var maxLineWidth = 5;
+    var minLineWidth = 1;  
+      
+    //点击色块切换画笔颜色  
+    $(".colorBtn").on("click",function (e){  
+        $(".colorBtn").removeClass('colorBtnBorder');  
+        $(this).addClass("colorBtnBorder");  
+        strokeColor = $(this).css("");  
+    })
+    //清除  
+    $('#clear_btn').on('click',function (e){  
+        context.clearRect( 0, 0, canvasWidth,canvasHeight);    
+        $("#sign").val("")
+    });
+    //保存画图
+    $('#save_btn').on('click',function (e){
+    	var image = canvasToImage(canvas);
+    	$("#sign").val(image.src)
+    	console.log(image);
+    });
+    //获取canvas 坐标 x，y 分别代表相对window内的xy  
+    function windowToCanvas(x,y){  
+        //canvas提供的方法返回canvas 距 他外围包围盒子的距离left,top值  
+        var bbox = canvas.getBoundingClientRect();  
+        //页面下拉滚动的距离
+    	var scroll = document.body.scrollTop + document.documentElement.scrollTop
+        //返回的就是canvas 内的坐标值  
+        return {x : Math.round(x - bbox.left),y : Math.round(y-scroll - bbox.top)}  
+    }   
+    //封装 事件  
+    function beginStroke(point){  
+        isMouseDown = true;  
+        //第一次用户画的坐标初始值  
+        lastLoc = windowToCanvas(point.x,point.y);  
+        //获取首次点击鼠标 事件戳  
+        lastTimestamp = new Date().getTime();  
+    }  
+    function endStroke(){  
+    	isSign = true;
+        isMouseDown = false;  
+        var image = canvasToImage(canvas);
+    	$("#sign").val(image.src)
+    }  
+    function moveStroke(point){  
+    	
+        //开始绘制直线  
+        var curLoc = windowToCanvas(point.x , point.y);  
+        //路程  
+        var s = calcDistance( curLoc, lastLoc);  
+        //结束时间  
+        var curTimestamp = new Date().getTime();  
+        //时间差  
+        var t = curTimestamp - lastTimestamp;  
+        //绘制线条粗细  
+        var lineWidth = calcLineWidth(t,s);  
+      
+        //绘制
+        context.beginPath();  
+        context.moveTo(lastLoc.x ,lastLoc.y);  
+        context.lineTo(curLoc.x , curLoc.y);  
+        context.strokeStyle = strokeColor;  
+        context.lineWidth = lineWidth;  
+        context.lineCap = "round";  
+        context.lineJoin = "round";  
+        context.stroke();     
+        //给lastLoc赋值维护  
+        lastLoc = curLoc;  
+        //时间更新  
+        lastTimestamp = curTimestamp;  
+        lastLineWidth = lineWidth;    
+    }  
+    //pc鼠标事件  
+    canvas.onmousedown = function(e){  
+        e.preventDefault();  
+        beginStroke({x:e.clientX , y:e.clientY});  
+    }  
+    canvas.onmouseup = function(e){  
+        e.preventDefault();  
+        endStroke();  
+    }  
+    canvas.onmouseout = function(e){  
+        e.preventDefault();  
+        endStroke();  
+    }  
+      
+    canvas.onmousemove = function(e){  
+        e.preventDefault();  
+        if(isMouseDown){  
+            moveStroke({x:e.clientX , y:e.clientY});      
+        }  
+    }  
+    //移动端  
+    canvas.addEventListener("touchstart",function(e){  
+        e.preventDefault();  
+        touch = e.touches[0]; //限制一根手指触碰屏幕  
+        beginStroke({x:touch.pageX , y:touch.pageY});  
+    });  
+    canvas.addEventListener("touchend",function(e){
+        e.preventDefault();  
+        endStroke();  
+    });  
+    canvas.addEventListener("touchmove",function(e){  
+        e.preventDefault();  
+        if( isMouseDown){  
+            touch = e.touches[0];  
+            moveStroke({x: touch.pageX , y:touch.pageY});     
+        }  
+    });  
+    //速度 = 路程 / 时间     用来计算书写速度来改变线条粗细  
+    function calcDistance (loc1,loc2){  
+        //返回 数的平方根  
+        return Math.sqrt((loc1.x - loc2.x) * (loc1.x - loc2.x) + (loc1.y - loc2.y) * (loc1.y - loc2.y) );  
+    }  
+    //线条宽度  
+    function calcLineWidth(t,s){  
+        var v = s/t;  
+        var resultLineWidth;  
+        if(v <= minV){  
+            resultLineWidth = maxLineWidth;  
+        }else if(v >= maxV){  
+            resultLineWidth = minLineWidth;  
+        }else{  
+            resultLineWidth = maxLineWidth - (v-minV)/(maxV-minV)*(maxLineWidth-minLineWidth);  
+        }  
+        if( lastLineWidth == -1){  
+            return resultLineWidth;  
+        }else{  
+            return lastLineWidth*2/3 + resultLineWidth*1/3;  
+        }  
+    }
+    // 将canvas转换成画布
+    function canvasToImage(canvas){
+    	var image = new Image();
+    	image.src = canvas.toDataURL("image/png");
+    	return image;
+    }
+    </script>
+
+
+<div th:replace="public/public_js::public_script"></div>
+
+
+
+	<script th:inline="javascript">
+	
+	   function stockStaticisOut(url,o){
+	    	var data = "id="+o;
+	    	$(".weui-actionsheet_cancel").trigger("click");
+	   	 ajaxRequest("json","POST",url,data,"wechat/pickUpApplications");
+	    }
+	
+	
+	
+	
+	
+	
+	
+	
+	
+/*<![CDATA[*/
+
+    
+    function getWxConfig(){
+    	 $.ajax({
+             url:path+"/wechat/getWxConfig",
+             dataType:"json",
+             type:"post",
+             success:function(res){
+               wx.config({
+                  debug: false,
+                  appId:res.appId, // 必填，公众号的唯一标识
+                  timestamp: res.timestamp, // 必填，生成签名的时间戳
+                  nonceStr: res.noncestr, // 必填，生成签名的随机串
+                  signature: res.signature,// 必填，签名，见附录1
+                  jsApiList: ['chooseImage','uploadImage','previewImage','downloadImage','checkJsApi','scanQRCode', 'chooseImage', 'uploadImage']// 必填
+                    }); 
+               
+                   },
+                error:function(){
+                	$.toptip("获取配置信息失败");
+                   }
+               })
+                wx.ready(function() {
+                    wx.scanQRCode({
+                        needResult: 1, // 默认为0，扫描结果由微信处理，1则直接返回扫描结果，
+                        scanType: ["qrCode","barCode"], // 可以指定扫二维码还是一维码，默认二者都有
+                        success: function (res) {
+                	    var result = res.resultStr; // 当needResult 为 1 时，扫码返回的结果
+							$("#barCode").val(result.substring(result.indexOf(",")+1,result.length));
+                        },
+						error:function(res){
+						$.toptip( res.resultStr)
+						}
+                    });
+                });
+
+            
+   
+    }
+    
+ 
+    
+    
+    
+    /*]]>*/
+    
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>库存管理系统-库存修改</title>
+<meta
+	content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0"
+	name="viewport">
+<meta content="yes" name="apple-mobile-web-app-capable">
+<meta content="black" name="apple-mobile-web-app-status-bar-style">
+<meta content="telephone=no" name="format-detection">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=0">
+<th:block th:replace="public/public_css::pub_css"></th:block>
+<th:block th:replace="public/public_js::pub_js"></th:block>
+<script>
+	var add = false;
+	var edit = false;
+	var del = false;
+</script>
+<script type="text/javascript" th:inline="javascript">
+/*<![CDATA[*/
+
+		var flag =false;
+		$(document).on("click", "#btn", function() {
+			var userId =/*[[${session.wechat_session.id}]]*/;
+			var oldpassword = $("#oldPassword").val();
+		
+			if (oldpassword == "") {
+				$.toptip("请输入旧密码");
+				return false;
+			} else {
+				$.ajax({
+					type : 'POST',
+					url : "checkPassword",
+					data : "id=" + userId+"&password="+oldpassword,
+					dataType : "json",
+					success : function(data) {
+						if(data.status==200){
+							flag =true;
+						}else{
+							$.toptip(data.msg);
+							return false;
+						}
+						
+					}
+				});
+			}
+			var passWord = $("#passWord").val();
+			var passWord2 = $("#passWord2").val();
+			if (passWord == "") {
+				$.toptip("请输入新密码");
+				return false;
+			}
+			
+			if(passWord2 ==""){
+				$.toptip("请输入确认新密码");
+				return false;
+			}
+			
+			
+			if(passWord2!=passWord){
+				$.toptip("两次密码输入不一致");
+					return false;
+			}else if(passWord2 == passWord){
+				flag = true;
+			}
+			if(flag){
+				$.ajax({
+					type : 'POST',
+					url : "editPassword",
+					data : "id=" + userId+"&password2="+passWord2,
+					dataType : "json",
+					success : function(data) {
+						alert(data.msg)
+						if(data.status==200){
+							$.toptip(data.msg);
+							 setTimeout(function() {
+						     	 window.location.href=path+"/wechat/weChatAuth";
+						     }, 1000)
+						}
+						
+					}
+				});
+				
+			}
+		
+				
+			
+			
+			
+			
+		})
+		
+	
+			
+		
+		
+		
+	
+		
+
+	/*]]>*/
+		
+		
+</script>
+
+
+
+
+</head>
+
+<body class="page-bg">
+
+<form  method="post" id="stockForm">
+	<div class="weui-cells weui-cells_form">
+
+
+		<div class="weui-cell">
+			<div class="weui-cell__hd">
+				<label class="weui-label">旧密码</label>
+			</div>
+			<div class="weui-cell__bd">
+				<input class="weui-input" placeholder="请输入旧密码"  type="text" name="oldPassword" id="oldPassword">
+			</div>
+
+		</div>
+
+		<div class="weui-cell">
+			<div class="weui-cell__hd">
+				<label class="weui-label">新密码</label>
+			</div>
+			<div class="weui-cell__bd">
+				<input class="weui-input" placeholder="新密码" type="text"
+					 name="passWord" id="passWord">
+			</div>
+
+		</div>
+		<div class="weui-cell">
+			<div class="weui-cell__hd">
+				<label class="weui-label">确认密码</label>
+			</div>
+			<div class="weui-cell__bd">
+				<input class="weui-input" placeholder="确认密码" type="text"
+					 name="passWord2" id="passWord2">
+			</div>
+
+		</div>
+
+		<div class="weui-btn-area">
+			<a class="weui-btn weui-btn_primary" href="javascript:" id="btn">确定</a>
+		</div>
+
+	</div>
+
+
+</form>
+
+
+
+
+
+	<div th:replace="public/public_js::public_script"></div>
+
+
+
+
+
+</body>
+</html>

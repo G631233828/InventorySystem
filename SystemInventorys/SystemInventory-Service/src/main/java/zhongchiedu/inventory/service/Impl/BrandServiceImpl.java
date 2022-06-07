@@ -51,21 +51,7 @@ public class BrandServiceImpl extends GeneralServiceImpl<Brand> implements Brand
 		}
 	}
 
-	@Override
-	@SystemServiceLog(description="启用禁用品牌信息")
-	public BasicDataResult disable(String id) {
-		if (Common.isEmpty(id)) {
-			return BasicDataResult.build(400, "无法禁用，请求出现问题，请刷新界面!", null);
-		}
-		Brand brand = this.findOneById(id, Brand.class);
-		if (Common.isEmpty(brand)) {
-			return BasicDataResult.build(400, "禁用失败，该条信息可能已被删除", null);
-		}
-		brand.setIsDisable(brand.getIsDisable().equals(true) ? false : true);
-		this.save(brand);
-		return BasicDataResult.build(200, brand.getIsDisable().equals(true) ? "禁用成功" : "恢复成功",
-				brand.getIsDisable());
-	}
+	
 
 	@Override
 	@SystemServiceLog(description="查询所有品牌信息")
@@ -128,6 +114,8 @@ public class BrandServiceImpl extends GeneralServiceImpl<Brand> implements Brand
 		}
 		return BasicDataResult.build(400,"未能获取到请求的信息", null);
 	}
+	
+	
 
 	@Override
 	@SystemServiceLog(description="禁用品牌信息")

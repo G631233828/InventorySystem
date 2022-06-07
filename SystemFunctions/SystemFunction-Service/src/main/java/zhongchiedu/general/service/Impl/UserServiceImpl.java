@@ -1,8 +1,10 @@
 package zhongchiedu.general.service.Impl;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.bson.types.ObjectId;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -14,7 +16,6 @@ import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.Common;
 import zhongchiedu.framework.service.GeneralServiceImpl;
 import zhongchiedu.general.pojo.MultiMedia;
-import zhongchiedu.general.pojo.Resource;
 import zhongchiedu.general.pojo.Role;
 import zhongchiedu.general.pojo.User;
 import zhongchiedu.general.service.UserService;
@@ -22,10 +23,9 @@ import zhongchiedu.general.service.UserService;
 @Service
 public class UserServiceImpl extends GeneralServiceImpl<User> implements UserService {
 
-
 	@Autowired
 	private RoleServiceImpl roleService;
-	
+
 	@Autowired
 	private MultiMediaServiceImpl multiMediaSerice;
 
@@ -36,30 +36,31 @@ public class UserServiceImpl extends GeneralServiceImpl<User> implements UserSer
 	 * @param roleId
 	 * @return
 	 */
-	public void saveOrUpdateUser(User user, String roleId ,MultipartFile[] file ,String imgPath,String dir,String oldheadImg) {
+	public void saveOrUpdateUser(User user, String roleId, MultipartFile[] file, String imgPath, String dir,
+			String oldheadImg) {
 		User getUser = null;
-		List<MultiMedia> userHead = null; 
-			userHead = this.multiMediaSerice.uploadPictures(file, dir, imgPath, "USER",105,105);
-	
-		if(Common.isNotEmpty(user.getId())){
+		List<MultiMedia> userHead = null;
+		userHead = this.multiMediaSerice.uploadPictures(file, dir, imgPath, "USER", 105, 105);
+
+		if (Common.isNotEmpty(user.getId())) {
 			getUser = this.findOneById(user.getId(), User.class);
-			if(Common.isNotEmpty(getUser)){
-				user.setPhotograph(Common.isNotEmpty(oldheadImg)?getUser.getPhotograph():null);
+			if (Common.isNotEmpty(getUser)) {
+				user.setPhotograph(Common.isNotEmpty(oldheadImg) ? getUser.getPhotograph() : null);
 				user.setAccountName(getUser.getAccountName());
 			}
 		}
-		if(userHead.size()>0){
+		if (userHead.size() > 0) {
 			user.setPhotograph(userHead.get(0));
 		}
 		Role role = this.roleService.findRoleById(roleId);
 		user.setRole(role != null ? role : null);
-		if(Common.isNotEmpty(getUser)){
+		if (Common.isNotEmpty(getUser)) {
 			BeanUtils.copyProperties(user, getUser);
 			this.save(user);
-		}else{
+		} else {
 			this.insert(user);
 		}
-		
+
 	}
 //	public void saveOrUpdateUser(User user, String roleId ) {
 //		
@@ -110,12 +111,13 @@ public class UserServiceImpl extends GeneralServiceImpl<User> implements UserSer
 	 * @return
 	 * @throws Exception
 	 */
+	@Override
 	public User findUserByAccountName(String accountName) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("accountName").is(accountName));
 		User user = this.findOneByQuery(query, User.class);
-		
-		return user!=null?user:null;
+
+		return user != null ? user : null;
 	}
 
 	/**
@@ -140,94 +142,145 @@ public class UserServiceImpl extends GeneralServiceImpl<User> implements UserSer
 	 * @return
 	 * @throws Exception
 	 */
+	@Override
 	public User findUserById(String id) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("_id").is(id));
-		//query.addCriteria(Criteria.where("isDisable").is(isDisable));
+		// query.addCriteria(Criteria.where("isDisable").is(isDisable));
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		// User user= this.userDao.findOneById(id);
 		User user = this.findOneByQuery(query, User.class);
-		return user!=null?user:null;
-		
-	}
+		return user != null ? user : null;
 
-	public List<User> findAllUser() throws Exception {
-		List<User> listuser = this.find(new Query(), User.class);
+	}
+	@Override
+	public List<User> findAllUser() {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("isDisable").is(false));
+		query.addCriteria(Criteria.where("isDelete").is(false));
+		List<User> listuser = this.find(query, User.class);
 		if (listuser != null)
 			return listuser;
 		else
 			return null;
 	}
 
-	
-	//查询重复帐号
+	// 查询重复帐号
 	public BasicDataResult ajaxgetRepletes(String accountName) {
-		if(Common.isNotEmpty(accountName)){
+		if (Common.isNotEmpty(accountName)) {
 			User user = this.findUserByAccountName(accountName);
-			
-			if(user!=null){
-				return BasicDataResult.build(206,"当前账号已经被注册，请重新输入", null);
+
+			if (user != null) {
+				return BasicDataResult.build(206, "当前账号已经被注册，请重新输入", null);
 			}
-			
+
 			return BasicDataResult.ok();
 		}
-		
-		return BasicDataResult.build(400,"未能获取到请求的信息", null);
-		
+
+		return BasicDataResult.build(400, "未能获取到请求的信息", null);
+
 	}
 
 	public BasicDataResult userDisable(String id) {
-		if(Common.isEmpty(id)){
+		if (Common.isEmpty(id)) {
 			return BasicDataResult.build(400, "无法禁用，请求出现问题，请刷新界面!", null);
 		}
 		User user = this.findUserById(id);
-		if(user == null){
+		if (user == null) {
 			return BasicDataResult.build(400, "无法获取到用户信息，该用户可能已经被删除", null);
 		}
-		
-		user.setIsDisable(user.getIsDisable().equals(true)?false:true);
+
+		user.setIsDisable(user.getIsDisable().equals(true) ? false : true);
 		this.save(user);
-		
-		return BasicDataResult.build(200, user.getIsDisable().equals(true)?"用户禁用成功":"用户启用成功",user.getIsDisable());
-		
+
+		return BasicDataResult.build(200, user.getIsDisable().equals(true) ? "用户禁用成功" : "用户启用成功", user.getIsDisable());
+
 	}
-	
-	
-	public BasicDataResult checkPassword(String id,String password){
-		
-		if(Common.isEmpty(id)){
+
+	public BasicDataResult checkPassword(String id, String password) {
+
+		if (Common.isEmpty(id)) {
 			return BasicDataResult.build(400, "发生未知异常，请联系管理员！", null);
 		}
-		if(Common.isEmpty(password)){
+		if (Common.isEmpty(password)) {
 			return BasicDataResult.build(400, "请输入旧密码", null);
 		}
 		User user = this.findOneById(id, User.class);
-		if(Common.isEmpty(user)){
+		if (Common.isEmpty(user)) {
 			return BasicDataResult.build(400, "未能获取到数据，请刷新后再试", null);
 		}
-		if(user.getPassWord().equals(password)){
+		if (user.getPassWord().equals(password)) {
 			return BasicDataResult.build(200, "密码正确", null);
+		}else {
+			return BasicDataResult.build(400, "旧密码输入错误，请重新输入", null);
 		}
-		return BasicDataResult.build(400, "发生未知异常，请联系管理员！", null);
-		
+
 	}
-	
-	public BasicDataResult editPassword(String id,String password){
-		if(Common.isEmpty(id)){
+
+	public BasicDataResult editPassword(String id, String password) {
+		if (Common.isEmpty(id)) {
 			return BasicDataResult.build(400, "发生未知异常，请联系管理员！", null);
 		}
-		if(Common.isEmpty(password)){
+		if (Common.isEmpty(password)) {
 			return BasicDataResult.build(400, "新密码不能为空", null);
 		}
 		User user = this.findOneById(id, User.class);
-		if(Common.isEmpty(user)){
+		if (Common.isEmpty(user)) {
 			return BasicDataResult.build(400, "未能获取到数据，请刷新后再试", null);
 		}
 		user.setPassWord(password);
 		this.save(user);
 		return BasicDataResult.build(200, "密码修改成功", null);
+
+	}
+
+	@Override
+	public User findUserByOpenId(String openId) {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("openId").is(openId));
+		query.addCriteria(Criteria.where("isDisable").is(false));
+		query.addCriteria(Criteria.where("isDelete").is(false));
+		return this.findOneByQuery(query, User.class);
+	}
+
+	@Override
+	public User findUserByUserNameAndPassword(String username, String password) {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("accountName").is(username));
+		query.addCriteria(Criteria.where("passWord").is(password));
+		query.addCriteria(Criteria.where("isDisable").is(false));
+		query.addCriteria(Criteria.where("isDelete").is(false));
+		return this.findOneByQuery(query, User.class);
+	}
+
+	@Override
+	public void updateUserAddOpenId(String userId, String openId) {
+		System.out.println(openId);
+		System.out.println(Common.isEmpty(openId));
+		User user = this.findOneById(userId, User.class);
+		if(Common.isNotEmpty(user)) {
+			user.setOpenId(openId);
+			this.save(user); 
+		}
 		
 	}
-	
 
+	@Override
+	public List<User> findUserInIds(List<Object> id) {
+		
+		Query query = new Query();
+		query.addCriteria(Criteria.where("isDisable").is(false));
+		query.addCriteria(Criteria.where("isDelete").is(false));
+		query.addCriteria(Criteria.where("id").in(id));
+		return this.find(query, User.class);
+	}
+
+	@Override
+	public List<User> getUsersByIds(String personInCharge) {
+		String[] split = personInCharge.split(",");
+		List<Object> ids = Arrays.asList(split).stream().map(x -> new ObjectId(x)).collect(Collectors.toList());
+		List<User> users = this.findUserInIds(ids);
+		return users;
+	}
+	
 }

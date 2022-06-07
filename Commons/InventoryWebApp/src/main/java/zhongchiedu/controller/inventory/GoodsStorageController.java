@@ -49,7 +49,7 @@ public class GoodsStorageController {
 	public String list(@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
 			@RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize, HttpSession session,
 			@RequestParam(value = "searchArea", defaultValue = "") String searchArea) {
-		Pagination<GoodsStorage> pagination = this.goodsStorageService.findpagination(pageNo, pageSize,searchArea);
+		Pagination<GoodsStorage> pagination = this.goodsStorageService.findpagination(pageNo, pageSize,searchArea,"");
 		model.addAttribute("pageList", pagination);
 		// 区域
 		List<Area> areas = this.areaService.findAllArea(false);

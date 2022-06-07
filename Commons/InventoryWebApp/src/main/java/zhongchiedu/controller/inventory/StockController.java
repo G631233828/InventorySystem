@@ -1,8 +1,13 @@
 package zhongchiedu.controller.inventory;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -11,6 +16,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -29,14 +35,19 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import lombok.extern.slf4j.Slf4j;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.Common;
+import zhongchiedu.common.utils.Contents;
 import zhongchiedu.common.utils.FileOperateUtil;
+import zhongchiedu.common.utils.ZipCompress;
 import zhongchiedu.framework.pagination.Pagination;
+import zhongchiedu.general.pojo.User;
 import zhongchiedu.inventory.pojo.Area;
+import zhongchiedu.inventory.pojo.Brand;
 import zhongchiedu.inventory.pojo.GoodsStorage;
 import zhongchiedu.inventory.pojo.Stock;
 import zhongchiedu.inventory.pojo.Supplier;
 import zhongchiedu.inventory.pojo.Unit;
 import zhongchiedu.inventory.service.Impl.AreaServiceImpl;
+import zhongchiedu.inventory.service.Impl.BrandServiceImpl;
 import zhongchiedu.inventory.service.Impl.ColumnServiceImpl;
 import zhongchiedu.inventory.service.Impl.GoodsStorageServiceImpl;
 import zhongchiedu.inventory.service.Impl.StockServiceImpl;
@@ -66,6 +77,8 @@ public class StockController {
 
 	private @Autowired AreaServiceImpl areaService;
 
+	private @Autowired BrandServiceImpl brandService;	
+	
 	@GetMapping("stocks")
 	@RequiresPermissions(value = "stock:list")
 	@SystemControllerLog(description = "查询所有库存管理")
@@ -74,32 +87,40 @@ public class StockController {
 			@ModelAttribute("errorImport") String errorImport,
 			@RequestParam(value = "search", defaultValue = "") String search,
 			@RequestParam(value = "searchArea", defaultValue = "") String searchArea) {
-		
-//		pageNo = (Integer) session.getAttribute("pageNo")!=null?(Integer) session.getAttribute("pageNo"):pageNo;
-//		pageSize = (Integer) session.getAttribute("pageSize")!=null?(Integer) session.getAttribute("pageSize"):pageSize;
-//		search =  (String)session.getAttribute("search")!=null?(String) session.getAttribute("search"):search;
-//		searchArea = (String)session.getAttribute("searchArea")!=null? (String) session.getAttribute("searchArea"):searchArea;
-		
+
 		// 区域
 		List<Area> areas = this.areaService.findAllArea(false);
 		model.addAttribute("areas", areas);
+
 		model.addAttribute("errorImport", errorImport);
 		Pagination<Stock> pagination = this.stockService.findpagination(pageNo, pageSize, search, searchArea);
 		model.addAttribute("pageList", pagination);
+
 		List<String> listColums = this.columnService.findColumns("stock");
 		model.addAttribute("listColums", listColums);
-		
+
 		session.setAttribute("pageNo", pageNo);
 		session.setAttribute("pageSize", pageSize);
 		session.setAttribute("search", search);
 		session.setAttribute("searchArea", searchArea);
-		
-//		model.addAttribute("pageSize", pageSize);
-//		model.addAttribute("search", search);
-//		model.addAttribute("searchArea", searchArea);
 
+		model.addAttribute("pageSize", pageSize);
+		model.addAttribute("search", search);
+		model.addAttribute("searchArea", searchArea);
 		return "admin/stock/list";
 	}
+
+//	@GetMapping("prestock")
+//	@RequiresPermissions(value = "stock:list")
+//	@SystemControllerLog(description = "查询所有预库存管理")
+//	public String prestock(@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
+//			@RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize, HttpSession session) {
+//
+//		Pagination<Stock> pagination = this.stockService.findEstimeate(pageNo, pageSize);
+//
+//		model.addAttribute("pageList", pagination);
+//		return "admin/stock/preStock";
+//	}
 
 	/**
 	 * 跳转到添加页面
@@ -113,6 +134,9 @@ public class StockController {
 		// 所有供应商
 		List<Supplier> syslist = this.supplierService.findAllSupplier(false);
 		model.addAttribute("suppliers", syslist);
+		//获取所有品牌
+		List<Brand> brands = this.brandService.findAllBrand(false);
+		model.addAttribute("brands", brands);
 		// 区域
 		List<Area> areas = this.areaService.findAllArea(false);
 		model.addAttribute("areas", areas);
@@ -123,30 +147,79 @@ public class StockController {
 		return "admin/stock/add";
 	}
 
+//	/**
+//	 * 跳转到预库存添加页面
+//	 */
+//	@GetMapping("/stockestimate")
+//	@RequiresPermissions(value = "stock:add")
+//	public String addEstimatePage(Model model) {
+//		// 所有供应商
+//		List<Supplier> syslist = this.supplierService.findAllSupplier(false);
+//		model.addAttribute("suppliers", syslist);
+//		// 区域
+//		List<Area> areas = this.areaService.findAllArea(false);
+//		model.addAttribute("areas", areas);
+//		// 计量单位
+//		List<Unit> listUnits = this.unitService.findAllUnit(false);
+//		model.addAttribute("units", listUnits);
+//		return "admin/stock/preStockAdd";
+//	}
+
+	/**
+	 * 跳转到预库存添加页面
+	 */
+//	@GetMapping("/stockestimate{id}")
+//	@RequiresPermissions(value = "stock:add")
+//	public String editEstimatePage(Model model, @PathVariable String id) {
+//		// 所有供应商
+//		List<Supplier> syslist = this.supplierService.findAllSupplier(false);
+//		model.addAttribute("suppliers", syslist);
+//		// 区域
+//		List<Area> areas = this.areaService.findAllArea(false);
+//		model.addAttribute("areas", areas);
+//		Stock stock = this.stockService.findOneById(id, Stock.class);
+//		model.addAttribute("stock", stock);
+//		// 计量单位
+//		List<Unit> listUnits = this.unitService.findAllUnit(false);
+//		model.addAttribute("units", listUnits);
+//		return "admin/stock/preStockAdd";
+//	}
+
 	@PostMapping("/stock")
 	@RequiresPermissions(value = "stock:add")
 	@SystemControllerLog(description = "添加设备")
-	public String addUser(@ModelAttribute("stock") Stock stock,HttpSession session) {
+	public String addUser(@ModelAttribute("stock") Stock stock, HttpSession session)
+
+			throws UnsupportedEncodingException {
+		User user = (User) session.getAttribute(Contents.USER_SESSION);
+		stock.setPublisher(user);// 发布人
 		this.stockService.saveOrUpdate(stock);
 		Integer pageNo = (Integer) session.getAttribute("pageNo");
 		Integer pageSize = (Integer) session.getAttribute("pageSize");
-		String search =  (String)session.getAttribute("search");
-		String searchArea = (String)session.getAttribute("searchArea");
-		
-		
-		return "redirect:stocks?pageNo="+pageNo+"&pageSize="+pageSize+"&search="+search+"&searchArea="+searchArea;
+		String search = (String) session.getAttribute("search");
+		String searchArea = (String) session.getAttribute("searchArea");
+
+			return "redirect:/stocks?pageNo=" + pageNo + "&pageSize=" + pageSize + "&search="
+					+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea;
+	
 	}
 
 	@PutMapping("/stock")
 	@RequiresPermissions(value = "stock:edit")
 	@SystemControllerLog(description = "修改设备")
-	public String edit(@ModelAttribute("stock") Stock stock,HttpSession session) {
+	public String edit(@ModelAttribute("stock") Stock stock, HttpSession session) throws UnsupportedEncodingException {
+		User user = (User) session.getAttribute(Contents.USER_SESSION);
+		stock.setPublisher(user);// 发布人
 		Integer pageNo = (Integer) session.getAttribute("pageNo");
 		Integer pageSize = (Integer) session.getAttribute("pageSize");
-		String search =  (String)session.getAttribute("search");
-		String searchArea = (String)session.getAttribute("searchArea");
+		String search = (String) session.getAttribute("search");
+		String searchArea = (String) session.getAttribute("searchArea");
 		this.stockService.saveOrUpdate(stock);
-		return "redirect:stocks?pageNo="+pageNo+"&pageSize="+pageSize+"&search="+search+"&searchArea="+searchArea;
+	
+			return "redirect:/stocks?pageNo=" + pageNo + "&pageSize=" + pageSize + "&search="
+					+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea;
+		
+
 	}
 
 	/**
@@ -160,35 +233,54 @@ public class StockController {
 	public String toeditPage(@PathVariable String id, Model model) {
 		Stock stock = this.stockService.findOneById(id, Stock.class);
 		model.addAttribute("stock", stock);
-		// 所有货架
-		List<GoodsStorage> list = this.goodsStorageService.findAllGoodsStorage(false,stock.getArea().getId());
-		model.addAttribute("goodsStorages", list);
+		if (Common.isNotEmpty(stock.getArea())) {
+			// 所有货架
+			List<GoodsStorage> list = this.goodsStorageService.findAllGoodsStorage(false, stock.getArea().getId());
+			model.addAttribute("goodsStorages", list);
+		}
 		// 所有供应商
 		List<Supplier> syslist = this.supplierService.findAllSupplier(false);
 		model.addAttribute("suppliers", syslist);
+		//获取所有品牌
+		List<Brand> brands = this.brandService.findAllBrand(false);
+		model.addAttribute("brands", brands);
+		
+		
 		// 区域
 		List<Area> areas = this.areaService.findAllArea(false);
 		model.addAttribute("areas", areas);
 		// 计量单位
 		List<Unit> listUnits = this.unitService.findAllUnit(false);
 		model.addAttribute("units", listUnits);
+//		model.addAttribute("isestimate", false);// 预入库存标记
 		return "admin/stock/add";
+
+	}
+
+	@RequestMapping("/stock/clearSearch")
+//	@RequiresPermissions(value = "projectStock:delete")
+	public String clearSearch(HttpSession session) {
+		session.removeAttribute("pageNo");
+		session.removeAttribute("pageSize");
+		session.removeAttribute("search");
+		session.removeAttribute("searchArea");
+		return "redirect:/stocks";
 
 	}
 
 	@DeleteMapping("/stock/{id}")
 	@RequiresPermissions(value = "stock:delete")
 	@SystemControllerLog(description = "删除设备")
-	public String delete(@PathVariable String id,HttpSession session) {
+	public String delete(@PathVariable String id, HttpSession session) throws UnsupportedEncodingException {
 		Integer pageNo = (Integer) session.getAttribute("pageNo");
 		Integer pageSize = (Integer) session.getAttribute("pageSize");
-		String search =  (String)session.getAttribute("search");
-		String searchArea = (String)session.getAttribute("searchArea");
+		String search = (String) session.getAttribute("search");
+		String searchArea = (String) session.getAttribute("searchArea");
 		log.info("删除设备" + id);
 		this.stockService.delete(id);
 		log.info("删除设备" + id + "成功");
-		return "redirect:stocks?pageNo="+pageNo+"&pageSize="+pageSize+"&search="+search+"&searchArea="+searchArea;
-		
+		return "redirect:/stocks?pageNo=" + pageNo + "&pageSize=" + pageSize + "&search="
+				+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea;
 	}
 
 	/**
@@ -200,29 +292,27 @@ public class StockController {
 	 */
 	@RequestMapping(value = "/stock/ajaxgetRepletes", method = RequestMethod.POST)
 	@ResponseBody
-	public BasicDataResult ajaxgetRepletes(@RequestParam(value = "name", defaultValue = "") String name,@RequestParam(value = "areaId", defaultValue = "") String areaId,@RequestParam(value = "model", defaultValue = "") String model) {
-		return this.stockService.ajaxgetRepletes(name,areaId,model);
+	public BasicDataResult ajaxgetRepletes(@RequestParam(value = "name", defaultValue = "") String name,
+			@RequestParam(value = "areaId", defaultValue = "") String areaId,
+			@RequestParam(value = "model", defaultValue = "") String model) {
+		return this.stockService.ajaxgetRepletes(name, areaId, model);
 	}
 
-	
-	
 	/**
 	 * 根据选择的目录获取菜单
+	 * 
 	 * @param parentId
 	 * @return
 	 */
-	@RequestMapping(value="/getStorages",method=RequestMethod.POST,produces="application/json;charset=UTF-8")
+	@RequestMapping(value = "/getStorages", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public BasicDataResult getparentmenu(@RequestParam(value = "areaId", defaultValue = "") String areaId){
+	public BasicDataResult getparentmenu(@RequestParam(value = "areaId", defaultValue = "") String areaId) {
 
 		List<GoodsStorage> list = this.goodsStorageService.findStorages(areaId);
-		
-		return list!=null?BasicDataResult.build(200, "success",list):BasicDataResult.build(400, "error",null);
+
+		return list != null ? BasicDataResult.build(200, "success", list) : BasicDataResult.build(400, "error", null);
 	}
-	
-	
-	
-	
+
 	@RequestMapping(value = "/stock/disable", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public BasicDataResult toDisable(@RequestParam(value = "id", defaultValue = "") String id) {
@@ -294,16 +384,26 @@ public class StockController {
 		return this.supplierService.findOneById(id);
 	}
 
+	@RequestMapping(value = "/stock/getProjectNames", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public BasicDataResult getProjectNames() {
+
+		Set<String> projectNames = this.stockService.findProjectNames();
+
+		return new BasicDataResult(200, "查询成功", projectNames);
+	}
+
 	/**
 	 * 导出excel
 	 */
 	@RequestMapping(value = "/stock/export")
-	public void exportStock(HttpServletResponse response,@RequestParam(value = "areaId", defaultValue = "") String areaId) {
+	public void exportStock(HttpServletResponse response,
+			@RequestParam(value = "areaId", defaultValue = "") String areaId) {
 		try {
 			response.setContentType("application/vnd.ms-excel");
 			String name = Common.fromDateYM() + "库存报表";
 			String fileName = new String((name).getBytes("gb2312"), "ISO8859-1");
-			HSSFWorkbook wb = this.stockService.export(name,areaId);
+			HSSFWorkbook wb = this.stockService.export(name, areaId);
 			response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xls");
 			OutputStream ouputStream = response.getOutputStream();
 			wb.write(ouputStream);
@@ -315,6 +415,67 @@ public class StockController {
 
 	}
 	
+	
+	@Value("${upload.savedir}")
+	private String dir;
+	@Value("${qrcode.qrcodepath}")
+	private String qrcodepath;
+
+	
+	/**
+	 * 下载二维码
+	 * 
+	 */
+	@RequestMapping(value = "stock/downloadQRcode")
+	@SystemControllerLog(description = "下载二维码")
+	public ModelAndView download(HttpServletRequest request, HttpServletResponse response, String id) throws Exception {
+
+		List<Stock> list = this.stockService.findStockByIds(id);
+
+		String contentType = "application/octet-stream";
+		if (list.size() == 1) {
+			try {
+				String downLoadPath = list.get(0).getQrCode().getQrcode().getDir()
+						+ list.get(0).getQrCode().getQrcode().getSavePath()
+						+ list.get(0).getQrCode().getQrcode().getOriginalName();
+				FileOperateUtil.downloadbyFilePath(request, response,
+						list.get(0).getName() + list.get(0).getQrCode().getQrcode().getExtension(), contentType,
+						new File(downLoadPath));
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			// 如果下载的二维码数量大于1 那么久压缩下载
+			List<File> file = new ArrayList();
+			list.forEach(stock -> {
+				// 获取所有下载文件file
+				String downLoadPath = stock.getQrCode().getQrcode().getDir()
+						+ stock.getQrCode().getQrcode().getSavePath()
+						+ stock.getQrCode().getQrcode().getOriginalName();
+				file.add(new File(downLoadPath));
+
+			});
+
+			// 获取临时压缩文件
+			String storeName = ZipCompress.getZipFilename();
+			log.info("压缩文件：" + storeName);
+			File zipfile = new File(dir + qrcodepath + storeName);
+			ZipCompress.zipFile(file, zipfile);
+
+			try {
+				FileOperateUtil.downloadbyFilePath(request, response, storeName, contentType, zipfile);
+			} catch (Exception e) {
+				e.printStackTrace();
+			} finally {
+
+				ZipCompress.deleteFile(zipfile);
+			}
+		}
+
+		return null;
+	}
+
 	
 	
 	

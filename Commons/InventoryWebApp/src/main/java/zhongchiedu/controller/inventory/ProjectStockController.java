@@ -2,6 +2,10 @@ package zhongchiedu.controller.inventory;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 
@@ -78,23 +82,31 @@ public class ProjectStockController {
 			@RequestParam(value = "projectName", defaultValue = "") String projectName,
 			@RequestParam(value = "searchArea", defaultValue = "") String searchArea) {
 		model.addAttribute("errorImport", errorImport);
+		
+	
+		
 		Pagination<ProjectStock> pagination = this.projectStockService.findpagination(pageNo, pageSize, search,
 				projectName, searchArea);
 		model.addAttribute("pageList", pagination);
+
 		List<String> listColums = this.columnService.findColumns("projectStock");
-		model.addAttribute("listColums", listColums);
-		model.addAttribute("pageSize", pageSize);
-		model.addAttribute("search", search);
+		
 		Set set = this.projectStockService.findProjectNames();
+		
+
+		session.setAttribute("pageNo", pageNo);
+		session.setAttribute("pageSize", pageSize);
+		session.setAttribute("search", search);
+		session.setAttribute("selectProjectName", projectName);
+		session.setAttribute("searchArea", searchArea);
+		
+		model.addAttribute("listColums", listColums);
 		model.addAttribute("projectName", set);
-		model.addAttribute("selectProjectName", projectName);
-		
-		model.addAttribute("searchArea", searchArea);
-		
+//		
 		// 区域
 		List<Area> areas = this.areaService.findAllArea(false);
 		model.addAttribute("areas", areas);
-		
+
 		return "admin/projectStock/list";
 	}
 
@@ -129,8 +141,8 @@ public class ProjectStockController {
 			@RequestParam(value = "realCostUnitPrice", defaultValue = "0") String realCostUnitPrice,
 			@RequestParam(value = "paymentAmount", defaultValue = "0") String paymentAmount,
 			@RequestParam(value = "num", defaultValue = "0") String num,
-			@RequestParam(value = "areaId", defaultValue = "") String areaId
-			) {
+			@RequestParam(value = "areaId", defaultValue = "") String areaId,HttpSession session
+			) throws UnsupportedEncodingException {
 		ProjectStock projectStock = new ProjectStock();
 		projectStock.setProjectName(projectName);
 		projectStock.setName(name);
@@ -147,7 +159,14 @@ public class ProjectStockController {
 		projectStock.setNum(Integer.valueOf(num));
 
 		this.projectStockService.saveOrUpdate(projectStock,areaId);
-		return "redirect:projectStocks";
+		
+		Integer pageSize = (Integer) session.getAttribute("pageSize");
+		Integer pageNo = (Integer) session.getAttribute("pageNo");
+		String search =  (String)session.getAttribute("search");
+		String searchArea = (String)session.getAttribute("searchArea");
+		String selectProjectName = (String)session.getAttribute("selectProjectName");
+		return "redirect:/projectStocks?pageNo="+pageNo+"&projectName="+URLEncoder.encode(selectProjectName,"UTF-8") +"&pageSize="+pageSize+"&search="+URLEncoder.encode(search,"UTF-8")+"&searchArea="+searchArea;
+		
 	}
 
 	@PutMapping("/projectStock")
@@ -166,8 +185,8 @@ public class ProjectStockController {
 			@RequestParam(value = "realCostUnitPrice", defaultValue = "0") String realCostUnitPrice,
 			@RequestParam(value = "paymentAmount", defaultValue = "0") String paymentAmount,
 			@RequestParam(value = "num", defaultValue = "0") String num,
-			@RequestParam(value = "areaId", defaultValue = "") String areaId
-			) {
+			@RequestParam(value = "areaId", defaultValue = "") String areaId,HttpSession session
+			) throws UnsupportedEncodingException {
 		ProjectStock projectStock = new ProjectStock();
 		projectStock.setId(id);
 		projectStock.setProjectName(projectName);
@@ -184,7 +203,13 @@ public class ProjectStockController {
 		projectStock.setNum(Integer.valueOf(num));
 
 		this.projectStockService.saveOrUpdate(projectStock,areaId);
-		return "redirect:projectStocks";
+		Integer pageSize = (Integer) session.getAttribute("pageSize");
+		Integer pageNo = (Integer) session.getAttribute("pageNo");
+		String search =  (String)session.getAttribute("search");
+		String searchArea = (String)session.getAttribute("searchArea");
+		String selectProjectName = (String)session.getAttribute("selectProjectName");
+		return "redirect:/projectStocks?pageNo="+pageNo+"&projectName="+URLEncoder.encode(selectProjectName,"UTF-8") +"&pageSize="+pageSize+"&search="+URLEncoder.encode(search,"UTF-8")+"&searchArea="+searchArea;
+		
 	}
 
 	/**
@@ -245,11 +270,30 @@ public class ProjectStockController {
 	@DeleteMapping("/projectStock/{id}")
 	@RequiresPermissions(value = "projectStock:delete")
 	@SystemControllerLog(description = "删除项目设备")
-	public String delete(@PathVariable String id) {
+	public String delete(@PathVariable String id,HttpSession session) throws UnsupportedEncodingException {
+		Integer pageNo = (Integer) session.getAttribute("pageNo");
+		Integer pageSize = (Integer) session.getAttribute("pageSize");
+		String search =  (String)session.getAttribute("search");
+		String searchArea = (String)session.getAttribute("searchArea");
+		String selectProjectName = (String)session.getAttribute("selectProjectName");
+		
 		log.info("删除项目设备" + id);
 		this.projectStockService.delete(id);
 		log.info("删除项目设备" + id + "成功");
+		
+		return "redirect:/projectStocks?pageNo="+pageNo+"&projectName="+URLEncoder.encode(selectProjectName,"UTF-8") +"&pageSize="+pageSize+"&search="+URLEncoder.encode(search,"UTF-8")+"&searchArea="+searchArea;
+		
+	}
+	@RequestMapping("/projectStock/clearSearch")
+//	@RequiresPermissions(value = "projectStock:delete")
+	public String clearSearch(HttpSession session){
+		session.removeAttribute("pageNo");
+		session.removeAttribute("pageSize");
+		session.removeAttribute("search");
+		session.removeAttribute("searchArea");
+		session.removeAttribute("selectProjectName");
 		return "redirect:/projectStocks";
+		
 	}
 
 	/**
@@ -358,5 +402,10 @@ public class ProjectStockController {
 		}
 
 	}
+	
+	
+	
+	
+	
 
 }

@@ -5,7 +5,11 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link rel="stylesheet" th:href="@{/assets/css/bootstrap-select.css}">
+
 </head>
+
+
+
 
 <body>
 	<!-- Preloader -->
@@ -19,6 +23,7 @@
 	<!-- SIDE MENU -->
 	<div th:replace="public/public::left(activeUri='stockManager')"></div>
 	<!-- END OF SIDE MENU -->
+
 
 	<!--  PAPER WRAP -->
 	<div class="wrap-fluid">
@@ -68,15 +73,17 @@
 												th:if="${stock!=null}" /> <input type="hidden" name="id"
 												th:if="${stock!=null}" th:value="${stock.id}"> <input
 												type="hidden" id="oldname" th:value="${stock?.name}">
+											<input type="hidden" id="oldarea" th:value="${stock?.id}">
+											<input type="hidden" id="oldmodel" th:value="${stock?.model}">
 
 
 
-											<div class="form-group">
+											<div class="form-group" id="areaform">
 												<label class="col-lg-1 control-label">区域：</label>
 												<div class="col-lg-6">
 
-													<select id="area" name="area.id" class="form-control" required="required"
-													onchange="return getgoodsStorages()">
+													<select id="area" name="area.id" class="form-control"
+														required="required" onchange="return getgoodsStorages()">
 														<option value="">---请选择区域---</option>
 														<option
 															th:selected="${stock!=null && stock?.area !=null}?${stock?.area?.id}==${area?.id}"
@@ -87,14 +94,14 @@
 											</div>
 
 
-											<div class="form-group">
+											<div class="form-group" id="nameform">
 												<label class="col-lg-1 control-label">设备名称：</label>
 												<div class="col-lg-6">
 													<input class="form-control" id="name" placeholder="请输入设备名称"
 														name="name" th:value="${stock?.name}" required="required">
 												</div>
 											</div>
-											<div class="form-group">
+											<div class="form-group" id="modelform">
 												<label class="col-lg-1 control-label">设备型号：</label>
 												<div class="col-lg-6">
 													<input class="form-control" id="model"
@@ -103,30 +110,49 @@
 												</div>
 											</div>
 
+
 											<div class="form-group">
+												<label class="col-lg-1 control-label">品牌：</label>
+												<div class="col-lg-6">
+													<select multiple class="selectpicker form-control"
+														id="number-multiple2" data-container="body"
+														name="brand.id" title="请选择品牌" data-live-search="true"
+														data-hide-disabled="true" data-actions-box="false"
+														data-virtual-scroll="false" data-max-options="1"></select>
+												</div>
+											</div>
+
+
+
+											<!-- 	<div class="form-group">
 												<label class="col-lg-1 control-label">使用范围：</label>
 												<div class="col-lg-6">
 													<input class="form-control" id="scope"
 														placeholder="请输入设备使用范围" name="scope"
 														th:value="${stock?.scope}">
 												</div>
-											</div>
+											</div> -->
+
+
+
+
+
 
 											<div class="form-group">
-												<label class="col-lg-1 control-label">货架号/层：</label>
+
+												<label class="col-lg-1 control-label">货架号(区域)：</label>
 												<div class="col-lg-6">
 													<select id="goodsStorage" name="goodsStorage.id"
 														class="form-control">
 														<option value="">---请选择存放货架---</option>
-														 <option
+														<option
 															th:selected="${stock!=null && stock?.goodsStorage !=null}?${stock?.goodsStorage?.id}==${goodsStorage?.id}"
 															th:each="goodsStorage:${goodsStorages}"
 															th:value="${goodsStorage?.id}"
-															th:text="|${goodsStorage?.address}-->${goodsStorage?.shelfNumber}/${goodsStorage?.shelflevel}|"></option>
+															th:text="|${goodsStorage?.address}-->${goodsStorage?.shelfNumber}${goodsStorage?.shelflevel==''?'':'/'}${goodsStorage?.shelflevel}|"></option>
 													</select>
 												</div>
 											</div>
-
 
 											<div class="form-group">
 												<label class="col-lg-1 control-label">单价：</label>
@@ -139,10 +165,10 @@
 											</div>
 
 											<div class="form-group">
-												<label class="col-lg-1 control-label">计量单位：</label>
+												<label class="col-lg-1 control-label">单位：</label>
 												<div class="col-lg-6">
 													<select id="unit" name="unit.id" class="form-control">
-														<option value="">---请选择设备计量单位---</option>
+														<option value="">---请选择设备单位---</option>
 														<option
 															th:selected="${stock!=null && stock?.unit !=null}?${stock?.unit?.id}==${unit?.id}"
 															th:each="unit:${units}" th:value="${unit?.id}"
@@ -150,8 +176,7 @@
 													</select>
 												</div>
 											</div>
-
-											<div class="form-group">
+											<!-- <div class="form-group">
 												<label class="col-lg-1 control-label">项目应收款：</label>
 												<div class="col-lg-6">
 													<select id="receivables" name="receivables"
@@ -165,7 +190,7 @@
 															value="0">否</option>
 													</select>
 												</div>
-											</div>
+											</div> -->
 
 
 											<div class="form-group">
@@ -176,7 +201,7 @@
 												</div>
 											</div>
 
-											<div class="form-group">
+											<!-- <div class="form-group">
 												<label class="col-lg-1 control-label">维保：</label>
 												<div class="col-lg-6">
 													<input class="form-control" id="maintenance"
@@ -184,7 +209,25 @@
 														th:value="${stock?.maintenance}">
 												</div>
 											</div>
-
+ -->
+										 <div class="form-group">
+												<label class="col-lg-1 control-label">项目名称：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="entryName"
+														placeholder="请输入项目名称" name="entryName"
+														th:value="${stock?.entryName}">
+												</div>
+											</div>
+ 
+										 <div class="form-group">
+												<label class="col-lg-1 control-label">项目编号：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="itemNo"
+														placeholder="请输入项目编号" name="itemNo"
+														th:value="${stock?.itemNo}">
+												</div>
+											</div>
+ 
 
 
 
@@ -199,32 +242,16 @@
 												</div>
 											</div>
 
+
 											<div class="form-group">
 												<label class="col-lg-1 control-label">备注：</label>
 												<div class="col-lg-6">
-													<textarea  id="description" style="height:150px!important;margin:20px 0;resize: none;" 
-													th:text="${stock?.description}"class="form-control"  placeholder="备注"  name="description"></textarea>
+													<textarea id="description"
+														style="height: 150px !important; margin: 20px 0; resize: none;"
+														th:text="${stock?.description}" class="form-control"
+														placeholder="备注" name="description"></textarea>
 												</div>
 											</div>
-
-
-
-											<!-- 
-											<div class="form-group">
-												<label class="col-lg-1 control-label">供应商：</label>
-												<div class="col-lg-6">
-													<select id="supplier" name="supplier.id"
-														class="form-control" >
-														<option value="">---请选择设备供应商---</option>
-														<option
-															th:selected="${stock!=null && stock?.supplier !=null}?${stock?.supplier?.id}==${supplier?.id}"
-															th:each="supplier:${suppliers}"
-															th:value="${supplier?.id}" th:text="${supplier?.name}"></option>
-													</select>
-												</div>
-											</div> -->
-
-
 
 
 											<div class="form-group">
@@ -299,20 +326,35 @@ $(function(){
 var options = [], _options;
 /* <![CDATA[ */
 	 var data = [[${suppliers}]]
-	 /*]]>*/
+	
 	  for (var i = 0; i < data.length; i++) {
 	    var option = '<option value="' + data[i].id + '">' + data[i].name + '</option>';
 	    options.push(option);
 	  }
 	  _options = options.join('');
 	  $('#number-multiple')[0].innerHTML = _options;
-			var a = /* <![CDATA[ */ [[${stock?.supplier?.id}]] /*]]>*/
+			var a = [[${stock?.supplier?.id}]] 
 			     $("#number-multiple").selectpicker('val',a);
 				  $("#number-multiple").selectpicker('refresh');
 			  $('#number-multiple').selectpicker('render')
+			  
+			  
+			  var options2 = [], _options2;
+			  	 var data2 = [[${brands}]]
+			  	
+			  	  for (var i = 0; i < data2.length; i++) {
+			  	    var option = '<option value="' + data2[i].id + '">' + data2[i].name + '</option>';
+			  	    options2.push(option);
+			  	  }
+			  	  _options2 = options2.join('');
+			  	  $('#number-multiple2')[0].innerHTML = _options2;
+			  			var a2 = [[${stock?.brand?.id}]] 
+			  			     $("#number-multiple2").selectpicker('val',a2);
+			  				  $("#number-multiple2").selectpicker('refresh');
+			  			  $('#number-multiple2').selectpicker('render')		  
 })	  
 	  
-
+ /*]]>*/
 </script>
 
 </body>

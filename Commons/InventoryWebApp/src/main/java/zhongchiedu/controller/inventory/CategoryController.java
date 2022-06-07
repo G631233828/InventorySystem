@@ -44,7 +44,7 @@ public class CategoryController {
 			@RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize, HttpSession session,
 			@ModelAttribute("errorImport") String errorImport) {
 			model.addAttribute("errorImport", errorImport);
-		Pagination<Category> pagination = this.categoryStorageService.findpagination(pageNo, pageSize);
+		Pagination<Category> pagination = this.categoryStorageService.findpagination(pageNo, pageSize,"");
 		model.addAttribute("pageList", pagination);
 		return "admin/category/list";
 	}

@@ -31,8 +31,12 @@ import zhongchiedu.common.utils.Common;
 import zhongchiedu.common.utils.Contents;
 import zhongchiedu.general.pojo.User;
 import zhongchiedu.general.service.UserService;
+import zhongchiedu.inventory.pojo.PickUpApplication;
+import zhongchiedu.inventory.pojo.PreStock;
 import zhongchiedu.inventory.pojo.Stock;
 import zhongchiedu.inventory.pojo.StockStatistics;
+import zhongchiedu.inventory.service.Impl.PickUpApplicationServiceImpl;
+import zhongchiedu.inventory.service.Impl.PreStockServiceImpl;
 import zhongchiedu.inventory.service.Impl.StockServiceImpl;
 import zhongchiedu.inventory.service.Impl.StockStatisticsServiceImpl;
 import zhongchiedu.log.annotation.SystemControllerLog;
@@ -113,7 +117,8 @@ public class LoginController {
 	
 	private @Autowired StockServiceImpl stockService;
 	private @Autowired StockStatisticsServiceImpl stockStatisticsService; 
-	
+	private @Autowired PreStockServiceImpl preStockServiceImpl;
+	private @Autowired PickUpApplicationServiceImpl pickUpApplicationService;
 	
 	
 	@RequestMapping(value="/toindex")
@@ -125,10 +130,16 @@ public class LoginController {
 		List<StockStatistics> in = this.stockStatisticsService.findAllByDate(Common.fromDateYMD(), true);
 		//低库存
 		List<Stock> low = this.stockService.findLowStock(3);
+		//预入库
+		List<PreStock> findAllPreStockByStatus = this.preStockServiceImpl.findAllPreStockByStatus(false, 1);
+		//预出库
+		List<PickUpApplication> findAllPickUpApplicationByStatus = this.pickUpApplicationService.findAllPickUpApplicationByStatus(false, 1);
 		
 		model.addAttribute("out", out);
 		model.addAttribute("in", in);
 		model.addAttribute("low", low);
+		model.addAttribute("preStocks", findAllPreStockByStatus);
+		model.addAttribute("pickUpApplication", findAllPickUpApplicationByStatus);
 		return "index";
 	}
 	

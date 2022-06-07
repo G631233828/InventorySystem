@@ -1,0 +1,49 @@
+#server:
+#  servlet:
+#    context-path: /#  port: 80#  tomcat:#    uri-encoding: UTF-8
+#spring:#  messages:#    basename: i18n.login#  thymeleaf:#    cache: true#  mvc:#    date-format: yyyy-MM-dd#  profiles:#    active:#    - mongodb#  servlet:#    multipart:#      max-file-size: 500MB
+#      max-request-size: 500MB#  http:#    encoding:#      force: true
+#      charset: UTF-8#      enabled: true
+#
+#
+#
+#filepath: D:/img
+#blobSize: 1048576    
+#upload-dir: d:/
+#upload-imgpath: upload/image/
+#video.servePath: upload/ueditor/
+
+wx:
+  mp:
+    configs:
+      - appId: wx40d294a89bcd9fcb
+        secret: e48b8b33730cb8bf7ed2aa26e671549b
+        token: zhongchi
+        aesKey: HbQ8Z0VJjGXgc5AmyuBMpqmDDj2YJJgNEPVFrDbjoZ2
+        tmpDirFile: E://AAA
+    server-url: http://zhongchiedu.com
+    #server-url: http://zhongchi.vaiwan.com
+##预入库之后发送通知处理
+
+templateId1: t65Pa8jI77ZTyyTX1LnPNgAYKo1sk8idfR72lbe0I10
+templateId2: usdpKAlc3Npb89SnYyQTOw4jVwyCCYFRSgYW1yR68Ek
+#出库成功通知
+templateId3: vr3-sgtGL2WrhwIU5MImE1vZulEdz2hmTuiBLeupY4Q
+templateId: C13mVUYAhCV40w12DFrEnvFmuRRErQliLUMbRle4eic 
+qrcode:
+  height: 300
+  width: 300
+  weburl: http://zhongchiedu.com/WXWebApp/
+  #weburl: http://zhongchi.vaiwan.com/WXWebApp/
+  format: png
+  qrcodepath: upload/qrcode/
+
+
+
+upload:
+  savedir: E:/
+#图片列表配置
+  qrCode: upload/qrcode/
+
+
+

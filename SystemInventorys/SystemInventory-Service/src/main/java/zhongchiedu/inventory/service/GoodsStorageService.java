@@ -11,11 +11,10 @@ import zhongchiedu.inventory.pojo.GoodsStorage;
 
 public interface GoodsStorageService extends GeneralService<GoodsStorage> {
 	
-	public Pagination<GoodsStorage> findpagination(Integer pageNo,Integer pageSize,String searchArea);
+	public Pagination<GoodsStorage> findpagination(Integer pageNo,Integer pageSize,String searchArea,String search);
 	
 	public void saveOrUpdate(GoodsStorage goodsStorage);
 	
-	public BasicDataResult disable(String id);
 	
 	public List<GoodsStorage> findAllGoodsStorage(boolean isdisable,String areaId);
 	

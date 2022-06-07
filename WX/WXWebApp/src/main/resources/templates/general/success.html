@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>库存管理系统-取货反馈单</title>
+<meta
+	content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0"
+	name="viewport">
+<meta content="yes" name="apple-mobile-web-app-capable">
+<meta content="black" name="apple-mobile-web-app-status-bar-style">
+<meta content="telephone=no" name="format-detection">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=0">
+<th:block th:replace="public/public_css::pub_css"></th:block>
+<th:block th:replace="public/public_js::pub_js"></th:block>
+
+<script>
+	
+</script>
+
+</head>
+
+<body class="page-bg">
+
+	<div class="page-hd">
+		<h1 class="page-hd-title">取货反馈单</h1>
+		<p class="page-hd-desc"></p>
+	</div>
+
+	<div class="page-bd">
+		<div class="weui-form-preview">
+			<div class="weui-form-preview__hd">
+				<div class="weui-form-preview__item">
+					<label class="weui-form-preview__label">取货设备名称</label> <em
+						class="weui-form-preview__value">[[${projectPickup.name}]]</em>
+				</div>
+				<div class="weui-form-preview__item">
+					<label class="weui-form-preview__label">取货设备型号</label> <em
+						class="weui-form-preview__value">[[${projectPickup.model}]]</em>
+				</div>
+			</div>
+			<div class="weui-form-preview__bd">
+				<div class="weui-form-preview__item">
+					<label class="weui-form-preview__label">项目名称</label> <span
+						class="weui-form-preview__value">[[${projectPickup.entryName}]]</span>
+				</div>
+				<div class="weui-form-preview__item">
+					<label class="weui-form-preview__label">项目编号</label> <span
+						class="weui-form-preview__value">[[${projectPickup.itemNo}]]</span>
+				</div>
+				<div class="weui-form-preview__item">
+					<label class="weui-form-preview__label">项目负责人</label> <span
+						class="weui-form-preview__value">[[${projectPickup.projectLeader}]]</span>
+				</div>
+			
+			
+				<div class="weui-form-preview__item">
+					<label class="weui-form-preview__label">取货时间</label> <span
+						class="weui-form-preview__value">[[${#dates.format(projectPickup.createTime, 'yyyy-MM-dd HH:mm')}]]</span>
+				</div>
+				<div class="weui-form-preview__item">
+					<label class="weui-form-preview__label">取货数量</label> <span
+						class="weui-form-preview__value">[[${projectPickup.num}]]</span>
+				</div>
+				<div class="weui-form-preview__item">
+					<label class="weui-form-preview__label">取货人姓名</label> <span
+						class="weui-form-preview__value">[[${projectPickup.username}]]</span>
+				</div>
+				<div class="weui-form-preview__item">
+					<label class="weui-form-preview__label">取货人手机号</label> <span
+						class="weui-form-preview__value">[[${projectPickup.phone}]]</span>
+				</div>
+				<div class="weui-form-preview__item">
+					<label class="weui-form-preview__label">您的签名</label> 
+					   <img th:src="${projectPickup?.sign}" class="img-max">
+				</div>
+			</div>
+			
+		</div>
+	</div>
+
+	<div th:replace="public/public_js::public_script"></div>
+<!-- 	<div th:replace="public/public_js::public_back"></div> -->
+
+	<script th:inline="javascript">
+		/*<![CDATA[*/
+
+		/*]]>*/
+	</script>
+
+</body>
+</html>

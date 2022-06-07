@@ -1,0 +1,37 @@
+
+<!DOCTYPE html>
+<!-- saved from url=(0052)http://getbootstrap.com/docs/4.0/examples/dashboard/ -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<head>
+</head>
+
+<body>
+	<th:block th:fragment="page(path,pageList,query)">
+		<div class='pager'>
+		<div class="pager-left">
+			<div th:class="${pageList?.pageNo } eq 1 ?'pager-first disabled':'pager-first'">
+				<a th:href="${pageList?.pageNo} eq 1?'javascript:void(0);':@{/}+${path}+'?pageNo=1'+${query}"  class="pager-nav" >首页</a>
+			</div>
+			<div th:class="${pageList?.pageNo } eq 1 ?'pager-pre disabled':'pager-pre'" >
+					<a th:href="${pageList?.pageNo} eq 1?'javascript:void(0);':@{/}+${path}+'?pageNo='+${pageList?.upPage}+${query}"  class="pager-nav" >上一页</a>
+			</div>
+		</div>
+		<div class="pager-cen" th:text="|${pageList?.pageNo + '/'+ pageList?.totalPage}|"></div>
+		<div class="pager-right">
+			<div  th:class="${pageList?.pageNo eq pageList?.totalPage}?'disabled pager-next':'pager-next'">
+				<a th:href="${pageList?.pageNo eq pageList?.totalPage} ?'javascript:void(0);':@{/}+${path}+'?pageNo='+${pageList?.nextPage}+${query}"  class="pager-nav" >下一页</a>
+			</div>
+			<div th:class="${pageList?.pageNo eq pageList?.totalPage}?'disabled pager-end':'pager-end'"> 
+				<a th:href="${pageList?.pageNo eq pageList?.totalPage} ?'javascript:void(0);':@{/}+${path}+'?pageNo='+${pageList?.totalPage}+${query}"  class="pager-nav" >尾页</a>
+			</div>
+		</div>
+	</div>
+	</th:block>
+
+
+
+</body>
+</html>
+
+

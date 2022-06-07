@@ -30,6 +30,7 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
@@ -52,14 +53,17 @@ import zhongchiedu.log.annotation.SystemServiceLog;
 public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> implements ProjectStockService {
 
 	private @Autowired SupplierServiceImpl supplierService;
-	
+
 	private @Autowired AreaService areaService;
+
+	@Autowired
+	private RedisTemplate redisTemplate;
 
 	@Override
 	@SystemServiceLog(description = "编辑项目库存信息")
-	public void saveOrUpdate(ProjectStock stock,String areaId) {
+	public void saveOrUpdate(ProjectStock stock, String areaId) {
 		if (Common.isNotEmpty(stock)) {
-			if(Common.isNotEmpty(areaId)) {
+			if (Common.isNotEmpty(areaId)) {
 				Area area = this.areaService.findOneById(areaId, Area.class);
 				stock.setArea(area);
 			}
@@ -92,6 +96,7 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 				stock.setNum(ed.getNum());
 				stock.setActualPurchaseQuantity(ed.getActualPurchaseQuantity());
 				BeanUtils.copyProperties(stock, ed);
+				this.redisTemplate.delete("projectStockNames");
 				this.save(stock);
 			} else {
 				if (stock.getNum() > 0) {
@@ -112,31 +117,19 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 					totalActualCost = actualPurchaseQuantity * realCostUnitPrice;
 					stock.setTotalActualCost(totalActualCost);
 				}
+				this.redisTemplate.delete("projectStockNames");
 				this.insert(stock);
 			}
 		}
 	}
 
-	@Override
-	@SystemServiceLog(description = "启用禁用项目库存信息")
-	public BasicDataResult disable(String id) {
-		if (Common.isEmpty(id)) {
-			return BasicDataResult.build(400, "无法禁用，请求出现问题，请刷新界面!", null);
-		}
-		ProjectStock stock = this.findOneById(id, ProjectStock.class);
-		if (Common.isEmpty(stock)) {
-			return BasicDataResult.build(400, "禁用失败，该条信息可能已被删除", null);
-		}
-		stock.setIsDisable(stock.getIsDisable().equals(true) ? false : true);
-		this.save(stock);
-		return BasicDataResult.build(200, stock.getIsDisable().equals(true) ? "禁用成功" : "恢复成功", stock.getIsDisable());
-	}
+
 
 	@Override
 	@SystemServiceLog(description = "获取所有非禁用项目库存信息")
-	public List<ProjectStock> findAllProjectStock(boolean isdisable,String areaId) {
+	public List<ProjectStock> findAllProjectStock(boolean isdisable, String areaId) {
 		Query query = new Query();
-		if(Common.isNotEmpty(areaId)) {
+		if (Common.isNotEmpty(areaId)) {
 			query.addCriteria(Criteria.where("area.$id").is(new ObjectId(areaId)));
 		}
 		query.addCriteria(Criteria.where("isDisable").is(isdisable == true ? true : false));
@@ -155,6 +148,7 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 			for (String edid : ids) {
 				ProjectStock de = this.findOneById(edid, ProjectStock.class);
 				de.setIsDelete(true);
+				this.redisTemplate.delete("projectStockNames");
 				this.save(de);
 			}
 			return "success";
@@ -168,18 +162,18 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 
 	@Override
 	@SystemServiceLog(description = "分页查询项目库存信息")
-	public Pagination<ProjectStock> findpagination(Integer pageNo, Integer pageSize, String search,
-			String projectName,String searchArea) {
+	public Pagination<ProjectStock> findpagination(Integer pageNo, Integer pageSize, String search, String projectName,
+			String searchArea) {
 		// 分页查询数据
 		Pagination<ProjectStock> pagination = null;
 		try {
 			Query query = new Query();
-			if(Common.isNotEmpty(searchArea)) {
+			if (Common.isNotEmpty(searchArea)) {
 				query = query.addCriteria(Criteria.where("area.$id").is(new ObjectId(searchArea)));
 			}
 			query = this.findbySearch(search, projectName, query);
 			query.addCriteria(Criteria.where("isDelete").is(false));
-			query.with(new Sort(new Order(Direction.DESC, "createTime")));
+			query.with(new Sort(new Order(Direction.DESC, "inventory")));
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, ProjectStock.class);
 			if (pagination == null)
 				pagination = new Pagination<ProjectStock>();
@@ -285,18 +279,18 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 				ProjectStock stock = null; // 项目库存信息
 				List<Supplier> supplier = null;
 				Supplier supp = null;
-				String areaName = resultexcel[i][j].trim();//区域
-				//通过区域名称查询区域是否存在
+				String areaName = resultexcel[i][j].trim();// 区域
+				// 通过区域名称查询区域是否存在
 				Area getarea = this.areaService.findByName(areaName);
 				if (Common.isEmpty(getarea)) {
 					error += "<span class='entypo-attention'></span>导入文件过程中，第<b>&nbsp&nbsp" + (i + 1)
 							+ "行出现未添加的区域，请手动去修改该条信息或创建区域！&nbsp&nbsp</b></br>";
 					return error;
 				}
-				
+
 				importProjectStock.setArea(getarea);
-				
-				String projectName = resultexcel[i][j+1].trim();// 项目名称
+
+				String projectName = resultexcel[i][j + 1].trim();// 项目名称
 				if (Common.isEmpty(projectName)) {
 					error += "<span class='entypo-attention'></span>导入文件过程中，第<b>&nbsp&nbsp" + (i + 1)
 							+ "行出现项目名称为空，请手动去修改该条信息！&nbsp&nbsp</b></br>";
@@ -304,7 +298,6 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 				}
 				importProjectStock.setProjectName(projectName);
 
-			
 				String name = resultexcel[i][j + 2].trim();// 设备名称
 				if (Common.isEmpty(name)) {
 					error += "<span class='entypo-attention'></span>导入文件过程中出现设备名称为空，第<b>&nbsp&nbsp" + (i + 1)
@@ -415,19 +408,16 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 
 				/*
 				 * String nums = resultexcel[i][j + 9]; long num = 0; if
-				 * (Common.isNotEmpty(nums)) { try { num = Long.valueOf(nums); }
-				 * catch (NumberFormatException e) { log.debug("导入文件过程中出现错误第" +
-				 * (i + 1) + "行出现错误" + e); String aa = e.getLocalizedMessage();
-				 * String b = aa.substring(aa.indexOf(":") + 1,
-				 * aa.length()).replaceAll("\"", ""); error +=
-				 * "<span class='entypo-attention'></span>导入文件过程中出现错误第<b>&nbsp&nbsp"
-				 * + (i + 1) + "&nbsp&nbsp</b>行出现错误内容为<b>&nbsp&nbsp" + b +
-				 * "&nbsp&nbsp</b></br> 请输入正确数字"; if ((i + 1) < rowLength) {
-				 * continue; } } importProjectStock.setNum(num);// 出库数量
+				 * (Common.isNotEmpty(nums)) { try { num = Long.valueOf(nums); } catch
+				 * (NumberFormatException e) { log.debug("导入文件过程中出现错误第" + (i + 1) + "行出现错误" +
+				 * e); String aa = e.getLocalizedMessage(); String b =
+				 * aa.substring(aa.indexOf(":") + 1, aa.length()).replaceAll("\"", ""); error +=
+				 * "<span class='entypo-attention'></span>导入文件过程中出现错误第<b>&nbsp&nbsp" + (i + 1) +
+				 * "&nbsp&nbsp</b>行出现错误内容为<b>&nbsp&nbsp" + b + "&nbsp&nbsp</b></br> 请输入正确数字"; if
+				 * ((i + 1) < rowLength) { continue; } } importProjectStock.setNum(num);// 出库数量
 				 * 
 				 * if (num > actualPurchaseQuantity) { error +=
-				 * "<span class='entypo-attention'></span>导入文件过程中出现错误第<b>&nbsp&nbsp"
-				 * + (i + 1) +
+				 * "<span class='entypo-attention'></span>导入文件过程中出现错误第<b>&nbsp&nbsp" + (i + 1) +
 				 * "&nbsp&nbsp</b>行出现错误内容为<b>&nbsp&nbsp出库数量大于实际采购数量，无法完成出库，请检查&nbsp&nbsp</b></br>";
 				 * continue; }
 				 * 
@@ -558,7 +548,7 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 
 	@Override
 	@SystemServiceLog(description = "导出项目库存信息")
-	public HSSFWorkbook export(String name,String areaId) {
+	public HSSFWorkbook export(String name, String areaId) {
 		HSSFWorkbook wb = new HSSFWorkbook();
 
 		// 创建sheet
@@ -567,7 +557,7 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 		List<String> title = this.title();
 		this.createHead(sheet, title, style, name);
 		this.createTitle(sheet, title, style);
-		this.createProjectStock(sheet, title, style,areaId);
+		this.createProjectStock(sheet, title, style, areaId);
 		sheet.setDefaultColumnWidth(12);
 		sheet.autoSizeColumn(1, true);
 		return wb;
@@ -632,11 +622,11 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 	 * 
 	 * @param sheet
 	 */
-	public void createProjectStock(HSSFSheet sheet, List<String> title, HSSFCellStyle style,String areaId) {
+	public void createProjectStock(HSSFSheet sheet, List<String> title, HSSFCellStyle style, String areaId) {
 
 		int j = 1;
 		// 获取所有的项目库存
-		List<ProjectStock> list = this.findAllProjectStock(false,areaId);
+		List<ProjectStock> list = this.findAllProjectStock(false, areaId);
 		for (ProjectStock stock : list) {
 			// 获取所有的设备
 			HSSFRow row = sheet.createRow(j + 1);
@@ -644,11 +634,10 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 			HSSFCell cell = row.createCell(0);
 			cell.setCellStyle(style);
 			cell.setCellValue(stock.getArea().getName());// 项目名称
-			
+
 			cell = row.createCell(1);
 			cell.setCellStyle(style);
 			cell.setCellValue(stock.getProjectName());// 项目名称
-
 
 			cell = row.createCell(2);
 			cell.setCellStyle(style);
@@ -755,9 +744,16 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 
 	@Override
 	public Set findProjectNames() {
+
+		Set<String> getset = (Set<String>) this.redisTemplate.opsForValue().get("projectStockNames");
+
+		if (Common.isNotEmpty(getset)) {
+			return getset;
+		}
+
 		Query query = new Query();
 
-		Set set = new HashSet<>();
+		Set<String> set = new HashSet<>();
 
 		query.addCriteria(Criteria.where("isDelete").is(false));
 
@@ -766,6 +762,8 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 		list.forEach((projectStock) -> {
 			set.add(projectStock.getProjectName());
 		});
+
+		this.redisTemplate.opsForValue().set("projectStockNames", set);
 
 		return set;
 	}

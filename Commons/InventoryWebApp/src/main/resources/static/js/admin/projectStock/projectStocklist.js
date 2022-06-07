@@ -189,8 +189,14 @@ function searchVal() {
 
 function toStatistics(o){
 	window.location.href = "stockStatisticss?id=" + o;
-	
 }
+
+function cleanSearch(){
+	window.location.href = "projectStock/clearSearch";
+}
+
+
+
 
 function toExport(){
 	jqueryAlert({

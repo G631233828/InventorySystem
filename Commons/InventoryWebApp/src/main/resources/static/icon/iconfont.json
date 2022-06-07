@@ -1,0 +1,23 @@
+{
+  "id": "",
+  "name": "",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "1546600",
+      "name": "微信",
+      "font_class": "weixin",
+      "unicode": "e69a",
+      "unicode_decimal": 59034
+    },
+    {
+      "icon_id": "24111580",
+      "name": "微信",
+      "font_class": "weixin1",
+      "unicode": "fae4",
+      "unicode_decimal": 64228
+    }
+  ]
+}

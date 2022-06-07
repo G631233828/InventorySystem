@@ -39,22 +39,7 @@ public class CompanyServiceImpl extends GeneralServiceImpl<Companys> implements 
 		}
 	}
 
-	@Override
-	@SystemServiceLog(description="启用禁用企业信息")
-	public BasicDataResult disable(String id) {
-		if (Common.isEmpty(id)) {
-			return BasicDataResult.build(400, "无法禁用，请求出现问题，请刷新界面!", null);
-		}
-		Companys company = this.findOneById(id, Companys.class);
-		if (Common.isEmpty(company)) {
-			return BasicDataResult.build(400, "禁用失败，该条信息可能已被删除", null);
-		}
-		company.setIsDisable(company.getIsDisable().equals(true) ? false : true);
-		this.save(company);
-		return BasicDataResult.build(200, company.getIsDisable().equals(true) ? "禁用成功" : "恢复成功",
-				company.getIsDisable());
-	}
-
+	
 	@Override
 	@SystemServiceLog(description="获取所有非禁用企业信息")
 	public List<Companys> findAllCompany(boolean isdisable) {

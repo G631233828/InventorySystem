@@ -162,7 +162,7 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 
 	@Override
 	@SystemServiceLog(description = "库存出库入库")
-	public  BasicDataResult inOrOutstockStatistics(ProjectStockStatistics stockStatistics, HttpSession session) {
+	public  BasicDataResult inOrOutstockStatistics(ProjectStockStatistics stockStatistics, User user) {
 
 		
 		
@@ -174,7 +174,6 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 
 		ProjectStock projectStock = this.projectStockService.findOneById(id, ProjectStock.class);
 		if (Common.isNotEmpty(projectStock)) {
-			User user = (User) session.getAttribute(Contents.USER_SESSION);
 			stockStatistics.setUser(user);
 			stockStatistics.setRevoke(false);
 			stockStatistics.setArea(projectStock.getArea());

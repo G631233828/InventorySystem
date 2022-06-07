@@ -190,6 +190,112 @@
 							</div>
 						</div>
 					</div>
+					<div class="col-lg-6">
+						<div id="RealTimeClose" class="nest">
+							<div class="title-alt">
+								<h6>
+									<span class="fontawesome-resize-horizontal"></span>&nbsp;预入库
+								</h6>
+							</div>
+							<div class="content-wrap">
+								<div class="row">
+									<div class="col-sm-12">
+										<div class="body-nest" id="Footable">
+
+											<table class="table-striped footable-res footable metro-blue"
+												data-page-size="6" data-limit-navigation="5">
+												<thead>
+													<tr>
+														<th>设备名称</th>
+														<th>设备型号</th>
+														<th>预入库数量</th>
+														<th>预入库时间</th>
+														<th>发布人</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr th:each="pre:${preStocks}">
+														<td th:text="${pre?.name}"></td>
+														<td th:text="${pre?.model}"></td>
+														<td th:text="${pre?.estimatedInventoryQuantity}"></td>
+														<td th:text="${#dates.format(pick?.estimatedWarehousingTime,'yyyy-MM-dd hh:mm')}"></td>
+														<td th:text="${pre?.publisher?.userName}"></td>
+													</tr>
+
+												</tbody>
+												<tfoot>
+													<tr>
+														<td colspan="5" th:if="${!#lists.isEmpty(low)}">
+															<div class="pagination pagination-centered"></div>
+														</td>
+													</tr>
+												</tfoot>
+											</table>
+
+										</div>
+
+
+									</div>
+
+								</div>
+
+							</div>
+						</div>
+					</div>
+					<div class="col-lg-6">
+						<div id="RealTimeClose" class="nest">
+							<div class="title-alt">
+								<h6>
+									<span class="fontawesome-resize-horizontal"></span>&nbsp;预出库
+								</h6>
+							</div>
+							<div class="content-wrap">
+								<div class="row">
+									<div class="col-sm-12">
+										<div class="body-nest" id="Footable">
+
+											<table class="table-striped footable-res footable metro-blue"
+												data-page-size="6" data-limit-navigation="5">
+												<thead>
+													<tr>
+														<th>区域</th>
+														<th>设备名称</th>
+														<th>设备型号</th>
+														<th>出库数量</th>
+														<th>预计取货时间</th>
+														<th>发布人</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr th:each="pick:${pickUpApplication}">
+														<td th:text="${pick?.area?.name}"></td>
+														<td th:text="${pick?.stock?.name}"></td>
+														<td th:text="${pick?.stock?.model}"></td>
+														<td th:text="${pick?.estimatedIssueQuantity}"></td>
+														<td th:text="${#dates.format(pick?.pickUpTime,'yyyy-MM-dd hh:mm')}"></td>
+														<td th:text="${pick?.publisher?.userName}"></td>
+													</tr>
+
+												</tbody>
+												<tfoot>
+													<tr>
+														<td colspan="5" th:if="${!#lists.isEmpty(low)}">
+															<div class="pagination pagination-centered"></div>
+														</td>
+													</tr>
+												</tfoot>
+											</table>
+
+										</div>
+
+
+									</div>
+
+								</div>
+
+							</div>
+						</div>
+					</div>
 				</div>
 			</div>
 

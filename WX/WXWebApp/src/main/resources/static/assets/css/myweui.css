@@ -1,0 +1,8 @@
+<!--搜索框设置无法拖动-->
+.search_bar{
+	position: fixed;
+	background-color: #F7F7FA;
+	z-index: 500;
+	width:100%;
+	top:0;
+}

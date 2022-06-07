@@ -7,7 +7,10 @@ import org.springframework.data.mongodb.core.mapping.DBRef;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import zhongchiedu.framework.pojo.GeneralBean;
 import zhongchiedu.general.pojo.User;
 
@@ -17,10 +20,13 @@ import zhongchiedu.general.pojo.User;
  * @author fliay
  *
  */
-@Data
+//@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
+//@ToString
 public class StockStatistics extends GeneralBean<StockStatistics> {
 	
 	/**
@@ -46,6 +52,9 @@ public class StockStatistics extends GeneralBean<StockStatistics> {
 	private String personInCharge;//责任人
 	private String projectName;   //项目名
 	private String customer;//客户
+	
+	//预入库方式  新增
+	private boolean preStock = false;//预入库
 	
 	@DBRef
 	private Area area;

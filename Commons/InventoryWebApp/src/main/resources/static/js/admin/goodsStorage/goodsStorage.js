@@ -15,7 +15,7 @@ $().ready(function() {
 				minlength : 1,
 			},
 			shelflevel : {
-				required : true,
+				/*required : true,*/
 				remote : {
 					url : getRootPath() + "/goodsStorage/ajaxgetRepletes",
 					type : "POST",
@@ -62,7 +62,7 @@ $().ready(function() {
 				minlength : a + "货架编号长度至少是2个"
 			},
 			shelflevel : {
-				required : a + "请输入货架层",
+				/*required : a + "请输入货架层",*/
 				remote : a + "货架层在当前企业中已经存在！"
 			}
 

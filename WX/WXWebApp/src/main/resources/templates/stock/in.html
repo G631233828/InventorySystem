@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>库存管理系统-库存入库</title>
+<meta
+	content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0"
+	name="viewport">
+<meta content="yes" name="apple-mobile-web-app-capable">
+<meta content="black" name="apple-mobile-web-app-status-bar-style">
+<meta content="telephone=no" name="format-detection">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=0">
+<th:block th:replace="public/public_css::pub_css"></th:block>
+<th:block th:replace="public/public_js::pub_js"></th:block>
+
+
+
+
+</head>
+
+<body  class="page-bg">
+
+
+
+<div class="weui-cells weui-cells_form">
+  
+	<form id="projectPickupForm" method="post">
+    <div class="weui-cell">
+        <div class="weui-cell__hd">
+            <label class="weui-label">设备名称：</label>
+        </div>
+        <div class="weui-cell__bd">
+              <label class="weui-label">[[${stock?.name}]]</label>
+        </div>
+		<input type="hidden" class="text-info stockval" name="stock.id" th:value="${stock?.id}">
+		<input type="hidden" name="InOrOut" value="true">
+    </div>
+    
+     <div class="weui-cell">
+        <div class="weui-cell__hd">
+            <label class="weui-label">设备型号</label>
+        </div>
+        <div class="weui-cell__bd">
+           <label class="weui-label">[[${stock?.model}]]</label>
+        </div>
+    </div>
+
+    <div class="weui-cell">
+       <div class="weui-cell__hd">
+            <label class="weui-label">当前库存量：</label>
+        </div>
+        <div class="weui-cell__bd">
+              <label class="weui-label">[[${stock?.inventory}]]</label>
+        </div>
+    </div>
+    
+
+      <div class="weui-cell">
+       <div class="weui-cell__hd">
+            <label class="weui-label">入库数量</label>
+        </div>
+        <div class="weui-cell__bd">
+            <input class="weui-input" placeholder="入库数量" id="num" name="num" type="text">
+        </div>
+    </div>  
+    
+   <div class="weui-btn-area">
+    <a class="weui-btn weui-btn_primary" href="javascript:" id="btn">确定</a>
+</div>
+    
+    
+       
+    </form> 
+    
+    
+</div>
+
+
+
+
+
+
+
+<div th:replace="public/public_js::public_script"></div>
+
+
+<script type="text/javascript">
+
+$(function(){
+	  $(document).on("click","#btn",function(){
+		  var num = $("#num").val();
+		  if(num==""||num<=0){
+			  $.toptip("请输入入库数量");
+			  return false;
+		  }else if(!number.test(num)){
+        	  $.toptip("入库数量请输入数字");
+              return false;
+          }
+		  $.ajax({
+			  dataType:"json",
+			  type:"POST",
+			  url: path+"wechat/stock/in",
+			  data:$("#projectPickupForm").serialize(),
+			  beforeSend:function(){
+				   $.showLoading();
+			  },
+			  success:function(data){
+				  if(data.status == 200){
+					    $.modal({
+		                    title: "商品入库",
+		                    text: data.msg,
+		                    buttons: [
+		                        { text: "返回首页", onClick: function(){ 
+		                        	window.location.href=path+"wechat/index"
+		                        } },
+		                        { text: "返回库存页", onClick: function(){
+									window.location.href=path+"wechat/stocks"
+		                        	} },
+		                    ]
+		                });
+				  }else{
+					  $.toptip(data.msg,'error');
+					  
+				  }
+			  },
+			  complete:function(){
+				  $.hideLoading();
+			  }
+		  })
+		
+         
+      })
+})
+
+
+ 
+</script>
+
+
+	<script th:inline="javascript">
+/*<![CDATA[*/
+
+	
+    
+    
+    /*]]>*/
+    
+</script>
+
+
+</body>
+</html>

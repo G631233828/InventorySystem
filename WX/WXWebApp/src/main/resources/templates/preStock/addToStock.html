@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>库存管理系统-预入库存管理</title>
+<meta
+	content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0"
+	name="viewport">
+<meta content="yes" name="apple-mobile-web-app-capable">
+<meta content="black" name="apple-mobile-web-app-status-bar-style">
+<meta content="telephone=no" name="format-detection">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=0">
+<th:block th:replace="public/public_css::pub_css"></th:block>
+<th:block th:replace="public/public_js::pub_js"></th:block>
+
+<script type="text/javascript">
+	$(function() {
+		$(document).on("click", "#btn", function() {
+			var name = $("#name").val();
+			var area = $("#area").val();
+			var price = $("#price").val();
+			/* var goodsStorage = $("#goodsStorage").val(); */
+			var actualReceiptQuantity = $("#actualReceiptQuantity").val();
+			if (area == "") {
+				$.toptip("请选择设备归属");
+				return false;
+			} else if (name == "") {
+				$.toptip("设备名称不能为空");
+				return false;
+			} /* else if(goodsStorage ==""){
+				$.toptip("请选择设备存放区域");
+				return false;
+			} */
+			else if(price!=""&&!number.test(price)){
+				$.toptip("单价请输入数字");
+	              return false;
+			}
+			 else if(actualReceiptQuantity ==""||actualReceiptQuantity == 0){
+				$.toptip("请输入实际入库数量");
+				return false;
+			}else if(!number.test(actualReceiptQuantity)){
+	        	  $.toptip("实际入库数量请输入数字");
+	              return false;
+	          }
+			else {
+				$.toptip("提交成功", 'success');
+				$("#stockForm").submit();
+			}
+		})
+		
+					   //解决表单控件不能回弹 只有微信ios有这个问题
+           $("textarea").blur(function(){
+setTimeout(() => {
+const scrollHeight = document.documentElement.scrollTop || document.body.scrollTop || 0;
+window.scrollTo(0, Math.max(scrollHeight - 1, 0));
+}, 100);
+})
+		
+		
+		
+	})
+	  function cleararea(obj){
+            $(obj).prev().find('.weui-textarea').val("").next().find("span").text(0);
+            return false;
+        }
+	
+	
+	
+	function textarea(input) {
+        var content = $(input);
+          var max =  content.next().find('i') .text();
+        var value = content.val();
+        if (value.length>0) {
+
+            value = value.replace(/\n|\r/gi,"");
+            var len = value.length;
+            content.next().find('span').text(len) ;
+             if(len>max){
+                 content.next().addClass('f-red');
+             }else{
+                 content.next().removeClass('f-red');
+             }
+        }
+    }
+	
+	
+	
+</script>
+
+
+
+
+</head>
+
+<body class="page-bg">
+
+	<form th:action="@{/wechat/preStockToStock}" method="post" id="stockForm" >
+		<div class="weui-cells weui-cells_form">
+<input type="hidden" name="id" th:if="${stock!=null}" th:value="${stock.id}">
+
+			<div class="weui-cell weui-cell_select weui-cell_select-after">
+				<div class="weui-cell__hd">
+					<label for="" class="weui-label">库存归属</label>
+				</div>
+				<div class="weui-cell__bd">
+
+					<select id="area" name="area.id" class="weui-select"
+						onchange="return getgoodsStorages()">
+						<option value="">请选择库存归属</option>
+						<option
+							th:selected="${stock!=null && stock?.area !=null}?${stock?.area?.id}==${area?.id}"
+							th:each="area:${areas}" th:value="${area?.id}"
+							th:text="${area?.name}"></option>
+					</select>
+				</div>
+			</div>
+
+
+
+			<div class="weui-cell">
+				<div class="weui-cell__hd">
+					<label class="weui-label">设备名称</label>
+				</div>
+				<div class="weui-cell__bd">
+					<input class="weui-input" placeholder="设备名称" type="text"
+						name="name" th:value="${stock?.name}" id="name">
+				</div>
+
+			</div>
+
+			<div class="weui-cell">
+				<div class="weui-cell__hd">
+					<label class="weui-label">设备型号</label>
+				</div>
+				<div class="weui-cell__bd">
+					<input class="weui-input" placeholder="设备型号" type="text"
+						th:value="${stock?.model}" name="model" id="model">
+				</div>
+
+			</div>
+			<div class="weui-cell">
+				<div class="weui-cell__hd">
+					<label class="weui-label">项目名称</label>
+				</div>
+				<div class="weui-cell__bd">
+					<input class="weui-input" placeholder="项目名称" type="text"
+						th:value="${stock?.entryName}" name="entryName" id="entryName">
+				</div>
+
+			</div>
+			<div class="weui-cell">
+				<div class="weui-cell__hd">
+					<label class="weui-label">项目编号</label>
+				</div>
+				<div class="weui-cell__bd">
+					<input class="weui-input" placeholder="项目编号" type="text"
+						th:value="${stock?.itemNo}" name="itemNo" id="itemNo">
+				</div>
+
+			</div>
+			
+			
+	<!-- 		<div class="weui-cell">
+				<div class="weui-cell__hd">
+					<label class="weui-label">使用范围</label>
+				</div>
+				<div class="weui-cell__bd">
+					<input class="weui-input" placeholder="使用范围" type="text"
+						th:value="${stock?.scope}" name="scope" id="scope">
+				</div>
+			</div> -->
+
+			<div class="weui-cell weui-cell_select weui-cell_select-after">
+				<div class="weui-cell__hd">
+					<label for="" class="weui-label">存放区域</label>
+				</div>
+				<div class="weui-cell__bd">
+
+					<select id="goodsStorage" name="goodsStorage.id"
+						class="weui-select">
+						<option value="">----请选择存放区域----</option>
+						<option
+							th:selected="${stock!=null && stock?.goodsStorage !=null}?${stock?.goodsStorage?.id}==${goodsStorage?.id}"
+							th:each="goodsStorage:${goodsStorages}"
+							th:value="${goodsStorage?.id}"
+							th:text="|${goodsStorage?.shelfNumber}${goodsStorage?.shelflevel==''?'':'/'}${goodsStorage?.shelflevel}|"></option>
+					</select>
+				</div>
+			</div>
+			<div class="weui-cell">
+				<div class="weui-cell__hd">
+					<label class="weui-label">单价</label>
+				</div>
+				<div class="weui-cell__bd">
+					<input class="weui-input" placeholder="请输入单价" type="text"
+						onkeyup="this.value=this.value.replace(/[^0-9\.]/g,'')"
+						th:value="${stock?.price}" name="price" id="price">
+				</div>
+			</div>
+
+
+			<div class="weui-cell weui-cell_select weui-cell_select-after">
+				<div class="weui-cell__hd">
+					<label for="" class="weui-label">计量单位</label>
+				</div>
+				<div class="weui-cell__bd">
+					<select id="unit" name="unit.id" class="weui-select">
+						<option value="">---请选择设备计量单位---</option>
+						<option
+							th:selected="${stock!=null && stock?.unit !=null}?${stock?.unit?.id}==${unit?.id}"
+							th:each="unit:${units}" th:value="${unit?.id}"
+							th:text="${unit?.name}"></option>
+					</select>
+				</div>
+			</div>
+
+			<div class="weui-cell weui-cell_select weui-cell_select-after">
+				<div class="weui-cell__hd">
+					<label for="" class="weui-label">供应商</label>
+				</div>
+				<div class="weui-cell__bd">
+					<select id="supplier" name="supplier.id" class="weui-select">
+						<option value="">---请选择供应商---</option>
+						<option
+							th:selected="${stock!=null && stock?.supplier !=null}?${stock?.supplier?.id}==${supplier?.id}"
+							th:each="supplier:${suppliers}" th:value="${supplier?.id}"
+							th:text="${supplier?.name}"></option>
+					</select>
+				</div>
+			</div>
+			
+			<div class="weui-cell">
+				<div class="weui-cell__hd">
+					<label class="weui-label">预入库数量</label>
+				</div>
+				<div class="weui-cell__bd">
+					<input class="weui-input"  type="text" readonly="readonly"
+						th:value="${stock?.estimatedInventoryQuantity}" name="estimatedInventoryQuantity">
+				</div>
+			</div>
+			
+			
+			
+			<div class="weui-cell">
+				<div class="weui-cell__hd">
+					<label class="weui-label">实际入库数量</label>
+				</div>
+				<div class="weui-cell__bd">
+					<input class="weui-input" placeholder="请输入实际入库数量" type="text"
+						onkeyup="this.value=this.value.replace(/[^0-9\.]/g,'')"
+						th:value="${stock?.actualReceiptQuantity}" name="actualReceiptQuantity" id="actualReceiptQuantity">
+				</div>
+			</div>
+
+
+			<div class="weui-cells weui-cells_form">
+				<div class="weui-cell">
+					<div class="weui-cell__bd">
+						<textarea class="weui-textarea" placeholder="请输入备注" rows="3"
+							name="description" th:text="${stock?.description}"
+							onkeyup="textarea(this);"></textarea>
+						<div class="weui-textarea-counter">
+							<span>0</span>/<i>50</i>
+						</div>
+					</div>
+					<i class="weui-icon-clear" onclick="cleararea(this)"></i>
+				</div>
+			</div>
+
+
+			<shiro:hasPermission name="preStock:in">
+				<div class="weui-btn-area">
+					<a class="weui-btn weui-btn_primary" href="javascript:" id="btn">确认入库</a>
+				</div>
+
+			</shiro:hasPermission>
+
+
+
+		</div>
+
+
+	</form>
+
+
+
+
+
+	<div th:replace="public/public_js::public_script"></div>
+
+
+
+
+
+
+
+
+
+
+
+	<script th:inline="javascript">
+	
+
+	function getgoodsStorages() {
+		var areaId = $("#area").val();
+			// 需要通过ajax加载对应的菜单列表
+			$.ajax({
+				type : 'POST',
+				url : "getStorages",
+				data : "areaId=" + areaId,
+				dataType : "json",
+				success : function(data) {
+					var sale = "<option value=''>----选择货架----</option>";
+					$.each(data.data, function(index, item) {
+						sale += "<option value=" + item.id + ">" +item.address+"-->" +item.shelfNumber
+								+ "/"+item.shelflevel+"</option>";
+					});
+					$("#goodsStorage").html(sale)
+				}
+			});
+	}
+
+
+	
+	
+	
+		/*<![CDATA[*/
+
+		var MAX = 9999, MIN = 1;
+		$('.weui-count__decrease').click(
+				function(e) {
+					var $input = $(e.currentTarget).parent().find(
+							'.weui-count__number');
+					var number = parseInt($input.val() || "0") - 1
+					if (number < MIN)
+						number = MIN;
+					$input.val(number)
+				})
+		$('.weui-count__increase').click(
+				function(e) {
+					var $input = $(e.currentTarget).parent().find(
+							'.weui-count__number');
+					var number = parseInt($input.val() || "0") + 1
+					if (number > MAX)
+						number = MAX;
+					$input.val(number)
+				})
+
+		/*]]>*/
+	</script>
+
+
+</body>
+</html>

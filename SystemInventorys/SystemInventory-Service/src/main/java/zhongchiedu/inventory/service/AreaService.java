@@ -9,11 +9,9 @@ import zhongchiedu.inventory.pojo.Area;
 
 public interface AreaService extends GeneralService<Area> {
 	
-	public Pagination<Area> findpagination(Integer pageNo,Integer pageSize);
+	public Pagination<Area> findpagination(Integer pageNo,Integer pageSize,String search);
 	
-	public void saveOrUpdate(Area brand);
-	
-	public BasicDataResult disable(String id);
+	public void saveOrUpdate(Area area);
 	
 	public List<Area> findAllArea(boolean isdisable);
 	
@@ -24,6 +22,11 @@ public interface AreaService extends GeneralService<Area> {
 	public BasicDataResult todisable(String id);
 	
 	public Area findByName(String name);
+	
+	public List findIdsByName(String name);
+	
+	
+	
 	
 	
 	

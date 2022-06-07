@@ -12,5 +12,6 @@
   	<module>Common-shiro</module>
   	<module>Common-Utils</module>
   	<module>InventoryWebApp</module>
+  	<module>Common-shiro-weixin</module>
   </modules>
 </project>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>库存管理系统-项目库存管理</title>
+<meta
+	content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0"
+	name="viewport">
+<meta content="yes" name="apple-mobile-web-app-capable">
+<meta content="black" name="apple-mobile-web-app-status-bar-style">
+<meta content="telephone=no" name="format-detection">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=0">
+<th:block th:replace="public/public_css::pub_css"></th:block>
+<th:block th:replace="public/public_js::pub_js"></th:block>
+<script>
+	var add = false;
+	var edit = false;
+	var del = false;
+</script>
+<script type="text/javascript">
+	$(function() {
+		$(document).on("click", "#btn", function() {
+			var name = $("#name").val();
+			var area = $("#area").val();
+			var projectName = $("#projectName").val();
+			if (area == "") {
+				$.toptip("请选择设备归属");
+				return false;
+			} else if (projectName == "") {
+				$.toptip("项目名称不能为空");
+				return false;
+			} else if (name == "") {
+				$.toptip("设备名称不能为空");
+				return false;
+			} else {
+				$.toptip("提交成功", 'success');
+				$("#projectStockForm").submit();
+			}
+		})
+	})
+</script>
+
+
+
+
+</head>
+
+<body class="page-bg">
+	<shiro:hasPermission name="stock:add">
+		<script>
+			add = true;
+		</script>
+	</shiro:hasPermission>
+	<shiro:hasPermission name="stock:edit">
+		<script>
+			edit = true;
+		</script>
+	</shiro:hasPermission>
+	<shiro:hasPermission name="stock:delete">
+		<script>
+			del = true;
+		</script>
+	</shiro:hasPermission>
+
+	<form th:action="@{/wechat/projectStock}" method="post" id="projectStockForm">
+
+		<div class="weui-cells weui-cells_form">
+		<th:block th:if="${projectStock !=null}">
+		<input type="hidden" th:value="${projectStock?.id}" name="id" value="id" >
+		</th:block>
+
+			<div class="weui-cell weui-cell_select weui-cell_select-after">
+				<div class="weui-cell__hd">
+					<label for="" class="weui-label">库存归属：</label>
+				</div>
+				<div class="weui-cell__bd">
+
+					<select id="area" name="area.id" class="weui-select"
+						required="required">
+						<option value="">请选择库存归属</option>
+						<option
+							th:selected="${projectStock!=null && projectStock?.area !=null}?${projectStock?.area?.id}==${area?.id}"
+							th:each="area:${areas}" th:value="${area?.id}"
+							th:text="${area?.name}"></option>
+					</select>
+				</div>
+			</div>
+
+			<div class="weui-cell">
+				<div class="weui-cell__hd">
+					<label class="weui-label">项目名称</label>
+				</div>
+				<div class="weui-cell__bd">
+					<input class="weui-input" placeholder="请输入项目名称" type="text"
+						name="projectName" id="projectName"
+						th:value="${projectStock?.projectName}">
+				</div>
+
+			</div>
+			<div class="weui-cell">
+				<div class="weui-cell__hd">
+					<label class="weui-label">设备名称</label>
+				</div>
+				<div class="weui-cell__bd">
+					<input class="weui-input" placeholder="请输入设备名称" type="text"
+						name="name" id="name" th:value="${projectStock?.name}">
+				</div>
+
+			</div>
+
+			<div class="weui-cell">
+				<div class="weui-cell__hd">
+					<label class="weui-label">设备型号</label>
+				</div>
+				<div class="weui-cell__bd">
+					<input class="weui-input" placeholder="设备名称" type="text"
+						name="model" id="model" th:value="${projectStock?.model}">
+				</div>
+
+			</div>
+
+
+			<div class="weui-cell">
+				<div class="weui-cell__hd">
+					<label class="weui-label">使用范围</label>
+				</div>
+				<div class="weui-cell__bd">
+					<input class="weui-input" placeholder="请输入使用范围" type="text"
+						name="scope" id="scope" th:value="${projectStock?.scope}">
+				</div>
+
+			</div>
+
+
+			<div class="weui-btn-area">
+				<a class="weui-btn weui-btn_primary" href="javascript:" id="btn">确定</a>
+			</div>
+
+		</div>
+
+
+	</form>
+
+
+
+
+	<div th:replace="public/public_js::public_script"></div>
+
+
+
+
+
+
+
+
+
+
+
+	<script th:inline="javascript">
+		/*<![CDATA[*/
+
+		var MAX = 9999, MIN = 1;
+		$('.weui-count__decrease').click(
+				function(e) {
+					var $input = $(e.currentTarget).parent().find(
+							'.weui-count__number');
+					var number = parseInt($input.val() || "0") - 1
+					if (number < MIN)
+						number = MIN;
+					$input.val(number)
+				})
+		$('.weui-count__increase').click(
+				function(e) {
+					var $input = $(e.currentTarget).parent().find(
+							'.weui-count__number');
+					var number = parseInt($input.val() || "0") + 1
+					if (number > MAX)
+						number = MAX;
+					$input.val(number)
+				})
+
+		function getWxConfig() {
+			$.ajax({
+				url : path + "/wechat/getWxConfig",
+				dataType : "json",
+				type : "post",
+				success : function(res) {
+					wx.config({
+						debug : false,
+						appId : res.appId, // 必填，公众号的唯一标识
+						timestamp : res.timestamp, // 必填，生成签名的时间戳
+						nonceStr : res.noncestr, // 必填，生成签名的随机串
+						signature : res.signature,// 必填，签名，见附录1
+						jsApiList : [ 'chooseImage', 'uploadImage',
+								'previewImage', 'downloadImage', 'checkJsApi',
+								'scanQRCode', 'chooseImage', 'uploadImage' ]
+					// 必填
+					});
+
+				},
+				error : function() {
+					$.toptip("获取配置信息失败");
+				}
+			})
+			wx.ready(function() {
+				wx.scanQRCode({
+					needResult : 1, // 默认为0，扫描结果由微信处理，1则直接返回扫描结果，
+					scanType : [ "qrCode", "barCode" ], // 可以指定扫二维码还是一维码，默认二者都有
+					success : function(res) {
+						var result = res.resultStr; // 当needResult 为 1 时，扫码返回的结果
+						$("#barCode").val(
+								result.substring(result.indexOf(",") + 1,
+										result.length));
+					},
+					error : function(res) {
+						$.toptip(res.resultStr)
+					}
+				});
+			});
+
+		}
+
+		/*]]>*/
+	</script>
+
+
+</body>
+</html>

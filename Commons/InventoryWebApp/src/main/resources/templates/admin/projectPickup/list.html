@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head th:include="public/public_css::pub_css"></head>
+<head>
+<meta charset="utf-8">
+<link th:href="@{/plugs/alert/css/alert.css}" rel="stylesheet">
+<script type="text/javascript" th:src="@{/plugs/alert/js/alert.js}"></script>
+<link rel="stylesheet" th:href="@{/plugs/datapicker/datepicker3.css}">
+<link th:href="@{/plugs/sweetalert/sweetalert.css}" rel="stylesheet">
+<script type="text/javascript"
+	th:src="@{/plugs/datapicker/bootstrap-datepicker.js}"></script>
+
+
+
+</head>
+
+<body>
+	<!-- Preloader -->
+	<div id="preloader">
+		<div id="status">&nbsp;</div>
+	</div>
+	<!-- TOP NAVBAR -->
+	<div th:replace="public/public::top"></div>
+	<!-- /END OF TOP NAVBAR -->
+
+	<!-- SIDE MENU -->
+	<div th:replace="public/public::left(activeUri='stockManager')"></div>
+	<!-- END OF SIDE MENU -->
+
+	<!--  PAPER WRAP -->
+	<div class="wrap-fluid">
+		<div class="container-fluid paper-wrap bevel tlbr">
+
+
+			<!-- CONTENT -->
+			<!--TITLE -->
+			<div th:replace="public/public::title"></div>
+			<!--/ TITLE -->
+
+			<!-- BREADCRUMB -->
+			<div th:replace="public/public::menu"></div>
+			<!-- END OF BREADCRUMB -->
+
+
+			<div class="content-wrap">
+				<div class="row">
+
+
+					<div class="col-sm-12">
+
+
+						<div class="nest" id="tableStaticClose">
+					
+							<div class="body-nest" id="tableStatic">
+
+								<div class="row" style="margin-bottom: 10px;">
+									<div class="col-sm-12 form-inline">
+
+										 <select class="filter-status form-control" id="pageSize"
+											onchange="return searchVal()">
+											<option value="10" th:selected="${pageSize == 10}">10
+											<option value="20" th:selected="${pageSize == 20}">20
+											<option value="50" th:selected="${pageSize == 50}">50
+											<option value="100" th:selected="${pageSize == 100}">100
+										</select> <input class="form-control" id="serach" placeholder="模糊匹配"
+											th:value="${search}" type="text"> <input
+											class="form-control datepicker" readonly="readonly"
+											id="start" placeholder="开始日期" th:value="${start}" type="text">
+										<input class="form-control datepicker" readonly="readonly"
+											id="end" placeholder="结束日期" th:value="${end}" type="text">
+
+
+										<button class="btn btn-default btn-sm"
+											onclick="return searchVal()">
+											<i class="entypo-search"> </i> 搜索
+										</button>
+										<button class="btn btn-default btn-sm"
+											onclick="return clearaa()">
+											<i class="entypo-search"> </i> 清空
+										</button>
+
+										<button class="btn btn-default" onclick="return toExport('')">
+											<i class="entypo-export"> </i>导出出库单
+										</button>
+									</div>
+								</div>
+
+								<!-- <div class="col-sm-6"></div> -->
+
+							</div>
+
+
+	<section id="flip-scroll">
+								<table class="table table-bordered table-striped cf">
+									<thead class="cf">
+										<tr>
+											<th class="numeric" style="width: 20px;">
+												<div class="checkbox checkbox-inline"
+													style="margin-top: 0px;">
+													<input type="checkbox" id="checkall" name="checkall" /> <label
+														for="checkall"></label>
+												</div>
+											</th>
+											<th class="numeric">设备名称</th>
+											<th class="numeric">设备型号</th>
+											<th class="numeric">项目名称</th>
+											<th class="numeric">项目编号</th>
+											<th class="numeric">项目负责人</th>
+											<th class="numeric">取货人</th>
+											<th class="numeric">手机号</th>
+											<th class="numeric">取货数量</th>
+											<th class="numeric">取货时间</th>
+											<th class="numeric">取货人签名</th>
+											<th class="numeric">操作</th>
+										</tr>
+									</thead>
+									<tbody>
+										<!-- 目录 -->
+										<th:block th:each="stock:${pageList?.datas}">
+											<tr>
+												<td class="numeric">
+													<div class="checkbox checkbox-inline"
+														style="margin-top: 0px;">
+														<input type="checkbox" name="ids" th:id="${stock?.id}"
+															class="numeric" th:value="${stock?.id}"> <label
+															th:for="${stock?.id}"></label>
+													</div>
+												</td>
+
+												<td class="numeric">[[${stock?.name}]]</td>
+												<td class="numeric">[[${stock?.model}]]</td>
+												<td class="numeric">[[${stock?.entryName}]]</td>
+												<td class="numeric">[[${stock?.itemNo}]]</td>
+												<td class="numeric">[[${stock?.projectLeader}]]</td>
+												<td class="numeric">[[${stock?.username}]]</td>
+												<td class="numeric">[[${stock?.phone}]]</td>
+												<td class="numeric">[[${stock?.num}]]</td>
+												<td class="numeric">[[${#dates.format(stock?.createTime, 'yyyy-MM-dd HH:mm')}]]</td>
+												<td class="numeric"><img alt="" style="width:100px;height:35px" th:src="${stock?.sign}"></td>
+												<td class="numeric">
+													<shiro:hasPermission name="projectPickup:delete">
+														<button class="btn btn-danger btn-xs"
+															th:onclick="|return del('@{/projectPickup/}${stock.id}','')|">
+															<i class="fa fa-trash-o"> </i>删除
+														</button>
+													</shiro:hasPermission>
+													
+													
+													<th:block th:if="${stock?.status == true}">
+														<button class="btn btn-xs" disabled="disabled">
+															已出库
+														</button>
+													</th:block>
+													<th:block th:if="${stock?.status == false}">
+													<shiro:hasPermission name="stockStatistics:in">
+														<button class="btn btn-btn-primary btn-xs" id="tostock"
+															th:onclick="|return stockStaticsOut('${stock?.id}','${stock?.name}')|">
+															<i class="entypo-download"> </i>确认出库
+														</button>
+													</shiro:hasPermission>
+													</th:block>
+													
+													
+													
+														<button class="btn btn-default btn-sm"
+															th:onclick="|return toExport('${stock.id}')|">
+															<i class="entypo-export"> </i>导出出库单
+														</button>
+													</td>
+											</tr>
+											<!-- 菜单 -->
+										</th:block>
+
+
+									</tbody>
+								</table>
+
+								<form method="post" id="deleteForm">
+									<input name="_method" value="delete" type="hidden">
+								</form>
+
+
+								<div class="row">
+
+									<div class="col-md-12">
+										<div class="col-md-6">
+											<div class="dataTables_info hidden-xs"
+												style="margin-top: 0px;" role="status" aria-live="polite"
+												th:text="|每页显示${pageList?.pageSize}行
+										－ 当前页${pageList?.pageNo}页 － 共${pageList?.totalPage}页|"></div>
+										</div>
+										<div class="col-md-6">
+											<ul class="pagination pagination-split pull-right"
+												style="margin-top: 0px;">
+												<li th:class="${pageList?.pageNo } eq 1 ?disabled:''"><a
+													th:href="${pageList?.pageNo} eq 1?'javascript:void(0);':@{/projectPickups(pageNo=1,pageSize=${pageSize},search=${search},start=${start},end=${end})}">首页</a>
+												</li>
+												<li th:class="${pageList?.pageNo } eq 1 ?disabled:''"><a
+													th:href="${pageList?.pageNo} eq 1?'javascript:void(0);':@{/projectPickups(pageNo=${pageList?.upPage},pageSize=${pageSize},search=${search},start=${start},end=${end})}">上一页</a>
+												</li>
+												<li th:each="page:${pageList?.navigatepageNums}"
+													th:class="${page  == pageList?.pageNo}?active:''"><a
+													th:href="${page eq pageList?.pageNo}?'javascript:void(0)':@{/projectPickups(pageNo=${page},pageSize=${pageSize},search=${search},start=${start},end=${end})}">[[${page}]]</a>
+												</li>
+												<li
+													th:class="${pageList?.pageNo eq pageList?.totalPage}?disabled:''">
+													<a
+													th:href="${pageList?.pageNo eq pageList?.totalPage}?'javascript:void(0);':@{/projectPickups(pageNo=${pageList?.nextPage},pageSize=${pageSize},search=${search},start=${start},end=${end})}">下一页</a>
+												</li>
+												<li
+													th:class="${pageList?.pageNo eq pageList?.totalPage}?disabled:''">
+													<a
+													th:href="${pageList?.pageNo eq pageList?.totalPage}?'javascript:void(0);':@{/projectPickups(pageNo=${pageList?.totalPage},pageSize=${pageSize},search=${search},start=${start},end=${end})}">尾页</a>
+												</li>
+											</ul>
+										</div>
+									</div>
+
+									<!-- 分页结束 -->
+								</div>
+							</section>
+
+
+
+						</div>
+
+					</div>
+
+
+				</div>
+
+			</div>
+		</div>
+
+		<div th:replace="public/public::myModal"></div>
+	</div>
+	<!-- 引入stockStatisticslist.js -->
+	<script type="text/javascript" th:inline="javascript"
+		th:src="@{/js/admin/projectPickup/projectPickup.js}"></script>
+
+	<!-- 右侧隐藏菜单start -->
+	<div th:replace="public/public::right"></div>
+	<!-- 右侧隐藏菜单end-->
+	<!-- 底部js -->
+	<div th:replace="public/public_js::pub_js"></div>
+	<div th:replace="public/public_js::public_script"></div>
+	<div th:replace="public/public::footer"></div>
+	<!-- Jquery Validate -->
+	<script type="text/javascript"
+		th:src="@{/plugs/validate/jquery.validate.min.js}"></script>
+	<script type="text/javascript"
+		th:src="@{/plugs/validate/messages_zh.min.js}"></script>
+	<!-- Sweet alert -->
+	<script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
+	<div th:replace="public/public_js::validator"></div>
+</body>
+
+</html>

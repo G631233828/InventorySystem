@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>库存管理系统-库存管理</title>
+<meta
+	content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0"
+	name="viewport">
+<meta content="yes" name="apple-mobile-web-app-capable">
+<meta content="black" name="apple-mobile-web-app-status-bar-style">
+<meta content="telephone=no" name="format-detection">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=0">
+<th:block th:replace="public/public_css::pub_css"></th:block>
+<th:block th:replace="public/public_js::pub_js"></th:block>
+<style>
+::-webkit-scrollbar {
+	display: none
+}
+
+table {
+	table-layout: fixed;
+	width: 100%;
+	height: auto;
+	border-bottom: 1px solid #e6e7f1;
+	float: left
+}
+
+table tr:nth-child(2n) td {
+	background: #f6f7fa
+}
+
+table tr td {
+	line-height: 20px;
+	padding: 5px;
+	border-top: 1px solid #e6e7f1;
+	text-align: center;
+	background: #fff;
+	color: #505050;
+	font-size: 12px
+}
+
+table tr .dark {
+	border-left: 1px solid #e7e7e7;
+	border-right: 1px solid #e7e7e7
+}
+
+table td, table th {
+	border: none;
+	/* white-space: nowrap; */
+	word-break: keep-all;
+	width: 1px;
+	word-wrap: break-word;
+	padding: 0 2px;
+}
+
+table tr th {
+	font-weight: 400;
+	line-height: 40px;
+	text-align: center;
+	color: #edeef1;
+	background: #798299;
+	font-size: 12px
+}
+
+table tr .noborder {
+	border-left: none !important;
+	border-right: none !important
+}
+
+table tr td font {
+	color: #e13b6d;
+	font-size: 12px
+}
+</style>
+<script>
+var add =false;
+var edit =false;
+var del =false;
+
+            </script>
+
+</head>
+
+<body  class="page-bg">
+<shiro:hasPermission name="area:add"><script> add = true;</script></shiro:hasPermission>
+<shiro:hasPermission name="area:edit"><script> edit = true;</script></shiro:hasPermission>
+<shiro:hasPermission name="area:delete"><script> del = true;</script></shiro:hasPermission>
+<th:block th:replace="component/search::searchBar(action=@{/wechat/areas},old=${search})"></th:block>
+
+	<table id="table">
+		<thead>
+			<tr>
+				<th>名称</th>
+			</tr>
+		</thead>
+
+		<tbody>
+			<th:block th:each="ed:${pageList?.datas}">
+				<tr th:onclick="|goto('${ed.name}','${ed.id}')|">
+					<td>[[${ed?.name}]]</td>
+				</tr>
+			</th:block>
+				<th:block th:if="${#lists.size(pageList?.datas)}==0">
+				<tr>
+					<td colspan="6"><a href="javascript:;"
+						onclick="return toPage('wechat/area')"
+						class="weui-btn weui-btn_primary">暂无区域信息-》添加区域</a></td>
+
+				</tr>
+
+			</th:block>
+		</tbody>
+	</table>
+
+	<th:block th:replace="component/deleteForm::deleteForm"></th:block>
+
+
+	<th:block th:replace="component/page::page(path='wechat/areas',pageList=${pageList},query='&search='+${search})"></th:block>
+
+<div th:replace="public/public_js::public_script"></div>
+
+	<script th:inline="javascript">
+/*<![CDATA[*/
+
+	
+        function goto(o,id){
+	
+	var delpath= path+"wechat/area/"+id
+	var editpage= "wechat/area/"+id
+            $.actions({
+                title: "已选择【"+o+"】",
+                onClose: function() {
+                    console.log("close");
+                }, actions: [
+                	/* {
+                        text: "发布",
+                        className: "color-primary",
+                        onClick: function() {
+                            $.alert("发布成功");
+                        }
+                    },
+                    {
+                        text: "编辑",
+                        className: "color-warning",
+                        onClick: function() {
+                            $.alert("你选择了“编辑”");
+                        }
+                    },
+                    {
+                        text: "删除",
+                        className: 'color-danger',
+                        onClick: function() {
+                            $.alert("你选择了“删除”");
+                        }
+                    } */
+                ]
+            });
+           if(add)
+            $(".weui-actionsheet__menu").append(`<div class="weui-actionsheet__cell color-primary" id="fabu" onclick="return toPage('wechat/area')">新增归属</div>`)
+           if(edit)
+            $(".weui-actionsheet__menu").append("<div class='weui-actionsheet__cell color-primary' id='fabu' onclick=' toPage(\""+editpage+"\")'>编辑</div>")
+           if(del)
+            $(".weui-actionsheet__menu").append("<div class='weui-actionsheet__cell color-danger' id='fabu' onclick='return toDelete(\""+delpath+"\",\""+o+"\")'>刪除</div>")
+            
+        }    
+        
+    
+    
+    function toDelete(path,o){
+    	$(".weui-actionsheet_cancel").trigger("click");
+    	$("#deleteForm").attr("action", path);
+    	del("deleteForm",o);
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+        
+    
+    /*]]>*/
+    
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>库存管理系统微信端</title>
+<meta
+	content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0"
+	name="viewport">
+<meta content="yes" name="apple-mobile-web-app-capable">
+<meta content="black" name="apple-mobile-web-app-status-bar-style">
+<meta content="telephone=no" name="format-detection">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=0">
+<th:block th:replace="public/public_css::pub_css"></th:block>
+<th:block th:replace="public/public_js::pub_js"></th:block>
+<style type="text/css">
+.tab_top {
+	margin-top: 0px;
+}
+  
+</style>
+</head>
+<body style="">
+
+
+	<!-- [[${session.wechat_session?.userName}]] -->
+	<div id='tb' class="weui-tab" style="height: auto;">
+		<!-- 引入搜索框 -->
+		<!-- <th:block th:replace="component/search::searchBar"></th:block> -->
+		<div class="weui-tab__panel tab_top">
+			<div id="c0" class="weui-tab__content">
+				<div class="weui-grids">
+					<shiro:hasPermission name="stock:list">
+						<a href="javascript:;" onclick="return toPage('wechat/stocks')"
+							class="weui-grid js_grid">
+							<div class="weui-grid__icon">
+								<img th:src="@{/assets/images/icon_nav_button.png}" alt="">
+							</div>
+							<p class="weui-grid__label">库存管理</p>
+						</a>
+					</shiro:hasPermission>
+
+					<shiro:hasPermission name="stockStatistics:list">
+						<a href="javascript:;" onclick="return toPage('wechat/stockStatisticss')" class="weui-grid js_grid">
+							<div class="weui-grid__icon">
+								<img th:src="@{/assets/images/icon_nav_panel.png}" alt="">
+							</div>
+							<p class="weui-grid__label">库存统计</p>
+						</a>
+					</shiro:hasPermission>
+					
+					<shiro:hasPermission name="preStock:list">
+						<a href="javascript:;" onclick="return toPage('wechat/preStocks')"
+							class="weui-grid js_grid">
+							<div class="weui-grid__icon">
+								<img th:src="@{/assets/images/icon_nav_button.png}" alt="">
+							</div>
+							<p class="weui-grid__label">预库存管理</p>
+						</a>
+					</shiro:hasPermission>
+					
+					<shiro:hasPermission name="pickUpApplication:list">
+						<a href="javascript:;" onclick="return toPage('wechat/pickUpApplications')"
+							class="weui-grid js_grid">
+							<div class="weui-grid__icon">
+								<img th:src="@{/assets/images/icon_nav_button.png}" alt="">
+							</div>
+							<p class="weui-grid__label">预出库管理</p>
+						</a>
+					</shiro:hasPermission>
+
+
+
+					<shiro:hasPermission name="projectStock:list">
+						<a href="javascript:;" onclick="return toPage('wechat/projectStocks')" 
+							class="weui-grid js_grid">
+							<div class="weui-grid__icon">
+								<img th:src="@{/assets/images/icon_nav_button.png}" alt="">
+							</div>
+							<p class="weui-grid__label">项目库存管理</p>
+						</a>
+					</shiro:hasPermission>
+
+					<shiro:hasPermission name="projectStock:list">
+						<a href="javascript:;" onclick="return toPage('wechat/projectStockStatisticss')"  class="weui-grid js_grid">
+							<div class="weui-grid__icon">
+								<img th:src="@{/assets/images/icon_nav_panel.png}" alt="">
+							</div>
+							<p class="weui-grid__label">项目库存统计</p>
+						</a>
+					</shiro:hasPermission>
+
+					<shiro:hasPermission name="area:list">
+						<a href="javascript:;" onclick="return toPage('wechat/areas')" class="weui-grid js_grid" >
+							<div class="weui-grid__icon">
+								<img th:src="@{/assets/images/icon_nav_icons.png}" alt="">
+							</div>
+							<p class="weui-grid__label">归属管理</p>
+						</a>
+					</shiro:hasPermission>
+
+					<shiro:hasPermission name="goodsStorage:list" >
+						<a href="javascript:;" class="weui-grid js_grid" onclick="return toPage('wechat/goodsStorages')">
+							<div class="weui-grid__icon">
+								<img th:src="@{/assets/images/icon_nav_toast.png}" alt="">
+							</div>
+							<p class="weui-grid__label">货架管理</p>
+						</a>
+					</shiro:hasPermission>
+
+					<shiro:hasPermission name="category:list">
+						<a href="javascript:;" class="weui-grid js_grid" onclick="return toPage('wechat/categorys')">
+							<div class="weui-grid__icon">
+								<img th:src="@{/assets/images/icon_nav_dialog.png}" alt="">
+							</div>
+							<p class="weui-grid__label">类目管理</p>
+						</a>
+					</shiro:hasPermission>
+
+					<!-- <shiro:hasPermission name="systemClassification:list">
+						<a href="javascript:;" class="weui-grid js_grid">
+							<div class="weui-grid__icon">
+								<img th:src="@{/assets/images/icon_nav_progress.png}" alt="">
+							</div>
+							<p class="weui-grid__label">系统分类管理</p>
+						</a>
+					</shiro:hasPermission>
+					<shiro:hasPermission name="unit:list">
+						<a href="javascript:;" class="weui-grid js_grid">
+							<div class="weui-grid__icon">
+								<img th:src="@{/assets/images/icon_nav_msg.png}" alt="">
+							</div>
+							<p class="weui-grid__label">单位管理</p>
+						</a>
+					</shiro:hasPermission>
+					<shiro:hasPermission name="brand:list">
+						<a href="javascript:;" class="weui-grid js_grid">
+							<div class="weui-grid__icon">
+								<img th:src="@{/assets/images/icon_nav_article.png}" alt="">
+							</div>
+							<p class="weui-grid__label">品牌管理</p>
+						</a>
+					</shiro:hasPermission>
+
+					<shiro:hasPermission name="supplier:list">
+						<a href="javascript:;" class="weui-grid js_grid">
+							<div class="weui-grid__icon">
+								<img th:src="@{/assets/images/icon_nav_actionSheet.png}" alt="">
+							</div>
+							<p class="weui-grid__label">供应商管理</p>
+						</a>
+					</shiro:hasPermission>
+					 -->
+
+
+				
+					<a href="javascript:;" onclick="return toPage('wechat/history')"
+						class="weui-grid js_grid">
+						<div class="weui-grid__icon">
+							<img th:src="@{/assets/images/icon_nav_panel.png}" alt="">
+						</div>
+						<p class="weui-grid__label">取货记录查询</p>
+					</a>
+				</div>
+
+			</div>
+			<div id="c1" class="weui-tab__content">
+
+			<div class="page-hd">
+    <h1 class="page-hd-title">
+    	个人中心
+    </h1>
+    <p class="page-hd-desc"></p>
+</div>
+			
+			
+			 
+    <div class="weui-cells">
+        <a class="weui-cell weui-cell_access" href="javascript:;">
+            <div class="weui-cell__bd" >
+                <p id="unbind">解除绑定</p>
+            </div>
+            <div class="weui-cell__ft">
+            </div>
+        </a>
+        <a class="weui-cell weui-cell_access" href="javascript:;" onclick="return toPage('wechat/changePwd')">
+            <div class="weui-cell__bd">
+                <p >修改密码</p>
+            </div>
+            <div class="weui-cell__ft">
+            </div>
+        </a>
+    </div>
+			
+			
+			
+			
+
+			</div>
+			<div id="c2" class="weui-tab__content">发现被点击了</div>
+			<div id="c3" class="weui-tab__content">
+			
+		
+			</div>
+		</div>
+
+		<div class="weui-tabbar tab-bottom">
+			<a href="javascript:;" class="weui-tabbar__item"> <span
+				style="display: inline-block; position: relative;"> <i
+					class="icon icon-27 f27 weui-tabbar__icon"></i>
+			</span>
+				<p class="weui-tabbar__label">首页</p>
+			</a> 
+		<!-- 	<a href="javascript:;" class="weui-tabbar__item"> <i
+				class="icon icon-28 f27 weui-tabbar__icon"></i>
+				<p class="weui-tabbar__label">通讯录</p>
+			</a> 
+			<a href="javascript:;" class="weui-tabbar__item"> 
+			<span
+				style="display: inline-block; position: relative;"> <i
+					class="icon icon-29 f27 weui-tabbar__icon"></i> <span
+					class="weui-badge weui-badge_dot"
+					style="position: absolute; top: 0; right: -6px;"></span>
+			</span>
+				<p class="weui-tabbar__label">发现</p>
+			</a> -->
+			
+			 <a href="javascript:;" class="weui-tabbar__item "> <i
+				class="icon icon-30 f27 weui-tabbar__icon"></i>
+				<p class="weui-tabbar__label f-green">我的</p>
+			</a>
+		</div>
+	</div>
+
+	<div th:replace="public/public_js::public_script"></div>
+
+	<script th:inline="javascript">
+		/*<![CDATA[*/
+
+		function getWxConfig() {
+
+			$.ajax({
+				url : path + "/wechat/getWxConfig",
+				dataType : "json",
+				type : "post",
+				success : function(res) {
+					wx.config({
+						debug : true,
+						appId : res.appId, // 必填，公众号的唯一标识
+						timestamp : res.timestamp, // 必填，生成签名的时间戳
+						nonceStr : res.noncestr, // 必填，生成签名的随机串
+						signature : res.signature,// 必填，签名，见附录1
+						jsApiList : [ 'chooseImage', 'uploadImage',
+								'previewImage', 'downloadImage', 'checkJsApi',
+								'scanQRCode', 'chooseImage', 'uploadImage' ]
+					// 必填
+					});
+
+				},
+				error : function() {
+					alert("获取配置信息失败");
+				}
+			})
+			wx.ready(function() {
+				wx.scanQRCode({
+					needResult : 1, // 默认为0，扫描结果由微信处理，1则直接返回扫描结果，
+					scanType : [ "qrCode", "barCode" ], // 可以指定扫二维码还是一维码，默认二者都有
+					success : function(res) {
+						alert(res)
+						var result = res.resultStr; // 当needResult 为 1 时，扫码返回的结果
+						alert(result)
+					},
+					error : function(res) {
+						alert("error")
+						alert(res.resultStr)
+					}
+				});
+			});
+
+		}
+
+		function chooseImg() {
+
+			wx
+					.ready(function() {
+						var localIds = [];
+						var serverIds = [];
+						wx
+								.chooseImage({
+									count : 6, // 微信默认9
+									sizeType : [ 'original', 'compressed' ],
+									sourceType : [ 'album', 'camera' ],
+									success : function(res) {
+										serverIds = [];
+										medil_id = "";
+										var imgUrl = "";
+										localIds = res.localIds;
+										alert('已选择 ' + res.localIds.length
+												+ ' 张图片');
+										if (res.localIds.length == 0) {
+											alert('请先使用微信的 chooseImage 接口选择图片');
+											return;
+										}
+										uploadImages(localIds);
+										for (var i = 0; i < localIds.length; i++) {
+											imgUrl += localIds[i] + ",";
+											$(".img_container")
+													.append(
+															'<div style="width:50%;padding: 0 5px;"><img width="100%" height="80px" style="margin-right: 10px;" src="'
+																	+ localIds[i]
+																	+ '"/></div>');
+										}
+									},
+									fail : function(res) {
+										alert("失败的原因" + res);
+									},
+								})
+					});
+
+		}
+
+		function uploadImages(localImagesIds) {
+			if (localImagesIds.length === 0) {
+				$.showPreloader('正在提交数据...');
+			}
+			var localId = localImagesIds[0];
+			//解决IOS无法上传的坑
+			if (localId.indexOf("wxlocalresource") != -1) {
+				localId = localId.replace("wxlocalresource", "wxLocalResource");
+			}
+			wx.uploadImage({
+				localId : localId, // 需要上传的图片的本地ID，由chooseImage接口获得
+				isShowProgressTips : 2, // 默认为1，显示进度提示
+				success : function(res) {
+					var mediaId = res.serverId; // 返回图片的服务器端ID，即mediaId
+					//将获取到的 mediaId 传入后台 方法savePicture
+					$.post(path + "/wechat/getMedia", {
+						mediaId : mediaId
+					}, function(res) {
+						if (res) {
+							alert(res.data)
+							alert(res)
+							alert("上传成功!mediaId:" + mediaId);
+						} else {
+						}
+					})
+					// serverIds.push(res.serverId);
+					// localImagesIds.shift();
+					// uploadImages(localImagesIds);
+				},
+				fail : function(res) {
+					alert('上传失败，请重新上传！');
+				}
+			});
+		}
+
+		
+		 $(document).on("click", "#unbind", function() {
+             $.confirm("您确定解除绑定吗，解除绑定之后需要重新登陆才能使用?", "确认解除?", function() {
+             	var userId =/*[[${session.wechat_session.id}]]*/
+               	$.ajax({
+     				type : 'POST',
+     				url : "unbind",
+     				data : "userId=" +userId,
+     				dataType : "json",
+     				success : function(data) {
+     					if(data.status ==200){
+     						 $.toast(data.msg);
+     		                setTimeout(function() {
+     		                	 window.location.href=path+"/wechat/weChatAuth";
+     		                }, 1000)
+     		               
+     					}else{
+     						 $.toast(data.msg);
+     						}
+     				
+     					
+     				}
+     			});
+                 
+             }, function() {
+                 //取消操作
+             });
+         });
+
+	
+	
+		
+		
+		
+		
+		
+		
+		
+		
+		/*]]>*/
+	</script>
+
+
+
+
+
+
+
+
+
+	<script type="text/javascript">
+		$(function() {
+			$('#tb').tab({
+				defaultIndex : 0,
+				activeClass : 'weui-bar__item_on',
+				onToggle : function(index) {
+					/*  if(index==1){
+					     $("#c"+index).html("第一个是0")
+					 }else if(index==2){
+					     $("#c"+index).html("第2个1")
+					 } */
+
+					console.log(index)
+
+				}
+			})
+		})
+		
+		
+
+			
+			
+		
+		
+	</script>
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+

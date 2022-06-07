@@ -20,7 +20,6 @@ public interface SupplierService extends GeneralService<Supplier> {
 	
 	public void saveOrUpdate(Supplier supplier, String types);
 	
-	public BasicDataResult disable(String id);
 	
 	public List<Supplier> findAllSupplier(boolean isdisable);
 	

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>库存管理系统-库存修改</title>
+<meta
+	content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0"
+	name="viewport">
+<meta content="yes" name="apple-mobile-web-app-capable">
+<meta content="black" name="apple-mobile-web-app-status-bar-style">
+<meta content="telephone=no" name="format-detection">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=0">
+<th:block th:replace="public/public_css::pub_css"></th:block>
+<th:block th:replace="public/public_js::pub_js"></th:block>
+<script>
+var add =false;
+var edit =false;
+var del =false;
+
+</script>
+<script type="text/javascript">
+
+$(function(){
+	  $(document).on("click","#btn",function(){
+          var name = $("#name").val();
+     		 if(name==""){
+              $.toptip("归属（区域）不能为空");
+              return false;
+          }
+          else{
+              $.toptip("提交成功",'success');
+          	$("#areaForm").submit();
+          }
+      })
+})
+
+
+ 
+</script>
+
+
+
+
+</head>
+
+<body  class="page-bg">
+<shiro:hasPermission name="stock:add"><script> add = true;</script></shiro:hasPermission>
+<shiro:hasPermission name="stock:edit"><script> edit = true;</script></shiro:hasPermission>
+<shiro:hasPermission name="stock:delete"><script> del = true;</script></shiro:hasPermission>
+
+
+<form th:action="@{/wechat/area}" id="areaForm" method="post" >
+
+
+<div class="weui-cells weui-cells_form">
+
+
+    <div class="weui-cell">
+    <th:block th:if="${area != null}">
+    <input id="id" type="hidden" name="id" th:value="${area?.id}">
+    </th:block>
+        <div class="weui-cell__hd">
+            <label class="weui-label">归属（区域）</label>
+        </div>
+        <div class="weui-cell__bd">
+            <input class="weui-input" placeholder="请输入归属"  type="text" th:value="${area?.name}" name="name" id="name" >
+        </div>
+
+    </div>
+    
+    
+   <div class="weui-btn-area">
+    <a class="weui-btn weui-btn_primary" href="javascript:" id="btn">确定</a>
+</div>
+    
+</div>
+
+
+
+
+</form>
+
+
+
+
+<div th:replace="public/public_js::public_script"></div>
+
+
+
+
+
+
+
+
+
+
+
+	<script th:inline="javascript">
+/*<![CDATA[*/
+
+	   var MAX = 9999, MIN = 1;
+    $('.weui-count__decrease').click(function (e) {
+        var $input = $(e.currentTarget).parent().find('.weui-count__number');
+        var number = parseInt($input.val() || "0") - 1
+        if (number < MIN) number = MIN;
+        $input.val(number)
+    })
+    $('.weui-count__increase').click(function (e) {
+        var $input = $(e.currentTarget).parent().find('.weui-count__number');
+        var number = parseInt($input.val() || "0") + 1
+        if (number > MAX) number = MAX;
+        $input.val(number)
+    })
+  
+    
+    
+    
+    function getWxConfig(){
+    	 $.ajax({
+             url:path+"/wechat/getWxConfig",
+             dataType:"json",
+             type:"post",
+             success:function(res){
+               wx.config({
+                  debug: false,
+                  appId:res.appId, // 必填，公众号的唯一标识
+                  timestamp: res.timestamp, // 必填，生成签名的时间戳
+                  nonceStr: res.noncestr, // 必填，生成签名的随机串
+                  signature: res.signature,// 必填，签名，见附录1
+                  jsApiList: ['chooseImage','uploadImage','previewImage','downloadImage','checkJsApi','scanQRCode', 'chooseImage', 'uploadImage']// 必填
+                    }); 
+               
+                   },
+                error:function(){
+                	$.toptip("获取配置信息失败");
+                   }
+               })
+                wx.ready(function() {
+                    wx.scanQRCode({
+                        needResult: 1, // 默认为0，扫描结果由微信处理，1则直接返回扫描结果，
+                        scanType: ["qrCode","barCode"], // 可以指定扫二维码还是一维码，默认二者都有
+                        success: function (res) {
+                	    var result = res.resultStr; // 当needResult 为 1 时，扫码返回的结果
+							$("#barCode").val(result.substring(result.indexOf(",")+1,result.length));
+                        },
+						error:function(res){
+						$.toptip( res.resultStr)
+						}
+                    });
+                });
+
+            
+   
+    }
+    
+    
+    
+    
+    
+    
+    
+    /*]]>*/
+    
+</script>
+
+
+</body>
+</html>

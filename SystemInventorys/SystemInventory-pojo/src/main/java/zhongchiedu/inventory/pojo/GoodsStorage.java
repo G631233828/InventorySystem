@@ -23,7 +23,7 @@ public class GoodsStorage extends GeneralBean<GoodsStorage> {
 	 */
 	private String address;
 	private String shelfNumber;
-	private String shelflevel;
+	private String shelflevel="";
 	@DBRef
 	private Companys companys;
 	@DBRef

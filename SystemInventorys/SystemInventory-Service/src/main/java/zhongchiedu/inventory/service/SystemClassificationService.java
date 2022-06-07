@@ -19,7 +19,6 @@ public interface SystemClassificationService extends GeneralService<SystemClassi
 	
 	public void saveOrUpdate(SystemClassification systemClassification,String types);
 	
-	public BasicDataResult disable(String id);
 	
 	public List<SystemClassification> findAllSystemClassification(boolean isdisable);
 	

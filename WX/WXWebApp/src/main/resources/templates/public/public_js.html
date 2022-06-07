@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<!-- saved from url=(0052)http://getbootstrap.com/docs/4.0/examples/dashboard/ -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<body>
+	<th:block th:fragment="pub_js">
+		<script th:src="@{/assets/js/zepto.min.js}"></script>
+		<script th:src="@{/assets/js/zepto.weui.js}"></script>
+		<script src='https://res.wx.qq.com/open/js/jweixin-1.0.0.js'></script>
+	</th:block>
+</body>
+
+<!-- 璺宠浆鐣岄潰 -->
+<div th:fragment="public_script_add">
+	<script type="text/javascript">
+
+	
+
+
+
+</script>
+</div>
+
+<!-- 鍏叡閫氱敤閮ㄥ垎js -->
+<div th:fragment="public_script">
+	<script type="text/javascript">
+/*<![CDATA[*/
+	//正则表达式
+	 var number = /^\d+$|^\d+[.]?\d+$/;//验证输入的是否是数字
+	 var regphone=/^[1][3,4,5,7,8,9][0-9]{9}$/;//验证手机号码
+	 
+var path=[[@{/}]]
+
+	//閫氱敤椤甸潰璺宠浆
+	function toPage(o){
+	window.location.href=path+o;
+}
+
+function del(o,o2){
+    $.confirm("您确定要删除【"+o2+"】吗?", "确认删除?", function() {
+    	 $("#"+o).submit();
+    }, function() {
+       
+    });
+}
+
+
+function ajaxRequest(dataType,type,url,data,localpath){
+	 $.ajax({
+		  dataType:dataType,
+		  type: type,
+		  url: ""+url,
+		  data:data,
+		  beforeSend:function(){
+			   $.showLoading();
+		  },
+		  success:function(data){
+			  if(data.status == 200){
+				    $.modal({
+	                    title: "操作提示",
+	                    text: data.msg,
+	                    buttons: [
+	                        { text: "返回首页", onClick: function(){ 
+	                        	window.location.href=path+"wechat/index"
+	                        } },
+	                        { text: "留在当前页", onClick: function(){ 
+	                        	window.location.href=path+localpath
+	                        } },	
+	                    ]
+	                });
+			  }else if(data.status==201){
+				  
+				  $.alert(data.data,data.msg,function(){
+					  window.location.href=path+localpath
+	                });
+				  
+				  
+			  }else{
+				  $.toptip(data.msg,'error');
+				  
+				  
+			  }
+		  },
+		  complete:function(){
+			  $.hideLoading();
+		  }
+	  })
+}
+
+
+
+
+
+
+	 /*]]>*/
+</script>
+
+
+
+</div>
+<!-- 添加这一个页面就无法进行回退操作 -->
+<div th:fragment="public_back">
+	
+<script type="text/javascript">
+
+    //禁止浏览器回退/返回
+    XBack = {};
+    (function (XBack) {undefined
+        XBack.STATE = 'x - back';
+        XBack.element;
+        XBack.onPopState = function (event) {undefined
+            event.state === XBack.STATE && XBack.fire();
+            XBack.record(XBack.STATE); //初始化事件时，push一下
+        };
+        XBack.record = function (state) {undefined
+            history.pushState(state, null, location.href);
+        };
+        XBack.fire = function () {undefined
+            var event = document.createEvent('Events');
+            event.initEvent(XBack.STATE, false, false);
+            XBack.element.dispatchEvent(event);
+        };
+        XBack.listen = function (listener) {undefined
+            XBack.element.addEventListener(XBack.STATE, listener, false);
+        };
+        XBack.init = function () {undefined
+            XBack.element = document.createElement('span');
+            window.addEventListener('popstate', XBack.onPopState);
+            XBack.record(XBack.STATE);
+        };
+    })(XBack); // 引入这段js文件
+    XBack.init();
+    XBack.listen(function () { });
+
+</script>
+
+
+
+</div>
+
+
+</html>

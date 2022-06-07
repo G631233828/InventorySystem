@@ -78,7 +78,7 @@ public class SystemLogAspect {
             log.setExceptionCode( null);    
             log.setExceptionDetail( null);    
             log.setParams( null);    
-            log.setCreateby(user.getAccountName());    
+            log.setCreateby(user.getUserName());    
             log.setCreateDate(Common.fromDateH());    
             this.LogDao.insert(log);
             System.out.println("=====前置通知结束=====");    

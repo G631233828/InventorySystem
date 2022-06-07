@@ -39,7 +39,7 @@ public class AreaController {
 			@RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize, HttpSession session,
 			@ModelAttribute("errorImport") String errorImport) {
 			model.addAttribute("errorImport", errorImport);
-		Pagination<Area> pagination = this.areaService.findpagination(pageNo, pageSize);
+		Pagination<Area> pagination = this.areaService.findpagination(pageNo, pageSize,"");
 		model.addAttribute("pageList", pagination);
 		return "admin/area/list";
 	}

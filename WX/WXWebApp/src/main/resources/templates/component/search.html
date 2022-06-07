@@ -1,0 +1,34 @@
+
+<!DOCTYPE html>
+<!-- saved from url=(0052)http://getbootstrap.com/docs/4.0/examples/dashboard/ -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<head>
+</head>
+
+<body>
+	<th:block th:fragment="searchBar(action,old)">
+		<div class="weui-search-bar search_bar" id="searchBar">
+			<form class="weui-search-bar__form" th:action="${action}">
+				<div class="weui-search-bar__box">
+					<i class="weui-icon-search"></i> <input th:value="${old}" name="search"
+						class="weui-search-bar__input" id="searchInput" placeholder="搜索"
+						 type="search"> <a href="javascript:"
+						class="weui-icon-clear" id="searchClear"></a>
+				</div>
+				<label class="weui-search-bar__label" id="searchText"
+					style="transform-origin: 0px 0px 0px; opacity: 1; transform: scale(1, 1);">
+					<i class="weui-icon-search"></i> <span>搜索</span>
+				</label>
+			</form>
+			<a href="javascript:" class="weui-search-bar__cancel-btn"
+				id="searchCancel">取消</a>
+		</div>
+	</th:block>
+	
+	
+
+</body>
+</html>
+
+

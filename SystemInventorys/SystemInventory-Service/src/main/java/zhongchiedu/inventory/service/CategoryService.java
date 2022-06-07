@@ -14,11 +14,10 @@ import zhongchiedu.inventory.pojo.ProcessInfo;
 
 public interface CategoryService extends GeneralService<Category> {
 	
-	public Pagination<Category> findpagination(Integer pageNo,Integer pageSize);
+	public Pagination<Category> findpagination(Integer pageNo,Integer pageSize,String search);
 	
 	public void saveOrUpdate(Category category);
 	
-	public BasicDataResult disable(String id);
 	
 	public List<Category> findAllCategory(boolean isdisable);
 	

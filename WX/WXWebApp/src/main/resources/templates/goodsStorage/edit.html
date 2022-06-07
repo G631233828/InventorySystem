@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>库存管理系统-库存修改</title>
+<meta
+	content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0"
+	name="viewport">
+<meta content="yes" name="apple-mobile-web-app-capable">
+<meta content="black" name="apple-mobile-web-app-status-bar-style">
+<meta content="telephone=no" name="format-detection">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=0">
+<th:block th:replace="public/public_css::pub_css"></th:block>
+<th:block th:replace="public/public_js::pub_js"></th:block>
+<script>
+	var add = false;
+	var edit = false;
+	var del = false;
+</script>
+<script type="text/javascript">
+	$(function() {
+		$(document).on("click", "#btn", function() {
+			var name = $("#name").val();
+			var area = $("#area").val();
+			if (area == "") {
+				$.toptip("请选择设备归属");
+				return false;
+			} else if (name == "") {
+				$.toptip("设备名称不能为空");
+				return false;
+			}
+			else {
+				$.toptip("提交成功", 'success');
+				$("#goodsStorageForm").submit();
+			}
+		})
+		
+					   //解决表单控件不能回弹 只有微信ios有这个问题
+           $("textarea").blur(function(){
+setTimeout(() => {
+const scrollHeight = document.documentElement.scrollTop || document.body.scrollTop || 0;
+window.scrollTo(0, Math.max(scrollHeight - 1, 0));
+}, 100);
+})
+		
+		
+		
+	})
+	  function cleararea(obj){
+            $(obj).prev().find('.weui-textarea').val("").next().find("span").text(0);
+            return false;
+        }
+	
+	
+	
+	function textarea(input) {
+        var content = $(input);
+          var max =  content.next().find('i') .text();
+        var value = content.val();
+        if (value.length>0) {
+
+            value = value.replace(/\n|\r/gi,"");
+            var len = value.length;
+            content.next().find('span').text(len) ;
+             if(len>max){
+                 content.next().addClass('f-red');
+             }else{
+                 content.next().removeClass('f-red');
+             }
+        }
+    }
+	
+	
+	
+</script>
+
+
+
+
+</head>
+
+<body class="page-bg">
+
+<form th:action="@{/wechat/goodsStorage}" method="post" id="goodsStorageForm">
+	<div class="weui-cells weui-cells_form">
+
+		<div class="weui-cell weui-cell_select weui-cell_select-after">
+			<div class="weui-cell__hd">
+				<label for="" class="weui-label">库存归属</label>
+			</div>
+			<div class="weui-cell__bd">
+
+				<select id="area" name="area.id" class="weui-select" onchange="return getgoodsStorages()"
+					required="required">
+					<option value="">请选择库存归属</option>
+					<option
+						th:selected="${goodsStorage!=null && goodsStorage?.area !=null}?${goodsStorage?.area?.id}==${area?.id}"
+						th:each="area:${areas}" th:value="${area?.id}" 
+						th:text="${area?.name}"></option>
+				</select>
+			</div>
+		</div>
+
+  <th:block th:if="${goodsStorage != null}">
+    <input id="id" type="hidden" name="id" th:value="${goodsStorage?.id}">
+    </th:block>
+
+		<div class="weui-cell">
+			<div class="weui-cell__hd">
+				<label class="weui-label">货架地址</label>
+			</div>
+			<div class="weui-cell__bd">
+				<input class="weui-input" placeholder="货架地址" type="text" name="address"
+					th:value="${goodsStorage?.address}" id="address">
+			</div>
+
+		</div>
+
+		<div class="weui-cell">
+			<div class="weui-cell__hd">
+				<label class="weui-label">货架号（区域）</label>
+			</div>
+			<div class="weui-cell__bd">
+				<input class="weui-input" placeholder="货架号（区域）" type="text"
+					th:value="${goodsStorage?.shelfNumber}" name="shelfNumber" id="shelfNumber">
+			</div>
+
+		</div>
+		
+		<div class="weui-cell">
+			<div class="weui-cell__hd">
+				<label class="weui-label">货架层（选填）</label>
+			</div>
+			<div class="weui-cell__bd">
+				<input class="weui-input" placeholder="货架层（选填）" type="text"
+					th:value="${goodsStorage?.shelflevel}" name="shelflevel" id="shelflevel">
+			</div>
+
+		</div>
+		
+
+		<div class="weui-cells weui-cells_form">
+			<div class="weui-cell">
+				<div class="weui-cell__bd">
+					<textarea class="weui-textarea" placeholder="请输入备注" rows="3" name="description" th:text="${goodsStorage?.description}"
+						onkeyup="textarea(this);"></textarea>
+					<div class="weui-textarea-counter">
+						<span>0</span>/<i>50</i>
+					</div>
+				</div>
+				<i class="weui-icon-clear" onclick="cleararea(this)"></i>
+			</div>
+		</div>
+
+
+		<!-- <div class="weui-cell weui-cell_vcode">
+        <div class="weui-cell__hd">
+            <label class="weui-label">条形码</label>
+        </div>
+        <div class="weui-cell__bd">
+            <input class="weui-input" id="barCode" name="barCode" type="text">
+        </div>
+        <div class="weui-cell__ft">
+            <button class="weui-vcode-btn" onclick="return getWxConfig()">扫码条形码</button>
+        </div>
+    </div> -->
+	
+
+		<div class="weui-btn-area">
+			<a class="weui-btn weui-btn_primary" href="javascript:" id="btn">确定</a>
+		</div>
+
+	</div>
+
+
+</form>
+
+
+
+
+
+	<div th:replace="public/public_js::public_script"></div>
+
+
+
+
+
+
+
+
+
+
+
+	<script th:inline="javascript">
+	
+
+	function getgoodsStorages() {
+		var areaId = $("#area").val();
+			// 需要通过ajax加载对应的菜单列表
+			$.ajax({
+				type : 'POST',
+				url : "getStorages",
+				data : "areaId=" + areaId,
+				dataType : "json",
+				success : function(data) {
+					var sale = "<option value=''>----选择货架----</option>";
+					$.each(data.data, function(index, item) {
+						sale += "<option value=" + item.id + ">" +item.address+"-->" +item.shelfNumber
+								+ "/"+item.shelflevel+"</option>";
+					});
+					$("#goodsStorage").html(sale)
+				}
+			});
+	}
+
+
+	
+	
+	
+		/*<![CDATA[*/
+
+		var MAX = 9999, MIN = 1;
+		$('.weui-count__decrease').click(
+				function(e) {
+					var $input = $(e.currentTarget).parent().find(
+							'.weui-count__number');
+					var number = parseInt($input.val() || "0") - 1
+					if (number < MIN)
+						number = MIN;
+					$input.val(number)
+				})
+		$('.weui-count__increase').click(
+				function(e) {
+					var $input = $(e.currentTarget).parent().find(
+							'.weui-count__number');
+					var number = parseInt($input.val() || "0") + 1
+					if (number > MAX)
+						number = MAX;
+					$input.val(number)
+				})
+
+		function getWxConfig() {
+			$.ajax({
+				url : path + "/wechat/getWxConfig",
+				dataType : "json",
+				type : "post",
+				success : function(res) {
+					wx.config({
+						debug : false,
+						appId : res.appId, // 必填，公众号的唯一标识
+						timestamp : res.timestamp, // 必填，生成签名的时间戳
+						nonceStr : res.noncestr, // 必填，生成签名的随机串
+						signature : res.signature,// 必填，签名，见附录1
+						jsApiList : [ 'chooseImage', 'uploadImage',
+								'previewImage', 'downloadImage', 'checkJsApi',
+								'scanQRCode', 'chooseImage', 'uploadImage' ]
+					// 必填
+					});
+
+				},
+				error : function() {
+					$.toptip("获取配置信息失败");
+				}
+			})
+			wx.ready(function() {
+				wx.scanQRCode({
+					needResult : 1, // 默认为0，扫描结果由微信处理，1则直接返回扫描结果，
+					scanType : [ "qrCode", "barCode" ], // 可以指定扫二维码还是一维码，默认二者都有
+					success : function(res) {
+						var result = res.resultStr; // 当needResult 为 1 时，扫码返回的结果
+						$("#barCode").val(
+								result.substring(result.indexOf(",") + 1,
+										result.length));
+					},
+					error : function(res) {
+						$.toptip(res.resultStr)
+					}
+				});
+			});
+
+		}
+
+		/*]]>*/
+	</script>
+
+
+</body>
+</html>

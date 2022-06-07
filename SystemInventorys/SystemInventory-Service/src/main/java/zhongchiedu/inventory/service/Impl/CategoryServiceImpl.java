@@ -13,6 +13,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
@@ -51,21 +54,7 @@ public class CategoryServiceImpl extends GeneralServiceImpl<Category> implements
 		}
 	}
 
-	@Override
-	@SystemServiceLog(description="禁用类目")
-	public BasicDataResult disable(String id) {
-		if (Common.isEmpty(id)) {
-			return BasicDataResult.build(400, "无法禁用，请求出现问题，请刷新界面!", null);
-		}
-		Category category = this.findOneById(id, Category.class);
-		if (Common.isEmpty(category)) {
-			return BasicDataResult.build(400, "禁用失败，该条信息可能已被删除", null);
-		}
-		category.setIsDisable(category.getIsDisable().equals(true) ? false : true);
-		this.save(category);
-		return BasicDataResult.build(200, category.getIsDisable().equals(true) ? "禁用成功" : "恢复成功",
-				category.getIsDisable());
-	}
+	
 
 	@Override
 	@SystemServiceLog(description="查询所有非禁用的类目")
@@ -99,12 +88,16 @@ public class CategoryServiceImpl extends GeneralServiceImpl<Category> implements
 
 	@Override
 	@SystemServiceLog(description="分页查询类目信息")
-	public Pagination<Category> findpagination(Integer pageNo, Integer pageSize) {
+	public Pagination<Category> findpagination(Integer pageNo, Integer pageSize,String search) {
 		// 分页查询数据
 		Pagination<Category> pagination = null;
 		try {
 			Query query = new Query();
 			query.addCriteria(Criteria.where("isDelete").is(false));
+			if(Common.isNotEmpty(search)) {
+				query.addCriteria(Criteria.where("name").regex(search));
+			}
+			query.with(new Sort(new Order(Direction.DESC, "createTime")));
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, Category.class);
 			if (pagination == null)
 				pagination = new Pagination<Category>();

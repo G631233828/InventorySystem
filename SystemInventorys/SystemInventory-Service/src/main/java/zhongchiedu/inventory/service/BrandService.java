@@ -19,8 +19,6 @@ public interface BrandService extends GeneralService<Brand> {
 	
 	public void saveOrUpdate(Brand brand);
 	
-	public BasicDataResult disable(String id);
-	
 	public List<Brand> findAllBrand(boolean isdisable);
 	
 	public String delete(String id);

@@ -35,6 +35,10 @@ public class User extends GeneralBean<User> {
 	private List<Resource> resource;
 	@DBRef
 	private Role role;
+//	//绑定微信
+//	private WxMpUser wxMpUser;
+	
+	private String openId;//用户openId
 	
 
 	

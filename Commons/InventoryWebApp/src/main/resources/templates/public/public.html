@@ -46,6 +46,9 @@
 								onclick="return showEditPassword();"> <span
 									class="fa fa-edit"></span>&#160;&#160;修改密码
 							</a></li>
+							<li><a th:href="@{/toindex}"> <span
+									class="entypo-home"></span>&#160;&#160;首页
+							</a></li>
 							<li><a th:href="@{/loginOut}"> <span
 									class="fontawesome-reply"></span>&#160;&#160;退出
 							</a></li>
@@ -68,8 +71,8 @@
 	<div th:fragment="left">
 		<div id="skin-select">
 			<div id="logo">
-				<h1>
-					库存管理平台<span>v1.0</span>
+				<h1 > 
+					<a th:href="@{/toindex}">库存管理平台</a><span>v1.0</span>
 				</h1>
 			</div>
 
@@ -103,15 +106,28 @@
 											th:src="${activeUri}==${res.resUrl}?'assets/img/minus.png':'assets/img/plus.png'">
 									</h4>
 							</a>
-								<ul
-									th:style="${activeUri}==${res.resUrl}?'display: block;':'display: none;'">
+								<ul 
+									th:style="${activeUri} == ${res.resUrl}  ?'display: block;':'display: none;'">
 									<li th:each="res2:${session.resourceslist}"
 										th:if="${res2.parentId eq res.id}"><a
 										class="tooltip-tip2 ajax-load"
 										th:href="|@{/}${res2.resUrl}?urlid=${res2.id}|"
 										th:title="${res2.name}"><i th:class="${res2.icon}"></i><span>[[${res2.name}]]</span></a>
 									</li>
-								</ul></li>
+									<th:block th:if="${res.id =='5ce7b488a60d658c282494ac'}">
+									<li><a
+										class="tooltip-tip2 ajax-load" th:href="@{/stocks?pageSize=20&search=&searchArea=6201cc4ee2528632dc5d890a}"
+										title="代理库存"><i class="entypo-box"></i><span>代理库存</span></a>
+									</li>
+									<li><a
+										class="tooltip-tip2 ajax-load" th:href="@{/stockStatisticss?pageSize=20&search=&start=&end=&type=all&searchArea=6201cc4ee2528632dc5d890a}"
+										title="代理库存"><i class="icon icon-graph-bar"></i><span>代理库存统计</span></a>
+									</li>
+									
+									</th:block>
+								</ul>
+							</li>
+			
 
 						</ul>
 

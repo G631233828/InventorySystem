@@ -21,6 +21,12 @@
 			<artifactId>SystemFunction-pojo</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+<!-- 		<dependency>
+			<groupId>zhongchiedu.com</groupId>
+			<artifactId>Common-Utils</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+		</dependency> -->
 	</dependencies>
 
 

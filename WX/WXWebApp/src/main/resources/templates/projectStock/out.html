@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>库存管理系统-项目库存出库</title>
+<meta
+	content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0"
+	name="viewport">
+<meta content="yes" name="apple-mobile-web-app-capable">
+<meta content="black" name="apple-mobile-web-app-status-bar-style">
+<meta content="telephone=no" name="format-detection">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=0">
+<th:block th:replace="public/public_css::pub_css"></th:block>
+<th:block th:replace="public/public_js::pub_js"></th:block>
+<script>
+	
+</script>
+<script type="text/javascript">
+	$(function() {
+		$(document)
+				.on(
+						"click",
+						"#btn",
+						function() {
+
+							var personInCharge = $("#personInCharge").val();
+							var projectName = $("#projectName").val();
+							var customer = $("#customer").val();
+							var num = $("#num").val();
+							if (personInCharge == "") {
+								$.toptip("请输入负责人");
+								return false;
+							} else if (projectName == "") {
+								$.toptip("请输入项目名称");
+								return false;
+							} else if (customer == "") {
+								$.toptip("请输入客户");
+								return false;
+							} else if (num = "") {
+								$.toptip("请输入出库数量");
+								return false;
+							} else {
+								$
+										.ajax({
+											dataType : "json",
+											type : "POST",
+											url : path
+													+ "wechat/projectStock/out",
+											data : $("#projectPickupForm")
+													.serialize(),
+											beforeSend : function() {
+												$.showLoading();
+											},
+											success : function(data) {
+												if (data.status == 200) {
+													$
+															.modal({
+																title : "商品出库",
+																text : data.msg,
+																buttons : [
+																		{
+																			text : "返回首页",
+																			onClick : function() {
+																				window.location.href = path
+																						+ "wechat/index"
+																			}
+																		},
+																		{
+																			text : "返回项目库存页",
+																			onClick : function() {
+																				window.location.href = path
+																						+ "wechat/ProjectStocks"
+																			}
+																		}, ]
+															});
+												} else {
+													$.toptip(data.msg, 'error');
+
+												}
+											},
+											complete : function() {
+												$.hideLoading();
+											}
+										})
+
+							}
+
+						})
+	})
+</script>
+
+
+
+
+</head>
+
+<body class="page-bg">
+
+
+
+
+	<div class="weui-cells weui-cells_form">
+
+		<form id="projectPickupForm">
+
+
+
+
+			<input type="hidden" name="InOrOut" value="false">
+			<input id="id" type="hidden" name= "projectStock.id" th:value="${projectStock?.id}">
+			<div class="weui-cell">
+				<div class="weui-cell__hd">
+					<label class="weui-label">项目名称：</label>
+				</div>
+				<div class="weui-cell__bd">
+					<label class="weui-label">[[${projectStock?.name}]]</label>
+				</div>
+			</div>
+
+			<div class="weui-cell">
+				<div class="weui-cell__hd">
+					<label class="weui-label">设备名称：</label>
+				</div>
+				<div class="weui-cell__bd">
+					<label class="weui-label">[[${projectStock?.name}]]</label>
+				</div>
+			</div>
+
+			<div class="weui-cell">
+				<div class="weui-cell__hd">
+					<label class="weui-label">当前库存量：</label>
+				</div>
+				<div class="weui-cell__bd">
+					<label class="weui-label">[[${projectStock?.inventory}]]</label>
+				</div>
+			</div>
+
+			<div class="weui-cell">
+				<div class="weui-cell__hd">
+					<label class="weui-label">负责人</label>
+				</div>
+				<div class="weui-cell__bd">
+					<input class="weui-input" placeholder="负责人" type="text"
+						name="personInCharge" id="personInCharge">
+				</div>
+			</div>
+
+
+			<div class="weui-cell">
+				<div class="weui-cell__hd">
+					<label class="weui-label">项目名称</label>
+				</div>
+				<div class="weui-cell__bd">
+					<input class="weui-input" placeholder="项目名称" type="text"
+						name="projectName" id="projectName">
+				</div>
+			</div>
+
+			<div class="weui-cell">
+				<div class="weui-cell__hd">
+					<label class="weui-label">客户</label>
+				</div>
+				<div class="weui-cell__bd">
+					<input class="weui-input" placeholder="客户" type="text"
+						name="customer" id="customer">
+				</div>
+			</div>
+
+			<div class="weui-cell">
+				<div class="weui-cell__hd">
+					<label class="weui-label">出库数量</label>
+				</div>
+				<div class="weui-cell__bd">
+					<input class="weui-input" placeholder="出库数量" id="num" name="num"
+						type="text">
+				</div>
+			</div>
+
+
+
+
+
+			<div class="weui-btn-area">
+				<a class="weui-btn weui-btn_primary" href="javascript:" id="btn">确定</a>
+			</div>
+
+		</form>
+
+	</div>
+
+
+
+
+
+
+
+	<div th:replace="public/public_js::public_script"></div>
+
+
+
+	<script th:inline="javascript">
+		/*<![CDATA[*/
+
+		/*]]>*/
+	</script>
+
+
+</body>
+</html>

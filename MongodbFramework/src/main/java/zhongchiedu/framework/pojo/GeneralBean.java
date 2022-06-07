@@ -26,6 +26,7 @@ public class GeneralBean<T> implements Serializable{
 	private Boolean isDisable=false;//禁用
 	private String sort= "0";//排序
 	private String description;//描述
+	private Date updateTime;
 	
 	
 }

@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:include="public/public_css::pub_css"></head>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" th:href="@{/assets/css/bootstrap-select.css}">
+
+<link th:href="@{/plugs/fdatapicker/css/foundation-datepicker.css}"
+	rel="stylesheet" type="text/css">
+<script th:src="@{/plugs/fdatapicker/js/foundation-datepicker.js}"></script>
+<script
+	th:src="@{/plugs/fdatapicker/js/locales/foundation-datepicker.zh-CN.js}"></script>
+</body>
+
+
+
+</head>
+
+
+
+
+<body>
+	<!-- Preloader -->
+	<div id="preloader">
+		<div id="status">&nbsp;</div>
+	</div>
+	<!-- TOP NAVBAR -->
+	<div th:replace="public/public::top"></div>
+	<!-- /END OF TOP NAVBAR -->
+
+	<!-- SIDE MENU -->
+	<div th:replace="public/public::left(activeUri='stockManager')"></div>
+	<!-- END OF SIDE MENU -->
+
+
+	<!--  PAPER WRAP -->
+	<div class="wrap-fluid">
+		<div class="container-fluid paper-wrap bevel tlbr">
+
+
+			<!-- CONTENT -->
+			<!--TITLE -->
+			<div th:replace="public/public::title"></div>
+			<!--/ TITLE -->
+
+			<!-- BREADCRUMB -->
+			<div th:replace="public/public::menu"></div>
+			<!-- END OF BREADCRUMB -->
+
+			<div class="content-wrap">
+				<div class="row">
+
+
+					<div class="col-sm-12">
+						<!-- BLANK PAGE-->
+
+						<div style="margin: -20px 15px;" class="nest" id="Blank_PageClose">
+							<div class="title-alt">
+								<h6>预入库</h6>
+								<div class="titleClose">
+									<a class="gone" href="#Blank_PageClose"> <span
+										class="entypo-cancel"></span>
+									</a>
+								</div>
+								<div class="titleToggle">
+									<a class="nav-toggle-alt" href="#Blank_Page_Content"> <span
+										class="entypo-up-open"></span>
+									</a>
+								</div>
+
+							</div>
+
+
+							<div class="body-nest" id="Blank_Page_Content">
+								<div class="row">
+									<!-- edit form column -->
+									<div class="col-md-12 personal-info">
+										<form class="form-horizontal" enctype="multipart/form-data"
+											id="preStockForm" th:action="@{/preStockAdd}" method="post">
+											<input type="hidden" name="_method" value="put"
+												th:if="${stock!=null}" /> 
+												<input type="hidden" name="id" th:if="${stock!=null}" th:value="${stock.id}">
+												<input type="hidden" name="publisher.id" th:if="${stock!=null}" th:value="${stock.publisher?.id}">
+												
+											<div class="form-group" id="areaform">
+												<label class="col-lg-1 control-label">区域：</label>
+												<div class="col-lg-6">
+
+													<select id="area" name="area.id" class="form-control"
+														required="required" onchange="return getgoodsStorages()">
+														<option value="">---请选择区域---</option>
+														<option
+															th:selected="${stock!=null && stock?.area !=null}?${stock?.area?.id}==${area?.id}"
+															th:each="area:${areas}" th:value="${area?.id}"
+															th:text="${area?.name}"></option>
+													</select>
+												</div>
+											</div>
+
+
+											<div class="form-group" id="nameform">
+												<label class="col-lg-1 control-label">设备名称：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="name" placeholder="请输入设备名称"
+														name="name" th:value="${stock?.name}" required="required">
+												</div>
+											</div>
+											<div class="form-group" id="modelform">
+												<label class="col-lg-1 control-label">设备型号：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="model"
+														placeholder="请输入设备型号" name="model"
+														th:value="${stock?.model}">
+												</div>
+											</div>
+											<div class="form-group" id="modelform">
+												<label class="col-lg-1 control-label">项目名称：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="entryName"
+														placeholder="请输入项目名称" name="entryName"
+														th:value="${stock?.entryName}">
+												</div>
+											</div>
+											<div class="form-group" id="modelform">
+												<label class="col-lg-1 control-label">项目编号：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="itemNo"
+														placeholder="请输入项目编号" name="itemNo"
+														th:value="${stock?.itemNo}">
+												</div>
+											</div>
+
+										<!-- 	<div class="form-group">
+												<label class="col-lg-1 control-label">使用范围：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="scope"
+														placeholder="请输入设备使用范围" name="scope"
+														th:value="${stock?.scope}">
+												</div>
+											</div>
+ -->
+
+
+											<div class="form-group">
+
+												<label class="col-lg-1 control-label">货架号(区域)：</label>
+												<div class="col-lg-6">
+													<select id="goodsStorage" name="goodsStorage.id"
+														class="form-control">
+														<option value="">---请选择存放货架---</option>
+														<option
+															th:selected="${stock!=null && stock?.goodsStorage !=null}?${stock?.goodsStorage?.id}==${goodsStorage?.id}"
+															th:each="goodsStorage:${goodsStorages}"
+															th:value="${goodsStorage?.id}"
+															th:text="|${goodsStorage?.address}-->${goodsStorage?.shelfNumber}${goodsStorage?.shelflevel==''?'':'/'}${goodsStorage?.shelflevel}|"></option>
+													</select>
+												</div>
+											</div>
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label">单价：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="price"
+														placeholder="请输入设备单价" name="price"
+														onkeyup="this.value=this.value.replace(/[^0-9\.]/g,'')"
+														th:value="${stock?.price}">
+												</div>
+											</div>
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label">计量单位：</label>
+												<div class="col-lg-6">
+													<select id="unit" name="unit.id" class="form-control">
+														<option value="">---请选择设备计量单位---</option>
+														<option
+															th:selected="${stock!=null && stock?.unit !=null}?${stock?.unit?.id}==${unit?.id}"
+															th:each="unit:${units}" th:value="${unit?.id}"
+															th:text="${unit?.name}"></option>
+													</select>
+												</div>
+											</div>
+											<!-- <div class="form-group">
+												<label class="col-lg-1 control-label">项目应收款：</label>
+												<div class="col-lg-6">
+													<select id="receivables" name="receivables"
+														class="form-control">
+														<option value="0">---请选择项目应收款---</option>
+														<option
+															th:selected="${stock!=null&&stock.receivables!=null}?${stock.receivables}"
+															value="1">是</option>
+														<option
+															th:selected="${stock!=null&&stock.receivables!=null}?${stock.receivables == false}"
+															value="0">否</option>
+													</select>
+												</div>
+											</div> -->
+
+
+									<!-- 		
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label">维保：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="maintenance"
+														placeholder="请输入设备维保" name="maintenance"
+														th:value="${stock?.maintenance}">
+												</div>
+											</div>
+ -->
+
+
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label">供应商：</label>
+												<div class="col-lg-6">
+													<select multiple class="selectpicker form-control"
+														id="number-multiple" data-container="body"
+														name="supplier.id" title="请选择供应商" data-live-search="true"
+														data-hide-disabled="true" data-actions-box="false"
+														data-virtual-scroll="false" data-max-options="1"></select>
+												</div>
+											</div>
+											
+											<div class="form-group">
+												<label class="col-lg-1 control-label">预入库存：</label>
+												<div class="col-lg-6">
+													<input class="form-control" readonly="readonly" name="estimatedInventoryQuantity"
+														th:value="${stock?.estimatedInventoryQuantity}">
+												</div>
+											</div>
+								
+											
+										<div class="form-group">
+												<label class="col-lg-1 control-label">实际入库数量：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="actualReceiptQuantity"
+														placeholder="请输入实际入库数量" name="actualReceiptQuantity" required="required"
+														th:value="${stock?.actualReceiptQuantity}">
+												</div>
+											</div>
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label">备注：</label>
+												<div class="col-lg-6">
+													<textarea id="description"
+														style="height: 150px !important; margin: 20px 0; resize: none;"
+														th:text="${stock?.description}" class="form-control"
+														placeholder="备注" name="description"></textarea>
+												</div>
+											</div>
+
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label">状态：</label>
+												<div class="col-lg-6">
+													<div class="ui-select">
+														<select name="isDisable" id="isDisable"
+															class="form-control" required>
+															<option value="false"
+																th:selected="${stock?.isDisable eq false}">启用中</option>
+															<option value="true"
+																th:selected="${stock?.isDisable eq true}">禁用中</option>
+														</select>
+													</div>
+												</div>
+											</div>
+
+
+
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label"></label>
+												<div class="col-md-8">
+													<button type="submit" class="btn btn-success"
+														th:text="${stock!=null?'修改':'添加'}"></button>
+													<span></span> <input th:if="${stock} eq null"
+														class="btn btn-default" value="重置" type="reset">
+												</div>
+											</div>
+										</form>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- END OF BLANK PAGE -->
+
+				</div>
+			</div>
+
+			<!--/row-->
+
+		</div>
+	</div>
+	<!--  END OF PAPER WRAP -->
+	<!-- 右侧隐藏菜单start -->
+	<div th:replace="public/public::right"></div>
+	<!-- 右侧隐藏菜单end-->
+	<!-- 底部js -->
+	<div th:replace="public/public_js::pub_js"></div>
+	<div th:replace="public/public::myModal"></div>
+
+	<script th:src="@{/assets/js/select/bootstrap-select.js}"
+		type="text/javascript"></script>
+	<div th:replace="public/public_js::public_script"></div>
+	<div th:replace="public/public::footer"></div>
+	<!-- Jquery Validate -->
+	<script type="text/javascript"
+		th:src="@{/plugs/validate/jquery.validate.min.js}"></script>
+	<script type="text/javascript"
+		th:src="@{/plugs/validate/messages_zh.min.js}"></script>
+
+	<script type="text/javascript" th:inline="javascript"
+		th:src="@{/js/admin/preStock/preStock.js}"></script>
+
+	<div th:replace="public/public_js::validator"></div>
+	<script type="text/javascript" th:inline="javascript">
+
+$(function(){
+var options = [], _options;
+/* <![CDATA[ */
+	 var data = [[${suppliers}]]
+	
+	  for (var i = 0; i < data.length; i++) {
+	    var option = '<option value="' + data[i].id + '">' + data[i].name + '</option>';
+	    options.push(option);
+	  }
+	  _options = options.join('');
+	  $('#number-multiple')[0].innerHTML = _options;
+			var a = [[${stock?.supplier?.id}]] 
+			     $("#number-multiple").selectpicker('val',a);
+				  $("#number-multiple").selectpicker('refresh');
+			  $('#number-multiple').selectpicker('render')
+})	  
+	  
+ /*]]>*/
+</script>
+
+</body>
+
+</html>

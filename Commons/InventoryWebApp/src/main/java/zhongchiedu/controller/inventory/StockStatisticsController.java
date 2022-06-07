@@ -22,7 +22,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import lombok.extern.slf4j.Slf4j;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.Common;
+import zhongchiedu.common.utils.Contents;
 import zhongchiedu.framework.pagination.Pagination;
+import zhongchiedu.general.pojo.User;
 import zhongchiedu.inventory.pojo.Area;
 import zhongchiedu.inventory.pojo.StockStatistics;
 import zhongchiedu.inventory.service.Impl.AreaServiceImpl;
@@ -84,7 +86,8 @@ public class StockStatisticsController {
 	@RequiresPermissions(value = "stockStatistics:in")
 	@SystemControllerLog(description = "设备入库")
 	public BasicDataResult in(@ModelAttribute("stockStatistics") StockStatistics stockStatistics, HttpSession session) {
-		return this.stockStatisticsService.inOrOutstockStatistics(stockStatistics, session);
+		User user = (User) session.getAttribute(Contents.USER_SESSION);
+		return this.stockStatisticsService.inOrOutstockStatistics(stockStatistics, user);
 	}
 
 	@RequestMapping(value = "/stockStatistics/out", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
@@ -93,7 +96,8 @@ public class StockStatisticsController {
 	@SystemControllerLog(description = "设备出库")
 	public BasicDataResult out(@ModelAttribute("stockStatistics") StockStatistics stockStatistics,
 			HttpSession session) {
-		return this.stockStatisticsService.inOrOutstockStatistics(stockStatistics, session);
+		User user = (User) session.getAttribute(Contents.USER_SESSION);
+		return this.stockStatisticsService.inOrOutstockStatistics(stockStatistics, user);
 
 	}
 

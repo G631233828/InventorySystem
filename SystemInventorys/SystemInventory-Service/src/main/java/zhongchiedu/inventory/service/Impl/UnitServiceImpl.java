@@ -53,21 +53,6 @@ public class UnitServiceImpl extends GeneralServiceImpl<Unit> implements UnitSer
 		}
 	}
 
-	@Override
-	@SystemServiceLog(description="启用禁用单位信息")
-	public BasicDataResult disable(String id) {
-		if (Common.isEmpty(id)) {
-			return BasicDataResult.build(400, "无法禁用，请求出现问题，请刷新界面!", null);
-		}
-		Unit unit = this.findOneById(id, Unit.class);
-		if (Common.isEmpty(unit)) {
-			return BasicDataResult.build(400, "禁用失败，该条信息可能已被删除", null);
-		}
-		unit.setIsDisable(unit.getIsDisable().equals(true) ? false : true);
-		this.save(unit);
-		return BasicDataResult.build(200, unit.getIsDisable().equals(true) ? "禁用成功" : "恢复成功",
-				unit.getIsDisable());
-	}
 
 	@Override
 	@SystemServiceLog(description="获取所有非禁用单位信息")

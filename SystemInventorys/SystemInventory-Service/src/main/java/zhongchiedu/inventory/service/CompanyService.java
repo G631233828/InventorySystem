@@ -13,7 +13,6 @@ public interface CompanyService extends GeneralService<Companys> {
 	
 	public void saveOrUpdate(Companys company);
 	
-	public BasicDataResult disable(String id);
 	
 	public List<Companys> findAllCompany(boolean isdisable);
 	

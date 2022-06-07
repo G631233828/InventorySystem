@@ -22,7 +22,6 @@ public interface ProjectStockService extends GeneralService<ProjectStock> {
 	
 	public void saveOrUpdate(ProjectStock stock,String areaId);
 	
-	public BasicDataResult disable(String id);
 	
 	public List<ProjectStock> findAllProjectStock(boolean isdisable,String areaId);
 	

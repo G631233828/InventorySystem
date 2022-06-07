@@ -2,6 +2,7 @@ package zhongchiedu.inventory.service;
 
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -11,9 +12,11 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralService;
+import zhongchiedu.inventory.pojo.PickUpApplication;
+import zhongchiedu.inventory.pojo.PreStock;
 import zhongchiedu.inventory.pojo.ProcessInfo;
+import zhongchiedu.inventory.pojo.QrCode;
 import zhongchiedu.inventory.pojo.Stock;
-import zhongchiedu.inventory.pojo.StockStatistics;
 
 public interface StockService extends GeneralService<Stock> {
 	
@@ -21,7 +24,6 @@ public interface StockService extends GeneralService<Stock> {
 	
 	public void saveOrUpdate(Stock stock);
 	
-	public BasicDataResult disable(String id);
 	
 	public List<Stock> findAllStock(boolean isdisable,String areaId);
 	
@@ -37,13 +39,30 @@ public interface StockService extends GeneralService<Stock> {
 	
 	public String upload( HttpServletRequest request, HttpSession session);
 	
-	public Stock findByName(String name,String model);
+	public Stock findByName(String areaName,String name,String model,String entryName);
 	
 	public BasicDataResult findOneById(String id);
 	
 	public HSSFWorkbook export(String name,String areaId);
 	
 	public List<Stock> findLowStock(int num);
+	
+	public Set<String> findProjectNames();
+	
+	public void preStockToStock(PreStock preStock);
+	
+	public BasicDataResult pickUpApplicationToStock(PickUpApplication pickUpApplication);
+	
+	public Stock findByAreaNameModel(String areaId,String name,String model,String entryName);
+	
+	public QrCode createStockQrCode(String stockId);
+	
+	public List<Stock> findStockByIds(String id);
+	
+	
+	
+	
+	
 	
 	
 	

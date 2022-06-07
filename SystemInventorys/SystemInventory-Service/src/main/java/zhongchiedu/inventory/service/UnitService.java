@@ -19,7 +19,6 @@ public interface UnitService extends GeneralService<Unit> {
 	
 	public void saveOrUpdate(Unit unit);
 	
-	public BasicDataResult disable(String id);
 	
 	public List<Unit> findAllUnit(boolean isdisable);
 	

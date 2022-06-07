@@ -73,6 +73,12 @@
                                                 <td class="numeric" onclick="return selectColumn('area');"><input type="checkbox" th:checked="${#lists.contains(listColums,'area')}?'checked':'false'" id="ch_area"></td>
                                             </tr>
                                             <tr>
+                                                <td class="numeric">用于项目</td>
+                                                <td class="numeric" onclick="return selectColumn('entryName');"><input type="checkbox" th:checked="${#lists.contains(listColums,'entryName')}?'checked':'false'" id="ch_entryName"></td>
+                                            <td class="numeric">项目编号</td>
+                                                <td class="numeric" onclick="return selectColumn('itemNo');"><input type="checkbox" th:checked="${#lists.contains(listColums,'itemNo')}?'checked':'false'" id="ch_itemNo"></td>
+                                            </tr>
+                                            <tr>
                                                 <td class="numeric">备注</td>
                                                 <td class="numeric" onclick="return selectColumn('description');"><input type="checkbox" th:checked="${#lists.contains(listColums,'description')}?'checked':'false'" id="ch_description"></td>
                                             </tr>

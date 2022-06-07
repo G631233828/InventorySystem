@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -17,23 +19,30 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.Period;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.jar.JarEntry;
@@ -43,26 +52,25 @@ import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.xalan.xsltc.compiler.sym;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 @Component
 public class Common {
-    
+
 	@Autowired
 	private HttpServletRequest request;
-	
-	
-	
+
 	public String getUrl() {
-		String url="";
-		url=request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+request.getServletContext().getContextPath();
-	    return url;
+		String url = "";
+		url = request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort()
+				+ request.getServletContext().getContextPath();
+		return url;
 	}
-	
+
 	/**
 	 * String转换double
 	 * 
@@ -83,7 +91,8 @@ public class Common {
 	 * @return
 	 */
 	public static boolean isEmpty(Object s) {
-		if (null == s || "".equals(s) || "".equals(String.valueOf(s).trim()) || "null".equalsIgnoreCase(String.valueOf(s))) {
+		if (null == s || "".equals(s) || "".equals(String.valueOf(s).trim())
+				|| "null".equalsIgnoreCase(String.valueOf(s))) {
 			return true;
 		} else {
 			return false;
@@ -97,7 +106,8 @@ public class Common {
 	 * @return
 	 */
 	public static boolean isNotEmpty(Object s) {
-		if (null == s || "".equals(s) || "".equals(String.valueOf(s).trim()) || "null".equalsIgnoreCase(String.valueOf(s))) {
+		if (null == s || "".equals(s) || "".equals(String.valueOf(s).trim())
+				|| "null".equalsIgnoreCase(String.valueOf(s))) {
 			return false;
 		} else {
 			return true;
@@ -143,14 +153,14 @@ public class Common {
 		DateFormat format1 = new SimpleDateFormat("yyyy-MM-dd");
 		return format1.format(new Date());
 	}
-	
+
 	public static String fromDateYM() {
 		DateFormat format1 = new SimpleDateFormat("yyyy年-MM月");
 		return format1.format(new Date());
 	}
 
-	public static Date fromStringToDate(String sdate) {
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+	public static Date fromStringToDate(String sdate, String spit) {
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyy" + spit + "MM" + spit + "dd");
 		ParsePosition pos = new ParsePosition(0);
 		Date strtodate = formatter.parse(sdate, pos);
 		return strtodate;
@@ -201,8 +211,7 @@ public class Common {
 	/**
 	 * 传入原图名称，，获得一个以时间格式的新名称
 	 * 
-	 * @param fileName
-	 *            原图名称
+	 * @param fileName 原图名称
 	 * @return
 	 */
 	public static String generateFileName(String fileName) {
@@ -213,30 +222,38 @@ public class Common {
 		String extension = fileName.substring(position);
 		return formatDate + random + extension;
 	}
-	
-	
+
+	/**
+	 * 获取时间戳
+	 * 
+	 * @param fileName
+	 * @return
+	 */
+	public static String generatedate() {
+		DateFormat format = new SimpleDateFormat("yyyyMMdd");
+		String formatDate = format.format(new Date());
+		return formatDate;
+	}
+
 	/**
 	 * 传入日期 进行比较相差天数
+	 * 
 	 * @param date
 	 * @return
 	 */
-	public Integer plusDate(String date1,String date2){
-		
-		System.out.println(fromStringToDate("1997-9-9"));
-		
-		
-		
-		return 0;
-	}
-	
-	
-	
+//	public Integer plusDate(String date1,String date2){
+//		
+//		System.out.println(fromStringToDate("1997-9-9"));
+//		
+//		
+//		
+//		return 0;
+//	}
 
 	/**
 	 * 取得html网页内容 UTF8编码
 	 * 
-	 * @param urlStr
-	 *            网络地址
+	 * @param urlStr 网络地址
 	 * @return String
 	 */
 	public static String getInputHtmlUTF8(String urlStr) {
@@ -267,8 +284,7 @@ public class Common {
 	/**
 	 * 取得html网页内容 GBK编码
 	 * 
-	 * @param urlStr
-	 *            网络地址
+	 * @param urlStr 网络地址
 	 * @return String
 	 */
 	public static String getInputHtmlGBK(String urlStr) {
@@ -298,8 +314,7 @@ public class Common {
 
 	/**
 	 * @param inputStream
-	 * @param uncode
-	 *            编码 GBK 或 UTF-8
+	 * @param uncode      编码 GBK 或 UTF-8
 	 * @return
 	 * @throws Exception
 	 */
@@ -378,10 +393,8 @@ public class Common {
 	/**
 	 * 提供精确的减法运算。
 	 * 
-	 * @param v1
-	 *            被减数
-	 * @param v2
-	 *            减数
+	 * @param v1 被减数
+	 * @param v2 减数
 	 * @return 两个参数的差
 	 */
 	public static double sub(double v1, double v2) {
@@ -393,10 +406,8 @@ public class Common {
 	/**
 	 * 提供精确的加法运算。
 	 * 
-	 * @param v1
-	 *            被加数
-	 * @param v2
-	 *            加数
+	 * @param v1 被加数
+	 * @param v2 加数
 	 * @return 两个参数的和
 	 */
 	public static double add(double v1, double v2) {
@@ -408,10 +419,8 @@ public class Common {
 	/**
 	 * 提供精确的乘法运算。
 	 * 
-	 * @param v1
-	 *            被乘数
-	 * @param v2
-	 *            乘数
+	 * @param v1 被乘数
+	 * @param v2 乘数
 	 * @return 两个参数的积
 	 */
 	public static double mul(double v1, double v2) {
@@ -423,12 +432,9 @@ public class Common {
 	/**
 	 * 提供（相对）精确的除法运算。当发生除不尽的情况时，由scale参数指 定精度，以后的数字四舍五入。
 	 * 
-	 * @param v1
-	 *            被除数
-	 * @param v2
-	 *            除数
-	 * @param scale
-	 *            表示表示需要精确到小数点以后几位。
+	 * @param v1    被除数
+	 * @param v2    除数
+	 * @param scale 表示表示需要精确到小数点以后几位。
 	 * @return 两个参数的商
 	 */
 	public static double div(double v1, double v2, int scale) {
@@ -704,7 +710,7 @@ public class Common {
 	/**
 	 * 
 	 * @Title: getDateByLastMonth @Description: TODO(获取过去几个月的日期) @param @param
-	 * month @param @return 设定文件 @return String 返回类型 @throws
+	 *         month @param @return 设定文件 @return String 返回类型 @throws
 	 */
 	public static String getDateByLastMonth(String lastManth) {
 
@@ -734,9 +740,9 @@ public class Common {
 	/**
 	 * 
 	 * @Title: getDateNow @Description: TODO(获取当前日期) @param @return 设定文件 @return
-	 * String 返回类型 @throws
+	 *         String 返回类型 @throws
 	 */
-	public static String getDateNow() {
+	public static String getDateN(String spit, int plusdate) {
 
 		Calendar cal = Calendar.getInstance();
 
@@ -744,7 +750,7 @@ public class Common {
 
 		int month = cal.get(Calendar.MONTH) + 1;
 
-		int day = cal.get(Calendar.DATE);
+		int day = cal.get(Calendar.DATE) + plusdate;
 
 		String rmonth = "";
 		String rday = "";
@@ -760,7 +766,7 @@ public class Common {
 			rday = String.valueOf(day);
 		}
 
-		return year + "-" + rmonth + "-" + rday;
+		return year + spit + rmonth + spit + rday;
 
 	}
 
@@ -782,43 +788,38 @@ public class Common {
 		return val;
 	}
 
-	//生成随机数UUID
+	// 生成随机数UUID
 	public static String getUUID() {
-		return StringUtil.replace("-", "", UUID.randomUUID().toString()) ;
+		return StringUtil.replace("-", "", UUID.randomUUID().toString());
 	}
-	
-	//获取HTML中img标签中图片的url
-	public  static Set<String> getHtmlImgUrl(String htmlStr) {  
-	        Set<String> pics = new HashSet<String>();  
-	        String img = "";  
-	        Pattern p_image;  
-	        Matcher m_image;  
-	        String regEx_img = "<img.*src\\s*=\\s*(.*?)[^>]*?>";  
-	        p_image = Pattern.compile(regEx_img, Pattern.CASE_INSENSITIVE);  
-	        m_image = p_image.matcher(htmlStr);  
-	        while (m_image.find()) {  
-	            // 得到<img />数据  
-	            img = m_image.group();  
-	            // 匹配<img>中的src数据  
-	            Matcher m = Pattern.compile("src\\s*=\\s*\"?(.*?)(\"|>|\\s+)").matcher(img);  
-	            while (m.find()) {  
-	                pics.add(m.group(1));  
-	            }  
-	        }  
-	        return pics;  
-	    }  
-	
-	
-	
-	
-	//数组去重复去重复
-	public static TreeSet<Object> toRepeat(Object[] o){
-		
+
+	// 获取HTML中img标签中图片的url
+	public static Set<String> getHtmlImgUrl(String htmlStr) {
+		Set<String> pics = new HashSet<String>();
+		String img = "";
+		Pattern p_image;
+		Matcher m_image;
+		String regEx_img = "<img.*src\\s*=\\s*(.*?)[^>]*?>";
+		p_image = Pattern.compile(regEx_img, Pattern.CASE_INSENSITIVE);
+		m_image = p_image.matcher(htmlStr);
+		while (m_image.find()) {
+			// 得到<img />数据
+			img = m_image.group();
+			// 匹配<img>中的src数据
+			Matcher m = Pattern.compile("src\\s*=\\s*\"?(.*?)(\"|>|\\s+)").matcher(img);
+			while (m.find()) {
+				pics.add(m.group(1));
+			}
+		}
+		return pics;
+	}
+
+	// 数组去重复去重复
+	public static TreeSet<Object> toRepeat(Object[] o) {
+
 		return new TreeSet<Object>(Arrays.asList(o));
 	}
-	
-	
-	
+
 	/***
 	 * 将上传的文件进行重命名
 	 * 
@@ -830,8 +831,8 @@ public class Common {
 		Long random = (long) (Math.random() * now);
 		String fileName = now + "" + random;
 
-	if (name.indexOf(".") != -1) {
-			fileName += name.substring(name.lastIndexOf("."),name.length());
+		if (name.indexOf(".") != -1) {
+			fileName += name.substring(name.lastIndexOf("."), name.length());
 		}
 		return fileName;
 
@@ -839,168 +840,315 @@ public class Common {
 
 	/**
 	 * 获取服务器路径
+	 * 
 	 * @return
 	 */
 	public static String getIPAddress() {
 
-	    String ip = "0.0.0.0";
-	    Enumeration allNetInterfaces = null;
-	    try {
-	        allNetInterfaces = NetworkInterface.getNetworkInterfaces();
-	    } catch (SocketException e) {
-	        return ip;
-	    }
-	    InetAddress address = null;
-	    while (allNetInterfaces.hasMoreElements()) {
-	        NetworkInterface netInterface = (NetworkInterface) allNetInterfaces.nextElement();
-	        Enumeration addresses = netInterface.getInetAddresses();
-	        while (addresses.hasMoreElements()) {
-	            address = (InetAddress) addresses.nextElement();
-	            if (address != null && address instanceof Inet4Address && address.getHostAddress().indexOf(".") != -1) {
-	                ip = address.getHostAddress();
-	                break;
-	            }
-	        }
-	    }
-	    return ip;
-	}
-	
-	
-	/**
-     * 获取服务器IP地址
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    public static String  getServerIp(){
-        String SERVER_IP = null;
-        try {
-            Enumeration netInterfaces = NetworkInterface.getNetworkInterfaces();
-            InetAddress ip = null;
-            while (netInterfaces.hasMoreElements()) {
-                NetworkInterface ni = (NetworkInterface) netInterfaces.nextElement();
-                ip = (InetAddress) ni.getInetAddresses().nextElement();
-                SERVER_IP = ip.getHostAddress();
-                if (!ip.isSiteLocalAddress() && !ip.isLoopbackAddress()
-                        && ip.getHostAddress().indexOf(":") == -1) {
-                    SERVER_IP = ip.getHostAddress();
-                    break;
-                } else {
-                    ip = null;
-                }
-            }
-        } catch (SocketException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    
-        return SERVER_IP;
-    }
-	
-
-    
-    public static String getHostIp(){
-		try{
-			Enumeration<NetworkInterface> allNetInterfaces = NetworkInterface.getNetworkInterfaces();
-			while (allNetInterfaces.hasMoreElements()){
-				NetworkInterface netInterface = (NetworkInterface) allNetInterfaces.nextElement();
-				Enumeration<InetAddress> addresses = netInterface.getInetAddresses();
-				while (addresses.hasMoreElements()){
-					InetAddress ip = (InetAddress) addresses.nextElement();
-					if (ip != null 
-							&& ip instanceof Inet4Address
-                    		&& !ip.isLoopbackAddress() //loopback地址即本机地址，IPv4的loopback范围是127.0.0.0 ~ 127.255.255.255
-                    		&& ip.getHostAddress().indexOf(":")==-1){
-						return ip.getHostAddress();
-					} 
+		String ip = "0.0.0.0";
+		Enumeration allNetInterfaces = null;
+		try {
+			allNetInterfaces = NetworkInterface.getNetworkInterfaces();
+		} catch (SocketException e) {
+			return ip;
+		}
+		InetAddress address = null;
+		while (allNetInterfaces.hasMoreElements()) {
+			NetworkInterface netInterface = (NetworkInterface) allNetInterfaces.nextElement();
+			Enumeration addresses = netInterface.getInetAddresses();
+			while (addresses.hasMoreElements()) {
+				address = (InetAddress) addresses.nextElement();
+				if (address != null && address instanceof Inet4Address && address.getHostAddress().indexOf(".") != -1) {
+					ip = address.getHostAddress();
+					break;
 				}
 			}
-		}catch(Exception e){
+		}
+		return ip;
+	}
+
+	/**
+	 * 获取服务器IP地址
+	 * 
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static String getServerIp() {
+		String SERVER_IP = null;
+		try {
+			Enumeration netInterfaces = NetworkInterface.getNetworkInterfaces();
+			InetAddress ip = null;
+			while (netInterfaces.hasMoreElements()) {
+				NetworkInterface ni = (NetworkInterface) netInterfaces.nextElement();
+				ip = (InetAddress) ni.getInetAddresses().nextElement();
+				SERVER_IP = ip.getHostAddress();
+				if (!ip.isSiteLocalAddress() && !ip.isLoopbackAddress() && ip.getHostAddress().indexOf(":") == -1) {
+					SERVER_IP = ip.getHostAddress();
+					break;
+				} else {
+					ip = null;
+				}
+			}
+		} catch (SocketException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return SERVER_IP;
+	}
+
+	public static String getHostIp() {
+		try {
+			Enumeration<NetworkInterface> allNetInterfaces = NetworkInterface.getNetworkInterfaces();
+			while (allNetInterfaces.hasMoreElements()) {
+				NetworkInterface netInterface = (NetworkInterface) allNetInterfaces.nextElement();
+				Enumeration<InetAddress> addresses = netInterface.getInetAddresses();
+				while (addresses.hasMoreElements()) {
+					InetAddress ip = (InetAddress) addresses.nextElement();
+					if (ip != null && ip instanceof Inet4Address && !ip.isLoopbackAddress() // loopback地址即本机地址，IPv4的loopback范围是127.0.0.0
+																							// ~ 127.255.255.255
+							&& ip.getHostAddress().indexOf(":") == -1) {
+						return ip.getHostAddress();
+					}
+				}
+			}
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return null;
 	}
-    
-    /**
-     * 获取后缀名
-     * @param path
-     * @return
-     */
-    public static String getSuffix(String path){
-    	
-    	return path.substring(path.lastIndexOf("."), path.length());
-    }
-    
-    
-    /**
-     * 通过两个日期获取两个日期之间的差距
-     * @param date1
-     * @param date2
-     * @return
-     */
-    public static long getBetweenDays(String date1,String date2){
-    	DateTimeFormatter  formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    	LocalDate local = LocalDate.parse(date1, formatter);
-    	LocalDate local2 = LocalDate.parse(date2, formatter);
-    	LocalDate d = LocalDate.of(local.getYear(), local.getMonth(), local.getDayOfMonth());
-    	LocalDate d2 = LocalDate.of(local2.getYear(), local2.getMonth(), local2.getDayOfMonth());
-    	return  d2.toEpochDay() - d.toEpochDay();
-    }
-    
-    
-    
-    
-	
-    
-//    public static void main(String[] args) {
-//    	
-//    	String date = "2018-07-07";
-//    	String date2 = "2018-07-10";
-//    	
-//    	DateTimeFormatter  formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-//
-//    	LocalDate local = LocalDate.parse(date, formatter);
-//    	LocalDate local2 = LocalDate.parse(date2, formatter);
-//    	
-//    	LocalDate d = LocalDate.of(local.getYear(), local.getMonth(), local.getDayOfMonth());
-//    	LocalDate d2 = LocalDate.of(local2.getYear(), local2.getMonth(), local2.getDayOfMonth());
-//    	
-//    	long dd = d2.toEpochDay() - d.toEpochDay();
-//    	
-//    	System.out.println(dd);
-//    	
-//    	
-//
-//	}
-	
-//	public static void main(String[] args) {
-//		String a ="1,2,3,4,5,6,7,8,7,8,4,3";
-//		String[] strids = a.split(",");
-//		TreeSet<Object> s = toRepeat(strids);
-//		Iterator i = s.iterator();
-//		while(i.hasNext()){
-//			System.out.println(i.next());
-//		}
-//		
-//
-//	}
-	
-    public static void main(String[] args) {
+
+	public static String getVisitorIp(HttpServletRequest request) {
+		String remoteAddr = request.getRemoteAddr();
+		String forwarded = request.getHeader("X-Forwarded-For");
+		String realIp = request.getHeader("X-Real-IP");
+
+		String ipAddress = null;
+		if (realIp == null) {
+			if (forwarded == null) {
+				ipAddress = remoteAddr;
+			} else {
+				ipAddress = remoteAddr + "/" + forwarded.split(",")[0];
+			}
+		} else {
+			if (realIp.equals(forwarded)) {
+				ipAddress = realIp;
+			} else {
+				if (forwarded != null) {
+					forwarded = forwarded.split(",")[0];
+				}
+				ipAddress = realIp + "/" + forwarded;
+			}
+		}
+		return ipAddress;
+	}
+
+	/**
+	 * 获取后缀名
+	 * 
+	 * @param path
+	 * @return
+	 */
+	public static String getSuffix(String path) {
+
+		return path.substring(path.lastIndexOf("."), path.length());
+	}
+
+	/**
+	 * 通过两个日期获取两个日期之间的差距
+	 * 
+	 * @param date1
+	 * @param date2
+	 * @return
+	 */
+	public static long getBetweenDays(String date1, String date2) {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+		LocalDate local = LocalDate.parse(date1, formatter);
+		LocalDate local2 = LocalDate.parse(date2, formatter);
+		LocalDate d = LocalDate.of(local.getYear(), local.getMonth(), local.getDayOfMonth());
+		LocalDate d2 = LocalDate.of(local2.getYear(), local2.getMonth(), local2.getDayOfMonth());
+		return d2.toEpochDay() - d.toEpochDay();
+	}
+
+	/**
+	 * 
+	 * <p>
+	 * Title: subStringEndOf
+	 * </p>
+	 * <p>
+	 * Description:
+	 * </p>
+	 * 
+	 * @param split   匹配的字符串
+	 * @param strings 需要截取的字符串
+	 * @return
+	 */
+	public static String subStringEndOf(String split, String strings) {
+		return strings.substring(strings.lastIndexOf(split) + 1, strings.length());
+
+	}
+
+	/**
+	 * 
+	 * <p>
+	 * Title: subStringEndOf
+	 * </p>
+	 * <p>
+	 * Description:
+	 * </p>
+	 * 
+	 * @param split   匹配的字符串
+	 * @param strings 需要截取的字符串
+	 * @return
+	 */
+	public static String subStringBeforeOf(String split, String strings) {
+		return strings.substring(0, strings.lastIndexOf(split));
+
+	}
+
+	public static String toJson(Object obj) {
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		return gson.toJson(obj);
+	}
+
+	public static Date dateplus(int datenum) {
+		Date date = new Date();// 取时间
+		Calendar calendar = new GregorianCalendar();
+		calendar.setTime(date);
+		calendar.add(calendar.DATE, datenum);// 把日期往后增加一天.整数往后推,负数往前移动
+		date = calendar.getTime(); // 这个时间就是日期往后推一天的结果
+
+		return date;
+	}
+
+	public static Date getDaDate() {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		// 设置为东八区
+		sdf.setTimeZone(TimeZone.getTimeZone("Asia/Shanghai"));
+		Date date = new Date();
+		String dateStr = sdf.format(date);
+
+		// 将字符串转成时间
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Date newDate = null;
+		try {
+			newDate = df.parse(dateStr);
+		} catch (ParseException e) {
+			e.printStackTrace();
+		}
+		return newDate;
+	}
+
+	public static String getDateYMDHM(String date) throws ParseException {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		Date a = sdf.parse(date);
+		return sdf.format(a);
+
+	}
+	public static String getDateYMDHM(Date date) throws ParseException {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		return  sdf.format(date);
 		
-    	String d = Common.fromDateYM();
-    	System.out.println(d);
-    	
-    	
+	}
+
+	public static String getDatebyPattern(String date) {
+		Pattern p = Pattern.compile("(\\d{4})-(\\d{1,2})-(\\d{1,2})");
+		Matcher matcher = p.matcher(date);
+		if (matcher.find())
+			return matcher.group();
+		return date;
+	}
+
+	public static synchronized void deleteFile(List<String> file, String savePath) {
+		// 回收站
+		File recy = new File(savePath + "recycle");
+		if (!recy.exists()) {
+			recy.mkdirs();
+		}
+
+		if (file.size() > 0) {
+			file.forEach(f -> {
+				File ff = new File(f);
+				if (ff.exists()) {
+					fileCopyNIO(ff, recy + "/" + ff.getName());
+					ff.delete();
+				}
+			});
+		}
+
+	}
+
+	/**
+	 * 使用NIO进行文件拷贝
+	 * 
+	 * @param source
+	 * @param target
+	 */
+	public static void fileCopyNIO(File source, String target) {
+
+		try (FileInputStream in = new FileInputStream(source); FileOutputStream out = new FileOutputStream(target)) {
+			FileChannel inChannel = in.getChannel();
+			FileChannel outChannel = out.getChannel();
+			ByteBuffer buffer = ByteBuffer.allocate(4096);
+			inChannel.transferTo(0, inChannel.size(), outChannel);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * 检查文件夹是否存在，不存在则创建
+	 * 
+	 * @param path
+	 */
+	public static void checkPathAndMkdirs(String path) {
+		File f = new File(path);
+		if (!f.exists()) {
+			f.mkdirs();
+		}
+
+	}
+
+	/**
+	 * String 日期转换成date
+	 * @param date
+	 * @return
+	 */
+	public static Date getDateByStringDate(String date) {
+		DateTimeFormatter timeDtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		LocalDateTime localDateTime = LocalDateTime.parse(date, timeDtf);
+		ZoneId zone = ZoneId.systemDefault();
+		Instant instant = localDateTime.atZone(zone).toInstant();
+		return  Date.from(instant);
 	}
 	
-	
-	
+	/**
+	 * 判断输入的是否是数字
+	 * @param str
+	 * @return
+	 */
+	public static boolean isInteger(String str) {  
+        Pattern pattern = Pattern.compile("^[-\\+]?[\\d]*$");  
+        return pattern.matcher(str).matches();  
+  }
 
-	
-	
-	
-	
-	
-	
-	
-	
+	public static void main(String[] args) throws ParseException {
+//		List<String> file = new ArrayList<String>();
+//		file.add("E:/fescar-server-0.4.2.zip");
+//		file.add("E:/内网穿透工具.7z");
+//		file.add("E:/3.txt");
+//		file.add("E:/4.txt");
+//		file.add("E:/5.txt");
+//		file.add("E:/6.txt");
+//
+//		deleteFile(file, "E:/");
+
+//		String dateYMDHM = getDateYMDHM("2021-02-02 21:13:11");
+//		System.out.println(dateYMDHM);
+
+		String dateYMDHM = getDateYMDHM(new Date());
+		System.out.println(dateYMDHM);
+	}
+
 }

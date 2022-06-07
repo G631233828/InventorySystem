@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>库存管理系统-库存管理</title>
+<meta
+	content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0"
+	name="viewport">
+<meta content="yes" name="apple-mobile-web-app-capable">
+<meta content="black" name="apple-mobile-web-app-status-bar-style">
+<meta content="telephone=no" name="format-detection">
+<meta name="viewport"
+	content="width=device-width,initial-scale=1,user-scalable=0">
+<th:block th:replace="public/public_css::pub_css"></th:block>
+<th:block th:replace="public/public_js::pub_js"></th:block>
+
+
+</head>
+
+<body  class="page-bg">
+
+<div class="page-hd">
+    <h1 class="page-hd-title">
+        支付场景
+    </h1>
+    <p class="page-hd-desc">输入支付/支付表单/订单显示</p>
+</div>
+
+
+<ul class="weui-payrec">
+    <div class="weui-pay-m">
+        <li class="weui-pay-order">
+            <dl class="weui-pay-line">
+                <dd class="weui-pay-name">天朝科学商学院</dd>
+                <dt class="weui-pay-label">订 单 号：</dt><dd class="weui-pay-e">465464565665</dd>
+            </dl>
+            <dl class="weui-pay-line"><dt class="weui-pay-label">出发时间：</dt><dd class="weui-pay-e">2015年1月20日 12:20</dd></dl>
+            <dl class="weui-pay-line"><dt class="weui-pay-label">应付金额：</dt><dd class="weui-pay-e">￥315.0</dd></dl>
+
+            <div class="weui-pay-area">
+                <a href="javascript:;" class="weui-pay-c">取消订单</a>
+                <a href="javascript:;" class="weui-pay-v">立即付款</a>
+            </div>
+        </li>
+    </div>
+</ul>
+
+<div th:replace="public/public_js::public_script"></div>
+
+
+</body>
+</html>

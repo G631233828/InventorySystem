@@ -135,6 +135,10 @@
 												</th> -->
 												<th class="numeric area"
 													th:style="${#lists.contains(listColums,'area')}?'':'display:none;'">区域</th>
+												<th class="numeric entryName"
+													th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'">项目名称</th>
+												<th class="numeric itemNo"
+													th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'">项目编号</th>
 												<th class="numeric stockName"
 													th:style="${#lists.contains(listColums,'stockName')}?'':'display:none;'">设备名称</th>
 												<th class="numeric stockModel"
@@ -154,7 +158,7 @@
 												<th class="numeric personInCharge"
 													th:style="${#lists.contains(listColums,'personInCharge')}?'':'display:none;'">负责人</th>
 												<th class="numeric projectName"
-													th:style="${#lists.contains(listColums,'projectName')}?'':'display:none;'">项目名称</th>
+													th:style="${#lists.contains(listColums,'projectName')}?'':'display:none;'">用于项目</th>
 												<th class="numeric customer"
 													th:style="${#lists.contains(listColums,'customer')}?'':'display:none;'">客户</th>
 												<th class="numeric user"
@@ -182,6 +186,10 @@
 													</td> -->
 													<td class="numeric area" id="area"
 														th:style="${#lists.contains(listColums,'area')}?'':'display:none;'">[[${stockStatistics?.area?.name}]]</td>
+													<td class="numeric entryName" id="entryName"
+														th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'">[[${stockStatistics?.stock?.entryName}]]</td>
+													<td class="numeric itemNo" id="itemNo"
+														th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'">[[${stockStatistics?.stock?.itemNo}]]</td>
 													<td class="numeric stockName" id="stockName"
 														th:style="${#lists.contains(listColums,'stockName')}?'':'display:none;'">[[${stockStatistics?.stock?.name}]]</td>
 													<td class="numeric stockModel" id="stockModel"
@@ -256,24 +264,24 @@
 											<ul class="pagination pagination-split pull-right"
 												style="margin-top: 0px;">
 												<li th:class="${pageList?.pageNo } eq 1 ?disabled:''"><a
-													th:href="${pageList?.pageNo} eq 1?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.upPage},pageSize=1,search=${search},searchArea=${searchArea},type=${type})}">首页</a>
+													th:href="${pageList?.pageNo} eq 1?'javascript:void(0);':@{/stockStatisticss(pageNo=1,pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end})}">首页</a>
 												</li>
 												<li th:class="${pageList?.pageNo } eq 1 ?disabled:''"><a
-													th:href="${pageList?.pageNo} eq 1?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.upPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type})}">上一页</a>
+													th:href="${pageList?.pageNo} eq 1?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.upPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end})}">上一页</a>
 												</li>
 												<li th:each="page:${pageList?.navigatepageNums}"
 													th:class="${page  == pageList?.pageNo}?active:''"><a
-													th:href="${page eq pageList?.pageNo}?'javascript:void(0)':@{/stockStatisticss(pageNo=${page},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type})}">[[${page}]]</a>
+													th:href="${page eq pageList?.pageNo}?'javascript:void(0)':@{/stockStatisticss(pageNo=${page},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end})}">[[${page}]]</a>
 												</li>
 												<li
 													th:class="${pageList?.pageNo eq pageList?.totalPage}?disabled:''">
 													<a
-													th:href="${pageList?.pageNo eq pageList?.totalPage}?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.nextPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type})}">下一页</a>
+													th:href="${pageList?.pageNo eq pageList?.totalPage}?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.nextPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end})}">下一页</a>
 												</li>
 												<li
 													th:class="${pageList?.pageNo eq pageList?.totalPage}?disabled:''">
 													<a
-													th:href="${pageList?.pageNo eq pageList?.totalPage}?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.totalPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type})}">尾页</a>
+													th:href="${pageList?.pageNo eq pageList?.totalPage}?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.totalPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end})}">尾页</a>
 												</li>
 											</ul>
 										</div>

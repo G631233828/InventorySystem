@@ -320,11 +320,43 @@ $(document).ready( function() {
 
 
 
+function cleanSearch(){
+	window.location.href = "stock/clearSearch";
+}
 
 
 
 
+function toDownloadQRcode(o){
+	if(o!=""){
+		//下载单个
+		window.location.href="stock/downloadQRcode?id="+o;
+	}else{
+				var a = $("input[name='ids']:checked").length;
+					if (a == 0) {
+						swal({
+							type : "warning",
+							title : "",
+							text : "下载二维码至少选择一项!!",
+						});
+					} else {
+						var str = "";
+						var ids = $("input[name='ids']:checked");
+						$(ids).each(function() {
+							str += this.value + ",";
+						});
+						window.location.href="stock/downloadQRcode?id="+str;
+					}
+		
+		
+		
+	}
 
+	
+	
+	
+	
+}
 
 
 

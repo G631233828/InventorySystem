@@ -5,10 +5,12 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.bson.types.ObjectId;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
@@ -18,15 +20,18 @@ import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.Common;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralServiceImpl;
-import zhongchiedu.general.pojo.Resource;
-import zhongchiedu.inventory.pojo.Companys;
 import zhongchiedu.inventory.pojo.GoodsStorage;
+import zhongchiedu.inventory.service.AreaService;
 import zhongchiedu.inventory.service.GoodsStorageService;
 import zhongchiedu.log.annotation.SystemServiceLog;
 
 @Service
 @Slf4j
 public class GoodsStorageServiceImpl extends GeneralServiceImpl<GoodsStorage> implements GoodsStorageService {
+	
+	@Autowired
+	private AreaService areaService;
+	
 
 	@Override
 	@SystemServiceLog(description="编辑货架信息")
@@ -44,21 +49,6 @@ public class GoodsStorageServiceImpl extends GeneralServiceImpl<GoodsStorage> im
 		}
 	}
 
-	@Override
-	@SystemServiceLog(description="启用禁用货架信息")
-	public BasicDataResult disable(String id) {
-		if (Common.isEmpty(id)) {
-			return BasicDataResult.build(400, "无法禁用，请求出现问题，请刷新界面!", null);
-		}
-		GoodsStorage goodsStorage = this.findOneById(id, GoodsStorage.class);
-		if (Common.isEmpty(goodsStorage)) {
-			return BasicDataResult.build(400, "禁用失败，该条信息可能已被删除", null);
-		}
-		goodsStorage.setIsDisable(goodsStorage.getIsDisable().equals(true) ? false : true);
-		this.save(goodsStorage);
-		return BasicDataResult.build(200, goodsStorage.getIsDisable().equals(true) ? "禁用成功" : "恢复成功",
-				goodsStorage.getIsDisable());
-	}
 
 	@Override
 	@SystemServiceLog(description="获取所有非禁用货架信息")
@@ -96,7 +86,7 @@ public class GoodsStorageServiceImpl extends GeneralServiceImpl<GoodsStorage> im
 
 	@Override
 	@SystemServiceLog(description="分页查询货架信息")
-	public Pagination<GoodsStorage> findpagination(Integer pageNo, Integer pageSize,String searchArea) {
+	public Pagination<GoodsStorage> findpagination(Integer pageNo, Integer pageSize,String searchArea,String search) {
 		// 分页查询数据
 		Pagination<GoodsStorage> pagination = null;
 		try {
@@ -104,7 +94,13 @@ public class GoodsStorageServiceImpl extends GeneralServiceImpl<GoodsStorage> im
 			if(Common.isNotEmpty(searchArea)) {
 				query.addCriteria(Criteria.where("area.$id").is(new ObjectId(searchArea)));
 			}
+			if(Common.isNotEmpty(search)) {
+				List ids = this.areaService.findIdsByName(search);
+				//模糊查询区域信息
+				query.addCriteria(Criteria.where("area.$id").in(ids));
+			}
 			query.addCriteria(Criteria.where("isDelete").is(false));
+			query.with(new Sort(new Order(Direction.DESC, "createTime")));
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, GoodsStorage.class);
 			if (pagination == null)
 				pagination = new Pagination<GoodsStorage>();
