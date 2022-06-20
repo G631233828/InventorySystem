@@ -53,7 +53,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	@Override
 	@SystemServiceLog(description="分页查询库存统计信息")
 	public Pagination<StockStatistics> findpagination(Integer pageNo, Integer pageSize, String search, String start,
-			String end, String type, String id,String searchArea) {
+			String end, String type, String id,String searchArea,String searchAgent) {
 
 		// 分页查询数据
 		Pagination<StockStatistics> pagination = null;
@@ -63,6 +63,11 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			if (Common.isNotEmpty(id)) {
 				query.addCriteria(Criteria.where("stock.$id").is(new ObjectId(id)));
 			}
+			if(Common.isNotEmpty(searchAgent)) {
+				query = query.addCriteria(Criteria.where("agent").is(Boolean.valueOf(searchAgent)));
+			}
+			
+			
 			query = this.findbySearch(search, start, end, type, query,searchArea);
 			query.with(new Sort(new Order(Direction.DESC, "createTime")));
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, StockStatistics.class);
@@ -136,11 +141,17 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		return list;
 	}
 	@SystemServiceLog(description="条件查询库统计信息")
-	public List<Stock> findStocksBySearch(String search,String areaId) {
+	public List<Stock> findStocksBySearch(String search,String areaId,String searchAgent) {
 		Query query = new Query();
 		if(Common.isNotEmpty(areaId)) {
 			query.addCriteria(Criteria.where("area.$id").is(new ObjectId(areaId)));
 		}
+
+		if(Common.isNotEmpty(searchAgent)) {
+			query = query.addCriteria(Criteria.where("agent").is(Boolean.valueOf(searchAgent)));
+		}
+
+		
 		Criteria ca = new Criteria();
 		query.addCriteria(ca.orOperator(Criteria.where("name").regex(search), Criteria.where("model").regex(search)));
 		query.addCriteria(Criteria.where("isDelete").is(false));
@@ -177,6 +188,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			stockStatistics.setUser(user);
 			stockStatistics.setRevoke(false);
 			stockStatistics.setArea(stock.getArea());
+			stockStatistics.setAgent(stock.isAgent());
 			if (stockStatistics.isInOrOut()) {
 				// true == 入库
 				// 更新库存中的库存
@@ -302,7 +314,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 	@Override
 	@SystemServiceLog(description="导出库存统计信息")
-	public HSSFWorkbook export(String search, String start, String end, String type, String name,String areaId) {
+	public HSSFWorkbook export(String search, String start, String end, String type, String name,String areaId,String searchAgent) {
 
 		HSSFWorkbook wb = new HSSFWorkbook();
 		HSSFSheet sheet = null;
@@ -330,7 +342,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			List<String> title = this.title();
 			this.createHead(sheet, title, style, start+" \t"+ end + i);
 			this.createTitle(sheet, title, style);
-			this.createStock(sheet, title, style, search, start, end, type,areaId);
+			this.createStock(sheet, title, style, search, start, end, type,areaId,searchAgent);
 			sheet.createFreezePane(2, 0, 2, 0);
 			sheet.setDefaultColumnWidth(20);
 			sheet.autoSizeColumn(1, true);
@@ -398,13 +410,13 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	 * @param sheet
 	 */
 	public void createStock(HSSFSheet sheet, List<String> title, HSSFCellStyle style, String search, String start,
-			String end, String type,String areaId) {
+			String end, String type,String areaId,String searchAgent) {
 
 		int j = 1;
 
-		List<Stock> listStock = this.findStocksBySearch(search,areaId);
+		List<Stock> listStock = this.findStocksBySearch(search,areaId,searchAgent);
 		// 获取所有的库存
-		List<StockStatistics> list = this.findStockStatistics(search, start, end, type,areaId);
+		List<StockStatistics> list = this.findStockStatistics(search, start, end, type,areaId,searchAgent);
 		String msg="";
 		if (type.equals("in")) {
 			// 入库统计
@@ -489,8 +501,12 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	}
 
 	@SystemServiceLog(description="根据条件查询库存统计-findStockStatistics")
-	public List<StockStatistics> findStockStatistics(String search, String start, String end, String type,String areaId) {
+	public List<StockStatistics> findStockStatistics(String search, String start, String end, String type,String areaId,String searchAgent) {
 		Query query = new Query();
+		
+		if(Common.isNotEmpty(searchAgent)) {
+			query = query.addCriteria(Criteria.where("agent").is(Boolean.valueOf(searchAgent)));
+		}
 		query = this.findbySearch(search, start, end, type, query,areaId);
 		query.with(new Sort(new Order(Direction.DESC, "createTime")));
 		query.addCriteria(Criteria.where("revoke").is(false));

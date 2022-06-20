@@ -188,7 +188,7 @@ public class pickUpApplicationController {
 			return new BasicDataResult().build(400, "未能获取到设备信息", "");
 		}
 		// 通过areaid获取库存
-		List<Stock> stocks = this.stockService.findAllStock(false, areaId);
+		List<Stock> stocks = this.stockService.findAllStock(false, areaId,"");
 		if (stocks.size() > 0) {
 			int stockSize = stocks.size();
 			String rstock[] = new String[stockSize];
@@ -239,7 +239,7 @@ public class pickUpApplicationController {
 		model.addAttribute("name", names.toString().replace("[", "").replace("]", "").replaceAll(" ", ""));
 
 		// 通过areaid获取库存
-		List<Stock> stocks = this.stockService.findAllStock(false, stock.getArea().getId());
+		List<Stock> stocks = this.stockService.findAllStock(false, stock.getArea().getId(),"");
 		if (stocks.size() > 0) {
 			int stockSize = stocks.size();
 			String rstock[] = new String[stockSize];

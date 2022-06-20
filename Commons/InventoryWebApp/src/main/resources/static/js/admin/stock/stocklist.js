@@ -14,6 +14,79 @@ function showColumn() {
 
 
 /**
+*批量导出
+*
+*/
+function batchOut() {
+
+	$.ajax({
+		type: 'POST',
+		url: 'stock/batchOut',
+		data: "id=1",
+		dataType: 'json',
+		success: function(data) {
+	if(data.status==200){
+	var stocklist = "";
+			$.each(data.data, function(index, item) {
+				stocklist += ` <tr id=stock_`+item.id+`>
+                               <td class="numeric">`+ item.name + `</td>
+                               <td class="numeric">`+ item.model + `</td>
+                               <td class="numeric">`+ item.inventory + `</td>
+                               <td class="numeric">
+							   <input type="hidden" name="batchid" value="`+item.id+`"> 
+                               <input type="text" onblur="return setStockNum('`+item.id+`')"  class="form-control stockval batchout" id=stocknum_`+item.id+`   name="batchnum" >
+                               </td>
+                               <td class="numeric">
+                               <button class="btn " type="button" onclick="return deleteStock('`+ item.id + `')" > <i  class="fa fa-trash-o">移除 </i>
+							  </button>
+                                </td>  </tr>`
+			});
+			$("#stocklist").html(stocklist)
+			$("#mystockbatchout").modal('show');
+	}else{
+		jqueryAlert({
+					'icon': getRootPath() + '/plugs/alert/img/error.png',
+					'content': data.msg,
+					'closeTime': 2000,
+				})
+	}
+			
+			
+			
+			
+			
+			
+		}
+	})
+
+
+
+	
+
+
+
+
+}
+
+
+
+
+
+
+function deleteStock(o) {
+$.ajax({
+		type : 'POST',
+		url : getRootPath() + "/stock/deleteInSession",
+		dataType : "json",
+		data: "id=" + o,
+		success : function(data) {
+			$("#stock_"+data.data).html('');
+		}
+	});
+}
+
+
+/**
  * 查找设备信息
  * 
  * @param o
@@ -22,28 +95,28 @@ function showColumn() {
 function showStockStatistics(o) {
 	$(".stockval").val('');
 	$(".stockval").text('');
-	
+
 	$.ajax({
-		type : 'POST',
-		url : 'stockStatistics/findStock',
-		data : "id=" + o ,
-		dataType : 'json',
-		success : function(data) {
+		type: 'POST',
+		url: 'stockStatistics/findStock',
+		data: "id=" + o,
+		dataType: 'json',
+		success: function(data) {
 			if (data.status == 200) {
 				var datas = data.data;
 				var name = datas.name;
 				var inventory = datas.inventory;
 				var stockid = datas.id;
-				var description =datas.description;
+				var description = datas.description;
 				var unit = "";
-				if(datas.unit!=null){
+				if (datas.unit != null) {
 					unit = datas.unit.name;
 				}
 				$("#stockId").val(stockid);
 				$("#stockName").text(name);
 				$("#description").text(description);
-				$("#loadinventory").text(inventory+"  "+unit);
-				
+				$("#loadinventory").text(inventory + "  " + unit);
+
 			}
 		}
 	})
@@ -57,34 +130,68 @@ function showStockStatistics(o) {
 function showStockStatistics2(o) {
 	$(".stockval").val('');
 	$(".stockval").text('');
-	
+
 	$.ajax({
-		type : 'POST',
-		url : 'stockStatistics/findStock',
-		data : "id=" + o ,
-		dataType : 'json',
-		success : function(data) {
+		type: 'POST',
+		url: 'stockStatistics/findStock',
+		data: "id=" + o,
+		dataType: 'json',
+		success: function(data) {
 			if (data.status == 200) {
 				var datas = data.data;
 				var name = datas.name;
 				var inventory = datas.inventory;
 				var stockid = datas.id;
-				var description =datas.description;
+				var description = datas.description;
 				var unit = "";
-				if(datas.unit!=null){
+				if (datas.unit != null) {
 					unit = datas.unit.name;
 				}
 				$("#stockIdOut").val(stockid);
 				$("#descriptionOut").text(description);
 				$("#stockNameOut").text(name);
-				$("#loadinventoryOut").text(inventory+"  "+unit);
-				
+				$("#loadinventoryOut").text(inventory + "  " + unit);
+
 			}
 		}
 	})
 	$("#mystockStatistics2").modal('show');
 }
 
+
+/**
+*
+*加入出库列表
+*/
+function addToStocklist(o) {
+
+	$.ajax({
+		type: 'POST',
+		url: 'stock/addToStocklist',
+		data: "id=" + o,
+		dataType: 'json',
+		success: function(data) {
+
+			if (data.status == 200) {
+				jqueryAlert({
+					'icon': getRootPath() + '/plugs/alert/img/right.png',
+					'content': data.msg,
+					'closeTime': 2000,
+				})
+
+			} else {
+				jqueryAlert({
+					'icon': getRootPath() + '/plugs/alert/img/error.png',
+					'content': data.msg,
+					'closeTime': 2000,
+				})
+
+			}
+
+		}
+	})
+
+}
 
 
 
@@ -100,34 +207,34 @@ function showStockStatistics2(o) {
 function showSupplier(o) {
 	$(".supplier2").text('');
 	$.ajax({
-		type : 'POST',
-		url : 'stock/getSupplier',
-		data : "id=" + o ,
-		dataType : 'json',
-		success : function(data) {
+		type: 'POST',
+		url: 'stock/getSupplier',
+		data: "id=" + o,
+		dataType: 'json',
+		success: function(data) {
 			if (data.status == 200) {
-				var name = data.data.name!=null?data.data.name:"";
-				var systemClassification = data.data.systemClassification.name!=null?data.data.systemClassification.name:"";
-				var categorys='';
-				var cas = data.data.categorys?data.data.categorys:null;
-				if(cas!=null){
-				$.each(data.data.categorys,function(key,value){
-					categorys+=value.name+",  ";
-				})
-			}
-				var brand = data.data.brand!=null?data.data.brand.name:"";
-				var contact = data.data.contact!=null?data.data.contact:"";
-				var contactNumber = data.data.contactNumber!=null?data.data.contactNumber:"";
-				var qq = data.data.qq!=null?data.data.qq:"";
-				var wechat = data.data.wechat!=null?data.data.wechat:"";
-				var email = data.data.email!=null?data.data.email:"";
-				var address = data.data.address!=null?data.data.address:"";
-				var introducer = data.data.introducer!=null?data.data.introducer:"";
-				var productQuality = data.data.productQuality!=null? data.data.productQuality:"";
-				var supplyPeriod = data.data.supplyPeriod!=null?data.data.supplyPeriod:"";
-				var payMent = data.data.payMent!=null?data.data.payMent:"";
-				var afterSaleService = data.data.afterSaleService!=null?data.data.afterSaleService:"";
-				
+				var name = data.data.name != null ? data.data.name : "";
+				var systemClassification = data.data.systemClassification.name != null ? data.data.systemClassification.name : "";
+				var categorys = '';
+				var cas = data.data.categorys ? data.data.categorys : null;
+				if (cas != null) {
+					$.each(data.data.categorys, function(key, value) {
+						categorys += value.name + ",  ";
+					})
+				}
+				var brand = data.data.brand != null ? data.data.brand.name : "";
+				var contact = data.data.contact != null ? data.data.contact : "";
+				var contactNumber = data.data.contactNumber != null ? data.data.contactNumber : "";
+				var qq = data.data.qq != null ? data.data.qq : "";
+				var wechat = data.data.wechat != null ? data.data.wechat : "";
+				var email = data.data.email != null ? data.data.email : "";
+				var address = data.data.address != null ? data.data.address : "";
+				var introducer = data.data.introducer != null ? data.data.introducer : "";
+				var productQuality = data.data.productQuality != null ? data.data.productQuality : "";
+				var supplyPeriod = data.data.supplyPeriod != null ? data.data.supplyPeriod : "";
+				var payMent = data.data.payMent != null ? data.data.payMent : "";
+				var afterSaleService = data.data.afterSaleService != null ? data.data.afterSaleService : "";
+
 				$("#supplier_name").text(name);
 				$("#supplier_systemClassification").text(systemClassification);
 				$("#supplier_categorys").text(categorys);
@@ -144,14 +251,14 @@ function showSupplier(o) {
 				$("#supplier_supplyPeriod").text(supplyPeriod);
 				$("#supplier_payMent").text(payMent);
 				$("#supplier_afterSaleService").text(afterSaleService);
-				
+
 			}
 		}
 	})
-	
-	
+
+
 	$("#mysupplier").modal('show');
-	
+
 }
 
 
@@ -165,12 +272,12 @@ function searchVal() {
 	var pageSize = $("#pageSize").val();
 	var search = $("#serach").val();
 	var searchArea = $("#searchArea").val();
-
-/*
- * if (search == null || search == "") { swal({ type : "warning", title : "",
- * text : "查询内容不能为空!!", }); return ; }
- */
-	window.location.href="stocks?pageSize="+pageSize+"&search="+search+"&searchArea="+searchArea;
+	var searchAgent = $("#agent").val();
+	/*
+	 * if (search == null || search == "") { swal({ type : "warning", title : "",
+	 * text : "查询内容不能为空!!", }); return ; }
+	 */
+	window.location.href = "stocks?pageSize=" + pageSize + "&search=" + search + "&searchArea=" + searchArea + "&searchAgent=" + searchAgent;
 
 }
 
@@ -200,23 +307,24 @@ function searchVal() {
 
 
 
-function toStatistics(o){
+function toStatistics(o) {
 	window.location.href = "stockStatisticss?id=" + o;
-	
+
 }
 
-function toExport(){
+function toExport() {
 	jqueryAlert({
-	    'icon'    : getRootPath() +'/plugs/alert/img/right.png',
-	    'content' : "正在导出请稍等...",
-	    'closeTime' : 5000,
+		'icon': getRootPath() + '/plugs/alert/img/right.png',
+		'content': "正在导出请稍等...",
+		'closeTime': 5000,
 	})
 	var areaId = $("#searchArea").val();
-	
-	
-	window.location.href = "stock/export?areaId="+areaId;
-	
-	
+	var searchAgent = $("#agent").val();
+
+
+	window.location.href = "stock/export?areaId=" + areaId + "&searchAgent=" + searchAgent;
+
+
 }
 
 
@@ -234,11 +342,11 @@ function selectColumn(o) {
 	$(td).prop("checked", flag);
 
 	$.ajax({
-		type : 'GET',
-		url : 'stock/columns',
-		data : "column=" + o + "&flag=" + flag,
-		dataType : 'json',
-		success : function(data) {
+		type: 'GET',
+		url: 'stock/columns',
+		data: "column=" + o + "&flag=" + flag,
+		dataType: 'json',
+		success: function(data) {
 			if (data.status == 200) {
 				// $(td).attr("checked":flag);
 				if (flag) {
@@ -252,110 +360,110 @@ function selectColumn(o) {
 
 }
 
-$(document).ready( function() {
-					if ($("#upload").val() != "") {
+$(document).ready(function() {
+	if ($("#upload").val() != "") {
 
-						$('#submit')
-								.bind(
-										'click',
-										function() {
-											var eventFun = function() {
-												$
-														.ajax({
-															type : 'GET',
-															url : 'stock/uploadprocess',
-															data : {},
-															dataType : 'json',
-															success : function(
-																	data) {
-																$("#proBar")
-																		.attr(
-																				"style",
-																				"width:"
-																						+ (data.nownum / data.allnum)
-																						* 100
-																						+ '%');
-																$('#proBar')
-																		.css(
-																				'aria-valuenow',
-																				data.nownum
-																						+ '%');
-																$('#proBar')
-																		.css(
-																				'aria-valuemax',
-																				data.allnum
-																						+ '%');
-																$('#proBartext')
-																		.text(
-																				"正在导入第"
-																						+ data.nownum
-																						+ "条记录，总共"
-																						+ data.allnum
-																						+ "条记录");
-																if (data.nownum == data.allnum) {
-																	window
-																			.clearInterval(intId);
-																}
-															}
-														});
-											};
-											var intId = window.setInterval(
-													eventFun, 100);
-										});
-
-					}
-
-					
-					
-					
-					
-
-					
-					
-					
-					
+		$('#submit')
+			.bind(
+				'click',
+				function() {
+					var eventFun = function() {
+						$
+							.ajax({
+								type: 'GET',
+								url: 'stock/uploadprocess',
+								data: {},
+								dataType: 'json',
+								success: function(
+									data) {
+									$("#proBar")
+										.attr(
+											"style",
+											"width:"
+											+ (data.nownum / data.allnum)
+											* 100
+											+ '%');
+									$('#proBar')
+										.css(
+											'aria-valuenow',
+											data.nownum
+											+ '%');
+									$('#proBar')
+										.css(
+											'aria-valuemax',
+											data.allnum
+											+ '%');
+									$('#proBartext')
+										.text(
+											"正在导入第"
+											+ data.nownum
+											+ "条记录，总共"
+											+ data.allnum
+											+ "条记录");
+									if (data.nownum == data.allnum) {
+										window
+											.clearInterval(intId);
+									}
+								}
+							});
+					};
+					var intId = window.setInterval(
+						eventFun, 100);
 				});
 
+	}
 
 
 
 
-function cleanSearch(){
+
+
+
+
+
+
+});
+
+
+
+
+
+function cleanSearch() {
 	window.location.href = "stock/clearSearch";
 }
 
 
 
 
-function toDownloadQRcode(o){
-	if(o!=""){
+function toDownloadQRcode(o) {
+	if (o != "") {
 		//下载单个
-		window.location.href="stock/downloadQRcode?id="+o;
-	}else{
-				var a = $("input[name='ids']:checked").length;
-					if (a == 0) {
-						swal({
-							type : "warning",
-							title : "",
-							text : "下载二维码至少选择一项!!",
-						});
-					} else {
-						var str = "";
-						var ids = $("input[name='ids']:checked");
-						$(ids).each(function() {
-							str += this.value + ",";
-						});
-						window.location.href="stock/downloadQRcode?id="+str;
-					}
-		
-		
-		
+		window.location.href = "stock/downloadQRcode?id=" + o;
+	} else {
+		var a = $("input[name='ids']:checked").length;
+		if (a == 0) {
+			swal({
+				type: "warning",
+				title: "",
+				text: "下载二维码至少选择一项!!",
+			});
+		} else {
+			var str = "";
+			var ids = $("input[name='ids']:checked");
+			$(ids).each(function() {
+				str += this.value + ",";
+			});
+			window.location.href = "stock/downloadQRcode?id=" + str;
+		}
+
+
+
 	}
 
-	
-	
-	
-	
+
+
+
+
 }
 
 

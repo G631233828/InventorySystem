@@ -1,5 +1,6 @@
 package zhongchiedu.inventory.pojo;
 
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import lombok.AllArgsConstructor;
@@ -60,6 +61,12 @@ public class Stock extends GeneralBean<Stock> {
 	//new
 	private String entryName;//项目名称
 	private String itemNo;//项目编号
+	
+	//添加代理商品标记
+	private  boolean agent;//是否代理商品 false 非代理商品  true代理商品
+	@Transient 
+	private long stocknum;//导入库存数量 不会将这个数据放入数据库
+	
 	
 	
 	

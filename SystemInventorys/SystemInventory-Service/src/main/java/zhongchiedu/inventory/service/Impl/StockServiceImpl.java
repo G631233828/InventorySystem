@@ -45,12 +45,14 @@ import com.google.zxing.common.BitMatrix;
 import lombok.extern.slf4j.Slf4j;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.Common;
+import zhongchiedu.common.utils.Contents;
 import zhongchiedu.common.utils.ExcelReadUtil;
 import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.common.utils.MatrixToImageWriter;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralServiceImpl;
 import zhongchiedu.general.pojo.MultiMedia;
+import zhongchiedu.general.pojo.User;
 import zhongchiedu.general.service.MultiMediaService;
 import zhongchiedu.inventory.pojo.Area;
 import zhongchiedu.inventory.pojo.Brand;
@@ -129,10 +131,14 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 	@Override
 	@SystemServiceLog(description = "获取所有非禁用库存信息")
-	public List<Stock> findAllStock(boolean isdisable, String areaId) {
+	public List<Stock> findAllStock(boolean isdisable, String areaId,String searchAgent) {
 		Query query = new Query();
 		if (Common.isNotEmpty(areaId)) {
 			query.addCriteria(Criteria.where("area.$id").is(new ObjectId(areaId)));
+		}
+		
+		if(Common.isNotEmpty(searchAgent)) {
+			query = query.addCriteria(Criteria.where("agent").is(Boolean.valueOf(searchAgent)));
 		}
 		query.addCriteria(Criteria.where("isDisable").is(isdisable == true ? true : false));
 		query.addCriteria(Criteria.where("isDelete").is(false));
@@ -150,6 +156,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			stock.setPrice(s.getPrice());
 			stock.setInventory(s.getInventory());
 			stock.setArea(s.getArea());
+			stock.setAgent(s.isAgent());
 			rlist.add(stock);
 		});
 		
@@ -180,7 +187,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 	@Override
 	@SystemServiceLog(description = "分页查询库存信息")
-	public Pagination<Stock> findpagination(Integer pageNo, Integer pageSize, String search, String searchArea) {
+	public Pagination<Stock> findpagination(Integer pageNo, Integer pageSize, String search, String searchArea,String searchAgent) {
 		// 分页查询数据
 		Pagination<Stock> pagination = null;
 		try {
@@ -188,6 +195,10 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 			if (Common.isNotEmpty(searchArea)) {
 				query = query.addCriteria(Criteria.where("area.$id").is(new ObjectId(searchArea)));
+			}
+			
+			if(Common.isNotEmpty(searchAgent)) {
+				query = query.addCriteria(Criteria.where("agent").is(Boolean.valueOf(searchAgent)));
 			}
 
 			if (Common.isNotEmpty(search)) {
@@ -423,26 +434,32 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 							+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
 					continue;
 				}
-				importStock.setName(name); // 设备名称
+				
+				importStock.setName(name.replaceAll("/", "^")); // 设备名称
 				String model = resultexcel[i][j + 2].trim();
-				if (Common.isEmpty(name)) {
+				if (Common.isEmpty(model)) {
 					error += "<span class='entypo-attention'></span>导入文件过程中出现设备型号为空，第<b>&nbsp&nbsp" + (i + 1)
 							+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
 					continue;
 				}
 				importStock.setModel(model);// 设备型号
-				importStock.setPrice(resultexcel[i][j + 3].trim());// 价格
+				
+				//新添加了入库数量
+				importStock.setStocknum(Long.valueOf(resultexcel[i][j + 3].trim()));
+				
+				
+				importStock.setPrice(resultexcel[i][j + 4].trim());// 价格
 
-				String unitName = resultexcel[i][j + 4].trim();
+				String unitName = resultexcel[i][j + 5].trim();
 				if (Common.isNotEmpty(unitName)) {
 					// 根据供应商名称查找，看供应商是否存在
 					unit = this.unitService.findByName(unitName);
 				}
 				importStock.setUnit(unit);
-				String entryName = resultexcel[i][j + 5].trim();
+				String entryName = resultexcel[i][j + 6].trim();
 				importStock.setEntryName(entryName);// 项目名称
-				importStock.setItemNo(resultexcel[i][j + 6].trim());// 项目编号
-				String supplierName = resultexcel[i][j + 7].trim();// 供应商名称
+				importStock.setItemNo(resultexcel[i][j + 7].trim());// 项目编号
+				String supplierName = resultexcel[i][j + 8].trim();// 供应商名称
 				if (Common.isNotEmpty(supplierName)) {
 					// 根据供应商名称查找，看供应商是否存在
 					supplier = this.supplierService.findByName(supplierName);
@@ -454,18 +471,50 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 					}
 				}
 				importStock.setSupplier(supplier);
+				//新添加 是否代理商品
+				String agent =  resultexcel[i][j + 9].trim();// 获取是否代理商品
+				importStock.setAgent(agent=="是");
+				
 
 				stock = this.findByName(areaName,name, model, entryName);
+				
+				 StockStatistics stockStatistics = new StockStatistics();//
+				 stockStatistics.setNum(importStock.getStocknum());//
+			        stockStatistics.setInOrOut(true);//true为入库//
 				if (Common.isNotEmpty(stock)) {
+					//对于已经存在设备执行入库操作
+					 stockStatistics.setStock(stock);//
 					// 设备已存在
-					error += "<span class='entypo-attention'></span>导入文件过程中设备已经存在，设备名称<b>&nbsp;&nbsp;" + stock.getName()
-							+ "&nbsp;&nbsp;</b>，第<b>&nbsp&nbsp" + (i + 1) + "请手动去修改该条信息！&nbsp&nbsp</b></br>";
-					continue;
+					error += "<span class='entypo-attention'></span>导入文件过程中第<b>&nbsp&nbsp" + (i + 1) + "设备已经存在，设备名称<b>&nbsp;&nbsp;" + stock.getName()
+							+ "&nbsp;&nbsp;</b>，入库数量为"+importStock.getStocknum()+"已经完成入库！&nbsp&nbsp</b></br>";
+					//continue;
 				} else {
 					// 添加新设备
 					importStock.setUpdateTime(new Date());
 					this.insert(importStock);
+//					//设备添加完成之后执行入库操作 获取入库数据如果>0
+//					if(importStock.getStocknum()>0) {
+//						//读取session中的用户    
+//				        User user = (User) session.getAttribute(Contents.USER_SESSION);  
+//				        StockStatistics stockStatistics = new StockStatistics();
+//				        stockStatistics.setNum(importStock.getStocknum());
+//				        stockStatistics.setInOrOut(true);//true为入库
+//				        stockStatistics.setStock(importStock);
+//				        this.stockStatisticsService.inOrOutstockStatistics(stockStatistics, user);
+//					}
+				        stockStatistics.setStock(importStock);//
 				}
+				//设备添加完成之后执行入库操作 获取入库数据如果>0
+				if(importStock.getStocknum()>0) {
+					//读取session中的用户    
+			        User user = (User) session.getAttribute(Contents.USER_SESSION);  
+			       
+			        this.stockStatisticsService.inOrOutstockStatistics(stockStatistics, user);
+				}
+				
+				
+				
+				
 
 				// 捕捉批量导入过程中遇到的错误，记录错误行数继续执行下去
 			} catch (Exception e) {
@@ -483,6 +532,8 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		log.info(error);
 		return error;
 	}
+	
+
 
 	/**
 	 * 执行上传文件，返回错误消息
@@ -561,7 +612,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 	@Override
 	@SystemServiceLog(description = "导出库存信息")
-	public HSSFWorkbook export(String name, String areaId) {
+	public HSSFWorkbook export(String name, String areaId,String searchAgent) {
 		HSSFWorkbook wb = new HSSFWorkbook();
 
 		// 创建sheet
@@ -570,7 +621,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		List<String> title = this.title();
 		this.createHead(sheet, title, style, name);
 		this.createTitle(sheet, title, style);
-		this.createStock(sheet, title, style, areaId);
+		this.createStock(sheet, title, style, areaId,searchAgent);
 		sheet.setDefaultColumnWidth(12);
 		sheet.autoSizeColumn(1, true);
 		return wb;
@@ -635,11 +686,11 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	 * 
 	 * @param sheet
 	 */
-	public void createStock(HSSFSheet sheet, List<String> title, HSSFCellStyle style, String areaId) {
+	public void createStock(HSSFSheet sheet, List<String> title, HSSFCellStyle style, String areaId,String searchAgent) {
 
 		int j = 1;
 		// 获取所有的库存
-		List<Stock> list = this.findAllStock(false, areaId);
+		List<Stock> list = this.findAllStock(false, areaId,searchAgent);
 
 		for (Stock stock : list) {
 			// 获取所有的设备
@@ -706,6 +757,10 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				cell.setCellValue("");
 			}
 
+			
+			cell = row.createCell(9);
+			cell.setCellStyle(style);
+			cell.setCellValue(stock.isAgent()==true?"是":"否");
 
 			j++;
 		}
@@ -728,6 +783,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		list.add("单价");
 		list.add("当前库存");
 		list.add("总价");
+		list.add("代理商品");
 		return list;
 	}
 
@@ -975,6 +1031,15 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		query.addCriteria(Criteria.where("isDisable").is(false));
 		return this.find(query, Stock.class);
 
+	}
+
+	@Override
+	public List<Stock> findStocksByIds(List ids) {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("_id").in(ids));
+		query.addCriteria(Criteria.where("isDelete").is(false));
+		query.addCriteria(Criteria.where("isDisable").is(false));
+		return this.find(query, Stock.class);
 	}
 
 	

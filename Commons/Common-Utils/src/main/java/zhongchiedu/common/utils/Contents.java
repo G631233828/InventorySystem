@@ -17,6 +17,8 @@ public interface Contents {
     public static final String MENU_ID="menuid";
     public static final String SCHOOL_SESSION = "school_session";//学校session
     
+    public static final String STOCK_LIST="stock_list";//批量出库session
+    
     public static final String WECHAT_WEB_SESSION="wechat_session";//微信端session
     public static final String WECHAT_WEB_RESOURCES_LIST="wechat_web_resources";//微信端菜单
     

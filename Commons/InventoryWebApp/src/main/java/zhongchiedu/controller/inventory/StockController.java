@@ -7,16 +7,20 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.commons.collections4.map.HashedMap;
+import org.apache.commons.lang.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;import org.apache.poi.util.SystemOutLogger;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -86,14 +90,16 @@ public class StockController {
 			@RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize, HttpSession session,
 			@ModelAttribute("errorImport") String errorImport,
 			@RequestParam(value = "search", defaultValue = "") String search,
-			@RequestParam(value = "searchArea", defaultValue = "") String searchArea) {
+			@RequestParam(value = "searchArea", defaultValue = "") String searchArea,
+			@RequestParam(value = "searchAgent", defaultValue = "") String searchAgent
+			) {
 
 		// 区域
 		List<Area> areas = this.areaService.findAllArea(false);
 		model.addAttribute("areas", areas);
 
 		model.addAttribute("errorImport", errorImport);
-		Pagination<Stock> pagination = this.stockService.findpagination(pageNo, pageSize, search, searchArea);
+		Pagination<Stock> pagination = this.stockService.findpagination(pageNo, pageSize, search, searchArea,searchAgent);
 		model.addAttribute("pageList", pagination);
 
 		List<String> listColums = this.columnService.findColumns("stock");
@@ -103,13 +109,16 @@ public class StockController {
 		session.setAttribute("pageSize", pageSize);
 		session.setAttribute("search", search);
 		session.setAttribute("searchArea", searchArea);
+		session.setAttribute("searchAgent", searchAgent);
 
 		model.addAttribute("pageSize", pageSize);
 		model.addAttribute("search", search);
 		model.addAttribute("searchArea", searchArea);
+		model.addAttribute("searchAgent", searchAgent);
 		return "admin/stock/list";
 	}
-
+	
+	
 //	@GetMapping("prestock")
 //	@RequiresPermissions(value = "stock:list")
 //	@SystemControllerLog(description = "查询所有预库存管理")
@@ -398,12 +407,13 @@ public class StockController {
 	 */
 	@RequestMapping(value = "/stock/export")
 	public void exportStock(HttpServletResponse response,
-			@RequestParam(value = "areaId", defaultValue = "") String areaId) {
+			@RequestParam(value = "areaId", defaultValue = "") String areaId,
+			@RequestParam(value = "searchAgent", defaultValue = "") String searchAgent) {
 		try {
 			response.setContentType("application/vnd.ms-excel");
 			String name = Common.fromDateYM() + "库存报表";
 			String fileName = new String((name).getBytes("gb2312"), "ISO8859-1");
-			HSSFWorkbook wb = this.stockService.export(name, areaId);
+			HSSFWorkbook wb = this.stockService.export(name, areaId,searchAgent);
 			response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xls");
 			OutputStream ouputStream = response.getOutputStream();
 			wb.write(ouputStream);
@@ -476,6 +486,135 @@ public class StockController {
 		return null;
 	}
 
+	
+	//修复数据
+	@RequestMapping(value = "stock/update")
+	@ResponseBody
+	@SystemControllerLog(description = "数据修复代理商品数据")
+	public String updateagent() {	
+		List<Stock> stocks = this.stockService.find(new Query(), Stock.class);
+		StringBuffer buf = new StringBuffer();
+		stocks.forEach(s->{
+			
+			if(!s.isAgent()){
+				buf.append("修复："+s.getName()+"数据"+s.isAgent()+"</br>");
+				s.setAgent(false);
+				this.stockService.save(s);
+			}
+		});
+		
+		
+		
+		return buf.toString();
+		
+	}
+	
+	
+	@RequestMapping(value = "/stock/addToStocklist", method = RequestMethod.POST)
+	@RequiresPermissions(value = "stockStatistics:out")
+	@ResponseBody
+	public BasicDataResult addToStocklist(HttpSession session ,@RequestParam(value = "id", defaultValue = "") String id) {
+		if(Common.isNotEmpty(id)) {
+		Stock stock = this.stockService.findOneById(id, Stock.class);
+		//判断库存数量是否>0
+		if(stock.getInventory()<=0) {
+			return new BasicDataResult(400, "当前商品库存数量为0,加入出列表失败！", "");
+		}
+			
+		
+		List getstockSession = (List) session.getAttribute(Contents.STOCK_LIST);
+		
+		if(getstockSession==null) {
+			List list = new ArrayList<>();
+			list.add(id);
+			session.setAttribute(Contents.STOCK_LIST, list);
+		}else {
+			if(getstockSession.contains(id)) {
+				return new BasicDataResult(200, "出库列表已存在，无需重复添加", "");
+			}
+			
+			getstockSession.add(id);
+			session.setAttribute(Contents.STOCK_LIST, getstockSession);
+		}
+		return new BasicDataResult(200, "已加入出库列表", "");
+		
+	
+		}
+		return new BasicDataResult(400, "加入出库列表失败", "");
+		
+		
+	}
+	
+	@RequestMapping(value = "/stock/batchOut", method = RequestMethod.POST)
+	@ResponseBody
+	@RequiresPermissions(value = "stockStatistics:out")
+	public BasicDataResult batchOut(HttpSession session ) {
+		List list = (List) session.getAttribute(Contents.STOCK_LIST);
+		if(Common.isNotEmpty(list)&&list.size()>0) {
+			List<Stock> stocks = this.stockService.findStocksByIds(list);
+			List<Stock> liststock = new ArrayList<>();
+			//便利 数据过滤
+			stocks.forEach(s->{
+				Stock stock = new Stock();
+				stock.setName(s.getName());
+				stock.setInventory(s.getInventory());
+				stock.setModel(s.getModel());
+				stock.setId(s.getId());
+				liststock.add(stock);
+			});
+			return new BasicDataResult(200, "获取出库列表", liststock);
+		}else {
+			return new BasicDataResult(400, "获取出库列表失败，请先添加出库商品！", null);
+		}
+		
+		
+	}
+	
+	
+	
+	@RequestMapping(value = "/stock/deleteInSession", method = RequestMethod.POST)
+	@ResponseBody
+	@RequiresPermissions(value = "stockStatistics:out")
+	public BasicDataResult delStockInSession(HttpSession session,@RequestParam(value = "id", defaultValue = "") String id) {
+		
+		if(Common.isNotEmpty(id)) {
+			List list = (List) session.getAttribute(Contents.STOCK_LIST);
+			if(list==null) {
+				return new BasicDataResult(400, "库列表未获取到商品！", "");
+			}
+					list.remove(id);
+			session.setAttribute(Contents.STOCK_LIST, list);
+			return new BasicDataResult(200, "库列表删除成功！", id);
+		}
+		
+		return new BasicDataResult(400, "库列表删除失败！", "");
+	}
+	
+	@RequestMapping(value = "/stock/checkNum", method = RequestMethod.POST)
+	@ResponseBody
+	public BasicDataResult checkNum(HttpSession session,
+			@RequestParam(value = "id", defaultValue = "") String id,
+			@RequestParam(value = "num", defaultValue = "") String num) {
+		if(Common.isNotEmpty(id)) {
+		
+			boolean isnum = StringUtils.isNumeric(num);
+			if(!isnum) {
+				return new BasicDataResult(400, "请输入合法的数字！", "");
+			}
+			//根据id获取库存商品
+			Stock stock = this.stockService.findOneById(id, Stock.class);
+			if(stock.getInventory()<Long.valueOf(num)) {
+				return new BasicDataResult(400, "出库数量大于库存数量，请检查！", "");
+			}
+			return new BasicDataResult(200, "库存无误！", "");
+		}
+		
+		return new BasicDataResult(400, "获取库存信息失败", "");
+	}
+	
+	
+
+	
 	
 	
 	

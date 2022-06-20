@@ -143,6 +143,7 @@ public class Common {
 		DateFormat format1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		return format1.format(new Date());
 	}
+	
 
 	/**
 	 * 返回当前时间 格式：yyyy-MM-dd
@@ -1132,6 +1133,14 @@ public class Common {
         Pattern pattern = Pattern.compile("^[-\\+]?[\\d]*$");  
         return pattern.matcher(str).matches();  
   }
+	
+	/**
+	 * 时间戳生成当单号
+	 * @return
+	 */
+	public static String getOrderNum() {
+		return String.valueOf(System.currentTimeMillis());
+	}
 
 	public static void main(String[] args) throws ParseException {
 //		List<String> file = new ArrayList<String>();
@@ -1149,6 +1158,11 @@ public class Common {
 
 		String dateYMDHM = getDateYMDHM(new Date());
 		System.out.println(dateYMDHM);
+		
+		
+		String uuid = getUUID();
+		System.out.println(uuid);
+		System.out.println(System.currentTimeMillis());
 	}
 
 }

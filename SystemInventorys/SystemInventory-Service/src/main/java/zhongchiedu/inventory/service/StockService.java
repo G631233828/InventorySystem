@@ -20,12 +20,12 @@ import zhongchiedu.inventory.pojo.Stock;
 
 public interface StockService extends GeneralService<Stock> {
 	
-	public Pagination<Stock> findpagination(Integer pageNo,Integer pageSize,String search,String searchArea);
+	public Pagination<Stock> findpagination(Integer pageNo,Integer pageSize,String search,String searchArea,String searchAgent);
 	
 	public void saveOrUpdate(Stock stock);
 	
 	
-	public List<Stock> findAllStock(boolean isdisable,String areaId);
+	public List<Stock> findAllStock(boolean isdisable,String areaId,String searchAgent);
 	
 	public String delete(String id);
 	
@@ -43,7 +43,7 @@ public interface StockService extends GeneralService<Stock> {
 	
 	public BasicDataResult findOneById(String id);
 	
-	public HSSFWorkbook export(String name,String areaId);
+	public HSSFWorkbook export(String name,String areaId,String searchAgent);
 	
 	public List<Stock> findLowStock(int num);
 	
@@ -59,6 +59,7 @@ public interface StockService extends GeneralService<Stock> {
 	
 	public List<Stock> findStockByIds(String id);
 	
+	public List<Stock> findStocksByIds(List ids);
 	
 	
 	

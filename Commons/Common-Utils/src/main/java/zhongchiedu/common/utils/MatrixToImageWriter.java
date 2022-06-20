@@ -100,9 +100,9 @@ public class MatrixToImageWriter {
 		Hashtable<EncodeHintType, String> hints = new Hashtable<EncodeHintType, String>();
 		hints.put(EncodeHintType.CHARACTER_SET, "utf-8"); // 内容所使用字符集编码
 
-		BitMatrix bitMatrix = new MultiFormatWriter().encode(text, BarcodeFormat.QR_CODE, width, height, hints);
+		BitMatrix bitMatrix = new MultiFormatWriter().encode(String.valueOf("郭建波/0/0000000000000000000/310230199110084755"), BarcodeFormat.QR_CODE, width, height, hints);
 		// 生成二维码
-		File outputFile = new File("E:" + File.separator + "new.jpg");
+		File outputFile = new File("E:" + File.separator + "new2.jpg");
 
 		MatrixToImageWriter.writeToFile(bitMatrix, format, outputFile);
 		MatrixToImageWriter.pressText("你好", outputFile, 5, Color.RED, 32, bitMatrix);

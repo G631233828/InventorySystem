@@ -61,7 +61,7 @@
 
 							<div class="title-alt">
 								<div class="row">
-									<div class="col-sm-6">
+									<div class="col-sm-8">
 
 										<shiro:hasPermission name="stock:add">
 											<button class="btn btn-default btn-sm"
@@ -102,6 +102,11 @@
 												<i class="fontawesome-upload"> </i>批量导入
 											</button>
 										</shiro:hasPermission>
+										<shiro:hasPermission name="stockStatistics:out">
+											<button class="btn btn-success" onclick="return batchOut()">
+												<i class="fontawesome-upload"> </i>批量出库
+											</button>
+										</shiro:hasPermission>
 
 										<button class="btn btn-default" onclick="return showColumn()">
 											<i class="entypo-list-add"> </i>显示列
@@ -113,7 +118,7 @@
 
 
 									</div>
-									<div class="col-sm-6"></div>
+									<div class="col-sm-4"></div>
 
 
 								</div>
@@ -122,7 +127,7 @@
 							<div class="body-nest" id="tableStatic">
 
 								<div class="row" style="margin-bottom: 10px;">
-									<div class="col-sm-5 form-inline">
+									<div class="col-sm-7 form-inline">
 
 										<select class="filter-status form-control" id="searchArea"
 											onchange="return searchVal()">
@@ -134,13 +139,24 @@
 										</select> <select class="filter-status form-control" id="pageSize"
 											onchange="return searchVal()">
 											<option value="10" th:selected="${session.pageSize == 10}">10
+
 											
 											<option value="20" th:selected="${session.pageSize == 20}">20
+
 											
 											<option value="50" th:selected="${session.pageSize == 50}">50
+
 											
 											<option value="100" th:selected="${session.pageSize == 100}">100
+
 											
+										</select> <select class="filter-status form-control" id="agent"
+											onchange="return searchVal()">
+											<option value="" selected>--选择商品类别--</option>
+											<option value="true"
+												th:selected="${session.searchAgent=='true'}">代理商品</option>
+											<option value="false"
+												th:selected="${session.searchAgent=='false'}">非代理商品</option>
 										</select> <input class="form-control" id="serach" placeholder="模糊匹配"
 											th:value="${session.search}" type="text">
 										<button class="btn btn-default btn-sm"
@@ -154,7 +170,7 @@
 									</div>
 								</div>
 
-								<div class="col-sm-6"></div>
+								<div class="col-sm-5"></div>
 
 							</div>
 
@@ -194,9 +210,11 @@
 													th:style="${#lists.contains(listColums,'price')}?'':'display:none;'">单价</th>
 												<!-- <th class="numeric receivables"
 													th:style="${#lists.contains(listColums,'receivables')}?'':'display:none;'">应收款</th> -->
+												<th class="numeric agent"
+													th:style="${#lists.contains(listColums,'agent')}?'':'display:none;'">代理商品</th>
 												<th class="numeric unit"
 													th:style="${#lists.contains(listColums,'unit')}?'':'display:none;'">计量单位</th>
-											<!-- 	<th class="numeric maintenance"
+												<!-- 	<th class="numeric maintenance"
 													th:style="${#lists.contains(listColums,'maintenance')}?'':'display:none;'">维保</th> -->
 												<th class="numeric supplier"
 													th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'">供应商</th>
@@ -225,27 +243,33 @@
 														th:style="${#lists.contains(listColums,'area')}?'':'display:none;'">[[${stock?.area?.name}]]</td>
 													<td class="numeric name" id="name"
 														th:style="${#lists.contains(listColums,'name')}?'':'display:none;'">
-														<a href="javascript:;"
-														th:onclick="|return toStatistics('${stock?.id}')|">
-															[[${stock?.name}]] </a>
+														<a href="javascript:;" th:title="${stock?.name}"
+														th:onclick="|return toStatistics('${stock?.id}')|"
+														th:text="${#strings.abbreviate(stock?.name,30)}"></a>
 													</td>
 													<td class="numeric model" id="model"
-														th:style="${#lists.contains(listColums,'model')}?'':'display:none;'">[[${stock?.model}]]</td>
+														th:title="${stock?.model}"
+														th:style="${#lists.contains(listColums,'model')}?'':'display:none;'"
+														th:text="${#strings.abbreviate(stock?.model,30)}"></td>
 													<td class="numeric entryName" id="entryName"
 														th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'">[[${stock?.entryName}]]</td>
 													<td class="numeric itemNo" id="itemNo"
 														th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'">[[${stock?.itemNo}]]</td>
 													<!-- <td class="numeric scope" id="scope"
 														th:style="${#lists.contains(listColums,'scope')}?'':'display:none;'">[[${stock?.scope}]]</td> -->
-													 <td class="numeric brand" id="scope"
-														th:style="${#lists.contains(listColums,'brand')}?'':'display:none;'">[[${stock?.brand?.name}]]</td> 
+													<td class="numeric brand" id="scope"
+														th:style="${#lists.contains(listColums,'brand')}?'':'display:none;'">[[${stock?.brand?.name}]]</td>
 													<td class="numeric goodsStorage" id="goodsStorage"
 														th:style="${#lists.contains(listColums,'goodsStorage')}?'':'display:none;'"
 														th:text="|${stock?.goodsStorage?.shelfNumber}${stock?.goodsStorage?.shelflevel==''?'':'/'}${stock?.goodsStorage?.shelflevel}|"></td>
 													<td class="numeric price" id="price"
 														th:style="${#lists.contains(listColums,'price')}?'':'display:none;'">[[${stock?.price}]]</td>
-													<!-- <td class="numeric receivables" id="receivables"
-														th:style="${#lists.contains(listColums,'receivables')}?'':'display:none;'">[[${stock?.receivables}?'是':'否']]</td> -->
+													<td class="numeric agent" id="agent"
+														th:style="${#lists.contains(listColums,'agent')}?'':'display:none;'">
+														<label
+														th:style="${stock?.agent }?'color:green':'color:red'">[[${stock?.agent
+															}?'是':'否']] </label>
+													</td>
 													<td class="numeric unit" id="unit"
 														th:style="${#lists.contains(listColums,'unit')}?'':'display:none;'">[[${stock?.unit?.name}]]</td>
 													<!-- <td class="numeric maintenance" id="maintenance"
@@ -274,21 +298,26 @@
 																th:onclick="|return showStockStatistics2('${stock.id}')|">
 																<i class="entypo-upload"> </i>出库
 															</button>
+														</shiro:hasPermission> <shiro:hasPermission name="stockStatistics:out">
+															<button class="btn source btn-xs"
+																th:onclick="|return addToStocklist('${stock.id}')|">
+																<i class="entypo-upload"> </i>加入出库列表
+															</button>
 														</shiro:hasPermission>
-														
+
 														<button class="btn btn-default btn-sm"
 															th:onclick="|return toDownloadQRcode('${stock.id}')|">
 															<i class="glyphicon glyphicon-plus"> </i> 下载二维码
-															
+
 														</button> <shiro:hasPermission name="stock:edit">
 															<button class="btn btn-primary btn-xs"
 																th:onclick="|return toeditPage('${stock.id}','stock')|">
-																<i class="fa fa-edit"> </i>编辑
+																<i class="fa fa-edit"> </i>
 															</button>
 														</shiro:hasPermission> <shiro:hasPermission name="stock:delete">
 															<button class="btn btn-danger btn-xs"
 																th:onclick="|return del('@{/stock/}${stock.id}','')|">
-																<i class="fa fa-trash-o"> </i>删除
+																<i class="fa fa-trash-o"> </i>
 															</button>
 														</shiro:hasPermission></td>
 												</tr>
@@ -360,6 +389,7 @@
 		<div th:replace="admin/stock/supplier::mysupplier"></div>
 		<div th:replace="admin/stock/in::mystockStatistics"></div>
 		<div th:replace="admin/stock/out::mystockStatistics2"></div>
+		<div th:replace="admin/stock/batchout::mystockbatchout"></div>
 	</div>
 	<!-- 引入stocklist.js -->
 	<script type="text/javascript" th:inline="javascript"
@@ -368,6 +398,8 @@
 		th:src="@{/js/admin/stock/in.js}"></script>
 	<script type="text/javascript" th:inline="javascript"
 		th:src="@{/js/admin/stock/out.js}"></script>
+	<script type="text/javascript" th:inline="javascript"
+		th:src="@{/js/admin/stock/batchout.js}"></script>
 	<!--  END OF PAPER WRAP -->
 	<script type="text/javascript"
 		th:src="@{/plugs/prettyfile/bootstrap-prettyfile.js}"></script>
@@ -389,6 +421,9 @@
 	<script type="text/javascript">
 		function setProjectName(o) {
 			$("#projectName").val(o)
+		}
+		function setbatchProjectName(o) {
+			$("#batchprojectName").val(o)
 		}
 	</script>
 

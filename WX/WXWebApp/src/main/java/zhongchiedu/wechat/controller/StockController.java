@@ -89,7 +89,7 @@ public class StockController {
 			@RequestParam(value = "pageSize", defaultValue = "30") Integer pageSize, HttpSession session,
 			@RequestParam(value = "search", defaultValue = "") String search) {
 
-		Pagination<Stock> pagination = this.stockService.findpagination(pageNo, pageSize, search, "");
+		Pagination<Stock> pagination = this.stockService.findpagination(pageNo, pageSize, search, "","");
 		model.addAttribute("pageList", pagination);
 
 		model.addAttribute("pageSize", pageSize);

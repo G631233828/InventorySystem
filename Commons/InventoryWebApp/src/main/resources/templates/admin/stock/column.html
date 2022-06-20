@@ -76,6 +76,13 @@
                                                 <td class="numeric" onclick="return selectColumn('brand');"><input type="checkbox" th:checked="${#lists.contains(listColums,'brand')}?'checked':'false'" id="ch_brand"></td>
                                             </tr>
                                            
+                                            <tr>
+                                               <!--  <td class="numeric">应收款</td>
+                                                <td class="numeric" onclick="return selectColumn('receivables');"><input type="checkbox" th:checked="${#lists.contains(listColums,'receivables')}?'checked':'false'" id="ch_receivables"></td> -->
+                                                <td class="numeric">代理商品</td>
+                                                <td class="numeric" onclick="return selectColumn('agent');"><input type="checkbox" th:checked="${#lists.contains(listColums,'agent')}?'checked':'false'" id="ch_agent"></td>
+                                                 </tr>
+                                           
                                         </tbody>
                                     </table>
 				

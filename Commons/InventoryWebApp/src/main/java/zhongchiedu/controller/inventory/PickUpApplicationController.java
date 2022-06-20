@@ -146,7 +146,7 @@ public class PickUpApplicationController {
 		model.addAttribute("areas", areas);
 		PickUpApplication stock = this.pickUpApplicationService.findOneById(id, PickUpApplication.class);
 		model.addAttribute("pickUpApplication", stock);
-		List<Stock> stocks = this.stockService.findAllStock(false, stock.getArea().getId());
+		List<Stock> stocks = this.stockService.findAllStock(false, stock.getArea().getId(),"");
 		model.addAttribute("stocks", stocks);
 		// 获取所有用户信息
 		List<User> users = this.userService.findAllUser();
@@ -167,7 +167,7 @@ public class PickUpApplicationController {
 		model.addAttribute("areas", areas);
 		PickUpApplication stock = this.pickUpApplicationService.findOneById(id, PickUpApplication.class);
 		model.addAttribute("pickUpApplication", stock);
-		List<Stock> stocks = this.stockService.findAllStock(false, stock.getArea().getId());
+		List<Stock> stocks = this.stockService.findAllStock(false, stock.getArea().getId(),"");
 		model.addAttribute("stocks", stocks);
 		// 获取所有用户信息
 		List<User> users = this.userService.findAllUser();
@@ -372,7 +372,7 @@ public class PickUpApplicationController {
 			return new BasicDataResult().build(400, "未能获取到设备信息", "");
 		}
 		// 通过areaid获取库存
-		List<Stock> stocks = this.stockService.findAllStock(false, areaId);
+		List<Stock> stocks = this.stockService.findAllStock(false, areaId,"");
 		if (stocks.size() > 0) {
 			return new BasicDataResult().build(200, "获取设备信息成功", stocks);
 		}

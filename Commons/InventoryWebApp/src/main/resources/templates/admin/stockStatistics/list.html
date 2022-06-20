@@ -98,6 +98,14 @@
 											<option value="out" th:selected="${type == 'out'}">出库
 										</select>
 
+									   <select class="filter-status form-control" id="agent"
+											onchange="return searchVal()">
+											<option value="" selected>--选择商品类别--</option>
+											<option value="true" th:selected="${searchAgent=='true'}">代理商品</option>
+											<option value="false" th:selected="${searchAgent=='false'}">非代理商品</option>
+										</select> 
+
+
 										<button class="btn btn-default btn-sm"
 											onclick="return searchVal()">
 											<i class="entypo-search"> </i> 搜索
@@ -191,9 +199,9 @@
 													<td class="numeric itemNo" id="itemNo"
 														th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'">[[${stockStatistics?.stock?.itemNo}]]</td>
 													<td class="numeric stockName" id="stockName"
-														th:style="${#lists.contains(listColums,'stockName')}?'':'display:none;'">[[${stockStatistics?.stock?.name}]]</td>
+														th:style="${#lists.contains(listColums,'stockName')}?'':'display:none;'" th:title="${stockStatistics?.stock?.name}" th:text="${#strings.abbreviate(stockStatistics?.stock?.name,30)}"></td>
 													<td class="numeric stockModel" id="stockModel"
-														th:style="${#lists.contains(listColums,'stockModel')}?'':'display:none;'">[[${stockStatistics?.stock?.model}]]</td>
+														th:style="${#lists.contains(listColums,'stockModel')}?'':'display:none;'" th:title="${stockStatistics?.stock?.model}" th:text="${#strings.abbreviate(stockStatistics?.stock?.model,20)}"></td>
 													<td class="numeric storageTime" id="storageTime"
 														th:style="${#lists.contains(listColums,'storageTime')}?'':'display:none;'"
 														th:text="${stockStatistics.storageTime!=null}?${stockStatistics?.storageTime}:'--------'"></td>
