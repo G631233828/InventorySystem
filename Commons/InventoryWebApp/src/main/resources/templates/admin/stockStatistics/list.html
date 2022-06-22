@@ -239,14 +239,20 @@
 														th:text="${stockStatistics?.revoke == true}?'已撤销':'正常'"></label>
 													</td>
 												
-													<td class="numeric"><shiro:hasPermission
-															name="stockStatistics:revoke">
+													<td class="numeric">
+														<shiro:hasPermission name="stockStatistics:revoke">
 															<button class="btn btn-primary btn-xs btcancle"
 																th:id="${stockStatistics?.id}"
 																th:onclick="|return revoke('${stockStatistics?.id}')|">
 																<i class="fa fa-edit"> </i>撤销
 															</button>
-														</shiro:hasPermission></td>
+														</shiro:hasPermission>
+														<button class="btn btn-primary btn-xs btcancle" th:if="${stockStatistics.depotTime!=null}"
+																th:id="${stockStatistics?.id}"
+																th:onclick="|return outboundOrder('${stockStatistics?.id}')|">
+																<i class="fa fa-edit"> </i>生成出库单
+															</button>
+												</td>
 												</tr>
 												<!-- 菜单 -->
 											</th:block>

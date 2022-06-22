@@ -1,10 +1,14 @@
 package zhongchiedu.inventory.service.Impl;
 
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -29,6 +33,7 @@ import lombok.extern.slf4j.Slf4j;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.Common;
 import zhongchiedu.common.utils.Contents;
+import zhongchiedu.common.utils.WordUtil;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralServiceImpl;
 import zhongchiedu.general.pojo.User;
@@ -536,5 +541,120 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		query.addCriteria(Criteria.where("isDisable").is(false));
 		return this.find(query, StockStatistics.class);
 	}
+
+	@Override
+	public byte[] exportWord(String id, HttpServletRequest request,HttpSession session) {
+		//根据id获取出库商品
+		StockStatistics stockStatistics = this.findOneById(id, StockStatistics.class);
+		User user = (User) session.getAttribute(Contents.USER_SESSION);
+		 Map<String, Object> dataMap =  wordGeneralMessage(stockStatistics,user);
+		 long allnum =0;
+		 List<Map<String, Object>> stocks = new ArrayList<>(); 
+		 Map<String, Object> stock;
+		//根据stockStatistics获取订单号
+		if(Common.isEmpty(stockStatistics.getOutboundOrder())) {
+			//如果订单号为空说明是1个设备（历史数据处理）
+			if(Common.isNotEmpty(stockStatistics.getStock())) {
+				stock =  new HashMap<>(); 
+				stock.put("id", 1);
+				stock.put("name",Common.isEmpty(stockStatistics.getStock().getName())?"":stockStatistics.getStock().getName());
+				stock.put("model", Common.isEmpty(stockStatistics.getStock().getModel())?"":stockStatistics.getStock().getModel());
+				stock.put("unitName",Common.isNotEmpty(stockStatistics.getStock().getUnit())?stockStatistics.getStock().getUnit().getName():"");
+				stock.put("num", stockStatistics.getNum());
+				allnum=stockStatistics.getNum();
+				stocks.add(stock);
+			}
+		}else {
+			//根据单号获取所有出库数据
+				List<StockStatistics> stockStatisticsList = this.findByoutboundOrder(stockStatistics.getOutboundOrder());
+			
+			for(int i=0;i<stockStatisticsList.size();i++) {
+				stock =  new HashMap<>(); 
+				stock.put("id", i+1);
+				stock.put("name", stockStatisticsList.get(i).getStock().getName());
+				stock.put("model", stockStatisticsList.get(i).getStock().getModel());
+				stock.put("unitName",Common.isNotEmpty(stockStatisticsList.get(i).getStock().getUnit())?stockStatisticsList.get(i).getStock().getUnit().getName():"");
+				stock.put("num", stockStatisticsList.get(i).getNum());
+				allnum+=stockStatisticsList.get(i).getNum();
+				stocks.add(stock);
+			}
+			
+		}
+		dataMap.put("allnum", allnum);
+		dataMap.put("stocks", stocks);
+		
+		String ctxPath = request.getServletContext().getRealPath("/WEB-INF/Templates/");
+		String fileName = "销货单.docx";
+		
+		byte[] doc =null;
+		
+		try {
+			doc =WordUtil.exportWord(ctxPath+fileName, dataMap);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
+		return doc;
+				
+	}
+
+	/**
+	 * 
+	 * @param stockStatistics
+	 * @param user
+	 * @return 生成word通用消息内容
+	 */
+	public Map<String, Object> wordGeneralMessage(StockStatistics stockStatistics,User user){
+		 Map<String, Object> dataMap = new HashMap<>();
+		  String outboundOrder =Common.isEmpty(stockStatistics.getOutboundOrder())?"":stockStatistics.getOutboundOrder();
+		  dataMap.put("customer",Common.isEmpty(stockStatistics.getCustomer())?"":stockStatistics.getCustomer());
+		  dataMap.put("personInCharge", Common.isEmpty(stockStatistics.getPersonInCharge())?"":stockStatistics.getPersonInCharge());
+		  try {
+		  dataMap.put("createDate", Common.getDateYMDH(stockStatistics.getDepotTime())+":00");
+	  } catch (ParseException e) {
+		  // TODO Auto-generated catch block
+		  e.printStackTrace();
+	  }
+		  dataMap.put("outboundOrder",outboundOrder);
+		  dataMap.put("description", Common.isEmpty(stockStatistics.getDescription())?"":stockStatistics.getDescription());
+		  dataMap.put("username",Common.isEmpty(user.getUserName())?"":user.getUserName());
+		  dataMap.put("projectName",Common.isEmpty(stockStatistics.getProjectName())?"":stockStatistics.getProjectName());
+
+		  
+		  
+		  
+		  
+//		  dataMap.put("customer",stockStatistics.getCustomer());
+//		  dataMap.put("personInCharge", stockStatistics.getPersonInCharge());
+//		  try {
+//			  dataMap.put("createDate", Common.getDateYMDH(stockStatistics.getDepotTime()));
+//		  } catch (ParseException e) {
+//			  // TODO Auto-generated catch block
+//			  e.printStackTrace();
+//		  }
+//		  dataMap.put("outboundOrder",outboundOrder);
+//		  dataMap.put("description", stockStatistics.getDescription());
+//		  dataMap.put("username", user.getUserName());
+//		  dataMap.put("projectName", stockStatistics.getProjectName());
+		  return dataMap;
+	}
+
+	@Override
+	public List<StockStatistics> findByoutboundOrder(String outboundOrder) {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("outboundOrder").is(outboundOrder));
+		query.addCriteria(Criteria.where("isDelete").is(false));
+		query.addCriteria(Criteria.where("isDisable").is(false));
+		return this.find(query, StockStatistics.class);
+		
+	}
+	
+	
+	
+	
+	
+	
 
 }

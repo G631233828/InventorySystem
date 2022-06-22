@@ -90,6 +90,32 @@
 			<groupId>org.freemarker</groupId>
 			<artifactId>freemarker</artifactId>
 		</dependency>
+		
+		
+		
+			<dependency> 
+            <groupId>cn.afterturn</groupId> 
+            <artifactId>easypoi-base</artifactId> 
+        </dependency> 
+        <dependency> 
+            <groupId>cn.afterturn</groupId> 
+            <artifactId>easypoi-web</artifactId> 
+        </dependency> 
+        <dependency> 
+            <groupId>cn.afterturn</groupId> 
+            <artifactId>easypoi-annotation</artifactId> 
+        </dependency> 
+        <!--注意:word中要使用循环等标签必须单独导入以下依赖--> 
+        <dependency> 
+            <groupId>org.apache.poi</groupId> 
+            <artifactId>ooxml-schemas</artifactId> 
+        </dependency>
+		
+		
+		
+		
+		
+		
 
 	</dependencies>
 

@@ -4,8 +4,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
@@ -26,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.Common;
 import zhongchiedu.common.utils.Contents;
+import zhongchiedu.common.utils.WordUtil;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.general.pojo.User;
 import zhongchiedu.inventory.pojo.Area;
@@ -103,6 +107,8 @@ public class StockStatisticsController {
 	public BasicDataResult out(@ModelAttribute("stockStatistics") StockStatistics stockStatistics,
 			HttpSession session) {
 		User user = (User) session.getAttribute(Contents.USER_SESSION);
+		String orderNum = Common.getOrderNum();
+		stockStatistics.setOutboundOrder(orderNum);
 		return this.stockStatisticsService.inOrOutstockStatistics(stockStatistics, user);
 
 	}
@@ -111,7 +117,7 @@ public class StockStatisticsController {
 	@ResponseBody
 	@RequiresPermissions(value = "stockStatistics:out")
 	@SystemControllerLog(description = "设备出库")
-	public BasicDataResult batchOut(String batchid,String batchnum, String batchpersonInCharge,String batchprojectName,String batchcustomer,
+	public BasicDataResult batchOut(String batchid,String batchnum, String batchdescription,String batchpersonInCharge,String batchprojectName,String batchcustomer,
 			HttpSession session) {
 	
 		
@@ -136,6 +142,7 @@ public class StockStatisticsController {
 			st.setPersonInCharge(batchpersonInCharge);
 			st.setProjectName(batchprojectName);
 			st.setCustomer(batchcustomer);
+			st.setDescription(batchdescription);
 			st.setInOrOut(false);
 			st.setOutboundOrder(orderNum);
 			BasicDataResult r = this.stockStatisticsService.inOrOutstockStatistics(st, user);
@@ -213,6 +220,34 @@ public class StockStatisticsController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	/**
+	 * 导出excel
+	 * @throws Exception 
+	 */
+	@RequestMapping(value = "/stockStatistics/exportOutBoundOrder", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+	@SystemControllerLog(description = "")
+	public void exportOutBoundOrder(
+			@RequestParam(value = "id", defaultValue = "") String id,
+			HttpServletRequest request,HttpSession session,
+			HttpServletResponse response) throws Exception {
+		
+		
+		
+		
+		String exportName = Common.fromDateYMD() + "销货单";
+
+			response.setContentType("application/vnd.ms-word;charset=utf-8");
+			String fileName = new String((exportName).getBytes("gb2312"), "ISO8859-1");
+			response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".docx");
+			byte[] exportWord = this.stockStatisticsService.exportWord(id, request, session);
+
+			OutputStream out = response.getOutputStream();
+			out.write(exportWord);
+			out.flush();
+			out.close();
+			
 	}
 	
 	@RequestMapping(value = "/stockStatistics/update", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")

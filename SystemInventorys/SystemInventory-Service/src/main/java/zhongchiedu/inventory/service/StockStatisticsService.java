@@ -2,6 +2,9 @@ package zhongchiedu.inventory.service;
 
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 
 import zhongchiedu.common.utils.BasicDataResult;
@@ -27,5 +30,9 @@ public interface StockStatisticsService extends GeneralService<StockStatistics> 
 	public List<StockStatistics> findAllByDate(String date,boolean inOrOut);
 	
 	public List<StockStatistics> findAllStockStatics();
+	
+	public byte[] exportWord(String id, HttpServletRequest request,HttpSession session);
+	
+	public List<StockStatistics> findByoutboundOrder(String outboundOrder);
 	
 }

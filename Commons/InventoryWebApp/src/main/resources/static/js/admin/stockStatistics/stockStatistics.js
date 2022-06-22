@@ -17,13 +17,13 @@ function searchVal() {
 	var type = $("#type").val();
 	var searchArea = $("#searchArea").val();
 	var searchAgent = $("#agent").val();
-	
+
 	/*
 	 * if (search == null || search == "") { swal({ type : "warning", title :
 	 * "", text : "查询内容不能为空!!", }); return ; }
 	 */
 	window.location.href = "stockStatisticss?pageSize=" + pageSize + "&search="
-			+ search + "&start=" + start + "&end=" + end + "&type=" + type+"&searchArea="+searchArea+"&searchAgent="+searchAgent;
+		+ search + "&start=" + start + "&end=" + end + "&type=" + type + "&searchArea=" + searchArea + "&searchAgent=" + searchAgent;
 }
 // function searchSize() {
 //	
@@ -37,9 +37,9 @@ function searchVal() {
 // }
 
 
-function toExport(){
-	
-	
+function toExport() {
+
+
 	var search = $("#serach").val();
 	var start = $("#start").val();
 	var end = $("#end").val();
@@ -47,13 +47,28 @@ function toExport(){
 	var areaId = $("#searchArea").val();
 	var searchAgent = $("#agent").val();
 	jqueryAlert({
-	    'icon'    : getRootPath() +'/plugs/alert/img/right.png',
-	    'content' : "正在导出请稍等...",
-	    'closeTime' : 5000,
+		'icon': getRootPath() + '/plugs/alert/img/right.png',
+		'content': "正在导出请稍等...",
+		'closeTime': 5000,
 	})
-	window.location.href = "stockStatistics/export?search="+search+"&start="+start+"&end="+end+"&type="+type+"&areaId="+areaId+"&searchAgent="+searchAgent;
-	
+	window.location.href = "stockStatistics/export?search=" + search + "&start=" + start + "&end=" + end + "&type=" + type + "&areaId=" + areaId + "&searchAgent=" + searchAgent;
+
 }
+
+
+//生成出库单
+function outboundOrder(o) {
+
+jqueryAlert({
+		'icon': getRootPath() + '/plugs/alert/img/right.png',
+		'content': "正在生成数据请稍等...",
+		'closeTime': 5000,
+	})
+	window.location.href="stockStatistics/exportOutBoundOrder?id="+o;
+}
+
+
+
 
 
 //function checkdate(d1,d2){
@@ -82,8 +97,8 @@ function toExport(){
 
 
 
-function revoke(o){
-	
+function revoke(o) {
+
 	var M = {
 
 	}
@@ -91,49 +106,49 @@ function revoke(o){
 		return M.dialog3.show();
 	}
 	M.dialog3 = jqueryAlert({
-		'title' : '撤销提醒',
-		'content' : '您当前正在做撤销的操作',
-		'modal' : true,
-		'buttons' : {
-			'确定' : function() {
+		'title': '撤销提醒',
+		'content': '您当前正在做撤销的操作',
+		'modal': true,
+		'buttons': {
+			'确定': function() {
 				$.ajax({
-					type : 'GET',
-					url : 'stockStatistics/revoke',
-					data : "id=" + o,
-					dataType : 'json',
-					success : function(data) {
+					type: 'GET',
+					url: 'stockStatistics/revoke',
+					data: "id=" + o,
+					dataType: 'json',
+					success: function(data) {
 						if (data.status == 200) {
-//							$("#revokeNum").text(data.data.revokeNum);
-							$("#revoke"+o).css("color","red");
-							$("#revoke"+o).text("已撤销");
+							//							$("#revokeNum").text(data.data.revokeNum);
+							$("#revoke" + o).css("color", "red");
+							$("#revoke" + o).text("已撤销");
 							M.dialog3.close();
 							jqueryAlert({
-								'content' : data.msg
+								'content': data.msg
 							})
-						}else{
-							 M.dialog3.close();
+						} else {
+							M.dialog3.close();
 							jqueryAlert({
-								'content' : data.msg
+								'content': data.msg
 							})
 						}
 					}
 				})
 
-				
+
 			},
-			'取消' : function() {
+			'取消': function() {
 				M.dialog3.close();
 			}
 		}
 	})
 
 }
-	
+
 //	
 //
 //	$(document).delegate(".btcancle", 'click', function() {
-		
-		
+
+
 
 function selectColumn(o) {
 
@@ -144,11 +159,11 @@ function selectColumn(o) {
 	$(td).prop("checked", flag);
 
 	$.ajax({
-		type : 'GET',
-		url : 'stockStatistics/columns',
-		data : "column=" + o + "&flag=" + flag,
-		dataType : 'json',
-		success : function(data) {
+		type: 'GET',
+		url: 'stockStatistics/columns',
+		data: "column=" + o + "&flag=" + flag,
+		dataType: 'json',
+		success: function(data) {
 			if (data.status == 200) {
 				// $(td).attr("checked":flag);
 				if (flag) {
@@ -163,11 +178,11 @@ function selectColumn(o) {
 }
 
 $(".datepicker").datepicker({
-	language : "zh-CN",
-	format : "yyyy-mm-dd 00:00:00",
-	keyboardNavigation : false,
-	forceParse : false,
-	autoclose : true
+	language: "zh-CN",
+	format: "yyyy-mm-dd 00:00:00",
+	keyboardNavigation: false,
+	forceParse: false,
+	autoclose: true
 });
 
 // $("#data_1 .input-group.date").datepicker({

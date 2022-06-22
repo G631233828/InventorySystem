@@ -1046,6 +1046,12 @@ public class Common {
 		return sdf.format(a);
 
 	}
+	public static String getDateYMDH(String date) throws ParseException {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH");
+		Date a = sdf.parse(date);
+		return sdf.format(a);
+		
+	}
 	public static String getDateYMDHM(Date date) throws ParseException {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		return  sdf.format(date);

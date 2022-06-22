@@ -8,6 +8,9 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.Map;
 
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+
+import cn.afterturn.easypoi.word.WordExportUtil;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 
@@ -77,4 +80,28 @@ public class WordUtil {
 		}
 		return outputStream;
 	}
+	
+	
+
+    /** 
+     * 导出word（2007版本docx） 
+     * 
+     * @param templateWordPath 
+     * @param dataMap 
+     * @return 
+     * @throws Exception 
+     */ 
+    public static byte[] exportWord(String templateWordPath, Map<String, Object> dataMap) throws Exception { 
+        File tf = new File(templateWordPath); 
+        if (!tf.exists() || !tf.isFile()) { 
+            throw new RuntimeException("File [" + templateWordPath + "] Not Found Or Not File."); 
+        } 
+        XWPFDocument document = WordExportUtil.exportWord07(templateWordPath, dataMap); 
+        ByteArrayOutputStream bos = new ByteArrayOutputStream(); 
+        document.write(bos); 
+        return bos.toByteArray(); 
+    } 
+ 
+	
 }
+
