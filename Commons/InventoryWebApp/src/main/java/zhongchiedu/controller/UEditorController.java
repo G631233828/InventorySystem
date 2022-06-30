@@ -18,7 +18,7 @@ import com.baidu.ueditor.ActionEnter;
 public class UEditorController {
 	
 
-	    @RequestMapping(value="/config")
+	    @RequestMapping(value="/config2")
 	    public void config(HttpServletRequest request, HttpServletResponse response) {
 	        response.setContentType("application/json");
 	        String rootPath = request.getSession().getServletContext().getRealPath("/");

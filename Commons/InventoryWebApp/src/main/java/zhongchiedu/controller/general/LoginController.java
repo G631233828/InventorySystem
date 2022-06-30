@@ -24,8 +24,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
+
+import com.aliyun.dingtalk.service.DingTalkUserService;
+import com.dingtalk.api.response.OapiV2UserGetResponse.UserGetResponse;
 
 import zhongchiedu.common.utils.Common;
 import zhongchiedu.common.utils.Contents;
@@ -47,11 +50,97 @@ public class LoginController {
 
 	@Autowired
 	private UserService userService;
+	
+	@Autowired
+    private DingTalkUserService dingTalkUserService;
+	
+	
+	
+
+    /**
+     * 根据免登授权码, 获取登录用户身份
+     *
+     * @param authCode 免登授权码
+     * @return
+     */
+    @GetMapping("/ddlogin")
+    public String login(String authCode,Model model) {
+    	if(Common.isEmpty(authCode)) {
+    		return "dingdinglogin"; 
+    	}else if(authCode.equals("1")){
+    		 return "redirect:tologin";
+    	}else {
+    			String msg = "";
+    			UserGetResponse userInfo = dingTalkUserService.getUserInfo(authCode);
+    			//通过手机号获取账号密码
+    			if(Common.isNotEmpty(userInfo.getMobile())) {
+    			User user = this.userService.findUserByAccountName(userInfo.getMobile());
+    				if(Common.isNotEmpty(user)) {
+
+        				UsernamePasswordToken token = new UsernamePasswordToken(user.getAccountName(), user.getPassWord(),true);
+        				// token.setRememberMe(rememberMe);
+        				Subject subject = SecurityUtils.getSubject();// 获得主体
+        				try {
+        					subject.login(token);
+        					if (subject.isAuthenticated()) {
+        						return "redirect:/toindex";
+        					} else {
+        						msg = "登录失败";
+        					}
+        				} catch (IncorrectCredentialsException e) {
+        					msg = "登录密码错误!";
+        				} catch (ExcessiveAttemptsException e) {
+        					msg = "登录失败次数过多!";
+        				} catch (LockedAccountException e) {
+        					msg = "帐号已被锁定!" ;
+        				} catch (DisabledAccountException e) {
+        					msg = "帐号已被禁用,请与管理员联系!" ;
+        				} catch (ExpiredCredentialsException e) {
+        					msg = "帐号已过期!";
+        				} catch (UnknownAccountException e) {
+        					msg = "帐号不存在!";
+        				} catch (UnauthorizedException e) {
+        					msg = "您没有得到相应的授权！" + e.getMessage();
+        				} finally {
+        					model.addAttribute("msg", msg);
+        				}
+        				return "login";
+        			
+    				
+    				}
+    			
+    				
+    			}
+    			
+    	
+    		
+    	}
+		return "login";
+    	
+    	
+    	
+    	
+    	
+       
+//        return ServiceResult.getSuccessResult(dingTalkUserService.getUserInfo(authCode));
+
+    }
+	
+	
+	
+	
+	
+	
 
 	@RequestMapping("/tologin")
 	@SystemControllerLog(description = "用户申请登陆")
 	public String login(User user,boolean rememberMe, HttpServletRequest request, Map<String, Object> map, HttpSession session,Model model)
 			throws Exception {
+	
+		
+		
+		
+		
 		if(Common.isEmpty(user.getAccountName())||Common.isEmpty(user.getPassWord())){
 			return "login";
 		}

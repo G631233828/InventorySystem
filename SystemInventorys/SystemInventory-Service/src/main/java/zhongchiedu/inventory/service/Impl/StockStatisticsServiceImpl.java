@@ -612,7 +612,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		  dataMap.put("customer",Common.isEmpty(stockStatistics.getCustomer())?"":stockStatistics.getCustomer());
 		  dataMap.put("personInCharge", Common.isEmpty(stockStatistics.getPersonInCharge())?"":stockStatistics.getPersonInCharge());
 		  try {
-		  dataMap.put("createDate", Common.getDateYMDH(stockStatistics.getDepotTime())+":00");
+		  dataMap.put("createDate", Common.getDateYMDHM(stockStatistics.getDepotTime()));
 	  } catch (ParseException e) {
 		  // TODO Auto-generated catch block
 		  e.printStackTrace();

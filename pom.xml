@@ -238,5 +238,6 @@
 		<module>SystemFunctions</module>
 		<module>SystemInventorys</module>
 		<module>WX</module>
+		<module>DingDing</module>
 	</modules>
 </project>

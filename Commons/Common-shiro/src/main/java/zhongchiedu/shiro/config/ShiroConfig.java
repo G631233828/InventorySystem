@@ -165,7 +165,7 @@ public class ShiroConfig {
 		filterChainDefinitionMap.put("/api/**", "anon");
 		filterChainDefinitionMap.put("/assets/**", "anon");
 		filterChainDefinitionMap.put("/init/**", "anon");
-		filterChainDefinitionMap.put("/tologin", "user,addPrincipal");
+		filterChainDefinitionMap.put("/tologin", "anon");
 		filterChainDefinitionMap.put("index", "user,addPrincipal");
 		filterChainDefinitionMap.put("toindex", "user,addPrincipal");
 		filterChainDefinitionMap.put("/img/**", "anon");
@@ -174,6 +174,7 @@ public class ShiroConfig {
 		filterChainDefinitionMap.put("/upload/**", "anon");
 		filterChainDefinitionMap.put("/news/view/**", "anon");
 		filterChainDefinitionMap.put("/ueditor/**", "anon");
+		filterChainDefinitionMap.put("/config/**", "anon");
 		filterChainDefinitionMap.put("/test/**", "anon");
 		// 配置退出 过滤器,其中的具体的退出代码Shiro已经替我们实现了
 		// filterChainDefinitionMap.put("/loginout", "loginout");
@@ -184,7 +185,7 @@ public class ShiroConfig {
 		// 如果不设置默认会自动寻找Web工程根目录下的"/login.jsp"页面
 		// 登录成功后要跳转的链接
 		// shiroFilterFactoryBean.setSuccessUrl("/website/index");
-		shiroFilterFactoryBean.setLoginUrl("/tologin");
+		shiroFilterFactoryBean.setLoginUrl("/ddlogin");
 		// // 登录成功后要跳转的链接
 		shiroFilterFactoryBean.setSuccessUrl("/toindex");
 		// 未授权界面;

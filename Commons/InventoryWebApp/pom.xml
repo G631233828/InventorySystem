@@ -123,6 +123,11 @@
 			<artifactId>snakeyaml</artifactId>
 		</dependency>
 
+		<dependency>
+			<groupId>zhongchiedu.com</groupId>
+			<artifactId>DingLogin</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 
 

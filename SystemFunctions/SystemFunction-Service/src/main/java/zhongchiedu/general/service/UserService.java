@@ -23,4 +23,5 @@ public interface UserService  extends GeneralService<User>{
 	
 	public List<User> getUsersByIds(String personInCharge);
 	
+	
 }
