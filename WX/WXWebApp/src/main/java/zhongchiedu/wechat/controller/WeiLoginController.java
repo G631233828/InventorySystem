@@ -60,6 +60,7 @@ public class WeiLoginController {
 	private String appid;
 	@Value("${wx.mp.configs[0].secret}")
 	private String secret;
+	
 
 	/**
 	 * 登陆授权
