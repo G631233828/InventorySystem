@@ -122,7 +122,7 @@ public class LoginController {
     	
     	
        
-//        return ServiceResult.getSuccessResult(dingTalkUserService.getUserInfo(authCode));
+// 016548280036435669      8c7fa6ced3f83b2f87622a929c7931b8   return ServiceResult.getSuccessResult(dingTalkUserService.getUserInfo(authCode));
 
     }
 	

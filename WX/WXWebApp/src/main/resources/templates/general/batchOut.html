@@ -20,177 +20,175 @@
     <script type="text/javascript" th:src="@{/assets/canvas/flexible.debug.js}"></script>
     <script type="text/javascript" th:src="@{/assets/canvas/flexible_css.debug.js}"></script>
 
-<script>
-var add =false;
-var edit =false;
-var del =false;
-var isSign = false;
-</script>
 <script type="text/javascript">
+var isSign = false;
 
 $(function(){
 	  $(document).on("click","#btn",function(){
+		  if(isSign){
+   		   $("#btn").attr("disabled",true);
+   		   $.toptip("提交成功",'success');
+              $("#stockForm").submit();
+   	   }else{
+   		   $.toptip("请先签名");
+   		   return false;
+   		   
+   	   }
+      
+		 
+	  })
 		 
 		
-          var name = $("#name").val();
-          var model = $("#model").val();
-          var username = $("#username").val();
-          var phone = $("#phone").val();
-          var num = $("#num").val();
-          if(name==""){
-              $.toptip("请输入设备名称");
-              return false;
-          }else  if(model==""){
-              $.toptip("请输入设备型号");
-              return false;
-          }else if(username==""){
-              $.toptip("请输入取货人姓名");
-              return false;
-          }else if(phone==""){
-        	  $.toptip("请输入取货人手机号");
-              return false;
-          }else if(!regphone.test(phone)){
-        	  $.toptip("请输入正确的手机号");
-              return false;
-          }else if(num==""||num<=0){
-        	  $.toptip("请输入正确的取货数量");
-              return false;
-          }else if(!number.test(num)){
-        	  $.toptip("请输入数字");
-              return false;
         	  
-          }
-           else{
-        	   if(isSign){
-        		   $("#btn").attr("disabled",true);
-        		   $.toptip("提交成功",'success');
-                   $("#projectPickupForm").submit();
-        	   }else{
-        		   $.toptip("请先签名");
-        		   return false;
-        		   
-        	   }
-        	   
-             
-          }
-      })
+ 
 })
-
 
  
 </script>
 
+<style>
+::-webkit-scrollbar {
+	display: none
+}
 
+table {
+	table-layout: fixed;
+	width: 100%;
+	height: auto;
+	border-bottom: 1px solid #e6e7f1;
+	float: left
+}
+
+table tr:nth-child(2n) td {
+	background: #f6f7fa
+}
+
+table tr td {
+	line-height: 20px;
+	padding: 5px;
+	border-top: 1px solid #e6e7f1;
+	text-align: center;
+	background: #fff;
+	color: #505050;
+	font-size: 12px
+}
+
+table tr .dark {
+	border-left: 1px solid #e7e7e7;
+	border-right: 1px solid #e7e7e7
+}
+
+table td, table th {
+	border: none;
+	/* white-space: nowrap; */
+	word-break: keep-all;
+	width: 1px;
+	word-wrap: break-word;
+	padding: 0 2px;
+}
+
+table tr th {
+	font-weight: 400;
+	line-height: 40px;
+	text-align: center;
+	color: #edeef1;
+	background: #798299;
+	font-size: 12px
+}
+
+table tr .noborder {
+	border-left: none !important;
+	border-right: none !important
+}
+
+table tr td font {
+	color: #e13b6d;
+	font-size: 12px
+}
+</style>
 
 
 </head>
 
 <body  class="page-bg">
-
-
 <div class="weui-cells weui-cells_form">
+<ul class="weui-payrec">
+    <div class="weui-pay-m">
+        <li class="weui-pay-order">
+            <dl class="weui-pay-line">
+                <dd class="weui-pay-name">中颂建筑智能化（上海）有限公司销货单</dd>
+                <dt class="weui-pay-label">客户名称：</dt><dd class="weui-pay-e">[[${stock?.customer}]]</dd>
+            </dl>
+            <dl class="weui-pay-line"><dt class="weui-pay-label">负责人：</dt><dd class="weui-pay-e">[[${stock?.personInCharge}]]</dd></dl>
+            <dl class="weui-pay-line"><dt class="weui-pay-label">单据日期：</dt><dd class="weui-pay-e">[[${stock?.depotTime}]]</dd></dl>
+            <dl class="weui-pay-line"><dt class="weui-pay-label">单据编号：</dt><dd class="weui-pay-e">[[${stock?.outboundOrder}]]</dd></dl>
+            <dl class="weui-pay-line"><dt class="weui-pay-label">项目名称：</dt><dd class="weui-pay-e">[[${stock?.projectName}]]</dd></dl>
+            <dl class="weui-pay-line"><dt class="weui-pay-label">备注：</dt><dd class="weui-pay-e"> [[${stock?.description}]]</dd></dl>
+        </li>
+        
+    </div>
+    
+</ul>
+			
+<table id="table">
+    <thead>
+    
+    <tr>
+	<th>序号</th>
+	<th>设备名称</th>
+	<th>设备型号</th>
+	<th>单位</th>
+	<th>数量</th>
+	
+	
+	
+	</tr></thead>
+    <tbody id="rank-list">
+	<th:block  th:each="st:${list}">
+   	<tr>
+	<td>[[${stStat.index+1}]]</td>
+	<td>[[${st?.stock?.name}]]</td>
+	<td>[[${st?.stock?.model}]]</td>
+	<td>[[${st?.stock?.unit?.name}]]</td>
+	<td>[[${st?.num}]]</td>
+	</tr>
+     </th:block>   
+   
+        
+    </tbody>
+</table>
+
+
+
+
+<div class="page-hd">
+    <h1 class="page-hd-title">
+     	 请签名确认
+    </h1>
+   
+</div>
+
   
-	<form th:action="@{/wechat/projectPickup}" id="projectPickupForm" method="post">
-    <div class="weui-cell">
-        <div class="weui-cell__hd">
-            <label class="weui-label">微信昵称：</label>
-        </div>
-        <div class="weui-cell__bd">
-            <input class="weui-input" placeholder="微信昵称"  type="text" readonly="readonly" th:value="${userInfo.nickname}" >
-        </div>
-		<input type="hidden" th:value="${userInfo.openid}" name="openId">
-    </div>
+	<form th:action="@{/wechat/stockStatisticsPickup}" id="stockForm" method="post">
 
-    <div class="weui-cell">
-        <div class="weui-cell__hd">
-            <label class="weui-label">设备名称</label>
-        </div>
-        <div class="weui-cell__bd">
-            <input class="weui-input" placeholder="设备名称" th:value="${stock.name}"  type="text" name="name" id="name" >
-        </div>
 
-    </div>
-    
-    <div class="weui-cell">
-        <div class="weui-cell__hd">
-            <label class="weui-label">设备型号</label>
-        </div>
-        <div class="weui-cell__bd">
-            <input class="weui-input" placeholder="设备型号" th:value="${stock.model}"  type="text" name="model" id="model" >
-        </div>
-    </div>
-    
-    <input type="hidden" name="stock.id" th:value="${stock.id}">
-    
-    <div class="weui-cell">
-        <div class="weui-cell__hd">
-            <label class="weui-label">取货人姓名</label>
-        </div>
-        <div class="weui-cell__bd">
-            <input class="weui-input" placeholder="取货人姓名"  type="text" th:value="${getwXUserInfo?.username}" name="username" id="username" >
-        </div>
-    </div>
-    <div class="weui-cell">
-        <div class="weui-cell__hd">
-            <label class="weui-label">取货人手机号</label>
-        </div>
-        <div class="weui-cell__bd">
-            <input class="weui-input" placeholder="取货人手机号"   type="text" th:value="${getwXUserInfo?.phone}" name="phone" id="phone" >
-        </div>
-    </div>
-    <div class="weui-cell">
-        <div class="weui-cell__hd">
-            <label class="weui-label">项目名称</label>
-        </div>
-        <div class="weui-cell__bd">
-            <input class="weui-input" placeholder="项目名称"   type="text"  name="entryName" id="entryName" >
-        </div>
-    </div>
-    <div class="weui-cell">
-        <div class="weui-cell__hd">
-            <label class="weui-label">项目编号</label>
-        </div>
-        <div class="weui-cell__bd">
-            <input class="weui-input" placeholder="项目编号"   type="text"  name="itemNo" id="itemNo" >
-        </div>
-    </div>
-    <div class="weui-cell">
-        <div class="weui-cell__hd">
-            <label class="weui-label">项目负责人</label>
-        </div>
-        <div class="weui-cell__bd">
-            <input class="weui-input" placeholder="项目负责人"   type="text"  name="projectLeader" id="projectLeader" >
-        </div>
-    </div>
-
-    
-        <div class="weui-cell">
-       <div class="weui-cell__hd">
-            <label class="weui-label">取货数量</label>
-        </div>
-        <div class="weui-cell__bd">
-            <input class="weui-input" onkeyup="this.value=this.value.replace(/[^0-9\.]/g,'')" placeholder="取货数量" id="num" name="num" type="number">
-        </div>
-    </div> 
-    
-    
-        <h1 class="weui-pay-title">请签名确认</h1>
-      <canvas id='canvas'></canvas>
-      
-     <input type="hidden" name="sign" id="sign">
-     
+ <div class="weui-pay-area">
+     <canvas id='canvas'></canvas>
+	<input type="hidden" name="sign" id="sign">
+	<input type="hidden" name="outboundOrder" th:value="${stock?.outboundOrder}">
+ <input type="hidden" th:value="${getwXUserInfo?.openId}" name="openId">
     <div id="canvas-btn">  
-        <div id="clear_btn" class="weui-btn weui-btn_mini weui-btn_warn">重签</div>  
-       <!--  <div id="save_btn" style="float: right" class="weui-btn weui-btn_mini weui-btn_primary">保存</div>  -->
         <div class="cleaerfix"></div>  
     </div> 
    
     
-   <div class="weui-btn-area">
-    <button class="weui-btn weui-btn_primary" onclick="javascript:" id="btn">确定</button>
 </div>
-    
-    
+<div class="weui-btn-area">
+<div class="weui-flex">
+    <div class="weui-flex__item"><div class="placeholder"> <div id="clear_btn"  onclick="javascript:"  class="weui-btn weui-btn_warn">重签</div>  </div></div>
+    <div class="weui-flex__item"><div class="placeholder"><button  class="weui-btn weui-btn_primary" onclick="javascript:" id="btn">确定</button></div></div>
+</div>
+</div>
        
     </form> 
     
@@ -370,18 +368,8 @@ $(function(){
 
 	<script th:inline="javascript">
 	
-	   function stockStaticisOut(url,o){
-	    	var data = "id="+o;
-	    	$(".weui-actionsheet_cancel").trigger("click");
-	   	 ajaxRequest("json","POST",url,data,"wechat/pickUpApplications");
-	    }
-	
-	
-	
-	
-	
-	
-	
+
+
 	
 	
 /*<![CDATA[*/

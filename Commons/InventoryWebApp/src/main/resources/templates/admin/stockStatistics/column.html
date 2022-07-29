@@ -81,6 +81,8 @@
                                             <tr>
                                                 <td class="numeric">备注</td>
                                                 <td class="numeric" onclick="return selectColumn('description');"><input type="checkbox" th:checked="${#lists.contains(listColums,'description')}?'checked':'false'" id="ch_description"></td>
+                                                <td class="numeric">签名</td>
+                                                <td class="numeric" onclick="return selectColumn('sign');"><input type="checkbox" th:checked="${#lists.contains(listColums,'sign')}?'checked':'false'" id="ch_sign"></td>
                                             </tr>
                                            
                                         </tbody>

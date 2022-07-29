@@ -1,5 +1,8 @@
 package zhongchiedu.wechat.controller;
 
+import java.util.List;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -28,6 +31,7 @@ import zhongchiedu.inventory.pojo.ProjectPickup;
 import zhongchiedu.inventory.pojo.Stock;
 import zhongchiedu.inventory.pojo.StockStatistics;
 import zhongchiedu.inventory.service.ProjectPickupService;
+import zhongchiedu.inventory.service.SignService;
 import zhongchiedu.inventory.service.StockService;
 import zhongchiedu.inventory.service.StockStatisticsService;
 import zhongchiedu.log.annotation.SystemControllerLog;
@@ -61,6 +65,8 @@ public class ProjectPickupController {
 	@Autowired
 	private StockStatisticsService stockStatisticsService;
 	
+	@Autowired
+	private SignService signService;
 
 	@Autowired
 	private StockService stockService;
@@ -116,6 +122,72 @@ public class ProjectPickupController {
 	}
 	
 	
+	/**
+	 * 出库页面 （扫码进去）
+	 * @throws WxErrorException 
+	 */
+	@GetMapping(value = "/batchOut/{stockId}")
+	public String batchOut(HttpServletRequest request,Model model,@PathVariable String stockId)  {
+
+		
+		
+		// 获取微信端code
+		String code = request.getParameter("code");
+		// 判断code是否为空，如果为空的话需要通过微信进行重定向
+		if (Common.isEmpty(code)) {
+			String redirect_uri = wxMpProperties.getServerUrl() +  request.getRequestURI() ;
+//				return new ModelAndView(new RedirectView("https://open.weixin.qq.com/connect/oauth2/authorize?" + "appid="
+//						+ wxMpProperties.getConfigs().get(0).getAppId() + "&redirect_uri=" + redirect_uri
+//						+ "&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect"));
+			return "redirect:https://open.weixin.qq.com/connect/oauth2/authorize?" + "appid="
+					+ wxMpProperties.getConfigs().get(0).getAppId() + "&redirect_uri=" + redirect_uri
+					+ "&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect";
+		}
+
+
+		String path="general/batchOut";
+		
+		StockStatistics stock = this.stockStatisticsService.findOneById(stockId, StockStatistics.class);
+		
+		if(Common.isNotEmpty(stock.getMysign())) {
+			//已经提交过
+			Map<Object, Object> map = this.stockStatisticsService.stockStatisticsPickup(stock);
+			model.addAttribute("map", map);
+			if(Common.isNotEmpty(stock.getOpenId())) {
+				WXUserInfo getwXUserInfo = this.wXUserInfoService.findUserByOpenId(stock.getOpenId());
+				model.addAttribute("getwXUserInfo", getwXUserInfo);
+			}
+			path="general/batchOutSuccess";
+		}else {
+			List<StockStatistics> list = this.stockStatisticsService.findByoutboundOrder(stock.getOutboundOrder());
+			model.addAttribute("list", list);
+			model.addAttribute("stock", stock);
+
+			// 通过code获取微信相关信息
+			WxOAuth2Service oAuth2Service = this.wxMpService.getOAuth2Service();
+			WxOAuth2AccessToken accessToken;
+			try {
+				accessToken = oAuth2Service.getAccessToken(code);
+				WxOAuth2UserInfo userInfo = oAuth2Service.getUserInfo(accessToken, null);
+				model.addAttribute("userInfo", userInfo);
+				WXUserInfo wXUserInfo = new WXUserInfo();
+				wXUserInfo.setUserInfo(userInfo);
+				wXUserInfo.setOpenId(userInfo.getOpenid());
+				WXUserInfo getwXUserInfo = this.wXUserInfoService.saveOrUpdate(wXUserInfo);
+				model.addAttribute("getwXUserInfo", getwXUserInfo);
+			} catch (WxErrorException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		
+		
+		
+		return path;
+	}
+	
+	
 	
 	@PostMapping("/projectPickup")
 	@SystemControllerLog(description = "库存取货")
@@ -127,6 +199,20 @@ public class ProjectPickupController {
 		model.addAttribute("projectPickup", projectPickup);
 		
 		return "/general/success";
+	}
+	
+	@PostMapping("/stockStatisticsPickup")
+	@SystemControllerLog(description = "库存取货")
+	public String stockStatisticsPickup(Model model,HttpServletRequest request, @ModelAttribute("stockStatistics") StockStatistics stockStatistics) {
+		
+		Map<Object, Object> map = this.stockStatisticsService.stockStatisticsPickup(stockStatistics);
+		ProjectPickup p = new ProjectPickup();
+		p.setOpenId(stockStatistics.getOpenId());
+		WXUserInfo wXUserInfo = this.wXUserInfoService.updateWXuserInfo(p);
+		model.addAttribute("wXUserInfo", wXUserInfo);
+		model.addAttribute("map", map);
+		
+		return "/general/batchOutSuccess";
 	}
 
 	
@@ -153,7 +239,7 @@ public class ProjectPickupController {
 	@RequestMapping(value = "/projectPickupStockStatistics/in", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	@RequiresPermissions(value = "stockStatistics:in")
-	@SystemControllerLog(description = "微信端一键防护库")
+	@SystemControllerLog(description = "微信端一键出库")
 	public BasicDataResult in(String id, HttpSession session) {
 		User user = (User) session.getAttribute(Contents.WECHAT_WEB_SESSION);
 		if(Common.isNotEmpty(id)) {

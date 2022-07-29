@@ -33,11 +33,23 @@ public class DingTalkUserService {
 
         // 2. 获取用户ID
         String userId = getUserId(authCode, accessToken);
+        System.out.println(userId);
 
         // 2. 根据用户ID获取用户详情
         return getOapiV2UserGetResponseByUserId(userId, accessToken);
 
     }
+    
+    
+    
+    /**
+     * 获取token
+     * @return
+     */
+    public String getAccessToken() {
+    	return AccessTokenUtil.getAccessToken(appConfig.getAppKey(), appConfig.getAppSecret());
+    }
+    
 
     /**
      * 根据authCode获取用户ID

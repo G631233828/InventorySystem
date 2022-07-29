@@ -168,7 +168,9 @@ public class ShiroConfig {
 		filterChainDefinitionMap.put("/wechat/portal/**", "anon");
 		filterChainDefinitionMap.put("/wechat/preStock/**", "anon");
 		filterChainDefinitionMap.put("/wechat/cargoFromStorage/**", "anon");
+		filterChainDefinitionMap.put("/wechat/batchOut/**", "anon");
 		filterChainDefinitionMap.put("/wechat/projectPickup", "anon");
+		filterChainDefinitionMap.put("/wechat/stockStatisticsPickup", "anon");
 		filterChainDefinitionMap.put("/wechat/index", "user,addPrincipal");
 		filterChainDefinitionMap.put("/wechat/weChatAuth", "anon");
 		filterChainDefinitionMap.put("/wechat/preStockToStock/**", "anon");

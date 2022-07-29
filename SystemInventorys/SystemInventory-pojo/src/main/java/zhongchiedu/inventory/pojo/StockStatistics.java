@@ -2,6 +2,7 @@ package zhongchiedu.inventory.pojo;
 
 import java.util.Date;
 
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import lombok.AllArgsConstructor;
@@ -64,9 +65,18 @@ public class StockStatistics extends GeneralBean<StockStatistics> {
 	
 	//出库单号
 	private String outboundOrder;//出库单
-
-
 	
+	private String sign;//
+
+	@DBRef
+	private QrCode qrCode;//出库登记二维码
+	
+	private String openId;
+
+	private String pickupTime;//取货时间
+	
+	@DBRef
+	private Sign mysign;//微信签名
 	
 
 }

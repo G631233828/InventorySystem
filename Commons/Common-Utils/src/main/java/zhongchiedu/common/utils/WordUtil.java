@@ -31,7 +31,6 @@ public class WordUtil {
 	 * @return
 	 */
 	public static synchronized ByteArrayOutputStream process(Map<?, ?> root, String templateName,String templatePath) {
-
 		if (null == root) {
 			throw new RuntimeException("数据不能为空");
 		}

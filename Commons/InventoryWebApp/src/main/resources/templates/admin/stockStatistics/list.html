@@ -11,7 +11,6 @@
 	th:src="@{/plugs/datapicker/bootstrap-datepicker.js}"></script>
 
 
-
 </head>
 
 <body>
@@ -175,6 +174,8 @@
 													th:style="${#lists.contains(listColums,'description')}?'':'display:none;'">备注</th>
 												<th class="numeric revoke"
 													th:style="${#lists.contains(listColums,'revoke')}?'':'display:none;'">状态</th>
+												<th class="numeric sign"
+													th:style="${#lists.contains(listColums,'sign')}?'':'display:none;'">签名</th>
 
 												<th class="numeric">操作</th>
 											</tr>
@@ -225,18 +226,24 @@
 														th:style="${#lists.contains(listColums,'projectName')}?'':'display:none;'"
 														th:text="${stockStatistics.projectName != null}?${stockStatistics?.projectName}:'--------'"></td>
 													<td class="numeric customer" id="customer"
-														th:style="${#lists.contains(listColums,'customer')}?'':'display:none;'"
-														th:text="${stockStatistics.customer != null}?${stockStatistics?.customer}:'--------'"></td>
+														th:style="${#lists.contains(listColums,'customer')}?'':'display:none;'"  th:title="${stockStatistics?.customer}"
+														th:text="${stockStatistics?.customer != null}?${#strings.abbreviate(stockStatistics?.customer,25)}:'--------'"></td>
 													<td class="numeric user" id="user"
 														th:style="${#lists.contains(listColums,'user')}?'':'display:none;'">[[${stockStatistics?.user?.userName}]]</td>
 													<td class="numeric description" id="description"  th:title="${stockStatistics.description}"
-														th:style="${#lists.contains(listColums,'description')}?'':'display:none;'">[[${#strings.abbreviate(stockStatistics?.description,50)}]]</td>
+														th:style="${#lists.contains(listColums,'description')}?'':'display:none;'">[[${#strings.abbreviate(stockStatistics?.description,30)}]]</td>
 													
 													<td class="numeric revoke" id="revoke"
 														th:style="${#lists.contains(listColums,'revoke')}?'':'display:none;'">
 														<label th:id="|revoke${stockStatistics?.id}|"
 														th:style="${stockStatistics?.revoke == true}?'color:red':'color:green'"
 														th:text="${stockStatistics?.revoke == true}?'已撤销':'正常'"></label>
+													</td>
+													<td class="numeric sign" id="sign"
+														th:style="${#lists.contains(listColums,'sign')}?'':'display:none;'">
+														<label  th:if="${stockStatistics.depotTime!=null}"
+														th:style="${stockStatistics?.mysign ==null}?'color:red':'color:green'"
+														th:text="${stockStatistics?.mysign ==null}?'未签名':'已签名'"></label>
 													</td>
 												
 													<td class="numeric">
@@ -247,11 +254,17 @@
 																<i class="fa fa-edit"> </i>撤销
 															</button>
 														</shiro:hasPermission>
+														<th:block  th:if="${stockStatistics?.revoke == false}">
 														<button class="btn btn-primary btn-xs btcancle" th:if="${stockStatistics.depotTime!=null}"
 																th:id="${stockStatistics?.id}"
 																th:onclick="|return outboundOrder('${stockStatistics?.id}')|">
 																<i class="fa fa-edit"> </i>生成出库单
-															</button>
+														</button>
+														<button class="btn btn-default btn-sm" th:if="${stockStatistics.depotTime!=null}"
+															th:onclick="|return toDownloadQRcode('${stockStatistics.id}')|">
+															<i class="glyphicon glyphicon-plus"> </i> 取货二维码
+														</button>
+														</th:block>
 												</td>
 												</tr>
 												<!-- 菜单 -->

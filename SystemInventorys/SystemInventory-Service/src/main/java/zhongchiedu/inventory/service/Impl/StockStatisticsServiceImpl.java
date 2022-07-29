@@ -1,8 +1,13 @@
 package zhongchiedu.inventory.service.Impl;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
@@ -20,6 +25,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
@@ -29,17 +35,31 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+
+import cn.afterturn.easypoi.entity.ImageEntity;
 import lombok.extern.slf4j.Slf4j;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.Common;
 import zhongchiedu.common.utils.Contents;
+import zhongchiedu.common.utils.MatrixToImageWriter;
 import zhongchiedu.common.utils.WordUtil;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralServiceImpl;
+import zhongchiedu.general.pojo.MultiMedia;
 import zhongchiedu.general.pojo.User;
+import zhongchiedu.general.service.MultiMediaService;
 import zhongchiedu.general.service.Impl.UserServiceImpl;
+import zhongchiedu.inventory.pojo.QrCode;
+import zhongchiedu.inventory.pojo.Sign;
 import zhongchiedu.inventory.pojo.Stock;
 import zhongchiedu.inventory.pojo.StockStatistics;
+import zhongchiedu.inventory.service.QrCodeService;
+import zhongchiedu.inventory.service.SignService;
 import zhongchiedu.inventory.service.StockStatisticsService;
 import zhongchiedu.log.annotation.SystemServiceLog;
 
@@ -51,9 +71,35 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	private @Autowired StockServiceImpl stockService;
 
 	private @Autowired UserServiceImpl userServiceService;
-
+	
+	@Autowired
+	private QrCodeService qrCodeServce;
 	@Autowired
 	private RedisTemplate redisTemplate;
+	
+	@Autowired
+	private MultiMediaService multiMediaService;
+	
+	@Autowired
+	private SignService signService;
+	
+	
+	@Value("${qrcode.weburl}")
+	private String weburl;
+	@Value("${qrcode.height}")
+	private int height;
+	@Value("${qrcode.width}")
+	private int width;
+	@Value("${upload.savedir}")
+	private String dir;
+	@Value("${qrcode.qrcodepath}")
+	private String qrcodepath;
+	@Value("${qrcode.format}")
+	private String format;
+	
+	
+	
+	
 	
 	@Override
 	@SystemServiceLog(description="分页查询库存统计信息")
@@ -454,7 +500,6 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				if (stock.getId().equals(st.getStock().getId())) {
 					cell = row.createCell(l+1);
 					cell.setCellStyle(style);
-					System.out.println(111);
 					if (st.isInOrOut()) {
 						cell.setCellValue(st.getStorageTime());
 					} else {
@@ -582,7 +627,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		}
 		dataMap.put("allnum", allnum);
 		dataMap.put("stocks", stocks);
-		
+	
 		String ctxPath = request.getServletContext().getRealPath("/WEB-INF/Templates/");
 		String fileName = "销货单.docx";
 		
@@ -600,6 +645,9 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				
 	}
 
+   
+	
+	
 	/**
 	 * 
 	 * @param stockStatistics
@@ -608,6 +656,20 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	 */
 	public Map<String, Object> wordGeneralMessage(StockStatistics stockStatistics,User user){
 		 Map<String, Object> dataMap = new HashMap<>();
+			ImageEntity image = new ImageEntity();
+			image.setHeight(40);
+			image.setWidth(80);
+			if(Common.isNotEmpty(stockStatistics.getMysign())) {
+				byte[] b = Base64.getDecoder().decode(stockStatistics.getMysign().getSign().replace("data:image/png;base64,", ""));
+				image.setData(b);
+				image.setType(ImageEntity.Data);
+				dataMap.put("image", image);
+			}else {
+				dataMap.put("image", " ");
+				
+			}
+			
+			
 		  String outboundOrder =Common.isEmpty(stockStatistics.getOutboundOrder())?"":stockStatistics.getOutboundOrder();
 		  dataMap.put("customer",Common.isEmpty(stockStatistics.getCustomer())?"":stockStatistics.getCustomer());
 		  dataMap.put("personInCharge", Common.isEmpty(stockStatistics.getPersonInCharge())?"":stockStatistics.getPersonInCharge());
@@ -650,7 +712,131 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		return this.find(query, StockStatistics.class);
 		
 	}
+
 	
+	public QrCode createStockStatisticsQrCode(String stockStatisticsId) {
+		StockStatistics stock = null;
+		if (Common.isNotEmpty(stockStatisticsId)) {
+			stock = this.findOneById(stockStatisticsId, StockStatistics.class);
+			if(stock.getQrCode()!=null) {
+				//判断二维码是否存在，不存在则重新创建
+				String downLoadPath = stock.getQrCode().getQrcode().getDir()
+						+ stock.getQrCode().getQrcode().getSavePath()
+						+ stock.getQrCode().getQrcode().getOriginalName();
+				File f = new File(downLoadPath);
+				if(!f.exists()) {
+					stock.setQrCode(null);
+				}
+			}
+			
+		}
+		if (stock == null) {
+			return null;
+		}
+		
+		QrCode qrcode = null;
+		if(stock.getQrCode()==null) {
+			qrcode = new QrCode();
+			try {
+				Hashtable<EncodeHintType, String> hints = new Hashtable<EncodeHintType, String>();
+				hints.put(EncodeHintType.CHARACTER_SET, "utf-8"); // 内容所使用字符集编码
+				String urlpath = "wechat/batchOut/" + stockStatisticsId;
+				String url = weburl + urlpath;
+				BitMatrix bitMatrix = new MultiFormatWriter().encode(url, BarcodeFormat.QR_CODE, width, height, hints);
+				// 生成二维码
+				String path = dir + qrcodepath + "/";
+				Common.checkPathAndMkdirs(path);
+				String projectname=Common.isNotEmpty(stock.getProjectName())?stock.getProjectName():"";
+				String customer = Common.isNotEmpty(stock.getCustomer())?stock.getCustomer():"";
+				
+				File outputFile = new File(path + projectname+customer+stock.getOutboundOrder() + ".png");
+				MatrixToImageWriter.writeToFile(bitMatrix, format, outputFile);
+				// 保存图片信息
+				MultiMedia saveQrCode = this.multiMediaService.saveQrCode(outputFile, dir, qrcodepath, "PHOTO");
+				qrcode.setQrcode(saveQrCode);
+				qrcode.setPath(urlpath);
+				qrcode.setName(projectname+customer);
+				qrcode.setType("STOCKSTATISTICS");
+				this.qrCodeServce.insert(qrcode);
+				stock.setQrCode(qrcode);
+				this.save(stock);
+			} catch (WriterException | IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		return stock.getQrCode();
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	@Override
+	public StockStatistics createStockStatisticsQrCodeAndDownload(String id) {
+		
+		StockStatistics stockStatistics = this.findOneById(id, StockStatistics.class);
+		
+		List<StockStatistics> findByoutboundOrder = this.findByoutboundOrder(stockStatistics.getOutboundOrder());
+		
+		findByoutboundOrder.forEach(o->{
+			this.createStockStatisticsQrCode(o.getId());
+		});
+		
+		return  this.findOneById(id, StockStatistics.class);
+		
+	
+	}
+
+	@Override
+	public Map<Object,Object> stockStatisticsPickup(StockStatistics stockStatistics) {
+		String outboundOrder = stockStatistics.getOutboundOrder();
+		List<StockStatistics> st = this.findByoutboundOrder(outboundOrder);
+		Map<Object,Object> map = new HashMap<>();
+		map.put("personInCharge", st.get(0).getPersonInCharge());
+		map.put("projectName", st.get(0).getProjectName());
+		map.put("customer", st.get(0).getCustomer());
+		map.put("description", st.get(0).getDescription());
+		map.put("outboundOrder", st.get(0).getOutboundOrder());
+		
+		
+		
+		try {
+			String dateYMDHM= Common.getDateYMDHM(new Date());
+			stockStatistics.setPickupTime(dateYMDHM);
+		
+			map.put("time", dateYMDHM);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		if(Common.isEmpty(st.get(0).getMysign())) {
+			map.put("sign", stockStatistics.getSign());
+			//保存签名
+			Sign sign = new Sign();
+			sign.setSign(stockStatistics.getSign());
+			this.signService.save(sign);
+			
+			
+			st.forEach(s->{
+				s.setMysign(sign);
+				s.setOpenId(stockStatistics.getOpenId());
+				s.setPickupTime(stockStatistics.getPickupTime());
+				this.save(s);
+			});
+			
+		}else {
+			map.put("sign", st.get(0).getMysign().getSign());
+			map.put("time", st.get(0).getPickupTime());
+			
+		}
+		return map;
+	}
 	
 	
 	

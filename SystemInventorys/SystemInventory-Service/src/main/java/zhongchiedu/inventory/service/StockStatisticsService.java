@@ -1,6 +1,7 @@
 package zhongchiedu.inventory.service;
 
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -34,5 +35,14 @@ public interface StockStatisticsService extends GeneralService<StockStatistics> 
 	public byte[] exportWord(String id, HttpServletRequest request,HttpSession session);
 	
 	public List<StockStatistics> findByoutboundOrder(String outboundOrder);
+	
+	public StockStatistics createStockStatisticsQrCodeAndDownload(String id);
+	
+	public Map<Object,Object> stockStatisticsPickup(StockStatistics stockStatistics);
+	
+	
+	
+	
+	
 	
 }

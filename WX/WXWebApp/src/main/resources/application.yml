@@ -7,8 +7,8 @@ wx:
         aesKey: HbQ8Z0VJjGXgc5AmyuBMpqmDDj2YJJgNEPVFrDbjoZ2        tmpDirFile: E://AAA
         
    
-    server-url: http://zhongchiedu.com
-    #server-url: http://zhongchi.vaiwan.com
+    #server-url: http://zhongchiedu.com
+    server-url: http://tv8c4n.natappfree.cc
 
 logging:
   level:
@@ -22,8 +22,8 @@ spring:  profiles:    active:    - mongodb
 qrcode:
   height: 300
   width: 300
-  #weburl: http://zhongchi.vaiwan.com/WXWebApp/
-  weburl: http://zhongchiedu.com/WXWebApp/
+  weburl: http://tv8c4n.natappfree.cc/WXWebApp/
+  #weburl: http://zhongchiedu.com/WXWebApp/
   format: png
   qrcodepath: upload/qrcode/
 upload:

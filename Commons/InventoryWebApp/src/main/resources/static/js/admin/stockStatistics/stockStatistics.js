@@ -190,3 +190,57 @@ $(".datepicker").datepicker({
 // forceParse : false,
 // autoclose : true
 // });
+
+
+
+
+function toDownloadQRcode(o) {
+	if (o != "") {
+		//下载单个
+		window.location.href = "stockStatistics/downloadQRcode?id=" + o;
+	} else {
+		var a = $("input[name='ids']:checked").length;
+		if (a == 0) {
+			swal({
+				type: "warning",
+				title: "",
+				text: "下载二维码至少选择一项!!",
+			});
+		} else {
+			var str = "";
+			var ids = $("input[name='ids']:checked");
+			$(ids).each(function() {
+				str += this.value + ",";
+			});
+			window.location.href = "stockStatistics/downloadQRcode?id=" + str;
+		}
+
+
+
+	}
+
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

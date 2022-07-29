@@ -1,12 +1,18 @@
 package zhongchiedu.controller.inventory;
 
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -15,6 +21,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,17 +31,22 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 
 import lombok.extern.slf4j.Slf4j;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.Common;
 import zhongchiedu.common.utils.Contents;
+import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.common.utils.WordUtil;
+import zhongchiedu.common.utils.ZipCompress;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.general.pojo.User;
 import zhongchiedu.inventory.pojo.Area;
+import zhongchiedu.inventory.pojo.Sign;
 import zhongchiedu.inventory.pojo.Stock;
 import zhongchiedu.inventory.pojo.StockStatistics;
+import zhongchiedu.inventory.service.SignService;
 import zhongchiedu.inventory.service.Impl.AreaServiceImpl;
 import zhongchiedu.inventory.service.Impl.ColumnServiceImpl;
 import zhongchiedu.inventory.service.Impl.StockServiceImpl;
@@ -70,13 +82,12 @@ public class StockStatisticsController {
 			@RequestParam(value = "type", defaultValue = "") String type,
 			@RequestParam(value = "id", defaultValue = "") String id,
 			@RequestParam(value = "searchArea", defaultValue = "") String searchArea,
-			@RequestParam(value = "searchAgent", defaultValue = "") String searchAgent
-			) {
+			@RequestParam(value = "searchAgent", defaultValue = "") String searchAgent) {
 		// 区域
 		List<Area> areas = this.areaService.findAllArea(false);
 		model.addAttribute("areas", areas);
 		Pagination<StockStatistics> pagination = this.stockStatisticsService.findpagination(pageNo, pageSize, search,
-				start, end, type, id,searchArea,searchAgent);
+				start, end, type, id, searchArea, searchAgent);
 		model.addAttribute("pageList", pagination);
 		List<String> listColums = this.columnService.findColumns("stockStatistics");
 		model.addAttribute("listColums", listColums);
@@ -112,31 +123,29 @@ public class StockStatisticsController {
 		return this.stockStatisticsService.inOrOutstockStatistics(stockStatistics, user);
 
 	}
-	
+
 	@RequestMapping(value = "/stockStatistics/batchOut", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	@RequiresPermissions(value = "stockStatistics:out")
 	@SystemControllerLog(description = "设备出库")
-	public BasicDataResult batchOut(String batchid,String batchnum, String batchdescription,String batchpersonInCharge,String batchprojectName,String batchcustomer,
-			HttpSession session) {
-	
-		
-		
+	public BasicDataResult batchOut(String batchid, String batchnum, String batchdescription,
+			String batchpersonInCharge, String batchprojectName, String batchcustomer, HttpSession session) {
+
 		String[] ids = batchid.split(",");
 		String[] nums = batchnum.split(",");
 		List<String> batchidList = Arrays.asList(ids);
 		List<String> batchnumList = Arrays.asList(nums);
-		
-		if(batchidList.size()!=batchnumList.size()) {
+
+		if (batchidList.size() != batchnumList.size()) {
 			return new BasicDataResult(400, "出库商品与id不匹配", "");
 		}
 		User user = (User) session.getAttribute(Contents.USER_SESSION);
 		String orderNum = Common.getOrderNum();
 		List<Object> list = new ArrayList<>();
-		
-		for(int i=0;i<batchidList.size();i++) {
+
+		for (int i = 0; i < batchidList.size(); i++) {
 			Stock stock = this.stockService.findOneById(batchidList.get(i), Stock.class);
-			StockStatistics st= new StockStatistics();
+			StockStatistics st = new StockStatistics();
 			st.setStock(stock);
 			st.setNum(Long.valueOf(batchnumList.get(i)));
 			st.setPersonInCharge(batchpersonInCharge);
@@ -146,17 +155,17 @@ public class StockStatisticsController {
 			st.setInOrOut(false);
 			st.setOutboundOrder(orderNum);
 			BasicDataResult r = this.stockStatisticsService.inOrOutstockStatistics(st, user);
-			StockStatistics statics=(StockStatistics) r.getData();
-			
+			StockStatistics statics = (StockStatistics) r.getData();
+
 			StockStatistics s = new StockStatistics();
 			s.setId(statics.getStock().getId());
 			s.setNewNum(statics.getNewNum());
 			list.add(s);
 		}
-		//出库成功清除session
+		// 出库成功清除session
 		session.removeAttribute(Contents.STOCK_LIST);
-	
-		 return new BasicDataResult(200, "批量出库成功!", list);
+
+		return new BasicDataResult(200, "批量出库成功!", list);
 	}
 
 	@RequestMapping(value = "/stockStatistics/findStock", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
@@ -193,8 +202,7 @@ public class StockStatisticsController {
 			@RequestParam(value = "type", defaultValue = "") String type,
 			@RequestParam(value = "id", defaultValue = "") String id,
 			@RequestParam(value = "areaId", defaultValue = "") String areaId,
-			@RequestParam(value = "searchAgent", defaultValue = "") String searchAgent,
-			HttpServletResponse response) {
+			@RequestParam(value = "searchAgent", defaultValue = "") String searchAgent, HttpServletResponse response) {
 		try {
 
 			String name = "";
@@ -207,7 +215,8 @@ public class StockStatisticsController {
 			}
 			String exportName = Common.fromDateYMD() + name;
 
-			HSSFWorkbook wb = this.stockStatisticsService.export(search, start, end, type, exportName,areaId,searchAgent);
+			HSSFWorkbook wb = this.stockStatisticsService.export(search, start, end, type, exportName, areaId,
+					searchAgent);
 			response.setContentType("application/vnd.ms-excel");
 			String fileName = new String((exportName).getBytes("gb2312"), "ISO8859-1");
 			response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xls");
@@ -221,60 +230,163 @@ public class StockStatisticsController {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * 导出excel
-	 * @throws Exception 
+	 * 
+	 * @throws Exception
 	 */
 	@RequestMapping(value = "/stockStatistics/exportOutBoundOrder", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@SystemControllerLog(description = "")
-	public void exportOutBoundOrder(
-			@RequestParam(value = "id", defaultValue = "") String id,
-			HttpServletRequest request,HttpSession session,
-			HttpServletResponse response) throws Exception {
-		
-		
-		
-		
+	public void exportOutBoundOrder(@RequestParam(value = "id", defaultValue = "") String id,
+			HttpServletRequest request, HttpSession session, HttpServletResponse response) throws Exception {
+
 		String exportName = Common.fromDateYMD() + "销货单";
 
-			response.setContentType("application/vnd.ms-word;charset=utf-8");
-			String fileName = new String((exportName).getBytes("gb2312"), "ISO8859-1");
-			response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".docx");
-			byte[] exportWord = this.stockStatisticsService.exportWord(id, request, session);
+		response.setContentType("application/vnd.ms-word;charset=utf-8");
+		String fileName = new String((exportName).getBytes("gb2312"), "ISO8859-1");
+		response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".docx");
+		byte[] exportWord = this.stockStatisticsService.exportWord(id, request, session);
 
-			OutputStream out = response.getOutputStream();
-			out.write(exportWord);
-			out.flush();
-			out.close();
-			
+		OutputStream out = response.getOutputStream();
+		out.write(exportWord);
+		out.flush();
+		out.close();
+
 	}
-	
+
 	@RequestMapping(value = "/stockStatistics/update", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	@SystemControllerLog(description = "更新数据状态")
 	public String updateAgent() {
-		
+
 		List<StockStatistics> stocks = this.stockStatisticsService.find(new Query(), StockStatistics.class);
 		StringBuffer buf = new StringBuffer();
-		stocks.forEach(s->{
-			System.out.println(s.getStock()==null);
-			if(s.getStock()!=null) {
-				System.out.println("修复："+s.getId()+s.getStock().getName()+"数据"+s.isAgent()+"</br>");
-				buf.append("修复："+s.getStock().getName()+"数据"+s.isAgent()+"</br>");
+		stocks.forEach(s -> {
+			System.out.println(s.getStock() == null);
+			if (s.getStock() != null) {
+				System.out.println("修复：" + s.getId() + s.getStock().getName() + "数据" + s.isAgent() + "</br>");
+				buf.append("修复：" + s.getStock().getName() + "数据" + s.isAgent() + "</br>");
 				s.setAgent(s.getStock().isAgent());
 				this.stockStatisticsService.save(s);
 			}
-				
+
 		});
-		
-		
-		
+
 		return buf.toString();
 	}
-	
-	
-	
-	
+
+	/**
+	 * 下载二维码
+	 * 
+	 */
+	@RequestMapping(value = "stockStatistics/downloadQRcode")
+	@SystemControllerLog(description = "下载二维码")
+	public ModelAndView download(HttpServletRequest request, HttpServletResponse response, String id) throws Exception {
+
+		StockStatistics stockStatistics = this.stockStatisticsService.createStockStatisticsQrCodeAndDownload(id);
+		String contentType = "application/octet-stream";
+
+		try {
+			String downLoadPath = stockStatistics.getQrCode().getQrcode().getDir()
+					+ stockStatistics.getQrCode().getQrcode().getSavePath()
+					+ stockStatistics.getQrCode().getQrcode().getOriginalName();
+			FileOperateUtil.downloadbyFilePath(request, response,
+					stockStatistics.getProjectName() + stockStatistics.getCustomer()
+							+ stockStatistics.getOutboundOrder()
+							+ stockStatistics.getQrCode().getQrcode().getExtension(),
+					contentType, new File(downLoadPath));
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+//		//根据id获取当前选择的库存统计项
+//		StockStatistics stock = this.stockStatisticsService.findOneById(id, StockStatistics.class);
+//		//获取当前库存统计中一同出库的内容    
+//		String contentType = "application/octet-stream";
+//		if (list.size() == 1) {
+//			try {
+//				String downLoadPath = list.get(0).getQrCode().getQrcode().getDir()
+//						+ list.get(0).getQrCode().getQrcode().getSavePath()
+//						+ list.get(0).getQrCode().getQrcode().getOriginalName();
+//				FileOperateUtil.downloadbyFilePath(request, response,
+//						list.get(0).getName() + list.get(0).getQrCode().getQrcode().getExtension(), contentType,
+//						new File(downLoadPath));
+//			} catch (Exception e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//		} else {
+//			// 如果下载的二维码数量大于1 那么久压缩下载
+//			List<File> file = new ArrayList();
+//			list.forEach(stock -> {
+//				// 获取所有下载文件file
+//				String downLoadPath = stock.getQrCode().getQrcode().getDir()
+//						+ stock.getQrCode().getQrcode().getSavePath()
+//						+ stock.getQrCode().getQrcode().getOriginalName();
+//				file.add(new File(downLoadPath));
+//
+//			});
+//
+//			// 获取临时压缩文件
+//			String storeName = ZipCompress.getZipFilename();
+//			log.info("压缩文件：" + storeName);
+//			File zipfile = new File(dir + qrcodepath + storeName);
+//			ZipCompress.zipFile(file, zipfile);
+//
+//			try {
+//				FileOperateUtil.downloadbyFilePath(request, response, storeName, contentType, zipfile);
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			} finally {
+//
+//				ZipCompress.deleteFile(zipfile);
+//			}
+//		}
+//
+		return null;
+	}
+
+	@Autowired
+	private SignService signService;
+
+	@RequestMapping(value = "/stockStatistics/updateSign", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	@SystemControllerLog(description = "修复签名数据")
+	public BasicDataResult updateSign() {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("outboundOrder").exists(true));
+		List<StockStatistics> st = this.stockStatisticsService.find(query, StockStatistics.class);
+		Set<String> outbound = new HashSet<>();
+
+		st.forEach(s -> {
+			outbound.add(s.getOutboundOrder());
+		});
+
+		Iterator<String> it = outbound.iterator();
+		while (it.hasNext()) {
+			// 获取所有相同订单的数据，并且判断有没有签名，如果有签名，获取签名并且将签名保存到mysign中去
+			List<StockStatistics> stock = this.stockStatisticsService.findByoutboundOrder(it.next());
+			String sign = stock.get(0).getSign();
+
+			if (Common.isNotEmpty(sign)) {
+				Sign s = new Sign();
+				s.setSign(sign);
+				this.signService.save(s);
+				
+				stock.forEach(a -> {
+					a.setMysign(s);
+					a.setSign("");
+					this.stockStatisticsService.save(a);
+				});
+
+			}
+
+		}
+
+		return new BasicDataResult().ok();
+
+	}
 
 }

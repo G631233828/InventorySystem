@@ -80,7 +80,7 @@ public class MVCConfig extends WebMvcConfigurerAdapter {
 			@Override
 			public void addInterceptors(InterceptorRegistry registry) {
 				//registry.addInterceptor(sessionInterceptor()).addPathPatterns("/**").excludePathPatterns("/index.html","/user/login");
-				registry.addInterceptor(weiWebHandlerInterceptor()).addPathPatterns("/**").excludePathPatterns("/wechat/weChatAuth","/wechat/cargoFromStorage/**");
+				registry.addInterceptor(weiWebHandlerInterceptor()).addPathPatterns("/**").excludePathPatterns("/wechat/weChatAuth","/wechat/cargoFromStorage/**","/wechat/batchOut/**");
 			}
 			
 		};
