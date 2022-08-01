@@ -121,6 +121,9 @@ function revoke(o) {
 							//							$("#revokeNum").text(data.data.revokeNum);
 							$("#revoke" + o).css("color", "red");
 							$("#revoke" + o).text("已撤销");
+							$("#outbound"+o).hide();
+							$("#qrcode"+o).hide();
+							
 							M.dialog3.close();
 							jqueryAlert({
 								'content': data.msg

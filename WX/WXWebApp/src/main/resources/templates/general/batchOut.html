@@ -14,11 +14,14 @@
 	content="width=device-width,initial-scale=1,user-scalable=0">
 <th:block th:replace="public/public_css::pub_css"></th:block>
 <th:block th:replace="public/public_js::pub_js"></th:block>
-    <script type="text/javascript" th:src="@{/assets/canvas/flexible.debug.js}"></script>
-    <script type="text/javascript" th:src="@{/assets/canvas/zepto.js}"></script>
-    <script type="text/javascript" th:src="@{/assets/canvas/touch.js}"></script>
-    <script type="text/javascript" th:src="@{/assets/canvas/flexible.debug.js}"></script>
-    <script type="text/javascript" th:src="@{/assets/canvas/flexible_css.debug.js}"></script>
+<script type="text/javascript"
+	th:src="@{/assets/canvas/flexible.debug.js}"></script>
+<script type="text/javascript" th:src="@{/assets/canvas/zepto.js}"></script>
+<script type="text/javascript" th:src="@{/assets/canvas/touch.js}"></script>
+<script type="text/javascript"
+	th:src="@{/assets/canvas/flexible.debug.js}"></script>
+<script type="text/javascript"
+	th:src="@{/assets/canvas/flexible_css.debug.js}"></script>
 
 <script type="text/javascript">
 var isSign = false;
@@ -110,95 +113,122 @@ table tr td font {
 
 </head>
 
-<body  class="page-bg">
-<div class="weui-cells weui-cells_form">
-<ul class="weui-payrec">
-    <div class="weui-pay-m">
-        <li class="weui-pay-order">
-            <dl class="weui-pay-line">
-                <dd class="weui-pay-name">中颂建筑智能化（上海）有限公司销货单</dd>
-                <dt class="weui-pay-label">客户名称：</dt><dd class="weui-pay-e">[[${stock?.customer}]]</dd>
-            </dl>
-            <dl class="weui-pay-line"><dt class="weui-pay-label">负责人：</dt><dd class="weui-pay-e">[[${stock?.personInCharge}]]</dd></dl>
-            <dl class="weui-pay-line"><dt class="weui-pay-label">单据日期：</dt><dd class="weui-pay-e">[[${stock?.depotTime}]]</dd></dl>
-            <dl class="weui-pay-line"><dt class="weui-pay-label">单据编号：</dt><dd class="weui-pay-e">[[${stock?.outboundOrder}]]</dd></dl>
-            <dl class="weui-pay-line"><dt class="weui-pay-label">项目名称：</dt><dd class="weui-pay-e">[[${stock?.projectName}]]</dd></dl>
-            <dl class="weui-pay-line"><dt class="weui-pay-label">备注：</dt><dd class="weui-pay-e"> [[${stock?.description}]]</dd></dl>
-        </li>
-        
-    </div>
-    
-</ul>
-			
-<table id="table">
-    <thead>
-    
-    <tr>
-	<th>序号</th>
-	<th>设备名称</th>
-	<th>设备型号</th>
-	<th>单位</th>
-	<th>数量</th>
-	
-	
-	
-	</tr></thead>
-    <tbody id="rank-list">
-	<th:block  th:each="st:${list}">
-   	<tr>
-	<td>[[${stStat.index+1}]]</td>
-	<td>[[${st?.stock?.name}]]</td>
-	<td>[[${st?.stock?.model}]]</td>
-	<td>[[${st?.stock?.unit?.name}]]</td>
-	<td>[[${st?.num}]]</td>
-	</tr>
-     </th:block>   
-   
-        
-    </tbody>
-</table>
+<body class="page-bg">
+	<div class="weui-cells weui-cells_form">
+		<ul class="weui-payrec">
+			<div class="weui-pay-m">
+				<li class="weui-pay-order">
+					<dl class="weui-pay-line">
+						<dd class="weui-pay-name">中颂建筑智能化（上海）有限公司销货单</dd>
+						<dt class="weui-pay-label">客户名称：</dt>
+						<dd class="weui-pay-e">[[${stock?.customer}]]</dd>
+					</dl>
+					<dl class="weui-pay-line">
+						<dt class="weui-pay-label">负责人：</dt>
+						<dd class="weui-pay-e">[[${stock?.personInCharge}]]</dd>
+					</dl>
+					<dl class="weui-pay-line">
+						<dt class="weui-pay-label">单据日期：</dt>
+						<dd class="weui-pay-e">[[${stock?.depotTime}]]</dd>
+					</dl>
+					<dl class="weui-pay-line">
+						<dt class="weui-pay-label">单据编号：</dt>
+						<dd class="weui-pay-e">[[${stock?.outboundOrder}]]</dd>
+					</dl>
+					<dl class="weui-pay-line">
+						<dt class="weui-pay-label">项目名称：</dt>
+						<dd class="weui-pay-e">[[${stock?.projectName}]]</dd>
+					</dl>
+					<dl class="weui-pay-line">
+						<dt class="weui-pay-label">备注：</dt>
+						<dd class="weui-pay-e">[[${stock?.description}]]</dd>
+					</dl>
+				</li>
+
+			</div>
+
+		</ul>
+
+		<table id="table">
+			<thead>
+
+				<tr>
+					<th>序号</th>
+					<th>设备名称</th>
+					<th>设备型号</th>
+					<th>单位</th>
+					<th>数量</th>
+
+
+
+				</tr>
+			</thead>
+			<tbody id="rank-list">
+				<th:block th:each="st:${list}">
+					<tr>
+						<td>[[${stStat.index+1}]]</td>
+						<td>[[${st?.stock?.name}]]</td>
+						<td>[[${st?.stock?.model}]]</td>
+						<td>[[${st?.stock?.unit?.name}]]</td>
+						<td>[[${st?.num}]]</td>
+					</tr>
+				</th:block>
+
+
+			</tbody>
+		</table>
 
 
 
 
-<div class="page-hd">
-    <h1 class="page-hd-title">
-     	 请签名确认
-    </h1>
-   
-</div>
+		<div class="page-hd">
+			<h1 class="page-hd-title">请签名确认</h1>
 
-  
-	<form th:action="@{/wechat/stockStatisticsPickup}" id="stockForm" method="post">
+		</div>
 
 
- <div class="weui-pay-area">
-     <canvas id='canvas'></canvas>
-	<input type="hidden" name="sign" id="sign">
-	<input type="hidden" name="outboundOrder" th:value="${stock?.outboundOrder}">
- <input type="hidden" th:value="${getwXUserInfo?.openId}" name="openId">
-    <div id="canvas-btn">  
-        <div class="cleaerfix"></div>  
-    </div> 
-   
-    
-</div>
-<div class="weui-btn-area">
-<div class="weui-flex">
-    <div class="weui-flex__item"><div class="placeholder"> <div id="clear_btn"  onclick="javascript:"  class="weui-btn weui-btn_warn">重签</div>  </div></div>
-    <div class="weui-flex__item"><div class="placeholder"><button  class="weui-btn weui-btn_primary" onclick="javascript:" id="btn">确定</button></div></div>
-</div>
-</div>
-       
-    </form> 
-    
-    
-</div>
+		<form th:action="@{/wechat/stockStatisticsPickup}" id="stockForm"
+			method="post">
+
+
+			<div class="weui-pay-area">
+				<canvas id='canvas'></canvas>
+				<input type="hidden" name="sign" id="sign"> <input
+					type="hidden" name="outboundOrder"
+					th:value="${stock?.outboundOrder}"> <input type="hidden"
+					th:value="${getwXUserInfo?.openId}" name="openId">
+				<div id="canvas-btn">
+					<div class="cleaerfix"></div>
+				</div>
+
+
+			</div>
+			<div class="weui-btn-area">
+				<div class="weui-flex">
+					<div class="weui-flex__item">
+						<div class="placeholder">
+							<div id="clear_btn" onclick="javascript:"
+								class="weui-btn weui-btn_warn">重签</div>
+						</div>
+					</div>
+					<div class="weui-flex__item">
+						<div class="placeholder">
+							<button class="weui-btn weui-btn_primary" onclick="javascript:"
+								id="btn">确定</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</form>
+
+
+	</div>
 
 
 
 
- <script>
+	<script>
    	//获取页面尺寸  
     var canvasWidth = document.body.clientWidth;  
    // var canvasHeight = canvasWidth;  
@@ -362,7 +392,7 @@ table tr td font {
     </script>
 
 
-<div th:replace="public/public_js::public_script"></div>
+	<div th:replace="public/public_js::public_script"></div>
 
 
 

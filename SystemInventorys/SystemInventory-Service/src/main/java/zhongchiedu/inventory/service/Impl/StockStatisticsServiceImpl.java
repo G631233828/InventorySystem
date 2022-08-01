@@ -707,6 +707,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	public List<StockStatistics> findByoutboundOrder(String outboundOrder) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("outboundOrder").is(outboundOrder));
+		query.addCriteria(Criteria.where("revoke").is(false));
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		query.addCriteria(Criteria.where("isDisable").is(false));
 		return this.find(query, StockStatistics.class);

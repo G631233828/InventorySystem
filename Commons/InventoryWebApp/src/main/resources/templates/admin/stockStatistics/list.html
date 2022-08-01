@@ -256,11 +256,11 @@
 														</shiro:hasPermission>
 														<th:block  th:if="${stockStatistics?.revoke == false}">
 														<button class="btn btn-primary btn-xs btcancle" th:if="${stockStatistics.depotTime!=null}"
-																th:id="${stockStatistics?.id}"
+																th:id="|outbound${stockStatistics?.id}|"
 																th:onclick="|return outboundOrder('${stockStatistics?.id}')|">
 																<i class="fa fa-edit"> </i>生成出库单
 														</button>
-														<button class="btn btn-default btn-sm" th:if="${stockStatistics.depotTime!=null}"
+														<button th:id="|qrcode${stockStatistics?.id}|" class="btn btn-default btn-sm" th:if="${stockStatistics.depotTime!=null}"
 															th:onclick="|return toDownloadQRcode('${stockStatistics.id}')|">
 															<i class="glyphicon glyphicon-plus"> </i> 取货二维码
 														</button>

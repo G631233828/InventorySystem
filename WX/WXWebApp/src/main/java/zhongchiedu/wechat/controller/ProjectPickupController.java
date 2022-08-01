@@ -157,7 +157,12 @@ public class ProjectPickupController {
 				WXUserInfo getwXUserInfo = this.wXUserInfoService.findUserByOpenId(stock.getOpenId());
 				model.addAttribute("getwXUserInfo", getwXUserInfo);
 			}
+			
+			List<StockStatistics> list = this.stockStatisticsService.findByoutboundOrder(stock.getOutboundOrder());
+			model.addAttribute("list", list);
+			
 			path="general/batchOutSuccess";
+			
 		}else {
 			List<StockStatistics> list = this.stockStatisticsService.findByoutboundOrder(stock.getOutboundOrder());
 			model.addAttribute("list", list);
@@ -211,6 +216,8 @@ public class ProjectPickupController {
 		WXUserInfo wXUserInfo = this.wXUserInfoService.updateWXuserInfo(p);
 		model.addAttribute("wXUserInfo", wXUserInfo);
 		model.addAttribute("map", map);
+		List<StockStatistics> list = this.stockStatisticsService.findByoutboundOrder(map.get("outboundOrder").toString());
+		model.addAttribute("list", list);
 		
 		return "/general/batchOutSuccess";
 	}

@@ -232,7 +232,7 @@ public class StockStatisticsController {
 	}
 
 	/**
-	 * 导出excel
+	 * 导出excel生成出库单
 	 * 
 	 * @throws Exception
 	 */

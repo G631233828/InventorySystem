@@ -49,7 +49,7 @@
 					<label class="weui-form-preview__label">出库单号</label> <span
 						class="weui-form-preview__value">[[${map?.outboundOrder}]]</span>
 				</div>
-	
+
 				<div class="weui-form-preview__item">
 					<label class="weui-form-preview__label">取货时间</label> <span
 						class="weui-form-preview__value">[[${map?.time}]]</span>
@@ -62,18 +62,44 @@
 					<label class="weui-form-preview__label">取货人微信</label> <span
 						class="weui-form-preview__value">[[${userInfo?.nickname}]]</span>
 				</div>
-			
+
+				<table id="table">
+					<thead>
+
+						<tr>
+							<th>序号</th>
+							<th>设备名称</th>
+							<th>设备型号</th>
+							<th>单位</th>
+							<th>数量</th>
+						</tr>
+					</thead>
+					<tbody id="rank-list">
+						<th:block th:each="st:${list}">
+							<tr>
+								<td>[[${stStat.index+1}]]</td>
+								<td>[[${st?.stock?.name}]]</td>
+								<td>[[${st?.stock?.model}]]</td>
+								<td>[[${st?.stock?.unit?.name}]]</td>
+								<td>[[${st?.num}]]</td>
+							</tr>
+						</th:block>
+
+
+					</tbody>
+				</table>
+
 				<div class="weui-form-preview__item">
-					<label class="weui-form-preview__label">您的签名</label> 
-					   <img th:src="${map?.sign}" class="img-max">
+					<label class="weui-form-preview__label">您的签名</label> <img
+						th:src="${map?.sign}" class="img-max">
 				</div>
 			</div>
-			
+
 		</div>
 	</div>
 
 	<div th:replace="public/public_js::public_script"></div>
-<!-- 	<div th:replace="public/public_js::public_back"></div> -->
+	<!-- 	<div th:replace="public/public_js::public_back"></div> -->
 
 	<script th:inline="javascript">
 		/*<![CDATA[*/
