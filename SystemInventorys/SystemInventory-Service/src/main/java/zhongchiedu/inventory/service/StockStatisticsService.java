@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Workbook;
 
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.framework.pagination.Pagination;
@@ -40,6 +41,7 @@ public interface StockStatisticsService extends GeneralService<StockStatistics> 
 	
 	public Map<Object,Object> stockStatisticsPickup(StockStatistics stockStatistics);
 	
+	public Workbook newExport( HttpServletRequest request,String search,String start,String end,String type,String name,String areaId,String searchAgent);
 	
 	
 	

@@ -22,6 +22,7 @@ import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,8 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 
 import cn.afterturn.easypoi.entity.ImageEntity;
+import cn.afterturn.easypoi.excel.ExcelExportUtil;
+import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import lombok.extern.slf4j.Slf4j;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.Common;
@@ -201,10 +204,14 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		if(Common.isNotEmpty(searchAgent)) {
 			query = query.addCriteria(Criteria.where("agent").is(Boolean.valueOf(searchAgent)));
 		}
-
+		if(Common.isNotEmpty(search)) {
+			Criteria ca = new Criteria();
+			query.addCriteria(ca.orOperator(Criteria.where("name").regex(search), Criteria.where("model").regex(search)));
+			
+		}
+	
 		
-		Criteria ca = new Criteria();
-		query.addCriteria(ca.orOperator(Criteria.where("name").regex(search), Criteria.where("model").regex(search)));
+		
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		List<Stock> lists = this.stockService.find(query, Stock.class);
 		return lists;
@@ -365,40 +372,69 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 	@Override
 	@SystemServiceLog(description="导出库存统计信息")
-	public HSSFWorkbook export(String search, String start, String end, String type, String name,String areaId,String searchAgent) {
+	public Workbook newExport(HttpServletRequest request ,String search, String start, String end, String type, String name,String areaId,String searchAgent) {
 
-		HSSFWorkbook wb = new HSSFWorkbook();
-		HSSFSheet sheet = null;
-		List<String> sheetName = new ArrayList<>();
-		if (type.equals("in")) {
-			// 入库统计
-			sheetName.add("入库统计");
-		} else if (type.equals("out")) {
-			// 出库统计
-			sheetName.add("出库统计");
-		} else {
-			// 统计所有
-			sheetName.add("入库统计");
-			sheetName.add("出库统计");
-		}
-		for (String i : sheetName) {
-			if (i.equals("出库统计")) {
-				type = "out";
-			} else {
-				type = "in";
+
+		List<Stock> listStock = this.findStocksBySearch(search,areaId,searchAgent);
+		// 获取所有的库存
+		List<StockStatistics> list = this.findStockStatistics(search, start, end, type,areaId,searchAgent);
+		
+		 List<Map<String, Object>> inlist = new ArrayList<>(); 
+		 List<Map<String, Object>> outlist = new ArrayList<>(); 
+		 
+		for (Stock stock : listStock) {
+			// 获取所有的设备
+			for (StockStatistics st : list) {
+				
+				if(st.getStock()!=null) {
+					if (stock.getId().equals(st.getStock().getId())) {
+						if(st.isInOrOut()) {
+							//入库统计
+							 Map<String, Object> in =  new HashMap<>(); 
+							 in.put("area", stock.getArea().getName());
+							 in.put("stockName",Common.isEmpty(st.getStock().getName())?"":st.getStock().getName());
+							 in.put("modelName", Common.isEmpty(st.getStock().getModel())?"":st.getStock().getModel());
+							 in.put("depotTime",st.getStorageTime());
+							 in.put("num", st.getNum());
+							 inlist.add(in);
+						}else {
+							 Map<String, Object> out =  new HashMap<>(); 
+							 out.put("area", stock.getArea().getName());
+							 out.put("stockName",Common.isEmpty(st.getStock().getName())?"":st.getStock().getName());
+							 out.put("modelName", Common.isEmpty(st.getStock().getModel())?"":st.getStock().getModel());
+							 out.put("depotTime",st.getDepotTime());
+							 out.put("num", st.getNum());
+							 outlist.add(out);
+							outlist.add(out);
+						}
+					
+					}
+				}
 			}
-
-			sheet = wb.createSheet(i);
-			HSSFCellStyle style = createStyle(wb);
-			List<String> title = this.title();
-			this.createHead(sheet, title, style, start+" \t"+ end + i);
-			this.createTitle(sheet, title, style);
-			this.createStock(sheet, title, style, search, start, end, type,areaId,searchAgent);
-			sheet.createFreezePane(2, 0, 2, 0);
-			sheet.setDefaultColumnWidth(20);
-			sheet.autoSizeColumn(1, true);
 		}
-		return wb;
+		
+		 Map<String, Object> dataMap = new HashMap<>();			 
+				 
+				dataMap.put("inlist", inlist);
+				dataMap.put("outlist", outlist);
+			
+				String ctxPath = request.getServletContext().getRealPath("/WEB-INF/Templates/");
+				String fileName = "库存统计导出模板.xlsx";
+				   TemplateExportParams params = new TemplateExportParams(ctxPath+fileName,true);
+				Workbook doc =null;
+				
+				try {
+					doc =ExcelExportUtil.exportExcel(params, dataMap);
+//							WordUtil.exportWord(ctxPath+fileName, dataMap);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				
+				
+				return doc;
+			
+
 	}
 
 	/**
@@ -838,7 +874,15 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		}
 		return map;
 	}
-	
+
+	@Override
+	public HSSFWorkbook export(String search, String start, String end, String type, String name, String areaId,
+			String searchAgent) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
 	
 	
 	
