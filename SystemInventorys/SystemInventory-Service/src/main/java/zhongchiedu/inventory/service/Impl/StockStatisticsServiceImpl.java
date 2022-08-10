@@ -392,16 +392,20 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 							//入库统计
 							 Map<String, Object> in =  new HashMap<>(); 
 							 in.put("area", stock.getArea().getName());
+							 in.put("projectName",Common.isEmpty(st.getProjectName())?"":st.getProjectName());
 							 in.put("stockName",Common.isEmpty(st.getStock().getName())?"":st.getStock().getName());
 							 in.put("modelName", Common.isEmpty(st.getStock().getModel())?"":st.getStock().getModel());
+							 in.put("price", Common.isEmpty(st.getStock().getPrice())?"":st.getStock().getPrice());
 							 in.put("depotTime",st.getStorageTime());
 							 in.put("num", st.getNum());
 							 inlist.add(in);
 						}else {
 							 Map<String, Object> out =  new HashMap<>(); 
 							 out.put("area", stock.getArea().getName());
+							 out.put("projectName",Common.isEmpty(st.getProjectName())?"":st.getProjectName());
 							 out.put("stockName",Common.isEmpty(st.getStock().getName())?"":st.getStock().getName());
 							 out.put("modelName", Common.isEmpty(st.getStock().getModel())?"":st.getStock().getModel());
+							 out.put("price", Common.isEmpty(st.getStock().getPrice())?"":st.getStock().getPrice());
 							 out.put("depotTime",st.getDepotTime());
 							 out.put("num", st.getNum());
 							 outlist.add(out);
