@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head th:include="public/public_css::pub_css"></head>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" type="text/css"
+	th:href="@{/assets/js/progress-bar/number-pb.css}">
+<link th:href="@{/plugs/sweetalert/sweetalert.css}" rel="stylesheet">
+<link th:href="@{/plugs/alert/css/alert.css}" rel="stylesheet">
+<script type="text/javascript" th:src="@{/plugs/alert/js/alert.js}"></script>
+<link th:href="@{plugs/autoComplete/content/styles.css}"
+	rel="stylesheet" />
+<link rel="stylesheet" th:href="@{/plugs/datapicker/datepicker3.css}">
+<script type="text/javascript"
+	th:src="@{/plugs/datapicker/bootstrap-datepicker.js}"></script>
+
+</head>
+
+<body>
+	<!-- Preloader -->
+	<div id="preloader">
+		<div id="status">&nbsp;</div>
+	</div>
+	<!-- TOP NAVBAR -->
+	<div th:replace="public/public::top"></div>
+	<!-- /END OF TOP NAVBAR -->
+
+	<!-- SIDE MENU -->
+	<div th:replace="public/public::left(activeUri='stockManager')"></div>
+	<!-- END OF SIDE MENU -->
+
+	<!--  PAPER WRAP -->
+	<div class="wrap-fluid">
+		<div class="container-fluid paper-wrap bevel tlbr">
+
+
+			<!-- CONTENT -->
+			<!--TITLE -->
+			<div th:replace="public/public::title"></div>
+			<!--/ TITLE -->
+
+			<!-- BREADCRUMB -->
+			<div th:replace="public/public::menu"></div>
+			<!-- END OF BREADCRUMB -->
+
+
+			<div class="content-wrap">
+				<div class="row">
+
+
+					<div class="col-sm-12">
+						<div class="body-nest" id="alert" th:if="${errorImport!=''}">
+							<div class="alert alert-danger">
+								<button data-dismiss="alert" class="close" type="button">×</button>
+								<th:block th:utext="${errorImport}">
+								</th:block>
+							</div>
+
+						</div>
+
+
+						<div class="nest" id="tableStaticClose">
+
+							<div class="title-alt">
+								<div class="row">
+									<div class="col-sm-8">
+
+										<shiro:hasPermission name="inventoryTransfer:add">
+											<button class="btn btn-default btn-sm"
+												th:onclick="|window.location.href='@{/inventoryTransfer}'|">
+												<i class="glyphicon glyphicon-plus"> </i> 添加
+											</button>
+										</shiro:hasPermission>
+
+										<shiro:hasPermission name="inventoryTransfer:edit">
+											<button class="btn btn-primary btn-sm"
+												onclick="return toeditPage('','inventoryTransfer')">
+												<i class="fa fa-edit"> </i>编辑
+											</button>
+										</shiro:hasPermission>
+
+										<shiro:hasPermission name="inventoryTransfer:delete">
+											<button class="btn btn-danger btn-sm"
+												th:onclick="|return del('','@{/inventoryTransfer/}')|">
+												<i class="fa fa-trash-o"> </i>删除
+											</button>
+										</shiro:hasPermission>
+
+										<shiro:hasPermission name="inventoryTransfer:batch">
+											<button class="btn btn-success" onclick="return batchImput()">
+												<i class="fontawesome-upload"> </i>批量导入
+											</button>
+										</shiro:hasPermission>
+	
+
+										<button class="btn btn-default" onclick="return showColumn()">
+											<i class="entypo-list-add"> </i>显示列
+										</button>
+
+										<button class="btn btn-default" onclick="return toExport()">
+											<i class="entypo-export"> </i>导出库存报表
+										</button>
+
+
+									</div>
+									<div class="col-sm-4"></div>
+
+
+								</div>
+							</div>
+
+							<div class="body-nest" id="tableStatic">
+
+								<div class="row" style="margin-bottom: 10px;">
+									<div class="col-sm-7 form-inline">
+										<select class="filter-status form-control" id="pageSize"
+											onchange="return searchVal()">
+											<option value="10" th:selected="${session.pageSize == 10}">10
+
+											
+											<option value="20" th:selected="${session.pageSize == 20}">20
+
+											
+											<option value="50" th:selected="${session.pageSize == 50}">50
+
+											
+											<option value="100" th:selected="${session.pageSize == 100}">100
+
+											
+										</select> 
+									 <input class="form-control" id="serach" placeholder="模糊匹配"
+											th:value="${session.search}" type="text">
+										<input
+											class="form-control datepicker" readonly="readonly"
+											id="start" placeholder="开始日期" th:value="${start}" type="text">
+										<input class="form-control datepicker" readonly="readonly"
+											id="end" placeholder="结束日期" th:value="${end}" type="text">	
+											
+											
+											
+										<button class="btn btn-default btn-sm"
+											onclick="return searchVal()">
+											<i class="entypo-search"> </i> 搜索
+										</button>
+										<button class="btn btn-default btn-sm"
+											onclick="return cleanSearch()">
+											<i class="fontawesome-remove"> </i> 清除搜索条件
+										</button>
+									</div>
+								</div>
+
+								<div class="col-sm-5"></div>
+
+							</div>
+
+
+
+							<section id="flip-scroll">
+								<div
+									style="overflow-y: auto; overflow-x: auto; white-space: nowrap; text-overflow: ellipsis;">
+									<table
+										class="table table-bordered table-striped cf text-nowrap  table-hover">
+										<thead class="cf">
+											<tr>
+												<th class="numeric" style="width: 20px;">
+													<div class="checkbox checkbox-inline"
+														style="margin-top: 0px;">
+														<input type="checkbox" id="checkall" name="checkall" /> <label
+															for="checkall"></label>
+													</div>
+												</th>
+												<th class="numeric name"
+													th:style="${#lists.contains(listColums,'name')}?'':'display:none;'">设备名称</th>
+												<th class="numeric model"
+													th:style="${#lists.contains(listColums,'model')}?'':'display:none;'">设备型号</th>
+												<th class="numeric supplier"
+													th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'">供应商</th>
+												<th class="numeric scope"
+													th:style="${#lists.contains(listColums,'scope')}?'':'display:none;'">使用范围</th>	
+												<th class="numeric price"
+													th:style="${#lists.contains(listColums,'price')}?'':'display:none;'">单价</th>	
+												<th class="numeric transferQuantity"
+													th:style="${#lists.contains(listColums,'transferQuantity')}?'':'display:none;'">数量</th>	
+												<th class="numeric inventoryTransferDate"
+													th:style="${#lists.contains(listColums,'inventoryTransferDate')}?'':'display:none;'">日期</th>	
+												<th class="numeric unit"
+													th:style="${#lists.contains(listColums,'unit')}?'':'display:none;'">计量单位</th>	
+												<th class="numeric maintenance"
+													th:style="${#lists.contains(listColums,'maintenance')}?'':'display:none;'">维保</th>	
+												<th class="numeric receivables"
+													th:style="${#lists.contains(listColums,'receivables')}?'':'display:none;'">应收款</th>
+												<th class="numeric personInCharge"
+													th:style="${#lists.contains(listColums,'personInCharge')}?'':'display:none;'">负责人</th>	
+												<th class="numeric entryName"
+													th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'">项目名称</th>
+												<th class="numeric itemNo"
+													th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'">项目编号</th>
+												<th class="numeric customer"
+													th:style="${#lists.contains(listColums,'customer')}?'':'display:none;'">客户</th>
+												<th class="numeric contactNumber"
+													th:style="${#lists.contains(listColums,'contactNumber')}?'':'display:none;'">联系电话</th>
+												<th class="numeric">操作</th>
+											</tr>
+										</thead>
+										<tbody>
+											<!-- 目录 -->
+											<th:block th:each="inventoryTransfer:${pageList.datas}"
+												th:if="${inventoryTransfer?.supplier?.isDisable == false || inventoryTransfer?.supplier == null}">
+												<tr>
+													<td class="numeric">
+														<div class="checkbox checkbox-inline"
+															style="margin-top: 0px;">
+															<input type="checkbox" name="ids" th:id="${inventoryTransfer.id}"
+																class="numeric" th:value="${inventoryTransfer.id}"> <label
+																th:for="${inventoryTransfer.id}"></label>
+														</div>
+													</td>
+													
+													<td class="numeric name" id="name"
+														th:style="${#lists.contains(listColums,'name')}?'':'display:none;'">
+														<a href="javascript:;" th:title="${inventoryTransfer?.name}"
+														th:onclick="|return toStatistics('${inventoryTransfer?.id}')|"
+														th:text="${#strings.abbreviate(inventoryTransfer?.name,30)}"></a>
+													</td>
+													
+													<td class="numeric model" id="model"
+														th:title="${inventoryTransfer?.model}"
+														th:style="${#lists.contains(listColums,'model')}?'':'display:none;'"
+														th:text="${#strings.abbreviate(inventoryTransfer?.model,30)}"></td>
+														
+													<td class="numeric supplier" id="supplier"
+														th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'">
+														<a href="javascript:;"
+														th:onclick="|return showSupplier('${inventoryTransfer?.supplier?.id}')|">[[${inventoryTransfer?.supplier?.name}]]</a>
+													</td>	
+													
+													<td class="numeric scope" id="scope"
+														th:style="${#lists.contains(listColums,'scope')}?'':'display:none;'">[[${inventoryTransfer?.scope}]]</td>
+														
+													<td class="numeric price" id="price"
+														th:style="${#lists.contains(listColums,'price')}?'':'display:none;'">[[${inventoryTransfer?.price}]]</td>
+													
+													<td class="numeric transferQuantity" id="transferQuantity"
+														th:style="${#lists.contains(listColums,'transferQuantity')}?'':'display:none;'">[[${inventoryTransfer?.transferQuantity}]]</td>
+														
+													<td class="numeric inventoryTransferDate" id="inventoryTransferDate"
+														th:style="${#lists.contains(listColums,'inventoryTransferDate')}?'':'display:none;'">[[${#dates.format(inventoryTransfer?.inventoryTransferDate,'yyyy-MM-dd')}]]</td>
+													
+													<td class="numeric unit" id="unit"
+														th:style="${#lists.contains(listColums,'unit')}?'':'display:none;'">[[${inventoryTransfer?.unit?.name}]]</td>	
+													
+													<td class="numeric maintenance" id="maintenance"
+														th:style="${#lists.contains(listColums,'maintenance')}?'':'display:none;'">[[${inventoryTransfer?.maintenance}]]</td>
+															
+													<td class="numeric receivables" id="receivables"
+														th:style="${#lists.contains(listColums,'receivables')}?'':'display:none;'">
+														<label
+														th:style="${inventoryTransfer?.receivables }?'color:green':'color:red'">[[${inventoryTransfer?.receivables}?'是':'否']] </label>
+													</td>		
+													
+													<td class="numeric personInCharge" id="personInCharge"
+														th:style="${#lists.contains(listColums,'personInCharge')}?'':'display:none;'">[[${inventoryTransfer?.personInCharge}]]</td>
+															
+													
+														
+													<td class="numeric entryName" id="entryName"
+														th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'">[[${inventoryTransfer?.entryName}]]</td>
+														
+													<td class="numeric itemNo" id="itemNo"
+														th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'">[[${inventoryTransfer?.itemNo}]]</td>
+														
+													<td class="numeric customer" id="customer"
+														th:style="${#lists.contains(listColums,'customer')}?'':'display:none;'">[[${inventoryTransfer?.customer}]]</td>
+														
+													<td class="numeric contactNumber" id="contactNumber"
+														th:style="${#lists.contains(listColums,'contactNumber')}?'':'display:none;'">[[${inventoryTransfer?.contactNumber}]]</td>
+														
+													
+													<td class="numeric">
+
+														 <shiro:hasPermission name="inventoryTransfer:edit">
+															<button class="btn btn-primary btn-xs"
+																th:onclick="|return toeditPage('${inventoryTransfer.id}','inventoryTransfer')|">
+																<i class="fa fa-edit"> </i>
+															</button>
+														</shiro:hasPermission> 
+														<shiro:hasPermission name="inventoryTransfer:delete">
+															<button class="btn btn-danger btn-xs"
+																th:onclick="|return del('@{/inventoryTransfer/}${inventoryTransfer.id}','')|">
+																<i class="fa fa-trash-o"> </i>
+															</button>
+														</shiro:hasPermission>
+													</td>
+												</tr>
+												<!-- 菜单 -->
+											</th:block>
+
+
+										</tbody>
+									</table>
+								</div>
+								<form method="post" id="deleteForm">
+									<input name="_method" value="delete" type="hidden">
+								</form>
+
+								<div class="row">
+
+									<div class="col-md-12">
+										<div class="col-md-6">
+											<div class="dataTables_info hidden-xs"
+												style="margin-top: 0px;" role="status" aria-live="polite"
+												th:text="|每页显示${pageList.pageSize}行
+										－ 当前页${pageList.pageNo}页 － 共${pageList.totalPage}页|"></div>
+										</div>
+										<div class="col-md-6">
+											<ul class="pagination pagination-split pull-right"
+												style="margin-top: 0px;">
+												<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
+													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/inventoryTransfers(pageNo=1,pageSize=${session.pageSize},search=${session.search},start=${session.start},end=${session.end})}">首页</a>
+												</li>
+												<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
+													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/inventoryTransfers(pageNo=${pageList.upPage},pageSize=${session.pageSize},search=${session.search},start=${session.start},end=${session.end})}">上一页</a>
+												</li>
+												<li th:each="page:${pageList.navigatepageNums}"
+													th:class="${page  == pageList.pageNo}?active:''"><a
+													th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/inventoryTransfers(pageNo=${page},pageSize=${session.pageSize},search=${session.search},start=${session.start},end=${session.end})}">[[${page}]]</a>
+												</li>
+												<li
+													th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
+													<a
+													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/inventoryTransfers(pageNo=${pageList.nextPage},pageSize=${session.pageSize},search=${session.search},start=${session.start},end=${session.end})}">下一页</a>
+												</li>
+												<li
+													th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
+													<a
+													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/inventoryTransfers(pageNo=${pageList.totalPage},pageSize=${session.pageSize},search=${session.search},start=${session.start},end=${session.end})}">尾页</a>
+												</li>
+											</ul>
+										</div>
+									</div>
+
+									<!-- 分页结束 -->
+								</div>
+
+							</section>
+
+						</div>
+
+					</div>
+
+
+				</div>
+
+			</div>
+		</div>
+
+		<div th:replace="public/public::myModal"></div>
+		<div th:replace="admin/inventoryTransfer/batch::mybatch"></div>
+		<div th:replace="admin/inventoryTransfer/column::mycolumn"></div>
+		<div th:replace="admin/inventoryTransfer/supplier::mysupplier"></div>
+	</div>
+	<!-- 引入inventoryTransferlist.js -->
+	<script type="text/javascript" th:inline="javascript"
+		th:src="@{/js/admin/inventoryTransfer/inventoryTransferlist.js}"></script>
+	<!--  END OF PAPER WRAP -->
+	<script type="text/javascript"
+		th:src="@{/plugs/prettyfile/bootstrap-prettyfile.js}"></script>
+	<!-- 右侧隐藏菜单start -->
+	<div th:replace="public/public::right"></div>
+	<!-- 右侧隐藏菜单end-->
+	<!-- 底部js -->
+	<div th:replace="public/public_js::pub_js"></div>
+	<div th:replace="public/public_js::public_script"></div>
+	<div th:replace="public/public::footer"></div>
+	<!-- Jquery Validate -->
+	<script type="text/javascript"
+		th:src="@{/plugs/validate/jquery.validate.min.js}"></script>
+	<script type="text/javascript"
+		th:src="@{/plugs/validate/messages_zh.min.js}"></script>
+	<!-- Sweet alert -->
+	<script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
+	<div th:replace="public/public_js::validator"></div>
+	
+
+
+</body>
+
+</html>

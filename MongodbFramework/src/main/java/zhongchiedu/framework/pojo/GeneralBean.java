@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -27,6 +28,7 @@ public class GeneralBean<T> implements Serializable{
 	private String sort= "0";//排序
 	private String description;//描述
 	private Date updateTime;
+	private String operator;
 	
 	
 }

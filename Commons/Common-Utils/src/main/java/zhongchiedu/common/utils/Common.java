@@ -1052,8 +1052,19 @@ public class Common {
 		return sdf.format(a);
 		
 	}
+	public static String getDateYMD(String date) throws ParseException {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+		Date a = sdf.parse(date);
+		return sdf.format(a);
+		
+	}
 	public static String getDateYMDHM(Date date) throws ParseException {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+		return  sdf.format(date);
+		
+	}
+	public static String getDateYMD(Date date) throws ParseException {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		return  sdf.format(date);
 		
 	}
@@ -1159,16 +1170,10 @@ public class Common {
 //
 //		deleteFile(file, "E:/");
 
-//		String dateYMDHM = getDateYMDHM("2021-02-02 21:13:11");
-//		System.out.println(dateYMDHM);
-
-		String dateYMDHM = getDateYMDHM(new Date());
+		String dateYMDHM = getDateYMDHM("2021sdfsdf:11");
 		System.out.println(dateYMDHM);
-		
-		
-		String uuid = getUUID();
-		System.out.println(uuid);
-		System.out.println(System.currentTimeMillis());
+
+
 	}
 
 }

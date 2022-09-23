@@ -140,6 +140,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		Criteria ca = new Criteria();
 		Criteria ca1 = new Criteria();
 		Criteria ca2 = new Criteria();
+		
 		if (type.equals("in")) {
 			query.addCriteria(Criteria.where("inOrOut").is(true));
 		} else if (type.equals("out")) {
@@ -396,6 +397,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 							 in.put("stockName",Common.isEmpty(st.getStock().getName())?"":st.getStock().getName());
 							 in.put("modelName", Common.isEmpty(st.getStock().getModel())?"":st.getStock().getModel());
 							 in.put("price", Common.isEmpty(st.getStock().getPrice())?"":st.getStock().getPrice());
+							 in.put("unit", Common.isEmpty(st.getStock().getUnit().getName())?"":st.getStock().getUnit().getName());
 							 in.put("depotTime",st.getStorageTime());
 							 in.put("num", st.getNum());
 							 inlist.add(in);
@@ -406,10 +408,11 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 							 out.put("stockName",Common.isEmpty(st.getStock().getName())?"":st.getStock().getName());
 							 out.put("modelName", Common.isEmpty(st.getStock().getModel())?"":st.getStock().getModel());
 							 out.put("price", Common.isEmpty(st.getStock().getPrice())?"":st.getStock().getPrice());
+							 out.put("unit", Common.isEmpty(st.getStock().getUnit().getName())?"":st.getStock().getUnit().getName());
 							 out.put("depotTime",st.getDepotTime());
 							 out.put("num", st.getNum());
 							 outlist.add(out);
-							outlist.add(out);
+							
 						}
 					
 					}

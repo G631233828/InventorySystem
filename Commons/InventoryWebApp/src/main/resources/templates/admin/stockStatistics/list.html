@@ -83,7 +83,9 @@
 											<option value="20" th:selected="${pageSize == 20}">20
 											<option value="50" th:selected="${pageSize == 50}">50
 											<option value="100" th:selected="${pageSize == 100}">100
-										</select> <input class="form-control" id="serach" placeholder="模糊匹配"
+										</select> 
+										
+										<input class="form-control" id="serach" placeholder="模糊匹配"
 											th:value="${search}" type="text"> <input
 											class="form-control datepicker" readonly="readonly"
 											id="start" placeholder="开始日期" th:value="${start}" type="text">
