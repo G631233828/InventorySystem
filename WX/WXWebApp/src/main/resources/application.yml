@@ -4,7 +4,7 @@ wx:
       - appId: wx40d294a89bcd9fcb
         secret: e48b8b33730cb8bf7ed2aa26e671549b
         token: zhongchi
-        aesKey: HbQ8Z0VJjGXgc5AmyuBMpqmDDj2YJJgNEPVFrDbjoZ2        tmpDirFile: E://AAA
+        aesKey: HbQ8Z0VJjGXgc5AmyuBMpqmDDj2YJJgNEPVFrDbjoZ2        tmpDirFile: D://AAA
         
    
     server-url: http://zhongchiedu.com
@@ -27,7 +27,7 @@ qrcode:
   format: png
   qrcodepath: upload/qrcode/
 upload:
-  savedir: E:/
+  savedir: D:/
 #图片列表配置
   qrCode: upload/qrcode/
 #预入库

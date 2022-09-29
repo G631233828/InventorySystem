@@ -20,7 +20,7 @@ wx:
         secret: e48b8b33730cb8bf7ed2aa26e671549b
         token: zhongchi
         aesKey: HbQ8Z0VJjGXgc5AmyuBMpqmDDj2YJJgNEPVFrDbjoZ2
-        tmpDirFile: E://AAA
+        tmpDirFile: D://AAA
     server-url: http://zhongchiedu.com
     #server-url: http://xye9mv.natappfree.cc
 ##预入库之后发送通知处理
@@ -41,7 +41,7 @@ qrcode:
 
 
 upload:
-  savedir: E:/
+  savedir: D:/
 #图片列表配置
   qrCode: upload/qrcode/
 

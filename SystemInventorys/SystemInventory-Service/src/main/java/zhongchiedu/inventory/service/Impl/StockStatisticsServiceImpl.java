@@ -392,23 +392,23 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 						if(st.isInOrOut()) {
 							//入库统计
 							 Map<String, Object> in =  new HashMap<>(); 
-							 in.put("area", stock.getArea().getName());
+							 in.put("area", Common.isEmpty(stock.getArea())?"":stock.getArea().getName());
 							 in.put("projectName",Common.isEmpty(st.getProjectName())?"":st.getProjectName());
 							 in.put("stockName",Common.isEmpty(st.getStock().getName())?"":st.getStock().getName());
 							 in.put("modelName", Common.isEmpty(st.getStock().getModel())?"":st.getStock().getModel());
 							 in.put("price", Common.isEmpty(st.getStock().getPrice())?"":st.getStock().getPrice());
-							 in.put("unit", Common.isEmpty(st.getStock().getUnit().getName())?"":st.getStock().getUnit().getName());
+							 in.put("unit", Common.isEmpty(st.getStock().getUnit())?"":st.getStock().getUnit().getName());
 							 in.put("depotTime",st.getStorageTime());
 							 in.put("num", st.getNum());
 							 inlist.add(in);
 						}else {
 							 Map<String, Object> out =  new HashMap<>(); 
-							 out.put("area", stock.getArea().getName());
+							 out.put("area", Common.isEmpty(stock.getArea())?"":stock.getArea().getName());
 							 out.put("projectName",Common.isEmpty(st.getProjectName())?"":st.getProjectName());
 							 out.put("stockName",Common.isEmpty(st.getStock().getName())?"":st.getStock().getName());
 							 out.put("modelName", Common.isEmpty(st.getStock().getModel())?"":st.getStock().getModel());
 							 out.put("price", Common.isEmpty(st.getStock().getPrice())?"":st.getStock().getPrice());
-							 out.put("unit", Common.isEmpty(st.getStock().getUnit().getName())?"":st.getStock().getUnit().getName());
+							 out.put("unit", Common.isEmpty(st.getStock().getUnit())?"":st.getStock().getUnit().getName());
 							 out.put("depotTime",st.getDepotTime());
 							 out.put("num", st.getNum());
 							 outlist.add(out);

@@ -221,17 +221,18 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	@SystemServiceLog(description = "查询库存信息")
 	public Query findbySearch(String search, Query query) {
 		if (Common.isNotEmpty(search)) {
-			// List<Object> systemClassification = this.findSystemClassificationIds(search);
-			// List<Object> brand = this.findBrandIds(search);
-			// List<Object> goodsStorage = this.findGoodsStorageIds(search);
-			// List<Object> category = this.findCategoryIds(search);
-			// List<Object> suppliersId = this.findSuppliersId(search, systemClassification,
-			// category, brand);
+			 List<Object> systemClassification = this.findSystemClassificationIds(search);
+			 List<Object> brand = this.findBrandIds(search);
+			 List<Object> goodsStorage = this.findGoodsStorageIds(search);
+			 List<Object> category = this.findCategoryIds(search);
+			 List<Object> suppliersId = this.findSuppliersId(search, systemClassification,
+			 category, brand);
 			Criteria ca = new Criteria();
-			query.addCriteria(ca.orOperator(/*
-											 * Criteria.where("goodsStorage.$id").in(goodsStorage),
-											 * Criteria.where("supplier.$id").in(suppliersId),
-											 */ Criteria.where("name").regex(search),
+			query.addCriteria(ca.orOperator(
+					  Criteria.where("goodsStorage.$id").in(goodsStorage),
+					  Criteria.where("supplier.$id").in(suppliersId),
+					  Criteria.where("brand.$id").in(brand),
+					  Criteria.where("name").regex(search),
 					Criteria.where("model").regex(search), Criteria.where("scope").regex(search),
 					Criteria.where("entryName").regex(search),Criteria.where("itemNo").regex(search),
 					Criteria.where("projectLeader").regex(search))
@@ -419,6 +420,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				Stock stock = null; // 库存信息
 				Supplier supplier = null;
 				Unit unit = null;
+				Brand brand = null;
 				String areaName = resultexcel[i][j].trim();// 区域名称
 				// 通过区域名称查询区域是否存在
 				Area getarea = this.areaService.findByName(areaName);
@@ -436,6 +438,8 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				}
 				
 				importStock.setName(name.replaceAll("/", "^")); // 设备名称
+				
+				
 				String model = resultexcel[i][j + 2].trim();
 				if (Common.isEmpty(model)) {
 					error += "<span class='entypo-attention'></span>导入文件过程中出现设备型号为空，第<b>&nbsp&nbsp" + (i + 1)
@@ -444,22 +448,40 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				}
 				importStock.setModel(model);// 设备型号
 				
+				
+				String brandname= resultexcel[i][j + 3].trim();
+				
+				if (Common.isNotEmpty(brandname)) {
+					// 根据供应商名称查找，看供应商是否存在
+					brand = this.brandService.findByName(brandname);
+					if (Common.isEmpty(brand)) {
+						error += "<span class='entypo-attention'></span>导入文件过程中出现不存在的品牌<b>&nbsp;&nbsp;" + brandname
+								+ "&nbsp;&nbsp;</b>，<b>&nbsp&nbsp" + (i + 1)
+								+ "已经自动创建该品牌，如有问题 请手动修改！&nbsp&nbsp</b></br>";
+						continue;
+					}
+				}
+				
+				importStock.setBrand(brand);
+				
+			
+				
 				//新添加了入库数量
-				importStock.setStocknum(Long.valueOf(resultexcel[i][j + 3].trim()));
+				importStock.setStocknum(Long.valueOf(resultexcel[i][j + 4].trim()));
 				
 				
-				importStock.setPrice(resultexcel[i][j + 4].trim());// 价格
+				importStock.setPrice(resultexcel[i][j + 5].trim());// 价格
 
-				String unitName = resultexcel[i][j + 5].trim();
+				String unitName = resultexcel[i][j + 6].trim();
 				if (Common.isNotEmpty(unitName)) {
 					// 根据供应商名称查找，看供应商是否存在
 					unit = this.unitService.findByName(unitName);
 				}
 				importStock.setUnit(unit);
-				String entryName = resultexcel[i][j + 6].trim();
+				String entryName = resultexcel[i][j + 7].trim();
 				importStock.setEntryName(entryName);// 项目名称
-				importStock.setItemNo(resultexcel[i][j + 7].trim());// 项目编号
-				String supplierName = resultexcel[i][j + 8].trim();// 供应商名称
+				importStock.setItemNo(resultexcel[i][j + 8].trim());// 项目编号
+				String supplierName = resultexcel[i][j + 9].trim();// 供应商名称
 				if (Common.isNotEmpty(supplierName)) {
 					// 根据供应商名称查找，看供应商是否存在
 					supplier = this.supplierService.findByName(supplierName);
@@ -472,7 +494,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				}
 				importStock.setSupplier(supplier);
 				//新添加 是否代理商品
-				String agent =  resultexcel[i][j + 9].trim();// 获取是否代理商品
+				String agent =  resultexcel[i][j + 10].trim();// 获取是否代理商品
 				importStock.setAgent(agent=="是");
 				
 
