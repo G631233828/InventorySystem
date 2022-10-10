@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<!-- saved from url=(0052)http://getbootstrap.com/docs/4.0/examples/dashboard/ -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<body>
+
+
+
+	<!-- 信息提示 -->
+	<div aria-labelledby="myLargeModalLabel" role="dialog" tabindex="-1"
+		class="modal fade bs-example-modal-lg" style="display: none;"
+		th:fragment="mycolumn" id="mycolumn">
+		<div class="modal-dialog modal-lg"
+			style="margin-top: 10%; width: 500px; height: 200px;">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">×</button>
+					<h4>显示隐藏列信息</h4>
+				</div>
+				
+				<table class="table table-bordered table-striped">
+                                        <thead class="cf">
+                                            <tr>
+                                                <th class="numeric">列名</th>
+                                                <th class="numeric">状态</th>
+                                                <th class="numeric">列名</th>
+                                                <th class="numeric">状态</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="numeric">取件货物</td>
+                                                <td class="numeric" onclick="return selectColumn('name');"><input type="checkbox" th:checked="${#lists.contains(listColums,'name')}?'checked':'false'" id="ch_name"></td>
+												<td class="numeric">取件来源</td>
+												<td class="numeric" onclick="return selectColumn('source');"><input type="checkbox" th:checked="${#lists.contains(listColums,'source')}?'checked':'false'" id="ch_source"></td>
+                                            </tr>
+                                            
+                                            <tr>
+                                                <td class="numeric">取件日期</td>
+                                                <td class="numeric" onclick="return selectColumn('pickingDate');"><input type="checkbox" th:checked="${#lists.contains(listColums,'pickingDate')}?'checked':'false'" id="ch_pickingDate"></td>
+                                                <td class="numeric">取件数量</td>
+                                             	<td class="numeric" onclick="return selectColumn('repairNum');"><input type="checkbox" th:checked="${#lists.contains(listColums,'repairNum')}?'checked':'false'" id="ch_repairNum"></td>
+                                            </tr>
+                                            
+                                            <tr>
+												 <td class="numeric">取件人</td>
+                                           	    <td class="numeric" onclick="return selectColumn('picker');"><input type="checkbox" th:checked="${#lists.contains(listColums,'picker')}?'checked':'false'" id="ch_picker"></td>
+												<td class="numeric">寄件日期</td>
+												<td class="numeric" onclick="return selectColumn('dateOfSending');"><input type="checkbox" th:checked="${#lists.contains(listColums,'dateOfSending')}?'checked':'false'" id="ch_dateOfSending"></td>
+                                            </tr>
+                                            
+                                            <tr>
+												 <td class="numeric">寄件单号</td>
+                                           	    <td class="numeric" onclick="return selectColumn('mailingOrderNo');"><input type="checkbox" th:checked="${#lists.contains(listColums,'mailingOrderNo')}?'checked':'false'" id="ch_mailingOrderNo"></td>
+												<td class="numeric">寄件地址</td>
+												<td class="numeric" onclick="return selectColumn('address');"><input type="checkbox" th:checked="${#lists.contains(listColums,'address')}?'checked':'false'" id="ch_address"></td>
+                                            </tr>
+                                            
+                                            <tr>
+												 <td class="numeric">收件人</td>
+                                           	    <td class="numeric" onclick="return selectColumn('recipientName');"><input type="checkbox" th:checked="${#lists.contains(listColums,'recipientName')}?'checked':'false'" id="ch_recipientName"></td>
+												<td class="numeric">电话</td>
+												<td class="numeric" onclick="return selectColumn('recipientTel');"><input type="checkbox" th:checked="${#lists.contains(listColums,'recipientTel')}?'checked':'false'" id="ch_recipientTel"></td>
+                                            </tr>
+                                            
+                                            <tr>
+												 <td class="numeric">返还数量</td>
+                                           	    <td class="numeric" onclick="return selectColumn('quantityResurned');"><input type="checkbox" th:checked="${#lists.contains(listColums,'quantityResurned')}?'checked':'false'" id="ch_quantityResurned"></td>
+												<td class="numeric">返还日期</td>
+												<td class="numeric" onclick="return selectColumn('quantityDate');"><input type="checkbox" th:checked="${#lists.contains(listColums,'quantityDate')}?'checked':'false'" id="ch_quantityDate"></td>
+                                            </tr>
+                                            
+                                            <tr>
+												 <td class="numeric">返货处理</td>
+                                           	    <td class="numeric" onclick="return selectColumn('returnProcessing');"><input type="checkbox" th:checked="${#lists.contains(listColums,'returnProcessing')}?'checked':'false'" id="ch_returnProcessing"></td>
+												<td class="numeric">备注</td>
+												<td class="numeric" onclick="return selectColumn('description');"><input type="checkbox" th:checked="${#lists.contains(listColums,'description')}?'checked':'false'" id="ch_description"></td>
+                                            </tr>
+                                 
+                                            
+                                           
+                                        </tbody>
+                                    </table>
+				
+				
+
+			</div>
+
+		</div>
+
+	</div>
+
+</body>
+
+</html>

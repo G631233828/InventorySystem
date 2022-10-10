@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:include="public/public_css::pub_css"></head>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" th:href="@{/assets/css/bootstrap-select.css}">
+<link rel="stylesheet" th:href="@{/plugs/datapicker/datepicker3.css}">
+<script type="text/javascript"
+	th:src="@{/plugs/datapicker/bootstrap-datepicker.js}"></script>
+
+</head>
+
+
+
+
+<body>
+	<!-- Preloader -->
+	<div id="preloader">
+		<div id="status">&nbsp;</div>
+	</div>
+	<!-- TOP NAVBAR -->
+	<div th:replace="public/public::top"></div>
+	<!-- /END OF TOP NAVBAR -->
+
+	<!-- SIDE MENU -->
+	<div th:replace="public/public::left(activeUri='stockManager')"></div>
+	<!-- END OF SIDE MENU -->
+
+
+	<!--  PAPER WRAP -->
+	<div class="wrap-fluid">
+		<div class="container-fluid paper-wrap bevel tlbr">
+
+
+			<!-- CONTENT -->
+			<!--TITLE -->
+			<div th:replace="public/public::title"></div>
+			<!--/ TITLE -->
+
+			<!-- BREADCRUMB -->
+			<div th:replace="public/public::menu"></div>
+			<!-- END OF BREADCRUMB -->
+
+			<div class="content-wrap">
+				<div class="row">
+
+
+					<div class="col-sm-12">
+						<!-- BLANK PAGE-->
+
+						<div style="margin: -20px 15px;" class="nest" id="Blank_PageClose">
+							<div class="title-alt">
+								<h6>返修管理</h6>
+								<div class="titleClose">
+									<a class="gone" href="#Blank_PageClose"> <span
+										class="entypo-cancel"></span>
+									</a>
+								</div>
+								<div class="titleToggle">
+									<a class="nav-toggle-alt" href="#Blank_Page_Content"> <span
+										class="entypo-up-open"></span>
+									</a>
+								</div>
+
+							</div>
+
+
+							<div class="body-nest" id="Blank_Page_Content">
+								<div class="row">
+									<!-- edit form column -->
+									<div class="col-md-12 personal-info">
+										<form class="form-horizontal" enctype="multipart/form-data"
+											id="repairManagementForm" th:action="@{/repairManagement}" method="post">
+											<input type="hidden" name="_method" value="put"
+												th:if="${repairManagement!=null}" /> 
+											<input type="hidden" name="id"
+												th:if="${repairManagement!=null}" th:value="${repairManagement.id}">
+											<input type="hidden" id="oldname" th:value="${repairManagement?.name}">
+
+
+
+											<div class="form-group" id="nameform">
+												<label class="col-lg-1 control-label">取件货物：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="name" placeholder="请输入取件货物"
+														name="name" th:value="${repairManagement?.name}" required="required">
+												</div>
+											</div>
+											<div class="form-group" id="modelform">
+												<label class="col-lg-1 control-label">取件来源：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="source"
+														placeholder="请输入取件来源" name="source"
+														th:value="${repairManagement?.source}">
+												</div>
+											</div>
+>
+											
+											<div class="form-group">
+												<label class="col-lg-1 control-label">取件日期：</label>
+												<div class="col-lg-6">
+												<input class="form-control datepicker" readonly="readonly"
+													id="pickingDate" name="pickingDate" placeholder="日期" th:value="${repairManagement?.pickingDate}" type="text">
+												</div>
+											</div>
+											
+
+
+										 <div class="form-group">
+												<label class="col-lg-1 control-label">取件数量：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="repairNum"
+														placeholder="请输入取件数量" name="repairNum"
+														th:value="${repairManagement?.repairNum}">
+												</div>
+											</div>
+
+
+										 <div class="form-group">
+												<label class="col-lg-1 control-label">取件人：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="picker"
+														placeholder="请输入取件人" name="picker"
+														th:value="${repairManagement?.picker}">
+												</div>
+											</div>
+											
+											
+											<div class="form-group">
+												<label class="col-lg-1 control-label">寄件日期：</label>
+												<div class="col-lg-6">
+												<input class="form-control datepicker" readonly="readonly"
+													id="dateOfSending" name="dateOfSending" placeholder="日期" th:value="${repairManagement?.dateOfSending}" type="text">
+												</div>
+											</div>
+											
+											
+										<div class="form-group">
+												<label class="col-lg-1 control-label">寄件单号：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="mailingOrderNo"
+														placeholder="请输入寄件单号" name="mailingOrderNo"
+														th:value="${repairManagement?.mailingOrderNo}">
+												</div>
+											</div>
+ 
+										 <div class="form-group">
+												<label class="col-lg-1 control-label">寄件地址：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="address"
+														placeholder="请输入寄件地址" name="address"
+														th:value="${repairManagement?.address}">
+												</div>
+											</div>
+											
+										 <div class="form-group">
+												<label class="col-lg-1 control-label">收件人：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="recipientName"
+														placeholder="请输入收件人" name="recipientName"
+														th:value="${repairManagement?.recipientName}">
+												</div>
+										</div>
+ 
+										 <div class="form-group">
+												<label class="col-lg-1 control-label">收件人电话：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="recipientTel"
+														placeholder="请输入收件人电话" name="recipientTel"
+														th:value="${repairManagement?.recipientTel}">
+												</div>
+										</div>
+										 <div class="form-group">
+												<label class="col-lg-1 control-label">返还数量：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="quantityResurned"
+														placeholder="请输入返还数量" name="quantityResurned"
+														th:value="${repairManagement?.quantityResurned}">
+												</div>
+										</div>
+										
+ 											<div class="form-group">
+												<label class="col-lg-1 control-label">返还日期：</label>
+												<div class="col-lg-6">
+												<input class="form-control datepicker" readonly="readonly"
+													id="quantityDate" name="quantityDate" placeholder="日期" th:value="${repairManagement?.quantityDate}" type="text">
+												</div>
+											</div>
+								
+											
+  										<div class="form-group">
+												<label class="col-lg-1 control-label">返货处理：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="returnProcessing"
+														placeholder="请输入返货处理" name="returnProcessing"
+														th:value="${repairManagement?.returnProcessing}">
+												</div>
+										</div>
+ 
+ 
+
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label">备注：</label>
+												<div class="col-lg-6">
+													<textarea id="description"
+														style="height: 150px !important; margin: 20px 0; resize: none;"
+														th:text="${repairManagement?.description}" class="form-control"
+														placeholder="备注" name="description"></textarea>
+												</div>
+											</div>
+
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label">状态：</label>
+												<div class="col-lg-6">
+													<div class="ui-select">
+														<select name="isDisable" id="isDisable"
+															class="form-control" required>
+															<option value="false"
+																th:selected="${repairManagement?.isDisable eq false}">启用中</option>
+															<option value="true"
+																th:selected="${repairManagement?.isDisable eq true}">禁用中</option>
+														</select>
+													</div>
+												</div>
+											</div>
+
+
+
+
+
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label"></label>
+												<div class="col-md-8">
+													<button type="submit" class="btn btn-success"
+														th:text="${repairManagement!=null?'修改':'添加'}"></button>
+													<span></span> <input th:if="${repairManagement} eq null"
+														class="btn btn-default" value="重置" type="reset">
+												</div>
+											</div>
+										</form>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<!-- END OF BLANK PAGE -->
+
+				</div>
+			</div>
+
+			<!--/row-->
+
+		</div>
+	</div>
+	<!--  END OF PAPER WRAP -->
+	<!-- 右侧隐藏菜单start -->
+	<div th:replace="public/public::right"></div>
+	<!-- 右侧隐藏菜单end-->
+	<!-- 底部js -->
+	<div th:replace="public/public_js::pub_js"></div>
+	<div th:replace="public/public::myModal"></div>
+
+	<script th:src="@{/assets/js/select/bootstrap-select.js}"
+		type="text/javascript"></script>
+	<div th:replace="public/public_js::public_script"></div>
+	<div th:replace="public/public::footer"></div>
+	<!-- Jquery Validate -->
+	<script type="text/javascript"
+		th:src="@{/plugs/validate/jquery.validate.min.js}"></script>
+	<script type="text/javascript"
+		th:src="@{/plugs/validate/messages_zh.min.js}"></script>
+
+	<script type="text/javascript" th:inline="javascript"
+		th:src="@{/js/admin/repairManagement/repairManagement.js}"></script>
+
+	<div th:replace="public/public_js::validator"></div>
+	<script type="text/javascript" th:inline="javascript">
+
+	  
+ /*]]>*/
+</script>
+
+</body>
+
+</html>
