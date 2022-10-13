@@ -425,11 +425,15 @@ window.scrollTo(0, Math.max(scrollHeight - 1, 0));
 				<div class="weui-cell__hd">
 					<label for="in" class="weui-label">项目负责人</label>
 				</div>
-				<div class="weui-cell__bd">
+				<!-- <div class="weui-cell__bd">
 					<input class="weui-input" id="in" type="text" th:value="${name}">
+				</div> -->
+				<div class="weui-cell__bd">
+					<input class="weui-input" placeholder="请输入项目负责人" type="text"
+						th:value="${stock?.personInCharge}" name="personInCharge"
+						id="personInCharge">
 				</div>
 			</div>
-			<input type="hidden" name="personInCharge" id="personInCharge" th:value="${stock?.personInCharge}">
 
 			<div class="weui-cell">
 				<div class="weui-cell__hd">
@@ -568,29 +572,29 @@ showUse=document.getElementById("showStock");
 				
 				
 	
-		var users = /*[[${users}]]*/;
-		var datalist = new Array();
-		$.each(users,function(i,item){
-			var info ={"title":item.title,"value":item.value};
-			datalist.push(info)
-			})
+		//var users = /*[[${users}]]*/;
+		//var datalist = new Array();
+		//$.each(users,function(i,item){
+		//	var info ={"title":item.title,"value":item.value};
+		//	datalist.push(info)
+		//	})
 		////下拉选择负责人
-		  $("#in").select({
-	        title: "项目负责人",
-	        multi: true,
-	        min: 0,  //最少选1个
-	        max: 10,  //最多选3个
-	        items: datalist,
-	        beforeClose: function(values, titles) {
-	        },
-	        onChange: function(d) {
-	        	$("#personInCharge").val(d.values);
-	            console.log(this, d);
-	        },
-	        onClose: function (d) {
-	            console.log('close')
-	        }
-	    });
+		 // $("#in").select({
+	      //  title: "项目负责人",
+	       // multi: true,
+	        //min: 0,  //最少选1个
+	       // max: 10,  //最多选3个
+	        //items: datalist,
+	        //beforeClose: function(values, titles) {
+	        //},
+	        //onChange: function(d) {
+	        //	$("#personInCharge").val(d.values);
+	         //   console.log(this, d);
+	        //},
+	        //onClose: function (d) {
+	        //    console.log('close')
+	       // }
+	   // });
 		
 		
 		

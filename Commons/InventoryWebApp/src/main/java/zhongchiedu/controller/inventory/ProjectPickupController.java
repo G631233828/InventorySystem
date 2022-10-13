@@ -32,8 +32,10 @@ import zhongchiedu.common.utils.WordUtil;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.general.pojo.User;
 import zhongchiedu.inventory.pojo.ProjectPickup;
+import zhongchiedu.inventory.pojo.Sign;
 import zhongchiedu.inventory.pojo.StockStatistics;
 import zhongchiedu.inventory.service.ProjectPickupService;
+import zhongchiedu.inventory.service.SignService;
 import zhongchiedu.inventory.service.StockStatisticsService;
 import zhongchiedu.log.annotation.SystemControllerLog;
 
@@ -47,7 +49,9 @@ public class ProjectPickupController {
 	@Autowired
 	private StockStatisticsService stockStatisticsService;
 	
-
+	@Autowired
+	private SignService signService;
+	
 	@GetMapping("projectPickups")
 	@RequiresPermissions(value = "projectPickup:list")
 	@SystemControllerLog(description = "查询取货统计")
@@ -148,6 +152,9 @@ public class ProjectPickupController {
 				if(projectPickup.getStock()==null) {
 					return new BasicDataResult(400, "出库过程中遇到问题，当前设备需要进行手动出库", null);
 				}
+				Sign sign = new Sign();
+				sign.setSign(projectPickup.getSign());
+				this.signService.save(sign);
 				
 				StockStatistics stockStatistics = new StockStatistics();
 				stockStatistics.setPersonInCharge(projectPickup.getProjectLeader());
@@ -156,6 +163,10 @@ public class ProjectPickupController {
 				stockStatistics.setNum(projectPickup.getNum());
 				stockStatistics.setInOrOut(false);
 				stockStatistics.setStock(projectPickup.getStock());
+				stockStatistics.setOutboundOrder(Common.getOrderNum());
+				stockStatistics.setMysign(sign);
+				
+				
 				BasicDataResult inOrOutstockStatistics = this.stockStatisticsService.inOrOutstockStatistics(stockStatistics, user);
 				if(inOrOutstockStatistics.getStatus()==200) {
 					//出库成功

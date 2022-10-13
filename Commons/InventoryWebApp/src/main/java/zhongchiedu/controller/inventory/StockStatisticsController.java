@@ -380,6 +380,29 @@ public class StockStatisticsController {
 		return null;
 	}
 
+	
+	
+	
+	@RequestMapping(value = "/stockStatistics/getQRCode", method = RequestMethod.POST)
+	@ResponseBody
+	public BasicDataResult getQRCode(HttpSession session,
+			@RequestParam(value = "id", defaultValue = "") String id) {
+		
+		StockStatistics stockStatistics = this.stockStatisticsService.createStockStatisticsQrCodeAndDownload(id);
+
+			String downLoadPath = stockStatistics.getQrCode().getQrcode().getSavePath()
+					+ stockStatistics.getQrCode().getQrcode().getOriginalName();
+		
+		
+		return new BasicDataResult(200, "success", downLoadPath);
+		
+	}
+	
+	
+	
+	
+	
+	
 	@Autowired
 	private SignService signService;
 

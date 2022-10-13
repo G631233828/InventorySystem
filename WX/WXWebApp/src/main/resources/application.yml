@@ -8,7 +8,7 @@ wx:
         
    
     server-url: http://zhongchiedu.com
-    #server-url: http://xye9mv.natappfree.cc
+    #server-url: http://m7xm9x.natappfree.cc
 
 logging:
   level:
@@ -22,7 +22,7 @@ spring:  profiles:    active:    - mongodb
 qrcode:
   height: 300
   width: 300
-  #weburl: http://xye9mv.natappfree.cc/WXWebApp/
+  #weburl: http://m7xm9x.natappfree.cc/WXWebApp/
   weburl: http://zhongchiedu.com/WXWebApp/
   format: png
   qrcodepath: upload/qrcode/

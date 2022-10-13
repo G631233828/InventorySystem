@@ -613,6 +613,20 @@ public class StockController {
 	}
 	
 	
+	@RequestMapping(value = "/stock/getQRCode", method = RequestMethod.POST)
+	@ResponseBody
+	public BasicDataResult getQRCode(HttpSession session,
+			@RequestParam(value = "id", defaultValue = "") String id) {
+		List<Stock> list = this.stockService.findStockByIds(id);
+		String downLoadPath =list.get(0).getQrCode().getQrcode().getSavePath()
+				+ list.get(0).getQrCode().getQrcode().getOriginalName();
+		
+		return new BasicDataResult(200, "success", downLoadPath);
+		
+	}
+	
+	
+	
 
 	
 	

@@ -122,7 +122,7 @@
 												</div>
 											</div>
 
-											<!-- 								
+																		
 										<div class="form-group">
 												<label class="col-lg-1 control-label">负责人：</label>
 												<div class="col-lg-6">
@@ -131,20 +131,21 @@
 														th:value="${pickUpApplication?.personInCharge}">
 												</div>
 										</div>	
-										 -->
-
+										 
+								<!-- 
 											<div class="form-group">
 												<label class="col-lg-1 control-label">负责人：</label>
 												<div class="col-lg-6">
-													<select multiple class="selectpicker form-control"
+						
+													 <select multiple class="selectpicker form-control"
 														id="number-multiple2" data-container="body"
 														name="personInCharge" title="请选择项目负责人"
 														data-live-search="true" data-hide-disabled="true"
 														data-actions-box="false" data-virtual-scroll="false"
-														data-max-options="10"></select>
+														data-max-options="10"></select> 
 												</div>
 											</div>
-
+-->
 
 
 											<div class="form-group">
@@ -286,22 +287,22 @@
 			}
 		
 			
-			var options2 = [], _options2;
-			var ids="";
-			var data2 = /*[[${users}]]*/
-			$.each(data2, function(index, item) {
-				var option = '<option value="' + item.id + '">' + item.userName
-						+ '</option>';
-				options2.push(option);
-			});
-			_options2 = options2.join('');
-			var a2 = /*[[${pickUpApplication?.personInCharge}]]*/
-			$('#number-multiple2')[0].innerHTML = _options2;
-			$("#number-multiple2").selectpicker('val',a2.split(','));
-			$("#number-multiple2").selectpicker('refresh');
-			$('#number-multiple2').selectpicker('render');
+			//var options2 = [], _options2;
+			//var ids="";
+			//var data2 = /*[[${users}]]*/
+			//$.each(data2, function(index, item) {
+			//	var option = '<option value="' + item.id + '">' + item.userName
+			//			+ '</option>';
+		//		options2.push(option);
+		//	});
+		//	_options2 = options2.join('');
+		//	var a2 = /*[[${pickUpApplication?.personInCharge}]]*/
+		//	$('#number-multiple2')[0].innerHTML = _options2;
+		//	$("#number-multiple2").selectpicker('val',a2.split(','));
+		///	$("#number-multiple2").selectpicker('refresh');
+		//	$('#number-multiple2').selectpicker('render');
 
-		})
+	//	})
 
 		/*]]>*/
 	</script>

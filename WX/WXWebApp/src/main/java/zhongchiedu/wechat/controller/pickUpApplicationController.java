@@ -334,12 +334,12 @@ public class pickUpApplicationController {
 			pickUpApplication = this.pickUpApplicationService.findOneById(pickUpApplication.getId(),
 					PickUpApplication.class);
 			// 创建通知
-//			Set<User> users = this.inventoryRoleService.findAllUserInInventoryRole();
+			Set<User> users = this.inventoryRoleService.findAllUserInInventoryRole();
 			String personInCharge = pickUpApplication.getPersonInCharge();
 			
 			if(Common.isNotEmpty(personInCharge)) {
-				List<User> users = this.userService.getUsersByIds(personInCharge);
-				List<String> userNames = users.stream().map(x ->x.getUserName()).collect(Collectors.toList());
+//				List<User> users = this.userService.getUsersByIds(personInCharge);
+//				List<String> userNames = users.stream().map(x ->x.getUserName()).collect(Collectors.toList());
 				StringBuilder errorMsg = new StringBuilder("");
 				Map<String, String> map = new HashMap<>();
 
@@ -347,7 +347,7 @@ public class pickUpApplicationController {
 				map.put("keyword1", pickUpApplication.getStock().getName());
 				map.put("keyword2", String.valueOf(pickUpApplication.getActualIssueQuantity()));
 				map.put("keyword3", pickUpApplication.getCustomer());
-				map.put("keyword4", userNames.toString().replace("[", "").replace("]", "").replaceAll(" ", ""));
+				map.put("keyword4", personInCharge);
 				map.put("remark", "设备出库已完成");
 				users.stream().filter(user -> Common.isEmpty(user.getOpenId())).forEach(user -> {
 					errorMsg.append("用户：" + user.getUserName() + "尚未绑定微信<BR/>");
@@ -391,13 +391,13 @@ public class pickUpApplicationController {
 		
 		InventoryRole inventoryRole = this.inventoryRoleService.findByType("HANDLER");
 		List<User> users = inventoryRole.getUsers();
-		List<String> userNames = new ArrayList<>();
-		if(Common.isNotEmpty(pickUpApplication.getPersonInCharge())) {
-			
-			List<User> personIncharge = this.userService.getUsersByIds(pickUpApplication.getPersonInCharge());
-			 userNames = personIncharge.stream().map(x ->x.getUserName()).collect(Collectors.toList());
-		}
-	
+//		List<String> userNames = new ArrayList<>();
+//		if(Common.isNotEmpty(pickUpApplication.getPersonInCharge())) {
+//			
+//			List<User> personIncharge = this.userService.getUsersByIds(pickUpApplication.getPersonInCharge());
+//			 userNames = personIncharge.stream().map(x ->x.getUserName()).collect(Collectors.toList());
+//		}
+//	
 		
 		StringBuilder errorMsg = new StringBuilder("");
 		Map<String, String> map = new HashMap<>();
@@ -406,8 +406,7 @@ public class pickUpApplicationController {
 		map.put("keyword2", pickUpApplication.getId());
 
 		String person = Common.isNotEmpty(pickUpApplication.getPersonInCharge())
-				? "\n负责人：" + userNames.toString().replace("[", "").replace("]", "").replaceAll(" ", "")
-				: "";
+				? "\n负责人：" + pickUpApplication.getPersonInCharge() : "";
 		map.put("keyword3", "预计出库数量为：" + pickUpApplication.getEstimatedIssueQuantity() + person);
 		map.put("remark", "点击此条信息可以通过手机进行出库操作！");
 		users.stream().filter(user -> Common.isEmpty(user.getOpenId())).forEach(user -> {

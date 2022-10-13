@@ -289,33 +289,42 @@
 														th:utext="${stock.isDisable eq true }?|<button type='button' onclick=toDisable('${stock.id}','stock') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${stock.id}','stock') class='btn btn-success'>启用</button>|"></td>
 													<td class="numeric"><shiro:hasPermission
 															name="stockStatistics:in">
-															<button class="btn source btn-xs"
+															<button class="btn source btn-xs" title="入库"
 																th:onclick="|return showStockStatistics('${stock.id}')|">
-																<i class="entypo-download"> </i>入库
+																<i class="entypo-download"> </i>
 															</button>
 														</shiro:hasPermission> <shiro:hasPermission name="stockStatistics:out">
-															<button class="btn source btn-xs"
+															<button class="btn source btn-xs" title="出库"
 																th:onclick="|return showStockStatistics2('${stock.id}')|">
-																<i class="entypo-upload"> </i>出库
+																<i class="entypo-upload"> </i>
 															</button>
 														</shiro:hasPermission> <shiro:hasPermission name="stockStatistics:out">
-															<button class="btn source btn-xs"
+															<button class="btn source btn-xs" title="加入出库列表"
 																th:onclick="|return addToStocklist('${stock.id}')|">
-																<i class="entypo-upload"> </i>加入出库列表
+																<i class="fontawesome-share"> </i>
 															</button>
 														</shiro:hasPermission>
 
-														<button class="btn btn-default btn-sm"
-															th:onclick="|return toDownloadQRcode('${stock.id}')|">
-															<i class="glyphicon glyphicon-plus"> </i> 下载二维码
+	
+														<button class="btn btn-default btn-sm"  title="下载出库二维码"
+															th:onclick="|return toDownloadQRcode('${stock?.id}')|">
+															<i class="fontawesome-cloud-download"> </i> 
 
-														</button> <shiro:hasPermission name="stock:edit">
-															<button class="btn btn-primary btn-xs"
+														</button>
+														<button  class="btn btn-default btn-sm"  title="出库二维码"
+															th:onclick="|return showQRCode('${stock?.id}','${stock?.name}')|">
+															<i class="icon icon-view-thumb"> </i> 
+
+														</button>
+														
+														
+														 <shiro:hasPermission name="stock:edit">
+															<button class="btn btn-primary btn-xs" title="编辑库存"
 																th:onclick="|return toeditPage('${stock.id}','stock')|">
 																<i class="fa fa-edit"> </i>
 															</button>
 														</shiro:hasPermission> <shiro:hasPermission name="stock:delete">
-															<button class="btn btn-danger btn-xs"
+															<button class="btn btn-danger btn-xs" title="删除库存"
 																th:onclick="|return del('@{/stock/}${stock.id}','')|">
 																<i class="fa fa-trash-o"> </i>
 															</button>
@@ -385,6 +394,7 @@
 
 		<div th:replace="public/public::myModal"></div>
 		<div th:replace="admin/stock/batch::mybatch"></div>
+		<div th:replace="admin/stock/showQRCode::showqrcode"></div>
 		<div th:replace="admin/stock/column::mycolumn"></div>
 		<div th:replace="admin/stock/supplier::mysupplier"></div>
 		<div th:replace="admin/stock/in::mystockStatistics"></div>

@@ -4,9 +4,8 @@
 #spring:#  messages:#    basename: i18n.login#  thymeleaf:#    cache: true#  mvc:#    date-format: yyyy-MM-dd#  profiles:#    active:#    - mongodb#  servlet:#    multipart:#      max-file-size: 500MB
 #      max-request-size: 500MB#  http:#    encoding:#      force: true
 #      charset: UTF-8#      enabled: true
-#
-#
-#
+ 
+ 
 #filepath: D:/img
 #blobSize: 1048576    
 #upload-dir: d:/
@@ -22,7 +21,7 @@ wx:
         aesKey: HbQ8Z0VJjGXgc5AmyuBMpqmDDj2YJJgNEPVFrDbjoZ2
         tmpDirFile: D://AAA
     server-url: http://zhongchiedu.com
-    #server-url: http://xye9mv.natappfree.cc
+    #server-url: http://m7xm9x.natappfree.cc
 ##预入库之后发送通知处理
 
 templateId1: t65Pa8jI77ZTyyTX1LnPNgAYKo1sk8idfR72lbe0I10
@@ -34,7 +33,7 @@ qrcode:
   height: 300
   width: 300
   weburl: http://zhongchiedu.com/WXWebApp/
-  #weburl: http://xye9mv.natappfree.cc/WXWebApp/
+  #weburl: http://m7xm9x.natappfree.cc/WXWebApp/
   format: png
   qrcodepath: upload/qrcode/
 

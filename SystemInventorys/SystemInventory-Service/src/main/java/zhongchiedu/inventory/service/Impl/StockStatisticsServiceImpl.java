@@ -641,8 +641,9 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		 Map<String, Object> stock;
 		//根据stockStatistics获取订单号
 		if(Common.isEmpty(stockStatistics.getOutboundOrder())) {
+			System.out.println(stockStatistics.getStock()==null);
 			//如果订单号为空说明是1个设备（历史数据处理）
-			if(Common.isNotEmpty(stockStatistics.getStock())) {
+			if(stockStatistics.getStock()!=null) {
 				stock =  new HashMap<>(); 
 				stock.put("id", 1);
 				stock.put("name",Common.isEmpty(stockStatistics.getStock().getName())?"":stockStatistics.getStock().getName());

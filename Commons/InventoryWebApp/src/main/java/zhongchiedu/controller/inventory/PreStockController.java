@@ -230,13 +230,18 @@ public class PreStockController {
 		
 		
 		//创建通知
-		Set<User> users = this.inventoryRoleService.findAllUserInInventoryRole();
+	Set<User> users = this.inventoryRoleService.findAllUserInInventoryRole();
+
+//		InventoryRole inventoryRole = this.inventoryRoleService.findByType("HANDLER");
+//		List<User> users = inventoryRole.getUsers();
+		
+		
 		StringBuilder errorMsg = new StringBuilder("");
 		Map<String, String> map = new HashMap<>();
 		map.put("first", "设备入库提醒！");
 		map.put("keyword1", getpreStock.getName());
 		String unit =Common.isNotEmpty(getpreStock.getUnit())?getpreStock.getUnit().getName():"个";
-		map.put("keyword2", getpreStock.getActualReceiptQuantity()+unit);
+		map.put("keyword2", preStock.getActualReceiptQuantity()+unit);
 		if(Common.isNotEmpty(getpreStock.getGoodsStorage())) {
 			String area=Common.isNotEmpty(getpreStock.getArea().getName())?getpreStock.getArea().getName():"";
 			String address =Common.isNotEmpty(getpreStock.getGoodsStorage().getAddress())? getpreStock.getGoodsStorage().getAddress():"";
@@ -248,7 +253,7 @@ public class PreStockController {
 			map.put("keyword3", "设备已经存放在:"+getpreStock.getArea().getName());
 		}
 
-		map.put("remark", "预计入库数量："+getpreStock.getEstimatedInventoryQuantity()+"\n实际入库:"+getpreStock.getActualReceiptQuantity()+"\n入库操作已完成!");
+		map.put("remark", "预计入库数量："+getpreStock.getEstimatedInventoryQuantity()+"\n实际入库:"+preStock.getActualReceiptQuantity()+"\n入库操作已完成!");
 		users.stream().filter(user->Common.isEmpty(user.getOpenId())).forEach(user->{
 			errorMsg.append("用户："+user.getUserName()+"尚未绑定微信<BR/>");
 		});

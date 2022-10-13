@@ -249,8 +249,7 @@ window.scrollTo(0, Math.max(scrollHeight - 1, 0));
 				</div>
 				<div class="weui-cell__bd">
 					<input class="weui-input" placeholder="请输入实际入库数量" type="text"
-						onkeyup="this.value=this.value.replace(/[^0-9\.]/g,'')"
-						th:value="${stock?.actualReceiptQuantity}" name="actualReceiptQuantity" id="actualReceiptQuantity">
+						onkeyup="this.value=this.value.replace(/[^0-9\.]/g,'')"  name="actualReceiptQuantity" id="actualReceiptQuantity">
 				</div>
 			</div>
 

@@ -220,13 +220,14 @@ public class PickUpApplicationController {
 			// 出库成功 推送消息
 
 			// 创建通知
-			//Set<User> users = this.inventoryRoleService.findAllUserInInventoryRole();
-			String personInCharge = getpickUpApplication.getPersonInCharge();
-			if(Common.isNotEmpty(personInCharge)) {
-				String[] split = personInCharge.split(",");
-				 List<Object> ids = Arrays.asList(split).stream().map(x->new ObjectId(x)).collect(Collectors.toList());
-				List<User> users = this.userService.findUserInIds(ids);
-				String person= users.stream().map(x->x.getUserName()).collect(Collectors.joining(", "));
+			InventoryRole inventoryRole = this.inventoryRoleService.findByType("HANDLER");
+			List<User> users = inventoryRole.getUsers();
+//			String personInCharge = getpickUpApplication.getPersonInCharge();
+//			if(Common.isNotEmpty(personInCharge)) {
+//				String[] split = personInCharge.split(",");
+//				 List<Object> ids = Arrays.asList(split).stream().map(x->new ObjectId(x)).collect(Collectors.toList());
+//				List<User> users = this.userService.findUserInIds(ids);
+//				String person= users.stream().map(x->x.getUserName()).collect(Collectors.joining(", "));
 
 				StringBuilder errorMsg = new StringBuilder("");
 				Map<String, String> map = new HashMap<>();
@@ -234,7 +235,7 @@ public class PickUpApplicationController {
 				map.put("keyword1", getpickUpApplication.getStock().getName());
 				map.put("keyword2", String.valueOf(pickUpApplication.getActualIssueQuantity()));
 				map.put("keyword3", getpickUpApplication.getCustomer());
-				map.put("keyword4", person);
+				map.put("keyword4", getpickUpApplication.getPersonInCharge());
 				map.put("remark", "设备出库已完成");
 				users.stream().filter(user -> Common.isEmpty(user.getOpenId())).forEach(user -> {
 					errorMsg.append("用户：" + user.getUserName() + "尚未绑定微信<BR/>");
@@ -250,7 +251,7 @@ public class PickUpApplicationController {
 				return new BasicDataResult().build(200, "出库成功", errorMsg);
 
 				
-			}
+//			}
 			
 		}
 		return pickUpApplicationToStock;
@@ -320,12 +321,12 @@ public class PickUpApplicationController {
 		InventoryRole inventoryRole = this.inventoryRoleService.findByType("HANDLER");
 		List<User> users = inventoryRole.getUsers();
 		
-		List<String> userNames = new ArrayList<>();
-		if(Common.isNotEmpty(pickUpApplication.getPersonInCharge())) {
-			
-			List<User> personIncharge = this.userService.getUsersByIds(pickUpApplication.getPersonInCharge());
-			 userNames = personIncharge.stream().map(x ->x.getUserName()).collect(Collectors.toList());
-		}
+		//List<String> userNames = new ArrayList<>();
+//		if(Common.isNotEmpty(pickUpApplication.getPersonInCharge())) {
+//			
+//			List<User> personIncharge = this.userService.getUsersByIds(pickUpApplication.getPersonInCharge());
+//			 userNames = personIncharge.stream().map(x ->x.getUserName()).collect(Collectors.toList());
+//		}
 		
 		StringBuilder errorMsg = new StringBuilder("");
 		Map<String, String> map = new HashMap<>();
@@ -334,8 +335,7 @@ public class PickUpApplicationController {
 		map.put("keyword2", pickUpApplication.getId());
 
 		String person = Common.isNotEmpty(pickUpApplication.getPersonInCharge())
-				? "\n负责人：" + userNames.toString().replace("[", "").replace("]", "").replaceAll(" ", "")
-				: "";
+				? "\n负责人：" + pickUpApplication.getPersonInCharge() : "";
 		map.put("keyword3", "预计出库数量为：" + pickUpApplication.getEstimatedIssueQuantity() + person);
 		map.put("remark", "点击此条信息可以通过手机进行出库操作！");
 		users.stream().filter(user -> Common.isEmpty(user.getOpenId())).forEach(user -> {

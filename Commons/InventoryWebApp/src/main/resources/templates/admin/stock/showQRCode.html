@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<!-- saved from url=(0052)http://getbootstrap.com/docs/4.0/examples/dashboard/ -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<body>
+
+
+
+	<!-- 信息提示 -->
+	<div aria-labelledby="myLargeModalLabel" role="dialog" tabindex="-1"
+		class="modal fade bs-example-modal-lg" style="display: none;"
+		th:fragment="showqrcode" id="showqrcode">
+
+		<div class="modal-dialog modal-lg"
+			style="margin-top: 10%; width: 390px; height: 300px;">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">×</button>
+					<h5 id="qrcodename"></h5>
+				</div>
+				<div class="content-wrap">
+
+					<div class="body-nest" id="Blank_Page_Content">
+						<div class="row">
+							<!-- edit form column -->
+							<div class="col-md-12 personal-info">
+							<!-- 准备添加二维码的预览 -->
+							<img alt="" src="" id="qrcode">
+					
+							</div>
+						</div>
+					</div>
+
+
+				</div>
+
+
+
+			</div>
+
+		</div>
+	</div>
+</body>
+
+</html>

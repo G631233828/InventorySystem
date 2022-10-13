@@ -12,6 +12,23 @@ function showColumn() {
 	$("#mycolumn").modal('show');
 }
 
+function showQRCode(o,o2){
+	$("#showqrcode").modal('show');
+	
+	$.ajax({
+		type : 'POST',
+		url : getRootPath() + "/stock/getQRCode",
+		dataType : "json",
+		data: "id=" + o,
+		success : function(data) {
+		$("#qrcodename").text(o2)
+			$("#qrcode").attr("src",data.data)
+		}
+	});
+	
+}
+
+
 
 /**
 *批量导出
