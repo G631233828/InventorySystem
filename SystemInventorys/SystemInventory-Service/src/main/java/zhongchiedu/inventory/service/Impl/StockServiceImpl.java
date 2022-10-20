@@ -626,9 +626,13 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 	@SystemServiceLog(description = "根据id查询库存信息")
 	public BasicDataResult findOneById(String id) {
+		Stock getstock = new Stock();
 		Stock stock = this.findOneById(id, Stock.class);
-
-		return Common.isNotEmpty(stock) ? BasicDataResult.build(200, "查询成功", stock)
+		getstock.setName(stock.getName());
+		getstock.setInventory(stock.getInventory());
+		getstock.setDescription(stock.getDescription());
+		getstock.setId(stock.getId());
+		return Common.isNotEmpty(getstock) ? BasicDataResult.build(200, "查询成功", getstock)
 				: BasicDataResult.build(400, "查询失败", null);
 	}
 
