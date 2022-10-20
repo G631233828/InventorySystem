@@ -328,12 +328,12 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			return BasicDataResult.build(400, "该信息已经撤销，不能重复撤销", null);
 
 		}
-		if (Common.isEmpty(st.getStock())) {
+		if (st.getStock()==null) {
 			return BasicDataResult.build(400, "未能获取到设备信息", null);
 		}
 		String stockId = st.getStock().getId();
 		Stock stock = this.stockService.findOneById(stockId, Stock.class);
-		if (Common.isEmpty(stock)) {
+		if (stock==null) {
 			return BasicDataResult.build(400, "未能获取到设备信息", null);
 		}
 
@@ -350,8 +350,11 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			return BasicDataResult.build(400, "货物库存数量不足,无法撤销入库", null);
 		}
 		StockStatistics stockStatistics = updateStockStatistics(st);
-		if (Common.isNotEmpty(stockStatistics)) {
-			return BasicDataResult.build(200, "撤销成功", stockStatistics);
+		if (stockStatistics!=null) {
+			StockStatistics revoke = new StockStatistics();
+			revoke.setRevokeNum(stockStatistics.getRevokeNum());
+			
+			return BasicDataResult.build(200, "撤销成功", revoke);
 		}
 		return BasicDataResult.build(400, "撤销过程中出现未知异常", null);
 
