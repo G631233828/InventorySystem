@@ -10,7 +10,7 @@ $(".datepicker").datepicker({
 $().ready(function() {
 		$("#commentForm").validate();
 		var a = "<i class='fa fa-times-circle'></i> ";
-		$("#inventoryTransferForm").validate({
+		$("#repairManagementForm").validate({
 			rules : {
 
 				name : {
