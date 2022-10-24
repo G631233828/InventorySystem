@@ -240,7 +240,9 @@ function showQRCode(o,o2){
 		dataType : "json",
 		data: "id=" + o,
 		success : function(data) {
+		if(o2!=null){
 		$("#qrcodename").text(o2)
+		}
 			$("#qrcode").attr("src",data.data)
 		}
 	});

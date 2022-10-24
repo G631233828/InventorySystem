@@ -63,7 +63,7 @@
                                             <tr>
                                                 <td class="numeric">负责人</td>
                                                 <td class="numeric" onclick="return selectColumn('personInCharge');"><input type="checkbox" th:checked="${#lists.contains(listColums,'personInCharge')}?'checked':'false'" id="ch_personInCharge"></td>
-                                                <td class="numeric">项目名称</td>
+                                                <td class="numeric">用于项目</td>
                                                 <td class="numeric" onclick="return selectColumn('projectName');"><input type="checkbox" th:checked="${#lists.contains(listColums,'projectName')}?'checked':'false'" id="ch_projectName"></td>
                                             </tr>
                                             <tr>
@@ -73,7 +73,7 @@
                                                 <td class="numeric" onclick="return selectColumn('area');"><input type="checkbox" th:checked="${#lists.contains(listColums,'area')}?'checked':'false'" id="ch_area"></td>
                                             </tr>
                                             <tr>
-                                                <td class="numeric">用于项目</td>
+                                                <td class="numeric">项目名称</td>
                                                 <td class="numeric" onclick="return selectColumn('entryName');"><input type="checkbox" th:checked="${#lists.contains(listColums,'entryName')}?'checked':'false'" id="ch_entryName"></td>
                                             <td class="numeric">项目编号</td>
                                                 <td class="numeric" onclick="return selectColumn('itemNo');"><input type="checkbox" th:checked="${#lists.contains(listColums,'itemNo')}?'checked':'false'" id="ch_itemNo"></td>

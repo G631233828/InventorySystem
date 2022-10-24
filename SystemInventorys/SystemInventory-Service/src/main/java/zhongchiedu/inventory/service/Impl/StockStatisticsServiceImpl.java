@@ -794,20 +794,22 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				// 生成二维码
 				String path = dir + qrcodepath + "/";
 				Common.checkPathAndMkdirs(path);
-				String projectname=Common.isNotEmpty(stock.getProjectName())?stock.getProjectName():"";
-				String customer = Common.isNotEmpty(stock.getCustomer())?stock.getCustomer():"";
+				String projectname=Common.isNotEmpty(stock.getProjectName())?stock.getProjectName().trim():"";
+				String customer = Common.isNotEmpty(stock.getCustomer())?stock.getCustomer().trim():"";
+				if(stock.getOutboundOrder()!=null) {
+					File outputFile = new File(path + projectname+customer+stock.getOutboundOrder() + ".png");
+					MatrixToImageWriter.writeToFile(bitMatrix, format, outputFile);
+					// 保存图片信息
+					MultiMedia saveQrCode = this.multiMediaService.saveQrCode(outputFile, dir, qrcodepath, "PHOTO");
+					qrcode.setQrcode(saveQrCode);
+					qrcode.setPath(urlpath);
+					qrcode.setName(projectname+customer);
+					qrcode.setType("STOCKSTATISTICS");
+					this.qrCodeServce.insert(qrcode);
+					stock.setQrCode(qrcode);
+					this.save(stock);
+				}
 				
-				File outputFile = new File(path + projectname+customer+stock.getOutboundOrder() + ".png");
-				MatrixToImageWriter.writeToFile(bitMatrix, format, outputFile);
-				// 保存图片信息
-				MultiMedia saveQrCode = this.multiMediaService.saveQrCode(outputFile, dir, qrcodepath, "PHOTO");
-				qrcode.setQrcode(saveQrCode);
-				qrcode.setPath(urlpath);
-				qrcode.setName(projectname+customer);
-				qrcode.setType("STOCKSTATISTICS");
-				this.qrCodeServce.insert(qrcode);
-				stock.setQrCode(qrcode);
-				this.save(stock);
 			} catch (WriterException | IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

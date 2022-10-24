@@ -394,7 +394,7 @@ public class StockStatisticsController {
 					+ stockStatistics.getQrCode().getQrcode().getOriginalName();
 		
 		
-		return new BasicDataResult(200, "success", downLoadPath);
+		return new BasicDataResult(200, "success", downLoadPath.trim());
 		
 	}
 	
