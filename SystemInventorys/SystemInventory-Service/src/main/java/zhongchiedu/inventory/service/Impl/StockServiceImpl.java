@@ -1020,7 +1020,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				// 生成二维码
 				String path = dir + qrcodepath + "/";
 				Common.checkPathAndMkdirs(path);
-				File outputFile = new File(path + stock.getName()+stock.getModel()+ stock.getId() + ".png");
+				File outputFile = new File(path + /* stock.getName()+stock.getModel()+ */stock.getId() + ".png");
 				MatrixToImageWriter.writeToFile(bitMatrix, format, outputFile);
 				// 保存图片信息
 				MultiMedia saveQrCode = this.multiMediaService.saveQrCode(outputFile, dir, qrcodepath, "PHOTO");
