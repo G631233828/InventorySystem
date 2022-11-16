@@ -83,7 +83,7 @@ public class InventoryTransferServiceImpl extends GeneralServiceImpl<InventoryTr
 					Query query = new Query();
 
 					query = this.findbySearch(search, start,  end);
-					query.addCriteria(Criteria.where("isDelete").is(false));
+				
 					query.with(new Sort(new Order(Direction.DESC, "createTime")));
 					pagination = this.findPaginationByQuery(query, pageNo, pageSize, InventoryTransfer.class);
 					if (pagination == null)
@@ -354,6 +354,7 @@ public class InventoryTransferServiceImpl extends GeneralServiceImpl<InventoryTr
 		Criteria ca = new Criteria();
 		Criteria ca1 = new Criteria();
 		Criteria ca2 = new Criteria();
+		query.addCriteria(Criteria.where("isDelete").is(false));
 		if (Common.isNotEmpty(search)) {
 			
 			ca1.orOperator(Criteria.where("name").regex(search),
@@ -389,7 +390,9 @@ public class InventoryTransferServiceImpl extends GeneralServiceImpl<InventoryTr
 			 in.put("scope", Common.isEmpty(it.getScope())?"":it.getScope());
 			 in.put("transferQuantity", Common.isEmpty(it.getTransferQuantity())?"":it.getTransferQuantity());
 			 in.put("price", Common.isEmpty(it.getPrice())?"":it.getPrice());
-			 in.put("unitName", Common.isEmpty(it.getUnit().getName())?"":it.getUnit().getName());
+			 if(it.getUnit()!=null) {
+				 in.put("unitName", Common.isEmpty(it.getUnit().getName())?"":it.getUnit().getName());
+			 }
 			 try {
 				in.put("inventoryTransferDate", Common.isEmpty(it.getInventoryTransferDate())?"":Common.getDateYMD(it.getInventoryTransferDate()));
 			} catch (ParseException e) {
@@ -401,7 +404,9 @@ public class InventoryTransferServiceImpl extends GeneralServiceImpl<InventoryTr
 			 in.put("personInCharge", Common.isEmpty(it.getPersonInCharge())?"":it.getPersonInCharge());
 			 in.put("entryName", Common.isEmpty(it.getEntryName())?"":it.getEntryName());
 			 in.put("itemNo", Common.isEmpty(it.getItemNo())?"":it.getItemNo());
-			 in.put("supplierName", Common.isEmpty(it.getSupplier().getName())?"":it.getSupplier().getName());
+			 if(it.getSupplier()!=null) {
+				 in.put("supplierName", Common.isEmpty(it.getSupplier().getName())?"":it.getSupplier().getName());
+			 }
 			 in.put("customer", Common.isEmpty(it.getCustomer())?"":it.getCustomer());
 			 in.put("contactNumber", Common.isEmpty(it.getContactNumber())?"":it.getContactNumber());
 			 outlist.add(in);

@@ -395,6 +395,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 						if(st.isInOrOut()) {
 							//入库统计
 							 Map<String, Object> in =  new HashMap<>(); 
+							 in.put("itemNo", Common.isEmpty(stock.getItemNo())?"":stock.getItemNo());
 							 in.put("area", Common.isEmpty(stock.getArea())?"":stock.getArea().getName());
 							 in.put("projectName",Common.isEmpty(st.getProjectName())?"":st.getProjectName());
 							 in.put("stockName",Common.isEmpty(st.getStock().getName())?"":st.getStock().getName());
@@ -406,6 +407,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 							 inlist.add(in);
 						}else {
 							 Map<String, Object> out =  new HashMap<>(); 
+							 out.put("itemNo", Common.isEmpty(stock.getItemNo())?"":stock.getItemNo());
 							 out.put("area", Common.isEmpty(stock.getArea())?"":stock.getArea().getName());
 							 out.put("projectName",Common.isEmpty(st.getProjectName())?"":st.getProjectName());
 							 out.put("stockName",Common.isEmpty(st.getStock().getName())?"":st.getStock().getName());
