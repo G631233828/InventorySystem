@@ -6,6 +6,7 @@ import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -212,6 +213,33 @@ public class StockController {
 					+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea;
 	
 	}
+	
+	
+	@GetMapping("/copyStock")
+	@RequiresPermissions(value = "stock:copy")
+	@SystemControllerLog(description = "复制设备")
+	public String addUser(String id, HttpSession session) throws UnsupportedEncodingException {
+		
+		
+
+		this.stockService.copyStock(id,session);
+		
+		
+		Integer pageNo = (Integer) session.getAttribute("pageNo");
+		Integer pageSize = (Integer) session.getAttribute("pageSize");
+		String search = (String) session.getAttribute("search");
+		String searchArea = (String) session.getAttribute("searchArea");
+		
+		return "redirect:/stocks?pageNo=" + pageNo + "&pageSize=" + pageSize + "&search="
+		+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea;
+		
+	}
+	
+	
+	
+	
+	
+	
 
 	@PutMapping("/stock")
 	@RequiresPermissions(value = "stock:edit")
@@ -514,6 +542,7 @@ public class StockController {
 	@RequiresPermissions(value = "stockStatistics:out")
 	@ResponseBody
 	public BasicDataResult addToStocklist(HttpSession session ,@RequestParam(value = "id", defaultValue = "") String id) {
+		
 		if(Common.isNotEmpty(id)) {
 		Stock stock = this.stockService.findOneById(id, Stock.class);
 		//判断库存数量是否>0
@@ -545,11 +574,39 @@ public class StockController {
 		
 	}
 	
+	
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	@RequestMapping(value = "/stock/batchOut", method = RequestMethod.POST)
 	@ResponseBody
 	@RequiresPermissions(value = "stockStatistics:out")
-	public BasicDataResult batchOut(HttpSession session ) {
+	public BasicDataResult batchOut(HttpSession session,String id) {
 		List list = (List) session.getAttribute(Contents.STOCK_LIST);
+		if(list==null&& Common.isEmpty(id)) {
+			return new BasicDataResult(400, "获取出库列表失败，请先添加或选中出库商品！", null);
+		}
+		if(Common.isNotEmpty(id)) {
+			 list = Arrays.asList(id.split(","));
+		}
+
+		
 		if(Common.isNotEmpty(list)&&list.size()>0) {
 			List<Stock> stocks = this.stockService.findStocksByIds(list);
 			List<Stock> liststock = new ArrayList<>();
@@ -634,3 +691,6 @@ public class StockController {
 	
 
 }
+
+
+	

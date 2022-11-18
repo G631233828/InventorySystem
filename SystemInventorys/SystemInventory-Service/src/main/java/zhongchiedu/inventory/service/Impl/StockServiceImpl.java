@@ -1068,6 +1068,27 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		return this.find(query, Stock.class);
 	}
 
+	@Override
+	public void copyStock(String id,HttpSession session) {
+		User user = (User) session.getAttribute(Contents.USER_SESSION);
+		
+		Stock ed = this.findOneById(id, Stock.class);
+	
+		if(ed!=null) {
+			ed.setCreateDate(new Date().toString());
+			ed.setCreateTime(new Date());
+			ed.setId(null);
+			ed.setQrCode(null);
+			ed.setInventory(0);
+			ed.setUpdateTime(new Date());
+			ed.setPublisher(user);// 发布人
+			Stock stock = new Stock();
+			BeanUtils.copyProperties(ed, stock);
+			this.insert(stock);
+		}
+		
+	}
+
 	
 	
 

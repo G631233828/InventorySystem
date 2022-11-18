@@ -287,7 +287,15 @@
 														th:style="${#lists.contains(listColums,'email')}?'':'display:none;'">[[${stock?.supplier?.email}]]</td>
 													<td class="numeric" th:id="disBtn+${stock.id}"
 														th:utext="${stock.isDisable eq true }?|<button type='button' onclick=toDisable('${stock.id}','stock') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${stock.id}','stock') class='btn btn-success'>启用</button>|"></td>
-													<td class="numeric"><shiro:hasPermission
+													<td class="numeric">
+													
+													<shiro:hasPermission name="stock:copy">
+													<button class="btn source btn-xs" title="复制"
+																th:onclick="|return copyStock('${stock?.name}','${stock?.id}')|">
+																<i class="fontawesome-paste"> </i>
+															</button>
+													</shiro:hasPermission>
+													<shiro:hasPermission
 															name="stockStatistics:in">
 															<button class="btn source btn-xs" title="入库"
 																th:onclick="|return showStockStatistics('${stock.id}')|">

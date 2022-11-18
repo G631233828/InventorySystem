@@ -24,6 +24,7 @@ public interface StockService extends GeneralService<Stock> {
 	
 	public void saveOrUpdate(Stock stock);
 	
+	public void copyStock(String id,HttpSession session);
 	
 	public List<Stock> findAllStock(boolean isdisable,String areaId,String searchAgent);
 	
@@ -60,6 +61,8 @@ public interface StockService extends GeneralService<Stock> {
 	public List<Stock> findStockByIds(String id);
 	
 	public List<Stock> findStocksByIds(List ids);
+	
+	
 	
 	
 	

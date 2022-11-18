@@ -12,20 +12,20 @@ function showColumn() {
 	$("#mycolumn").modal('show');
 }
 
-function showQRCode(o,o2){
+function showQRCode(o, o2) {
 	$("#showqrcode").modal('show');
-	
+
 	$.ajax({
-		type : 'POST',
-		url : getRootPath() + "/stock/getQRCode",
-		dataType : "json",
+		type: 'POST',
+		url: getRootPath() + "/stock/getQRCode",
+		dataType: "json",
 		data: "id=" + o,
-		success : function(data) {
-		$("#qrcodename").text(o2)
-			$("#qrcode").attr("src",data.data)
+		success: function(data) {
+			$("#qrcodename").text(o2)
+			$("#qrcode").attr("src", data.data)
 		}
 	});
-	
+
 }
 
 
@@ -35,50 +35,58 @@ function showQRCode(o,o2){
 *
 */
 function batchOut() {
-
+	var batchids = "";
+	var id = $("input[name='ids']:checked");
+	var str = "";
+	$(id).each(function() {
+		str += this.value + ",";
+	});
+	if (str != "") {
+		batchids = str.substring(0, str.length - 1);
+	}
 	$.ajax({
 		type: 'POST',
 		url: 'stock/batchOut',
-		data: "id=1",
+		data: "id=" + batchids,
 		dataType: 'json',
 		success: function(data) {
-	if(data.status==200){
-	var stocklist = "";
-			$.each(data.data, function(index, item) {
-				stocklist += ` <tr id=stock_`+item.id+`>
+			if (data.status == 200) {
+				var stocklist = "";
+				$.each(data.data, function(index, item) {
+					stocklist += ` <tr id=stock_` + item.id + `>
                                <td class="numeric">`+ item.name + `</td>
                                <td class="numeric">`+ item.model + `</td>
                                <td class="numeric">`+ item.inventory + `</td>
                                <td class="numeric">
-							   <input type="hidden" name="batchid" value="`+item.id+`"> 
-                               <input type="text" onblur="return setStockNum('`+item.id+`')"  class="form-control stockval batchout" id=stocknum_`+item.id+`   name="batchnum" >
+							   <input type="hidden" name="batchid" value="`+ item.id + `"> 
+                               <input type="text" onblur="return setStockNum('`+ item.id + `')"  class="form-control stockval batchout" id=stocknum_` + item.id + `   name="batchnum" >
                                </td>
                                <td class="numeric">
                                <button class="btn " type="button" onclick="return deleteStock('`+ item.id + `')" > <i  class="fa fa-trash-o">移除 </i>
 							  </button>
                                 </td>  </tr>`
-			});
-			$("#stocklist").html(stocklist)
-			$("#mystockbatchout").modal('show');
-	}else{
-		jqueryAlert({
+				});
+				$("#stocklist").html(stocklist)
+				$("#mystockbatchout").modal('show');
+			} else {
+				jqueryAlert({
 					'icon': getRootPath() + '/plugs/alert/img/error.png',
 					'content': data.msg,
 					'closeTime': 2000,
 				})
-	}
-			
-			
-			
-			
-			
-			
+			}
+
+
+
+
+
+
 		}
 	})
 
 
 
-	
+
 
 
 
@@ -91,13 +99,13 @@ function batchOut() {
 
 
 function deleteStock(o) {
-$.ajax({
-		type : 'POST',
-		url : getRootPath() + "/stock/deleteInSession",
-		dataType : "json",
+	$.ajax({
+		type: 'POST',
+		url: getRootPath() + "/stock/deleteInSession",
+		dataType: "json",
 		data: "id=" + o,
-		success : function(data) {
-			$("#stock_"+data.data).html('');
+		success: function(data) {
+			$("#stock_" + data.data).html('');
 		}
 	});
 }
@@ -214,7 +222,28 @@ function addToStocklist(o) {
 
 
 
+function copyStock(o, o2) {
 
+	swal({
+		title: "您确定要复制【" + o + "】这条库存数据吗？",
+		text: "复制后库存新数据库存数量需手动录入",
+		type: "warning",
+		showCancelButton: true,
+		confirmButtonColor: "#DD6B55",
+		confirmButtonText: "是的，我要复制！",
+		cancelButtonText: "让我再考虑一下…",
+		closeOnConfirm: false,
+		closeOnCancel: false
+	}, function(a) {
+		if (a) {
+		window.location.href="copyStock?id="+o2;
+			
+		} else {
+			swal("已取消", "您取消了复制操作！", "error")
+		}
+	})
+
+}
 
 
 
