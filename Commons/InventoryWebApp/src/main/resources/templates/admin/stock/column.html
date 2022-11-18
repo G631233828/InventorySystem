@@ -77,11 +77,18 @@
                                             </tr>
                                            
                                             <tr>
-                                               <!--  <td class="numeric">应收款</td>
-                                                <td class="numeric" onclick="return selectColumn('receivables');"><input type="checkbox" th:checked="${#lists.contains(listColums,'receivables')}?'checked':'false'" id="ch_receivables"></td> -->
+                                                <td class="numeric">采购发票号</td>
+                                                <td class="numeric" onclick="return selectColumn('purchaseInvoiceNo');"><input type="checkbox" th:checked="${#lists.contains(listColums,'purchaseInvoiceNo')}?'checked':'false'" id="ch_purchaseInvoiceNo"></td> 
                                                 <td class="numeric">代理商品</td>
                                                 <td class="numeric" onclick="return selectColumn('agent');"><input type="checkbox" th:checked="${#lists.contains(listColums,'agent')}?'checked':'false'" id="ch_agent"></td>
-                                                 </tr>
+                                            </tr>
+                                            
+                                            <tr>
+                                                <td class="numeric">收款单号</td>
+                                                <td class="numeric" onclick="return selectColumn('receiptNo');"><input type="checkbox" th:checked="${#lists.contains(listColums,'receiptNo')}?'checked':'false'" id="ch_receiptNo"></td> 
+                                                <td class="numeric">付款单号</td>
+                                                <td class="numeric" onclick="return selectColumn('paymentOrderNo');"><input type="checkbox" th:checked="${#lists.contains(listColums,'paymentOrderNo')}?'checked':'false'" id="ch_paymentOrderNo"></td>
+                                            </tr>
                                            
                                         </tbody>
                                     </table>

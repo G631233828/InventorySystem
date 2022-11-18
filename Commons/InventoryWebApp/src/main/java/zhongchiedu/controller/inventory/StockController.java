@@ -683,6 +683,26 @@ public class StockController {
 	}
 	
 	
+	@RequestMapping(value = "/stock/batchPaymentOrderNo", method = RequestMethod.POST)
+	@ResponseBody
+	public BasicDataResult batchPaymentOrderNo(HttpSession session,
+			@RequestParam(value = "stockid", defaultValue = "") String stockid,
+			@RequestParam(value = "paymentOrderNo", defaultValue = "") String paymentOrderNo
+			) {
+		
+		try {
+			this.stockService.updatePaymentOrderNo(stockid, paymentOrderNo);
+			return new BasicDataResult(200, "批量修改付款单号成功", paymentOrderNo);
+			
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return new BasicDataResult(400, "批量修改付款单号出现问题，请联系管理员", paymentOrderNo);
+		
+		
+	}
+	
+	
 	
 
 	

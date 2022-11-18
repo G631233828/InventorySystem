@@ -80,7 +80,7 @@
 
 										<button class="btn btn-default btn-sm"
 											onclick="return toDownloadQRcode('')">
-											<i class="glyphicon glyphicon-plus"> </i> 下载二维码
+											<i class="icon icon-view-thumb"> </i> 下载二维码
 										</button>
 
 										<shiro:hasPermission name="stock:edit">
@@ -105,6 +105,12 @@
 										<shiro:hasPermission name="stockStatistics:out">
 											<button class="btn btn-success" onclick="return batchOut()">
 												<i class="fontawesome-upload"> </i>批量出库
+											</button>
+										</shiro:hasPermission>
+										
+										<shiro:hasPermission name="stock:financial">
+											<button class="btn btn-info dropdown-toggle" onclick="return batchPaymentOrderNo()">
+												<i class="icon icon-document-edit"> </i>付款单号修改
 											</button>
 										</shiro:hasPermission>
 
@@ -222,6 +228,14 @@
 													th:style="${#lists.contains(listColums,'inventory')}?'':'display:none;'">库存量</th>
 												<th class="numeric email"
 													th:style="${#lists.contains(listColums,'email')}?'':'display:none;'">供应商邮箱</th>
+												<th class="numeric invoiceNo"
+													th:style="${#lists.contains(listColums,'invoiceNo')}?'':'display:none;'">发票号</th>
+												<th class="numeric receiptNo"
+													th:style="${#lists.contains(listColums,'receiptNo')}?'':'display:none;'">收款单号</th>
+												<th class="numeric paymentOrderNo"
+													th:style="${#lists.contains(listColums,'paymentOrderNo')}?'':'display:none;'">付款单号</th>
+													
+													
 												<th class="numeric">使用状态</th>
 												<th class="numeric">操作</th>
 											</tr>
@@ -285,6 +299,12 @@
 														th:style="${stock?.inventory > 5}?'color:green':${stock?.inventory == 0?'color:red':'color:blue'}">[[${stock?.inventory}]]</label></td>
 													<td class="numeric email" id="email"
 														th:style="${#lists.contains(listColums,'email')}?'':'display:none;'">[[${stock?.supplier?.email}]]</td>
+													<td class="numeric purchaseInvoiceNo" id="purchaseInvoiceNo"
+														th:style="${#lists.contains(listColums,'purchaseInvoiceNo')}?'':'display:none;'">[[${stock?.purchaseInvoiceNo}]]</td>
+													<td class="numeric receiptNo" id="receiptNo"
+														th:style="${#lists.contains(listColums,'receiptNo')}?'':'display:none;'">[[${stock?.receiptNo}]]</td>
+													<td class="numeric paymentOrderNo" th:id="|paymentOrderNo_${stock?.id}|"
+														th:style="${#lists.contains(listColums,'paymentOrderNo')}?'':'display:none;'">[[${stock?.paymentOrderNo}]]</td>
 													<td class="numeric" th:id="disBtn+${stock.id}"
 														th:utext="${stock.isDisable eq true }?|<button type='button' onclick=toDisable('${stock.id}','stock') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${stock.id}','stock') class='btn btn-success'>启用</button>|"></td>
 													<td class="numeric">
@@ -408,6 +428,7 @@
 		<div th:replace="admin/stock/in::mystockStatistics"></div>
 		<div th:replace="admin/stock/out::mystockStatistics2"></div>
 		<div th:replace="admin/stock/batchout::mystockbatchout"></div>
+		<div th:replace="admin/stock/batchpaymentorderno::myPaymentOrderNo"></div>
 	</div>
 	<!-- 引入stocklist.js -->
 	<script type="text/javascript" th:inline="javascript"
@@ -418,6 +439,8 @@
 		th:src="@{/js/admin/stock/out.js}"></script>
 	<script type="text/javascript" th:inline="javascript"
 		th:src="@{/js/admin/stock/batchout.js}"></script>
+	<script type="text/javascript" th:inline="javascript"
+		th:src="@{/js/admin/stock/batchpaymentorderno.js}"></script>
 	<!--  END OF PAPER WRAP -->
 	<script type="text/javascript"
 		th:src="@{/plugs/prettyfile/bootstrap-prettyfile.js}"></script>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<!-- saved from url=(0052)http://getbootstrap.com/docs/4.0/examples/dashboard/ -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<body>
+
+
+
+	<!-- 信息提示 -->
+	<div aria-labelledby="myLargeModalLabel" role="dialog" tabindex="-1"
+		class="modal fade bs-example-modal-lg" style="display: none;"
+		th:fragment="myPaymentOrderNo" id="myPaymentOrderNo">
+
+		<div class="modal-dialog modal-lg"
+			style="margin-top: 10%; width: 600px;">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">×</button>
+					<h4>批量修改付款单号</h4>
+				</div>
+				<div class="content-wrap">
+
+					<div class="body-nest" id="Blank_Page_Content">
+						<div class="row">
+							<!-- edit form column -->
+							<div class="col-md-12 personal-info">
+
+								<form class="form-horizontal" enctype="multipart/form-data"
+									id="BatchPaymentOrderNoForm">
+							
+
+									<div class="form-group">
+										<div class="row">
+											<label class="col-lg-3  text-info " >付款单号：</label>
+											<div class="col-lg-8 ">
+												<input type="text" class="form-control paymentOrderNo"
+													name="paymentOrderNo" id="paymentOrderNo">
+											</div>
+										</div>
+									</div>
+									
+									<input name="stockid" type="hidden" value="" id="stockid">
+									
+									<div class="form-group">
+										<label class="col-lg-12 control-label"></label>
+										<div class="col-md-10">
+										</div>
+										
+										<div class="col-md-2">
+											<button type="button" onclick="return BatchPaymentOrderNoForm()" class="btn btn-success">修改</button>
+
+										</div>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+
+
+				</div>
+
+
+
+			</div>
+
+		</div>
+	</div>
+</body>
+
+</html>

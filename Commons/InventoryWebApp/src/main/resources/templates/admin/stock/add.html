@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
 
 <head th:include="public/public_css::pub_css"></head>
 <head>
@@ -192,21 +193,20 @@
 												</div>
 											</div> -->
 
-										<div class="form-group">
+											<div class="form-group">
 												<label class="col-lg-1 control-label">是否代理商品：</label>
 												<div class="col-lg-6">
-													<select id="agent" name="agent"
-														class="form-control">
+													<select id="agent" name="agent" class="form-control">
 														<option
 															th:selected="${stock!=null&&stock.agent==null}?||${stock.agent == false}"
 															value="false">否</option>
 														<option
 															th:selected="${stock!=null&&stock.agent!=null}?||${stock.agent == true}"
 															value="true">是</option>
-														
+
 													</select>
 												</div>
-											</div> 
+											</div>
 											<div class="form-group">
 												<label class="col-lg-1 control-label">剩余库存：</label>
 												<div class="col-lg-6">
@@ -224,7 +224,7 @@
 												</div>
 											</div>
  -->
-										 <div class="form-group">
+											<div class="form-group">
 												<label class="col-lg-1 control-label">项目名称：</label>
 												<div class="col-lg-6">
 													<input class="form-control" id="entryName"
@@ -232,8 +232,8 @@
 														th:value="${stock?.entryName}">
 												</div>
 											</div>
- 
-										 <div class="form-group">
+
+											<div class="form-group">
 												<label class="col-lg-1 control-label">项目编号：</label>
 												<div class="col-lg-6">
 													<input class="form-control" id="itemNo"
@@ -241,7 +241,7 @@
 														th:value="${stock?.itemNo}">
 												</div>
 											</div>
- 
+
 
 
 
@@ -255,6 +255,38 @@
 														data-virtual-scroll="false" data-max-options="1"></select>
 												</div>
 											</div>
+											
+											<shiro:hasPermission name="stock:financial">
+												<div class="form-group">
+													<label class="col-lg-1 control-label">采购发票号：</label>
+													<div class="col-lg-6">
+														<input class="form-control" id="purchaseInvoiceNo"
+															placeholder="请输入采购发票号" name="purchaseInvoiceNo"
+															th:value="${stock?.purchaseInvoiceNo}">
+													</div>
+												</div>
+
+												<div class="form-group">
+													<label class="col-lg-1 control-label">收款单号：</label>
+													<div class="col-lg-6">
+														<input class="form-control" id="receiptNo"
+															placeholder="请输入收款单号" name="receiptNo"
+															th:value="${stock?.receiptNo}">
+													</div>
+												</div>
+
+												<div class="form-group">
+													<label class="col-lg-1 control-label">付款单号：</label>
+													<div class="col-lg-6">
+														<input class="form-control" id="paymentOrderNo"
+															placeholder="请输入收款单号" name="paymentOrderNo"
+															th:value="${stock?.paymentOrderNo}">
+													</div>
+												</div>
+											</shiro:hasPermission>
+
+
+
 
 
 											<div class="form-group">

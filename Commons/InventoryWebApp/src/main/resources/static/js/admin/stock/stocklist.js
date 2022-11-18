@@ -236,8 +236,8 @@ function copyStock(o, o2) {
 		closeOnCancel: false
 	}, function(a) {
 		if (a) {
-		window.location.href="copyStock?id="+o2;
-			
+			window.location.href = "copyStock?id=" + o2;
+
 		} else {
 			swal("已取消", "您取消了复制操作！", "error")
 		}
@@ -515,7 +515,37 @@ function toDownloadQRcode(o) {
 
 
 
+function batchPaymentOrderNo() {
 
+	var a = $("input[name='ids']:checked").length;
+		if (a == 0) {
+			swal({
+				type: "warning",
+				title: "",
+				text: "批量修改付款单号至少选择一项!!",
+			});
+		
+		}else{
+		
+	$("#myPaymentOrderNo").modal('show');
+
+	var batchids = "";
+	var id = $("input[name='ids']:checked");
+	var str = "";
+	$(id).each(function() {
+		str += this.value + ",";
+	});
+	if (str != "") {
+		batchids = str.substring(0, str.length - 1);
+	}
+
+	$("#stockid").val(batchids);
+}
+
+
+
+
+}
 
 
 

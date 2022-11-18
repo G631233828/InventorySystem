@@ -78,5 +78,8 @@ public class StockStatistics extends GeneralBean<StockStatistics> {
 	@DBRef
 	private Sign mysign;//微信签名
 	
+	//20221118 添加销售发票号
+	private String sailesInvoiceNo;//销售发票号
+	
 
 }

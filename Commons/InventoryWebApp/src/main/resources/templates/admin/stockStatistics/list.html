@@ -170,6 +170,8 @@
 													th:style="${#lists.contains(listColums,'projectName')}?'':'display:none;'">用于项目</th>
 												<th class="numeric customer"
 													th:style="${#lists.contains(listColums,'customer')}?'':'display:none;'">客户</th>
+												<th class="numeric sailesInvoiceNo"
+													th:style="${#lists.contains(listColums,'sailesInvoiceNo')}?'':'display:none;'">销售发票号</th>
 												<th class="numeric user"
 													th:style="${#lists.contains(listColums,'user')}?'':'display:none;'">操作人</th>
 												<th class="numeric description"
@@ -230,6 +232,9 @@
 													<td class="numeric customer" id="customer"
 														th:style="${#lists.contains(listColums,'customer')}?'':'display:none;'"  th:title="${stockStatistics?.customer}"
 														th:text="${stockStatistics?.customer != null}?${#strings.abbreviate(stockStatistics?.customer,25)}:'--------'"></td>
+													<td class="numeric sailesInvoiceNo" id="sailesInvoiceNo"
+														th:style="${#lists.contains(listColums,'sailesInvoiceNo')}?'':'display:none;'"
+														th:text="${stockStatistics.sailesInvoiceNo != null}?${stockStatistics?.sailesInvoiceNo}:'--------'"></td>
 													<td class="numeric user" id="user"
 														th:style="${#lists.contains(listColums,'user')}?'':'display:none;'">[[${stockStatistics?.user?.userName}]]</td>
 													<td class="numeric description" id="description"  th:title="${stockStatistics.description}"

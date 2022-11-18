@@ -84,6 +84,11 @@
                                                 <td class="numeric">签名</td>
                                                 <td class="numeric" onclick="return selectColumn('sign');"><input type="checkbox" th:checked="${#lists.contains(listColums,'sign')}?'checked':'false'" id="ch_sign"></td>
                                             </tr>
+                                            <tr>
+                                                <td class="numeric">销售发票号</td>
+                                                <td class="numeric" onclick="return selectColumn('sailesInvoiceNo');"><input type="checkbox" th:checked="${#lists.contains(listColums,'sailesInvoiceNo')}?'checked':'false'" id="ch_sailesInvoiceNo"></td>
+                                                
+                                            </tr>
                                            
                                         </tbody>
                                     </table>
