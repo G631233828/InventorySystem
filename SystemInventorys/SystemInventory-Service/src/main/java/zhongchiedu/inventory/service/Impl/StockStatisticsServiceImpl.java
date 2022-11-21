@@ -404,6 +404,9 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 							 in.put("unit", Common.isEmpty(st.getStock().getUnit())?"":st.getStock().getUnit().getName());
 							 in.put("depotTime",st.getStorageTime());
 							 in.put("num", st.getNum());
+							 in.put("purchaseInvoiceNo", Common.isEmpty(st.getStock().getPurchaseInvoiceNo())?"":st.getStock().getPurchaseInvoiceNo());
+							 in.put("paymentOrderNo", Common.isEmpty(st.getStock().getPaymentOrderNo())?"":st.getStock().getPaymentOrderNo());
+							 in.put("supplier", Common.isEmpty(st.getStock().getSupplier())?"":st.getStock().getSupplier().getName());
 							 inlist.add(in);
 						}else {
 							 Map<String, Object> out =  new HashMap<>(); 
@@ -416,6 +419,9 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 							 out.put("unit", Common.isEmpty(st.getStock().getUnit())?"":st.getStock().getUnit().getName());
 							 out.put("depotTime",st.getDepotTime());
 							 out.put("num", st.getNum());
+							 out.put("sailesInvoiceNo", Common.isEmpty(st.getSailesInvoiceNo())?"":st.getSailesInvoiceNo());
+							 out.put("receiptNo", Common.isEmpty(st.getStock().getReceiptNo())?"":st.getStock().getReceiptNo());
+							 out.put("customer", Common.isEmpty(st.getCustomer())?"":st.getCustomer());
 							 outlist.add(out);
 							
 						}
