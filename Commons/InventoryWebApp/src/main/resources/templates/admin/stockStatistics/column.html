@@ -85,10 +85,24 @@
                                                 <td class="numeric" onclick="return selectColumn('sign');"><input type="checkbox" th:checked="${#lists.contains(listColums,'sign')}?'checked':'false'" id="ch_sign"></td>
                                             </tr>
                                             <tr>
-                                                <td class="numeric">销售发票号</td>
+                                                <td class="numeric">入库总金额</td>
+                                                <td class="numeric" onclick="return selectColumn('inprice');"><input type="checkbox" th:checked="${#lists.contains(listColums,'inprice')}?'checked':'false'" id="ch_inprice"></td>
+                                             	<td class="numeric">销售发票号</td>
                                                 <td class="numeric" onclick="return selectColumn('sailesInvoiceNo');"><input type="checkbox" th:checked="${#lists.contains(listColums,'sailesInvoiceNo')}?'checked':'false'" id="ch_sailesInvoiceNo"></td>
-                                                
-                                            </tr>
+                                                 </tr>
+                                               
+                                            <tr>
+                                                <td class="numeric">采购发票号</td>
+                                                <td class="numeric" onclick="return selectColumn('purchaseInvoiceNo');"><input type="checkbox" th:checked="${#lists.contains(listColums,'purchaseInvoiceNo')}?'checked':'false'" id="ch_purchaseInvoiceNo"></td>
+                                             	<td class="numeric">银行收款单号</td>
+                                                <td class="numeric" onclick="return selectColumn('receiptNo');"><input type="checkbox" th:checked="${#lists.contains(listColums,'receiptNo')}?'checked':'false'" id="ch_receiptNo"></td>
+                                             </tr>
+                                       
+                                            <tr>
+                                             	<td class="numeric">银行付款单号</td>
+                                                <td class="numeric" onclick="return selectColumn('paymentOrderNo');"><input type="checkbox" th:checked="${#lists.contains(listColums,'paymentOrderNo')}?'checked':'false'" id="ch_paymentOrderNo"></td>
+                                             </tr>
+                                       
                                            
                                         </tbody>
                                     </table>

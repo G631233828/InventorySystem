@@ -221,6 +221,40 @@ public class StockStatisticsController {
 		
 		
 	}
+	
+	
+	
+	/**
+	 * 导出excel（新）
+	 */
+	@RequestMapping(value = "/stockStatistics/exportNew", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+	@SystemControllerLog(description = "")
+	public void exportNew (@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
+			@RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize, HttpSession session,
+			@RequestParam(value = "search", defaultValue = "") String search,
+			@RequestParam(value = "start", defaultValue = "") String start,
+			@RequestParam(value = "end", defaultValue = "") String end,
+			@RequestParam(value = "type", defaultValue = "") String type,
+			@RequestParam(value = "id", defaultValue = "") String id,
+			@RequestParam(value = "areaId", defaultValue = "") String areaId,
+			@RequestParam(value = "searchAgent", defaultValue = "") String searchAgent, HttpServletResponse response,
+			HttpServletRequest request) throws Exception{
+		
+		String exportName = start+"~"+end+"库存统计";
+		
+		response.setContentType("application/vnd.ms-excel");
+		String fileName = new String((exportName).getBytes("gb2312"), "ISO8859-1");
+		response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xlsx");
+		Workbook newExport = this.stockStatisticsService.newExport2(request, search, start, end, type, fileName, areaId, searchAgent);
+		
+		OutputStream out = response.getOutputStream();
+		newExport.write(out);
+		out.flush();
+		out.close();
+		
+		
+		
+	}
 //	/**
 //	 * 导出excel
 //	 */
@@ -444,4 +478,54 @@ public class StockStatisticsController {
 
 	}
 
+	
+	
+	@RequestMapping(value = "/stockStatistics/batchEditStockStatistics", method = RequestMethod.POST)
+	@ResponseBody
+	public BasicDataResult batchPaymentOrderNo(HttpSession session,
+			@RequestParam(value = "stockid", defaultValue = "") String stockid,
+			@RequestParam(value = "inprice", defaultValue = "null") String inprice,
+			@RequestParam(value = "purchaseInvoiceNo", defaultValue = "null") String purchaseInvoiceNo,
+			@RequestParam(value = "receiptNo", defaultValue = "null") String receiptNo,
+			@RequestParam(value = "paymentOrderNo", defaultValue = "null") String paymentOrderNo,
+			@RequestParam(value = "sailesInvoiceNo", defaultValue = "null") String sailesInvoiceNo
+			) {
+		
+			Double dinprice=null;
+			try {
+				if(!inprice.equals("null")) {
+					dinprice = Double.parseDouble(inprice);
+				}else {
+					dinprice=null;
+				}
+			}catch(Exception e) {
+				e.printStackTrace();
+				return new BasicDataResult(400, "入库金额输入有误，请输入正确的数字", "");
+				
+			}
+			this.stockStatisticsService.updateStockStatistics(stockid, dinprice, purchaseInvoiceNo, receiptNo, paymentOrderNo,sailesInvoiceNo);
+			
+			return new BasicDataResult(200, "修改统计数据成功", "");
+		
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }

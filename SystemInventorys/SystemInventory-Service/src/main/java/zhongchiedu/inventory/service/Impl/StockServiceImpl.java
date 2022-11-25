@@ -1090,12 +1090,12 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	}
 
 	@Override
-	public void updatePaymentOrderNo(String ids, String paymentOrderNo) {
+	public void updateItemNo(String ids, String itemNo) {
 		List<String> array = Arrays.asList(ids.split(","));
 		
 		for(String id:array) {
 			Stock stock = this.findOneById(id, Stock.class);
-			stock.setPaymentOrderNo(paymentOrderNo);
+			stock.setItemNo(itemNo);
 			this.save(stock);
 		}
 		

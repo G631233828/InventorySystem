@@ -13,7 +13,7 @@ function BatchPaymentOrderNoForm() {
 			var batchids = "";
 	var id = $("input[name='ids']:checked");
 	$(id).each(function() {
-		$("#paymentOrderNo_"+this.value).text(data.data);
+		$("#itemNo_"+this.value).text(data.data);
 	});
 
 			jqueryAlert({

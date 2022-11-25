@@ -9,6 +9,7 @@
 <link rel="stylesheet" th:href="@{/plugs/datapicker/datepicker3.css}">
 <script type="text/javascript"
 	th:src="@{/plugs/datapicker/bootstrap-datepicker.js}"></script>
+<link th:href="@{/plugs/sweetalert/sweetalert.css}" rel="stylesheet">	
 
 
 </head>
@@ -67,7 +68,7 @@
 
 							<div class="body-nest" id="tableStatic">
 
-								<div class="row" style="margin-bottom: 10px;">
+								<div class="row" style="margin-bottom: -10px;">
 									<div class="col-sm-12 form-inline">
 										<select class="filter-status form-control" id="searchArea"
 											onchange="return searchVal()">
@@ -76,16 +77,17 @@
 												th:each="area:${areas}" th:value="${area?.id}"
 												th:text="${area?.name}"></option>
 
-										</select>
-										 <select class="filter-status form-control" id="pageSize"
+										</select> <select class="filter-status form-control" id="pageSize"
 											onchange="return searchVal()">
 											<option value="10" th:selected="${pageSize == 10}">10
+											
 											<option value="20" th:selected="${pageSize == 20}">20
+											
 											<option value="50" th:selected="${pageSize == 50}">50
+											
 											<option value="100" th:selected="${pageSize == 100}">100
-										</select> 
-										
-										<input class="form-control" id="serach" placeholder="模糊匹配"
+											
+										</select> <input class="form-control" id="serach" placeholder="模糊匹配"
 											th:value="${search}" type="text"> <input
 											class="form-control datepicker" readonly="readonly"
 											id="start" placeholder="开始日期" th:value="${start}" type="text">
@@ -95,16 +97,17 @@
 										<select class="filter-status form-control" id="type"
 											name="type">
 											<option value="all" th:selected="${type == 'all'}">所有
+											
 											<option value="in" th:selected="${type == 'in'}">入库
+											
 											<option value="out" th:selected="${type == 'out'}">出库
-										</select>
-
-									   <select class="filter-status form-control" id="agent"
+											
+										</select> <select class="filter-status form-control" id="agent"
 											onchange="return searchVal()">
 											<option value="" selected>--选择商品类别--</option>
 											<option value="true" th:selected="${searchAgent=='true'}">代理商品</option>
 											<option value="false" th:selected="${searchAgent=='false'}">非代理商品</option>
-										</select> 
+										</select>
 
 
 										<button class="btn btn-default btn-sm"
@@ -119,13 +122,26 @@
 										<button class="btn btn-default" onclick="return toExport()">
 											<i class="entypo-export"> </i>导出库存出入统计报表
 										</button>
+
+										<button class="btn btn-default" onclick="return toExportNew()">
+											<i class="entypo-export"> </i>导出新出入统计报表
+										</button>
+
+
 									</div>
 								</div>
 
 								<!-- <div class="col-sm-6"></div> -->
 
 							</div>
-
+							<shiro:hasPermission 	name="stockStatistics:edit">
+							<div class="body-nest" id="showStockStatistics">
+							<button class="btn btn-primary btn-sm"
+											onclick="return editStockStatistics()">
+											<i class="entypo-search"> </i> 批量编辑
+										</button>
+							</div>
+							</shiro:hasPermission>
 
 
 							<section id="flip-scroll">
@@ -135,13 +151,15 @@
 										class="table table-bordered table-striped cf text-nowrap  table-hover">
 										<thead class="cf">
 											<tr>
-												<!-- 	<th class="numeric" style="width: 20px;">
+												<shiro:hasPermission 	name="stockStatistics:edit">
+												<th class="numeric" style="width: 20px;">
 													<div class="checkbox checkbox-inline"
 														style="margin-top: 0px;">
 														<input type="checkbox" id="checkall" name="checkall" /> <label
 															for="checkall"></label>
 													</div>
-												</th> -->
+												</th>
+												</shiro:hasPermission>
 												<th class="numeric area"
 													th:style="${#lists.contains(listColums,'area')}?'':'display:none;'">区域</th>
 												<th class="numeric entryName"
@@ -170,8 +188,18 @@
 													th:style="${#lists.contains(listColums,'projectName')}?'':'display:none;'">用于项目</th>
 												<th class="numeric customer"
 													th:style="${#lists.contains(listColums,'customer')}?'':'display:none;'">客户</th>
+												<th class="numeric inprice"
+													th:style="${#lists.contains(listColums,'inprice')}?'':'display:none;'">入库总金额</th>
 												<th class="numeric sailesInvoiceNo"
 													th:style="${#lists.contains(listColums,'sailesInvoiceNo')}?'':'display:none;'">销售发票号</th>
+
+												<th class="numeric purchaseInvoiceNo"
+													th:style="${#lists.contains(listColums,'purchaseInvoiceNo')}?'':'display:none;'">采购发票号</th>
+												<th class="numeric receiptNo"
+													th:style="${#lists.contains(listColums,'receiptNo')}?'':'display:none;'">银行收款单号</th>
+												<th class="numeric paymentOrderNo"
+													th:style="${#lists.contains(listColums,'paymentOrderNo')}?'':'display:none;'">银行付款单号</th>
+
 												<th class="numeric user"
 													th:style="${#lists.contains(listColums,'user')}?'':'display:none;'">操作人</th>
 												<th class="numeric description"
@@ -187,8 +215,10 @@
 										<tbody>
 											<!-- 目录 -->
 											<th:block th:each="stockStatistics:${pageList?.datas}">
+											
 												<tr>
-													<!-- <td class="numeric">
+												<shiro:hasPermission 	name="stockStatistics:edit">
+													<td class="numeric">
 														<div class="checkbox checkbox-inline"
 															style="margin-top: 0px;">
 															<input type="checkbox" name="ids"
@@ -196,7 +226,8 @@
 																th:value="${stockStatistics.id}"> <label
 																th:for="${stockStatistics.id}"></label>
 														</div>
-													</td> -->
+													</td>
+												</shiro:hasPermission>
 													<td class="numeric area" id="area"
 														th:style="${#lists.contains(listColums,'area')}?'':'display:none;'">[[${stockStatistics?.area?.name}]]</td>
 													<td class="numeric entryName" id="entryName"
@@ -204,9 +235,13 @@
 													<td class="numeric itemNo" id="itemNo"
 														th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'">[[${stockStatistics?.stock?.itemNo}]]</td>
 													<td class="numeric stockName" id="stockName"
-														th:style="${#lists.contains(listColums,'stockName')}?'':'display:none;'" th:title="${stockStatistics?.stock?.name}" th:text="${#strings.abbreviate(stockStatistics?.stock?.name,30)}"></td>
+														th:style="${#lists.contains(listColums,'stockName')}?'':'display:none;'"
+														th:title="${stockStatistics?.stock?.name}"
+														th:text="${#strings.abbreviate(stockStatistics?.stock?.name,30)}"></td>
 													<td class="numeric stockModel" id="stockModel"
-														th:style="${#lists.contains(listColums,'stockModel')}?'':'display:none;'" th:title="${stockStatistics?.stock?.model}" th:text="${#strings.abbreviate(stockStatistics?.stock?.model,20)}"></td>
+														th:style="${#lists.contains(listColums,'stockModel')}?'':'display:none;'"
+														th:title="${stockStatistics?.stock?.model}"
+														th:text="${#strings.abbreviate(stockStatistics?.stock?.model,20)}"></td>
 													<td class="numeric storageTime" id="storageTime"
 														th:style="${#lists.contains(listColums,'storageTime')}?'':'display:none;'"
 														th:text="${stockStatistics.storageTime!=null}?${stockStatistics?.storageTime}:'--------'"></td>
@@ -230,56 +265,106 @@
 														th:style="${#lists.contains(listColums,'projectName')}?'':'display:none;'"
 														th:text="${stockStatistics.projectName != null}?${stockStatistics?.projectName}:'--------'"></td>
 													<td class="numeric customer" id="customer"
-														th:style="${#lists.contains(listColums,'customer')}?'':'display:none;'"  th:title="${stockStatistics?.customer}"
+														th:style="${#lists.contains(listColums,'customer')}?'':'display:none;'"
+														th:title="${stockStatistics?.customer}"
 														th:text="${stockStatistics?.customer != null}?${#strings.abbreviate(stockStatistics?.customer,25)}:'--------'"></td>
-													<td class="numeric sailesInvoiceNo" id="sailesInvoiceNo"
+
+													<td class="numeric inprice"  th:id="|inprice_${stockStatistics?.id}|"  th:ondblclick="|return changeInprice('${stockStatistics?.id}','${stockStatistics.inprice}','inprice')|"
+														th:style="${#lists.contains(listColums,'inprice')}?'':'display:none;'"
+														th:text="${stockStatistics.inprice != 0.0}?${stockStatistics?.inprice}:'0.0'">
+														
+														</td>
+
+													<td class="numeric sailesInvoiceNo" th:id="|sailesInvoiceNo_${stockStatistics?.id}|" th:ondblclick="|return changeInprice('${stockStatistics?.id}','${stockStatistics.sailesInvoiceNo}','sailesInvoiceNo')|"
 														th:style="${#lists.contains(listColums,'sailesInvoiceNo')}?'':'display:none;'"
 														th:text="${stockStatistics.sailesInvoiceNo != null}?${stockStatistics?.sailesInvoiceNo}:'--------'"></td>
+													<td class="numeric purchaseInvoiceNo" th:id="|purchaseInvoiceNo_${stockStatistics?.id}|"   th:ondblclick="|return changeInprice('${stockStatistics?.id}','${stockStatistics.purchaseInvoiceNo}','purchaseInvoiceNo')|"
+														th:style="${#lists.contains(listColums,'purchaseInvoiceNo')}?'':'display:none;'">[[${stockStatistics?.purchaseInvoiceNo}]]</td>
+													<td class="numeric receiptNo"  th:id="|receiptNo_${stockStatistics?.id}|"  th:ondblclick="|return changeInprice('${stockStatistics?.id}','${stockStatistics.receiptNo}','receiptNo')|"
+														th:style="${#lists.contains(listColums,'receiptNo')}?'':'display:none;'">[[${stockStatistics?.receiptNo}]]</td>
+														
+													<td class="numeric paymentOrderNo"
+														th:id="|paymentOrderNo_${stockStatistics?.id}|"  th:ondblclick="|return changeInprice('${stockStatistics?.id}','${stockStatistics.paymentOrderNo}','paymentOrderNo')|"
+														th:style="${#lists.contains(listColums,'paymentOrderNo')}?'':'display:none;'">[[${stockStatistics?.paymentOrderNo}]]</td>
+
+
 													<td class="numeric user" id="user"
 														th:style="${#lists.contains(listColums,'user')}?'':'display:none;'">[[${stockStatistics?.user?.userName}]]</td>
-													<td class="numeric description" id="description"  th:title="${stockStatistics.description}"
+													<td class="numeric description" id="description"
+														th:title="${stockStatistics.description}"
 														th:style="${#lists.contains(listColums,'description')}?'':'display:none;'">[[${#strings.abbreviate(stockStatistics?.description,30)}]]</td>
-													
+
 													<td class="numeric revoke" id="revoke"
 														th:style="${#lists.contains(listColums,'revoke')}?'':'display:none;'">
 														<label th:id="|revoke${stockStatistics?.id}|"
 														th:style="${stockStatistics?.revoke == true}?'color:red':'color:green'"
 														th:text="${stockStatistics?.revoke == true}?'已撤销':'正常'"></label>
 													</td>
-													<td class="numeric sign" id="sign"
+													<td class="numeric sign" id="sign" 
 														th:style="${#lists.contains(listColums,'sign')}?'':'display:none;'">
-														<label  th:if="${stockStatistics.depotTime!=null}"
+														<label th:if="${stockStatistics.depotTime!=null}"
 														th:style="${stockStatistics?.mysign ==null}?'color:red':'color:green'"
 														th:text="${stockStatistics?.mysign ==null}?'未签名':'已签名'"></label>
 													</td>
-												
-													<td class="numeric">
-														<shiro:hasPermission name="stockStatistics:revoke">
-															<button class="btn btn-primary btn-xs btcancle"
+													
+													
+													<td class="numeric">										
+													<th:block th:if="|
+													${#strings.isEmpty(stockStatistics.purchaseInvoiceNo)&&
+													#strings.isEmpty(stockStatistics.receiptNo)&&
+													#strings.isEmpty(stockStatistics.paymentOrderNo)&&
+													#strings.isEmpty(stockStatistics.sailesInvoiceNo)}|
+													">
+													<shiro:hasPermission 	name="stockStatistics:revoke">
+														<button class="btn btn-primary btn-xs btcancle" id="revoke"
 																th:id="${stockStatistics?.id}"
 																th:onclick="|return revoke('${stockStatistics?.id}')|">
-																<i class="fa fa-edit"> </i>撤销
+																<i class="fa fa-edit"> </i>撤销 
 															</button>
-														</shiro:hasPermission>
-														<th:block  th:if="${stockStatistics?.revoke == false || stockStatistics?.sign!='one'}">
-														<button class="btn btn-default btn-sm" th:if="${stockStatistics.depotTime!=null}"
+														</shiro:hasPermission> 
+													
+													</th:block>
+													
+													<th:block th:unless="|
+													${#strings.isEmpty(stockStatistics.purchaseInvoiceNo)&&
+													#strings.isEmpty(stockStatistics.receiptNo)&&
+													#strings.isEmpty(stockStatistics.paymentOrderNo)&&
+													#strings.isEmpty(stockStatistics.sailesInvoiceNo)}|
+													">
+													
+													<shiro:hasPermission 	name="stockStatistics:edit">
+														<button class="btn btn-primary btn-xs btcancle"
+																th:id="${stockStatistics?.id}"
+																th:onclick="|return revoke('${stockStatistics?.id}')|">
+																<i class="fa fa-edit"> </i>财务撤销 
+															</button>
+														</shiro:hasPermission> 
+													
+													</th:block>
+														
+													
+														<th:block
+															th:if="${stockStatistics?.revoke == false || stockStatistics?.sign!='one'}">
+															<button class="btn btn-default btn-sm"
+																th:if="${stockStatistics.depotTime!=null}"
 																th:id="|outbound${stockStatistics?.id}|" title="生成出库单"
 																th:onclick="|return outboundOrder('${stockStatistics?.id}')|">
 																<i class="fontawesome-list-alt"> </i>
-														</button>
-														<button th:id="|qrcode${stockStatistics?.id}|" title="下载取货二维码" class="btn btn-default btn-sm" th:if="${stockStatistics.depotTime!=null}"
-															th:onclick="|return toDownloadQRcode('${stockStatistics.id}')|">
-															<i class="fontawesome-cloud-download"> </i> 
-														</button>
-														<button  class="btn btn-default btn-sm"  title="出库二维码"
-															th:onclick="|return showQRCode('${stockStatistics.id}','${stockStatistics?.projectName}')|">
-															<i class="icon icon-view-thumb"> </i> 
+															</button>
+															<button th:id="|qrcode${stockStatistics?.id}|"
+																title="下载取货二维码" class="btn btn-default btn-sm"
+																th:if="${stockStatistics.depotTime!=null}"
+																th:onclick="|return toDownloadQRcode('${stockStatistics.id}')|">
+																<i class="fontawesome-cloud-download"> </i>
+															</button>
+															<button class="btn btn-default btn-sm" title="出库二维码"
+																th:onclick="|return showQRCode('${stockStatistics.id}','${stockStatistics?.projectName}')|">
+																<i class="icon icon-view-thumb"> </i>
 
-														</button>
-														
-														
-														</th:block>
-												</td>
+															</button>
+
+
+														</th:block></td>
 												</tr>
 												<!-- 菜单 -->
 											</th:block>
@@ -346,10 +431,21 @@
 		<div th:replace="public/public::myModal"></div>
 		<div th:replace="admin/stockStatistics/column::mycolumn"></div>
 		<div th:replace="admin/stockStatistics/revoke::myrevoke"></div>
+		<div th:replace="admin/stockStatistics/batcheditstockstatistics::editStockStatistics"></div>
 	</div>
 	<!-- 引入stockStatisticslist.js -->
 	<script type="text/javascript" th:inline="javascript"
 		th:src="@{/js/admin/stockStatistics/stockStatistics.js}"></script>
+		
+	<script type="text/javascript" th:inline="javascript"
+		th:src="@{/js/admin/stockStatistics/batcheditstockstatistics.js}"></script>
+		
+		<shiro:hasPermission 	name="stockStatistics:edit">
+	<script type="text/javascript" th:inline="javascript"
+		th:src="@{/js/admin/stockStatistics/changevalue.js}"></script>
+		</shiro:hasPermission>
+		
+		
 	<div th:replace="admin/stock/showQRCode::showqrcode"></div>
 	<!-- 右侧隐藏菜单start -->
 	<div th:replace="public/public::right"></div>

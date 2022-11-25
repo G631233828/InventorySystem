@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
@@ -74,19 +75,18 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	private @Autowired StockServiceImpl stockService;
 
 	private @Autowired UserServiceImpl userServiceService;
-	
+
 	@Autowired
 	private QrCodeService qrCodeServce;
 	@Autowired
 	private RedisTemplate redisTemplate;
-	
+
 	@Autowired
 	private MultiMediaService multiMediaService;
-	
+
 	@Autowired
 	private SignService signService;
-	
-	
+
 	@Value("${qrcode.weburl}")
 	private String weburl;
 	@Value("${qrcode.height}")
@@ -99,15 +99,11 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	private String qrcodepath;
 	@Value("${qrcode.format}")
 	private String format;
-	
-	
-	
-	
-	
+
 	@Override
-	@SystemServiceLog(description="分页查询库存统计信息")
+	@SystemServiceLog(description = "分页查询库存统计信息")
 	public Pagination<StockStatistics> findpagination(Integer pageNo, Integer pageSize, String search, String start,
-			String end, String type, String id,String searchArea,String searchAgent) {
+			String end, String type, String id, String searchArea, String searchAgent) {
 
 		// 分页查询数据
 		Pagination<StockStatistics> pagination = null;
@@ -117,12 +113,11 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			if (Common.isNotEmpty(id)) {
 				query.addCriteria(Criteria.where("stock.$id").is(new ObjectId(id)));
 			}
-			if(Common.isNotEmpty(searchAgent)) {
+			if (Common.isNotEmpty(searchAgent)) {
 				query = query.addCriteria(Criteria.where("agent").is(Boolean.valueOf(searchAgent)));
 			}
-			
-			
-			query = this.findbySearch(search, start, end, type, query,searchArea);
+
+			query = this.findbySearch(search, start, end, type, query, searchArea);
 			query.with(new Sort(new Order(Direction.DESC, "createTime")));
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, StockStatistics.class);
 			if (pagination == null)
@@ -133,21 +128,21 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		}
 		return pagination;
 	}
-	
-	@SystemServiceLog(description="条件查询库统计信息")
-	public Query findbySearch(String search, String start, String end, String type, Query query,String areaId) {
+
+	@SystemServiceLog(description = "条件查询库统计信息")
+	public Query findbySearch(String search, String start, String end, String type, Query query, String areaId) {
 
 		Criteria ca = new Criteria();
 		Criteria ca1 = new Criteria();
 		Criteria ca2 = new Criteria();
-		
+
 		if (type.equals("in")) {
 			query.addCriteria(Criteria.where("inOrOut").is(true));
 		} else if (type.equals("out")) {
 			query.addCriteria(Criteria.where("inOrOut").is(false));
 		}
-		
-		if(Common.isNotEmpty(areaId)) {
+
+		if (Common.isNotEmpty(areaId)) {
 			query = query.addCriteria(Criteria.where("area.$id").is(new ObjectId(areaId)));
 		}
 
@@ -155,9 +150,8 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			List<Object> stockId = this.findStocks(search);
 			List<Object> userId = this.findUsers(search);
 			ca1.orOperator(Criteria.where("stock.$id").in(stockId), Criteria.where("user.$id").in(userId),
-					Criteria.where("name").regex(search),Criteria.where("personInCharge").regex(search),
-					Criteria.where("projectName").regex(search),Criteria.where("customer").regex(search)
-					);
+					Criteria.where("name").regex(search), Criteria.where("personInCharge").regex(search),
+					Criteria.where("projectName").regex(search), Criteria.where("customer").regex(search));
 		}
 
 		if (Common.isNotEmpty(start) && Common.isNotEmpty(end)) {
@@ -178,16 +172,15 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	 * @param search
 	 * @return
 	 */
-	@SystemServiceLog(description="条件查询库统计信息")
+	@SystemServiceLog(description = "条件查询库统计信息")
 	public List<Object> findStocks(String search) {
 		List<Object> list = new ArrayList<>();
 		Query query = new Query();
 		Criteria ca = new Criteria();
 
-		query.addCriteria(ca.orOperator(Criteria.where("name").regex(search), Criteria.where("model").regex(search)
-				, Criteria.where("entryName").regex(search),Criteria.where("itemNo").regex(search),
-				Criteria.where("projectLeader").regex(search)
-				));
+		query.addCriteria(ca.orOperator(Criteria.where("name").regex(search), Criteria.where("model").regex(search),
+				Criteria.where("entryName").regex(search), Criteria.where("itemNo").regex(search),
+				Criteria.where("projectLeader").regex(search)));
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		List<Stock> lists = this.stockService.find(query, Stock.class);
 		for (Stock li : lists) {
@@ -195,29 +188,30 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		}
 		return list;
 	}
-	@SystemServiceLog(description="条件查询库统计信息")
-	public List<Stock> findStocksBySearch(String search,String areaId,String searchAgent) {
+
+	@SystemServiceLog(description = "条件查询库统计信息")
+	public List<Stock> findStocksBySearch(String search, String areaId, String searchAgent) {
 		Query query = new Query();
-		if(Common.isNotEmpty(areaId)) {
+		if (Common.isNotEmpty(areaId)) {
 			query.addCriteria(Criteria.where("area.$id").is(new ObjectId(areaId)));
 		}
 
-		if(Common.isNotEmpty(searchAgent)) {
+		if (Common.isNotEmpty(searchAgent)) {
 			query = query.addCriteria(Criteria.where("agent").is(Boolean.valueOf(searchAgent)));
 		}
-		if(Common.isNotEmpty(search)) {
+		if (Common.isNotEmpty(search)) {
 			Criteria ca = new Criteria();
-			query.addCriteria(ca.orOperator(Criteria.where("name").regex(search), Criteria.where("model").regex(search)));
-			
+			query.addCriteria(
+					ca.orOperator(Criteria.where("name").regex(search), Criteria.where("model").regex(search)));
+
 		}
-	
-		
-		
+
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		List<Stock> lists = this.stockService.find(query, Stock.class);
 		return lists;
 	}
-	@SystemServiceLog(description="条件查询库统计信息")
+
+	@SystemServiceLog(description = "条件查询库统计信息")
 	public List<Object> findUsers(String search) {
 		List<Object> list = new ArrayList<>();
 		Query query = new Query();
@@ -232,8 +226,8 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	}
 
 	@Override
-	@SystemServiceLog(description="库存出库入库")
-	public BasicDataResult inOrOutstockStatistics(StockStatistics stockStatistics,User user) {
+	@SystemServiceLog(description = "库存出库入库")
+	public BasicDataResult inOrOutstockStatistics(StockStatistics stockStatistics, User user) {
 
 		long num = stockStatistics.getNum();
 		if (num <= 0) {
@@ -241,8 +235,8 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		}
 		String id = stockStatistics.getStock().getId();// 获取库存设备id
 		Stock stock = this.stockService.findOneById(id, Stock.class);
-		if (stock!=null) {
-			
+		if (stock != null) {
+
 			stock.setDescription(stockStatistics.getDescription());
 			stockStatistics.setUser(user);
 			stockStatistics.setRevoke(false);
@@ -266,7 +260,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				stockStatistics.setDepotTime(Common.fromDateH());
 				stockStatistics.setNewNum(newNum);
 				lockInsert(stockStatistics);
-				//刷新redis中的projectName
+				// 刷新redis中的projectName
 				this.redisTemplate.delete("projectNames");
 				return BasicDataResult.build(200, "商品出库成功", stockStatistics);
 			}
@@ -278,8 +272,8 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 	Lock lock = new ReentrantLock();
 	Lock lockinsert = new ReentrantLock();
-	
-	@SystemServiceLog(description="库存出库入库执行insert")
+
+	@SystemServiceLog(description = "库存出库入库执行insert")
 	public void lockInsert(StockStatistics stockStatistics) {
 
 		lockinsert.lock();
@@ -290,7 +284,8 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		}
 
 	}
-	@SystemServiceLog(description="更新库存信息")
+
+	@SystemServiceLog(description = "更新库存信息")
 	public long updateStock(Stock stock, long num, boolean inOrOut) {
 		lock.lock();
 		long oldnum = stock.getInventory();
@@ -321,19 +316,19 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	}
 
 	@Override
-	@SystemServiceLog(description="插销库存信息")
+	@SystemServiceLog(description = "插销库存信息")
 	public BasicDataResult revoke(String id) {
 		StockStatistics st = this.findOneById(id, StockStatistics.class);
 		if (st.isRevoke()) {
 			return BasicDataResult.build(400, "该信息已经撤销，不能重复撤销", null);
 
 		}
-		if (st.getStock()==null) {
+		if (st.getStock() == null) {
 			return BasicDataResult.build(400, "未能获取到设备信息", null);
 		}
 		String stockId = st.getStock().getId();
 		Stock stock = this.stockService.findOneById(stockId, Stock.class);
-		if (stock==null) {
+		if (stock == null) {
 			return BasicDataResult.build(400, "未能获取到设备信息", null);
 		}
 
@@ -350,16 +345,17 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			return BasicDataResult.build(400, "货物库存数量不足,无法撤销入库", null);
 		}
 		StockStatistics stockStatistics = updateStockStatistics(st);
-		if (stockStatistics!=null) {
+		if (stockStatistics != null) {
 			StockStatistics revoke = new StockStatistics();
 			revoke.setRevokeNum(stockStatistics.getRevokeNum());
-			
+
 			return BasicDataResult.build(200, "撤销成功", revoke);
 		}
 		return BasicDataResult.build(400, "撤销过程中出现未知异常", null);
 
 	}
-	@SystemServiceLog(description="撤销后更新库存信息")
+
+	@SystemServiceLog(description = "撤销后更新库存信息")
 	public StockStatistics updateStockStatistics(StockStatistics stockStatistics) {
 		lockinsert.lock();
 		try {
@@ -375,83 +371,91 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	}
 
 	@Override
-	@SystemServiceLog(description="导出库存统计信息")
-	public Workbook newExport(HttpServletRequest request ,String search, String start, String end, String type, String name,String areaId,String searchAgent) {
+	@SystemServiceLog(description = "导出库存统计信息")
+	public Workbook newExport(HttpServletRequest request, String search, String start, String end, String type,
+			String name, String areaId, String searchAgent) {
 
-
-		List<Stock> listStock = this.findStocksBySearch(search,areaId,searchAgent);
+		List<Stock> listStock = this.findStocksBySearch(search, areaId, searchAgent);
 		// 获取所有的库存
-		List<StockStatistics> list = this.findStockStatistics(search, start, end, type,areaId,searchAgent);
-		
-		 List<Map<String, Object>> inlist = new ArrayList<>(); 
-		 List<Map<String, Object>> outlist = new ArrayList<>(); 
-		 
+		List<StockStatistics> list = this.findStockStatistics(search, start, end, type, areaId, searchAgent);
+
+		List<Map<String, Object>> inlist = new ArrayList<>();
+		List<Map<String, Object>> outlist = new ArrayList<>();
+
 		for (Stock stock : listStock) {
 			// 获取所有的设备
 			for (StockStatistics st : list) {
-				
-				if(st.getStock()!=null) {
+
+				if (st.getStock() != null) {
 					if (stock.getId().equals(st.getStock().getId())) {
-						if(st.isInOrOut()) {
-							//入库统计
-							 Map<String, Object> in =  new HashMap<>(); 
-							 in.put("itemNo", Common.isEmpty(stock.getItemNo())?"":stock.getItemNo());
-							 in.put("area", Common.isEmpty(stock.getArea())?"":stock.getArea().getName());
-							 in.put("projectName",Common.isEmpty(st.getProjectName())?"":st.getProjectName());
-							 in.put("stockName",Common.isEmpty(st.getStock().getName())?"":st.getStock().getName());
-							 in.put("modelName", Common.isEmpty(st.getStock().getModel())?"":st.getStock().getModel());
-							 in.put("price", Common.isEmpty(st.getStock().getPrice())?"":st.getStock().getPrice());
-							 in.put("unit", Common.isEmpty(st.getStock().getUnit())?"":st.getStock().getUnit().getName());
-							 in.put("depotTime",st.getStorageTime());
-							 in.put("num", st.getNum());
-							 in.put("purchaseInvoiceNo", Common.isEmpty(st.getStock().getPurchaseInvoiceNo())?"":st.getStock().getPurchaseInvoiceNo());
-							 in.put("paymentOrderNo", Common.isEmpty(st.getStock().getPaymentOrderNo())?"":st.getStock().getPaymentOrderNo());
-							 in.put("supplier", Common.isEmpty(st.getStock().getSupplier())?"":st.getStock().getSupplier().getName());
-							 inlist.add(in);
-						}else {
-							 Map<String, Object> out =  new HashMap<>(); 
-							 out.put("itemNo", Common.isEmpty(stock.getItemNo())?"":stock.getItemNo());
-							 out.put("area", Common.isEmpty(stock.getArea())?"":stock.getArea().getName());
-							 out.put("projectName",Common.isEmpty(st.getProjectName())?"":st.getProjectName());
-							 out.put("stockName",Common.isEmpty(st.getStock().getName())?"":st.getStock().getName());
-							 out.put("modelName", Common.isEmpty(st.getStock().getModel())?"":st.getStock().getModel());
-							 out.put("price", Common.isEmpty(st.getStock().getPrice())?"":st.getStock().getPrice());
-							 out.put("unit", Common.isEmpty(st.getStock().getUnit())?"":st.getStock().getUnit().getName());
-							 out.put("depotTime",st.getDepotTime());
-							 out.put("num", st.getNum());
-							 out.put("sailesInvoiceNo", Common.isEmpty(st.getSailesInvoiceNo())?"":st.getSailesInvoiceNo());
-							 out.put("receiptNo", Common.isEmpty(st.getStock().getReceiptNo())?"":st.getStock().getReceiptNo());
-							 out.put("customer", Common.isEmpty(st.getCustomer())?"":st.getCustomer());
-							 outlist.add(out);
-							
+						if (st.isInOrOut()) {
+							// 入库统计
+							Map<String, Object> in = new HashMap<>();
+							in.put("itemNo", Common.isEmpty(stock.getItemNo()) ? "" : stock.getItemNo());
+							in.put("area", Common.isEmpty(stock.getArea()) ? "" : stock.getArea().getName());
+							in.put("projectName", Common.isEmpty(st.getProjectName()) ? "" : st.getProjectName());
+							in.put("stockName", Common.isEmpty(st.getStock().getName()) ? "" : st.getStock().getName());
+							in.put("modelName",
+									Common.isEmpty(st.getStock().getModel()) ? "" : st.getStock().getModel());
+							in.put("price", Common.isEmpty(st.getStock().getPrice()) ? "" : st.getStock().getPrice());
+							in.put("unit",
+									Common.isEmpty(st.getStock().getUnit()) ? "" : st.getStock().getUnit().getName());
+							in.put("depotTime", st.getStorageTime());
+							in.put("num", st.getNum());
+//							in.put("purchaseInvoiceNo", Common.isEmpty(st.getStock().getPurchaseInvoiceNo()) ? ""
+//									: st.getStock().getPurchaseInvoiceNo());
+//							in.put("paymentOrderNo", Common.isEmpty(st.getStock().getPaymentOrderNo()) ? ""
+//									: st.getStock().getPaymentOrderNo());
+							in.put("supplier", Common.isEmpty(st.getStock().getSupplier()) ? ""
+									: st.getStock().getSupplier().getName());
+							inlist.add(in);
+						} else {
+							Map<String, Object> out = new HashMap<>();
+							out.put("itemNo", Common.isEmpty(stock.getItemNo()) ? "" : stock.getItemNo());
+							out.put("area", Common.isEmpty(stock.getArea()) ? "" : stock.getArea().getName());
+							out.put("projectName", Common.isEmpty(st.getProjectName()) ? "" : st.getProjectName());
+							out.put("stockName",
+									Common.isEmpty(st.getStock().getName()) ? "" : st.getStock().getName());
+							out.put("modelName",
+									Common.isEmpty(st.getStock().getModel()) ? "" : st.getStock().getModel());
+							out.put("price", Common.isEmpty(st.getStock().getPrice()) ? "" : st.getStock().getPrice());
+							out.put("unit",
+									Common.isEmpty(st.getStock().getUnit()) ? "" : st.getStock().getUnit().getName());
+							out.put("depotTime", st.getDepotTime());
+							out.put("num", st.getNum());
+							out.put("sailesInvoiceNo",
+									Common.isEmpty(st.getSailesInvoiceNo()) ? "" : st.getSailesInvoiceNo());
+//							out.put("receiptNo",
+//									Common.isEmpty(st.getStock().getReceiptNo()) ? "" : st.getStock().getReceiptNo());
+							out.put("customer", Common.isEmpty(st.getCustomer()) ? "" : st.getCustomer());
+							outlist.add(out);
+
 						}
-					
+
 					}
 				}
 			}
 		}
-		
-		 Map<String, Object> dataMap = new HashMap<>();			 
-				 
-				dataMap.put("inlist", inlist);
-				dataMap.put("outlist", outlist);
-			
-				String ctxPath = request.getServletContext().getRealPath("/WEB-INF/Templates/");
-				String fileName = "库存统计导出模板.xlsx";
-				   TemplateExportParams params = new TemplateExportParams(ctxPath+fileName,true);
-				Workbook doc =null;
-				
-				try {
-					doc =ExcelExportUtil.exportExcel(params, dataMap);
+
+		Map<String, Object> dataMap = new HashMap<>();
+
+		dataMap.put("inlist", inlist);
+		dataMap.put("outlist", outlist);
+
+		String ctxPath = request.getServletContext().getRealPath("/WEB-INF/Templates/");
+		String fileName = "库存统计导出模板.xlsx";
+		TemplateExportParams params = new TemplateExportParams(ctxPath + fileName, true);
+		Workbook doc = null;
+
+		try {
+			doc = ExcelExportUtil.exportExcel(params, dataMap);
 //							WordUtil.exportWord(ctxPath+fileName, dataMap);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				
-				
-				return doc;
-			
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return doc;
 
 	}
 
@@ -515,29 +519,29 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	 * @param sheet
 	 */
 	public void createStock(HSSFSheet sheet, List<String> title, HSSFCellStyle style, String search, String start,
-			String end, String type,String areaId,String searchAgent) {
+			String end, String type, String areaId, String searchAgent) {
 
 		int j = 1;
 
-		List<Stock> listStock = this.findStocksBySearch(search,areaId,searchAgent);
+		List<Stock> listStock = this.findStocksBySearch(search, areaId, searchAgent);
 		// 获取所有的库存
-		List<StockStatistics> list = this.findStockStatistics(search, start, end, type,areaId,searchAgent);
-		String msg="";
+		List<StockStatistics> list = this.findStockStatistics(search, start, end, type, areaId, searchAgent);
+		String msg = "";
 		if (type.equals("in")) {
 			// 入库统计
-			msg="入库:";
+			msg = "入库:";
 		} else if (type.equals("out")) {
 			// 出库统计
-			msg="出库:";
+			msg = "出库:";
 		}
 		for (Stock stock : listStock) {
 			// 获取所有的设备
 			HSSFRow row = sheet.createRow(j + 1);
-			
+
 			HSSFCell cell = row.createCell(0);
 			cell.setCellStyle(style);
-			cell.setCellValue(stock.getArea()!=null?stock.getArea().getName():"");
-			
+			cell.setCellValue(stock.getArea() != null ? stock.getArea().getName() : "");
+
 			cell = row.createCell(1);
 			cell.setCellStyle(style);
 			cell.setCellValue(stock.getName());
@@ -545,43 +549,43 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			cell = row.createCell(2);
 			cell.setCellStyle(style);
 			cell.setCellValue(stock.getModel());
-			
+
 			int l = 2;
 
 			for (StockStatistics st : list) {
-				
-				if(st.getStock()!=null) {
-				if (stock.getId().equals(st.getStock().getId())) {
-					cell = row.createCell(l+1);
-					cell.setCellStyle(style);
-					if (st.isInOrOut()) {
-						cell.setCellValue(st.getStorageTime());
-					} else {
-						cell.setCellValue(st.getDepotTime());
-					}
-					
-					cell = row.createCell(l+2);
-					cell.setCellStyle(style);
-					cell.setCellValue(msg+st.getNum());
-					
-					if(type.equals("out")){
-						cell = row.createCell(l+3);
-						cell.setCellStyle(style);
-						cell.setCellValue("负责人："+st.getPersonInCharge());
-						
-						cell = row.createCell(l+4);
-						cell.setCellStyle(style);
-						cell.setCellValue("项目："+st.getProjectName());
-						
-						cell = row.createCell(l+5);
-						cell.setCellStyle(style);
-						cell.setCellValue("客户："+st.getCustomer());
 
-						l= l+5;
-					}else{
-						l= l+2;
+				if (st.getStock() != null) {
+					if (stock.getId().equals(st.getStock().getId())) {
+						cell = row.createCell(l + 1);
+						cell.setCellStyle(style);
+						if (st.isInOrOut()) {
+							cell.setCellValue(st.getStorageTime());
+						} else {
+							cell.setCellValue(st.getDepotTime());
+						}
+
+						cell = row.createCell(l + 2);
+						cell.setCellStyle(style);
+						cell.setCellValue(msg + st.getNum());
+
+						if (type.equals("out")) {
+							cell = row.createCell(l + 3);
+							cell.setCellStyle(style);
+							cell.setCellValue("负责人：" + st.getPersonInCharge());
+
+							cell = row.createCell(l + 4);
+							cell.setCellStyle(style);
+							cell.setCellValue("项目：" + st.getProjectName());
+
+							cell = row.createCell(l + 5);
+							cell.setCellStyle(style);
+							cell.setCellValue("客户：" + st.getCustomer());
+
+							l = l + 5;
+						} else {
+							l = l + 2;
+						}
 					}
-				}
 				}
 			}
 			j++;
@@ -604,14 +608,15 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		return list;
 	}
 
-	@SystemServiceLog(description="根据条件查询库存统计-findStockStatistics")
-	public List<StockStatistics> findStockStatistics(String search, String start, String end, String type,String areaId,String searchAgent) {
+	@SystemServiceLog(description = "根据条件查询库存统计-findStockStatistics")
+	public List<StockStatistics> findStockStatistics(String search, String start, String end, String type,
+			String areaId, String searchAgent) {
 		Query query = new Query();
-		
-		if(Common.isNotEmpty(searchAgent)) {
+
+		if (Common.isNotEmpty(searchAgent)) {
 			query = query.addCriteria(Criteria.where("agent").is(Boolean.valueOf(searchAgent)));
 		}
-		query = this.findbySearch(search, start, end, type, query,areaId);
+		query = this.findbySearch(search, start, end, type, query, areaId);
 		query.with(new Sort(new Order(Direction.DESC, "createTime")));
 		query.addCriteria(Criteria.where("revoke").is(false));
 		List<StockStatistics> list = this.find(query, StockStatistics.class);
@@ -619,15 +624,17 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	}
 
 	@Override
-	@SystemServiceLog(description="根据条件查询库存统计-findAllByDate")
+	@SystemServiceLog(description = "根据条件查询库存统计-findAllByDate")
 	public List<StockStatistics> findAllByDate(String date, boolean inOrOut) {
 		Query query = new Query();
-		if(inOrOut){
-			//true 查入库
-			query.addCriteria(Criteria.where("storageTime").regex(date)).addCriteria(Criteria.where("inOrOut").is(inOrOut)).addCriteria(Criteria.where("revoke").is(false));
-		}else{
-			//false 查出库
-			query.addCriteria(Criteria.where("depotTime").regex(date)).addCriteria(Criteria.where("inOrOut").is(inOrOut)).addCriteria(Criteria.where("revoke").is(false));
+		if (inOrOut) {
+			// true 查入库
+			query.addCriteria(Criteria.where("storageTime").regex(date))
+					.addCriteria(Criteria.where("inOrOut").is(inOrOut)).addCriteria(Criteria.where("revoke").is(false));
+		} else {
+			// false 查出库
+			query.addCriteria(Criteria.where("depotTime").regex(date))
+					.addCriteria(Criteria.where("inOrOut").is(inOrOut)).addCriteria(Criteria.where("revoke").is(false));
 		}
 		List<StockStatistics> list = this.find(query, StockStatistics.class);
 		return list;
@@ -642,107 +649,111 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	}
 
 	@Override
-	public byte[] exportWord(String id, HttpServletRequest request,HttpSession session) {
-		//根据id获取出库商品
+	public byte[] exportWord(String id, HttpServletRequest request, HttpSession session) {
+		// 根据id获取出库商品
 		StockStatistics stockStatistics = this.findOneById(id, StockStatistics.class);
 		User user = (User) session.getAttribute(Contents.USER_SESSION);
-		 Map<String, Object> dataMap =  wordGeneralMessage(stockStatistics,user);
-		 long allnum =0;
-		 List<Map<String, Object>> stocks = new ArrayList<>(); 
-		 Map<String, Object> stock;
-		//根据stockStatistics获取订单号
-		if(Common.isEmpty(stockStatistics.getOutboundOrder())) {
-			System.out.println(stockStatistics.getStock()==null);
-			//如果订单号为空说明是1个设备（历史数据处理）
-			if(stockStatistics.getStock()!=null) {
-				stock =  new HashMap<>(); 
+		Map<String, Object> dataMap = wordGeneralMessage(stockStatistics, user);
+		long allnum = 0;
+		List<Map<String, Object>> stocks = new ArrayList<>();
+		Map<String, Object> stock;
+		// 根据stockStatistics获取订单号
+		if (Common.isEmpty(stockStatistics.getOutboundOrder())) {
+			System.out.println(stockStatistics.getStock() == null);
+			// 如果订单号为空说明是1个设备（历史数据处理）
+			if (stockStatistics.getStock() != null) {
+				stock = new HashMap<>();
 				stock.put("id", 1);
-				stock.put("name",Common.isEmpty(stockStatistics.getStock().getName())?"":stockStatistics.getStock().getName());
-				stock.put("model", Common.isEmpty(stockStatistics.getStock().getModel())?"":stockStatistics.getStock().getModel());
-				stock.put("unitName",Common.isNotEmpty(stockStatistics.getStock().getUnit())?stockStatistics.getStock().getUnit().getName():"");
+				stock.put("name", Common.isEmpty(stockStatistics.getStock().getName()) ? ""
+						: stockStatistics.getStock().getName());
+				stock.put("model", Common.isEmpty(stockStatistics.getStock().getModel()) ? ""
+						: stockStatistics.getStock().getModel());
+				stock.put("unitName",
+						Common.isNotEmpty(stockStatistics.getStock().getUnit())
+								? stockStatistics.getStock().getUnit().getName()
+								: "");
 				stock.put("num", stockStatistics.getNum());
-				allnum=stockStatistics.getNum();
+				allnum = stockStatistics.getNum();
 				stocks.add(stock);
 			}
-		}else {
-			//根据单号获取所有出库数据
-				List<StockStatistics> stockStatisticsList = this.findByoutboundOrder(stockStatistics.getOutboundOrder());
-			
-			for(int i=0;i<stockStatisticsList.size();i++) {
-				stock =  new HashMap<>(); 
-				stock.put("id", i+1);
+		} else {
+			// 根据单号获取所有出库数据
+			List<StockStatistics> stockStatisticsList = this.findByoutboundOrder(stockStatistics.getOutboundOrder());
+
+			for (int i = 0; i < stockStatisticsList.size(); i++) {
+				stock = new HashMap<>();
+				stock.put("id", i + 1);
 				stock.put("name", stockStatisticsList.get(i).getStock().getName());
 				stock.put("model", stockStatisticsList.get(i).getStock().getModel());
-				stock.put("unitName",Common.isNotEmpty(stockStatisticsList.get(i).getStock().getUnit())?stockStatisticsList.get(i).getStock().getUnit().getName():"");
+				stock.put("unitName",
+						Common.isNotEmpty(stockStatisticsList.get(i).getStock().getUnit())
+								? stockStatisticsList.get(i).getStock().getUnit().getName()
+								: "");
 				stock.put("num", stockStatisticsList.get(i).getNum());
-				allnum+=stockStatisticsList.get(i).getNum();
+				allnum += stockStatisticsList.get(i).getNum();
 				stocks.add(stock);
 			}
-			
+
 		}
 		dataMap.put("allnum", allnum);
 		dataMap.put("stocks", stocks);
-	
+
 		String ctxPath = request.getServletContext().getRealPath("/WEB-INF/Templates/");
 		String fileName = "销货单.docx";
-		
-		byte[] doc =null;
-		
+
+		byte[] doc = null;
+
 		try {
-			doc =WordUtil.exportWord(ctxPath+fileName, dataMap);
+			doc = WordUtil.exportWord(ctxPath + fileName, dataMap);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		
+
 		return doc;
-				
+
 	}
 
-   
-	
-	
 	/**
 	 * 
 	 * @param stockStatistics
 	 * @param user
 	 * @return 生成word通用消息内容
 	 */
-	public Map<String, Object> wordGeneralMessage(StockStatistics stockStatistics,User user){
-		 Map<String, Object> dataMap = new HashMap<>();
-			ImageEntity image = new ImageEntity();
-			image.setHeight(40);
-			image.setWidth(80);
-			if(Common.isNotEmpty(stockStatistics.getMysign())) {
-				byte[] b = Base64.getDecoder().decode(stockStatistics.getMysign().getSign().replace("data:image/png;base64,", ""));
-				image.setData(b);
-				image.setType(ImageEntity.Data);
-				dataMap.put("image", image);
-			}else {
-				dataMap.put("image", " ");
-				
-			}
-			
-			
-		  String outboundOrder =Common.isEmpty(stockStatistics.getOutboundOrder())?"":stockStatistics.getOutboundOrder();
-		  dataMap.put("customer",Common.isEmpty(stockStatistics.getCustomer())?"":stockStatistics.getCustomer());
-		  dataMap.put("personInCharge", Common.isEmpty(stockStatistics.getPersonInCharge())?"":stockStatistics.getPersonInCharge());
-		  try {
-		  dataMap.put("createDate", Common.getDateYMDHM(stockStatistics.getDepotTime()));
-	  } catch (ParseException e) {
-		  // TODO Auto-generated catch block
-		  e.printStackTrace();
-	  }
-		  dataMap.put("outboundOrder",outboundOrder);
-		  dataMap.put("description", Common.isEmpty(stockStatistics.getDescription())?"":stockStatistics.getDescription());
-		  dataMap.put("username",Common.isEmpty(user.getUserName())?"":user.getUserName());
-		  dataMap.put("projectName",Common.isEmpty(stockStatistics.getProjectName())?"":stockStatistics.getProjectName());
+	public Map<String, Object> wordGeneralMessage(StockStatistics stockStatistics, User user) {
+		Map<String, Object> dataMap = new HashMap<>();
+		ImageEntity image = new ImageEntity();
+		image.setHeight(40);
+		image.setWidth(80);
+		if (Common.isNotEmpty(stockStatistics.getMysign())) {
+			byte[] b = Base64.getDecoder()
+					.decode(stockStatistics.getMysign().getSign().replace("data:image/png;base64,", ""));
+			image.setData(b);
+			image.setType(ImageEntity.Data);
+			dataMap.put("image", image);
+		} else {
+			dataMap.put("image", " ");
 
-		  
-		  
-		  
-		  
+		}
+
+		String outboundOrder = Common.isEmpty(stockStatistics.getOutboundOrder()) ? ""
+				: stockStatistics.getOutboundOrder();
+		dataMap.put("customer", Common.isEmpty(stockStatistics.getCustomer()) ? "" : stockStatistics.getCustomer());
+		dataMap.put("personInCharge",
+				Common.isEmpty(stockStatistics.getPersonInCharge()) ? "" : stockStatistics.getPersonInCharge());
+		try {
+			dataMap.put("createDate", Common.getDateYMDHM(stockStatistics.getDepotTime()));
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		dataMap.put("outboundOrder", outboundOrder);
+		dataMap.put("description",
+				Common.isEmpty(stockStatistics.getDescription()) ? "" : stockStatistics.getDescription());
+		dataMap.put("username", Common.isEmpty(user.getUserName()) ? "" : user.getUserName());
+		dataMap.put("projectName",
+				Common.isEmpty(stockStatistics.getProjectName()) ? "" : stockStatistics.getProjectName());
+
 //		  dataMap.put("customer",stockStatistics.getCustomer());
 //		  dataMap.put("personInCharge", stockStatistics.getPersonInCharge());
 //		  try {
@@ -755,7 +766,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 //		  dataMap.put("description", stockStatistics.getDescription());
 //		  dataMap.put("username", user.getUserName());
 //		  dataMap.put("projectName", stockStatistics.getProjectName());
-		  return dataMap;
+		return dataMap;
 	}
 
 	@Override
@@ -766,32 +777,30 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		query.addCriteria(Criteria.where("isDisable").is(false));
 		return this.find(query, StockStatistics.class);
-		
+
 	}
 
-	
 	public QrCode createStockStatisticsQrCode(String stockStatisticsId) {
 		StockStatistics stock = null;
 		if (Common.isNotEmpty(stockStatisticsId)) {
 			stock = this.findOneById(stockStatisticsId, StockStatistics.class);
-			if(stock.getQrCode()!=null) {
-				//判断二维码是否存在，不存在则重新创建
+			if (stock.getQrCode() != null) {
+				// 判断二维码是否存在，不存在则重新创建
 				String downLoadPath = stock.getQrCode().getQrcode().getDir()
-						+ stock.getQrCode().getQrcode().getSavePath()
-						+ stock.getQrCode().getQrcode().getOriginalName();
+						+ stock.getQrCode().getQrcode().getSavePath() + stock.getQrCode().getQrcode().getOriginalName();
 				File f = new File(downLoadPath);
-				if(!f.exists()) {
+				if (!f.exists()) {
 					stock.setQrCode(null);
 				}
 			}
-			
+
 		}
 		if (stock == null) {
 			return null;
 		}
-		
+
 		QrCode qrcode = null;
-		if(stock.getQrCode()==null) {
+		if (stock.getQrCode() == null) {
 			qrcode = new QrCode();
 			try {
 				Hashtable<EncodeHintType, String> hints = new Hashtable<EncodeHintType, String>();
@@ -802,96 +811,85 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				// 生成二维码
 				String path = dir + qrcodepath + "/";
 				Common.checkPathAndMkdirs(path);
-				String projectname=Common.isNotEmpty(stock.getProjectName())?stock.getProjectName().trim():"";
-				String customer = Common.isNotEmpty(stock.getCustomer())?stock.getCustomer().trim():"";
-				if(stock.getOutboundOrder()!=null) {
-					File outputFile = new File(path + projectname+customer+stock.getOutboundOrder() + ".png");
+				String projectname = Common.isNotEmpty(stock.getProjectName()) ? stock.getProjectName().trim() : "";
+				String customer = Common.isNotEmpty(stock.getCustomer()) ? stock.getCustomer().trim() : "";
+				if (stock.getOutboundOrder() != null) {
+					File outputFile = new File(path + projectname + customer + stock.getOutboundOrder() + ".png");
 					MatrixToImageWriter.writeToFile(bitMatrix, format, outputFile);
 					// 保存图片信息
 					MultiMedia saveQrCode = this.multiMediaService.saveQrCode(outputFile, dir, qrcodepath, "PHOTO");
 					qrcode.setQrcode(saveQrCode);
 					qrcode.setPath(urlpath);
-					qrcode.setName(projectname+customer);
+					qrcode.setName(projectname + customer);
 					qrcode.setType("STOCKSTATISTICS");
 					this.qrCodeServce.insert(qrcode);
 					stock.setQrCode(qrcode);
 					this.save(stock);
 				}
-				
+
 			} catch (WriterException | IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
-		
+
 		return stock.getQrCode();
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	@Override
-	public StockStatistics createStockStatisticsQrCodeAndDownload(String id) {
-		
-		StockStatistics stockStatistics = this.findOneById(id, StockStatistics.class);
-		
-		List<StockStatistics> findByoutboundOrder = this.findByoutboundOrder(stockStatistics.getOutboundOrder());
-		
-		findByoutboundOrder.forEach(o->{
-			this.createStockStatisticsQrCode(o.getId());
-		});
-		
-		return  this.findOneById(id, StockStatistics.class);
-		
-	
 	}
 
 	@Override
-	public Map<Object,Object> stockStatisticsPickup(StockStatistics stockStatistics) {
+	public StockStatistics createStockStatisticsQrCodeAndDownload(String id) {
+
+		StockStatistics stockStatistics = this.findOneById(id, StockStatistics.class);
+
+		List<StockStatistics> findByoutboundOrder = this.findByoutboundOrder(stockStatistics.getOutboundOrder());
+
+		findByoutboundOrder.forEach(o -> {
+			this.createStockStatisticsQrCode(o.getId());
+		});
+
+		return this.findOneById(id, StockStatistics.class);
+
+	}
+
+	@Override
+	public Map<Object, Object> stockStatisticsPickup(StockStatistics stockStatistics) {
 		String outboundOrder = stockStatistics.getOutboundOrder();
 		List<StockStatistics> st = this.findByoutboundOrder(outboundOrder);
-		Map<Object,Object> map = new HashMap<>();
+		Map<Object, Object> map = new HashMap<>();
 		map.put("personInCharge", st.get(0).getPersonInCharge());
 		map.put("projectName", st.get(0).getProjectName());
 		map.put("customer", st.get(0).getCustomer());
 		map.put("description", st.get(0).getDescription());
 		map.put("outboundOrder", st.get(0).getOutboundOrder());
-		
-		
-		
+
 		try {
-			String dateYMDHM= Common.getDateYMDHM(new Date());
+			String dateYMDHM = Common.getDateYMDHM(new Date());
 			stockStatistics.setPickupTime(dateYMDHM);
-		
+
 			map.put("time", dateYMDHM);
 		} catch (ParseException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		if(Common.isEmpty(st.get(0).getMysign())) {
+
+		if (Common.isEmpty(st.get(0).getMysign())) {
 			map.put("sign", stockStatistics.getSign());
-			//保存签名
+			// 保存签名
 			Sign sign = new Sign();
 			sign.setSign(stockStatistics.getSign());
 			this.signService.save(sign);
-			
-			
-			st.forEach(s->{
+
+			st.forEach(s -> {
 				s.setMysign(sign);
 				s.setOpenId(stockStatistics.getOpenId());
 				s.setPickupTime(stockStatistics.getPickupTime());
 				this.save(s);
 			});
-			
-		}else {
+
+		} else {
 			map.put("sign", st.get(0).getMysign().getSign());
 			map.put("time", st.get(0).getPickupTime());
-			
+
 		}
 		return map;
 	}
@@ -904,6 +902,108 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	}
 
 
+
+	@Override
+	public void updateStockStatistics(String ids, Double inprice, String purchaseInvoiceNo, String receiptNo,
+			String paymentOrderNo,String sailesInvoiceNo) {
+	
+		List<String> array = Arrays.asList(ids.split(","));
+		
+		for(String id:array) {
+			StockStatistics stockStatistics = this.findOneById(id, StockStatistics.class);
+			if(inprice!=null) {
+				stockStatistics.setInprice(inprice);
+			}
+			if(!purchaseInvoiceNo.equals("null")) {
+				stockStatistics.setPurchaseInvoiceNo(purchaseInvoiceNo);
+			}
+			if(!receiptNo.equals("null")) {
+				stockStatistics.setReceiptNo(receiptNo);
+			}
+			if(!paymentOrderNo.equals("null")) {
+				stockStatistics.setPaymentOrderNo(paymentOrderNo);
+			}
+			if(!sailesInvoiceNo.equals("null")) {
+				stockStatistics.setSailesInvoiceNo(sailesInvoiceNo);
+			}
+			
+			this.save(stockStatistics);
+		}
+		
+		
+		
+		
+		
+	}
+	
+	@Override
+	public Workbook newExport2(HttpServletRequest request, String search, String start, String end, String type,
+			String name, String areaId, String searchAgent) {
+
+		List<Stock> listStock = this.findStocksBySearch(search, areaId, searchAgent);
+		// 获取所有的库存
+		List<StockStatistics> list = this.findStockStatistics(search, start, end, type, areaId, searchAgent);
+		List<Map<String, Object>> outlist = new ArrayList<>();
+		// 获取 start时间 （第一天）库存的初始数量  出库数量+剩余库存数量  num+newNum
+		// 获取所有的设备
+		for(Stock stock:listStock) {
+			//在库存统计中获取遍历所有设备
+			for (StockStatistics st : list) {
+				if (stock.getId().equals(st.getStock().getId())) {
+//					Map<String, Object> out = new HashMap<>();
+//					
+//					System.out.println(st.getCreateTime()+",出入库数量"+st.getNum()+",新数量"+st.getNewNum());
+//					//设备第一条数据为期初库存 判断是入库还是出库
+//					out.put("oldprice", Common.isEmpty(stock.getPrice()) ? "" : stock.getPrice());
+//					if(!st.isInOrOut()) {
+//						//如果是出库，需要吧出库的数量加回来
+//						out.put("oldprice", Common.isEmpty(stock.getPrice()) ? "" : stock.getPrice());
+//					}
+					//先把每个设备的出库记录放map中在处理数据
+					
+					
+				}
+					
+					
+				}
+			
+			
+		}
+		
+		
+		
+		
+		
+		
+		
+		
+		
+
+		Map<String, Object> dataMap = new HashMap<>();
+
+		dataMap.put("list", null);
+		dataMap.put("title", start+"~"+end+"库存统计");
+		
+
+		String ctxPath = request.getServletContext().getRealPath("/WEB-INF/Templates/");
+		String fileName = "新库存统计导出模板.xlsx";
+		TemplateExportParams params = new TemplateExportParams(ctxPath + fileName, true);
+		Workbook doc = null;
+
+		try {
+			doc = ExcelExportUtil.exportExcel(params, dataMap);
+//							WordUtil.exportWord(ctxPath+fileName, dataMap);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return doc;
+
+	}
+	
+	
+	
 	
 	
 	

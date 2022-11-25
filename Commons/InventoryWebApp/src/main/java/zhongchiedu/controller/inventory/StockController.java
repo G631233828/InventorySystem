@@ -687,17 +687,17 @@ public class StockController {
 	@ResponseBody
 	public BasicDataResult batchPaymentOrderNo(HttpSession session,
 			@RequestParam(value = "stockid", defaultValue = "") String stockid,
-			@RequestParam(value = "paymentOrderNo", defaultValue = "") String paymentOrderNo
+			@RequestParam(value = "itemNo", defaultValue = "") String itemNo
 			) {
 		
 		try {
-			this.stockService.updatePaymentOrderNo(stockid, paymentOrderNo);
-			return new BasicDataResult(200, "批量修改付款单号成功", paymentOrderNo);
+			this.stockService.updateItemNo(stockid, itemNo);
+			return new BasicDataResult(200, "批量修改采购付款申请单成功", itemNo);
 			
 		}catch(Exception e) {
 			e.printStackTrace();
 		}
-		return new BasicDataResult(400, "批量修改付款单号出现问题，请联系管理员", paymentOrderNo);
+		return new BasicDataResult(400, "批量修改采购付款申请单出现问题，请联系管理员", itemNo);
 		
 		
 	}

@@ -81,5 +81,13 @@ public class StockStatistics extends GeneralBean<StockStatistics> {
 	//20221118 添加销售发票号
 	private String sailesInvoiceNo;//销售发票号
 	
+	//20221123 添加出库入库单价
+	private Double inprice;
+	//private double outprice;
+	private String purchaseInvoiceNo;//采购发票号
+	private String receiptNo;//银行收款单号
+	private String paymentOrderNo;//银行付款单号
+	
+	
 
 }

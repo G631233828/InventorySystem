@@ -522,7 +522,7 @@ function batchPaymentOrderNo() {
 			swal({
 				type: "warning",
 				title: "",
-				text: "批量修改付款单号至少选择一项!!",
+				text: "批量修改采购付款单编号至少选择一项!!",
 			});
 		
 		}else{

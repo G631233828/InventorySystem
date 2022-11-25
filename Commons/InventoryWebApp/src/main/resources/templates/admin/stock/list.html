@@ -110,7 +110,7 @@
 										
 										<shiro:hasPermission name="stock:financial">
 											<button class="btn btn-info dropdown-toggle" onclick="return batchPaymentOrderNo()">
-												<i class="icon icon-document-edit"> </i>付款单号修改
+												<i class="icon icon-document-edit"> </i>采购付款单修改
 											</button>
 										</shiro:hasPermission>
 
@@ -205,7 +205,7 @@
 												<th class="numeric entryName"
 													th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'">项目名称</th>
 												<th class="numeric itemNo"
-													th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'">项目编号</th>
+													th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'">采购付款申请单编码</th>
 												<!-- <th class="numeric scope"
 													th:style="${#lists.contains(listColums,'scope')}?'':'display:none;'">使用范围</th> -->
 												<th class="numeric brand"
@@ -228,14 +228,6 @@
 													th:style="${#lists.contains(listColums,'inventory')}?'':'display:none;'">库存量</th>
 												<th class="numeric email"
 													th:style="${#lists.contains(listColums,'email')}?'':'display:none;'">供应商邮箱</th>
-												<th class="numeric purchaseInvoiceNo"
-													th:style="${#lists.contains(listColums,'purchaseInvoiceNo')}?'':'display:none;'">采购发票号</th>
-												<th class="numeric receiptNo"
-													th:style="${#lists.contains(listColums,'receiptNo')}?'':'display:none;'">收款单号</th>
-												<th class="numeric paymentOrderNo"
-													th:style="${#lists.contains(listColums,'paymentOrderNo')}?'':'display:none;'">付款单号</th>
-													
-													
 												<th class="numeric">使用状态</th>
 												<th class="numeric">操作</th>
 											</tr>
@@ -267,7 +259,7 @@
 														th:text="${#strings.abbreviate(stock?.model,30)}"></td>
 													<td class="numeric entryName" id="entryName"
 														th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'">[[${stock?.entryName}]]</td>
-													<td class="numeric itemNo" id="itemNo"
+													<td class="numeric itemNo"  th:id="|itemNo_${stock?.id}|"
 														th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'">[[${stock?.itemNo}]]</td>
 													<!-- <td class="numeric scope" id="scope"
 														th:style="${#lists.contains(listColums,'scope')}?'':'display:none;'">[[${stock?.scope}]]</td> -->
@@ -299,12 +291,7 @@
 														th:style="${stock?.inventory > 5}?'color:green':${stock?.inventory == 0?'color:red':'color:blue'}">[[${stock?.inventory}]]</label></td>
 													<td class="numeric email" id="email"
 														th:style="${#lists.contains(listColums,'email')}?'':'display:none;'">[[${stock?.supplier?.email}]]</td>
-													<td class="numeric purchaseInvoiceNo" id="purchaseInvoiceNo"
-														th:style="${#lists.contains(listColums,'purchaseInvoiceNo')}?'':'display:none;'">[[${stock?.purchaseInvoiceNo}]]</td>
-													<td class="numeric receiptNo" id="receiptNo"
-														th:style="${#lists.contains(listColums,'receiptNo')}?'':'display:none;'">[[${stock?.receiptNo}]]</td>
-													<td class="numeric paymentOrderNo" th:id="|paymentOrderNo_${stock?.id}|"
-														th:style="${#lists.contains(listColums,'paymentOrderNo')}?'':'display:none;'">[[${stock?.paymentOrderNo}]]</td>
+												
 													<td class="numeric" th:id="disBtn+${stock.id}"
 														th:utext="${stock.isDisable eq true }?|<button type='button' onclick=toDisable('${stock.id}','stock') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${stock.id}','stock') class='btn btn-success'>启用</button>|"></td>
 													<td class="numeric">

@@ -62,8 +62,8 @@ public interface StockService extends GeneralService<Stock> {
 	
 	public List<Stock> findStocksByIds(List ids);
 	
-	//批量修改付款单号
-	public void updatePaymentOrderNo(String ids,String paymentOrderNo);
+	//批量采购付款申请单
+	public void updateItemNo(String ids,String itemNo);
 	
 	
 	

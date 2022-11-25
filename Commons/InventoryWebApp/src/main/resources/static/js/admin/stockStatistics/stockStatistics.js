@@ -55,16 +55,48 @@ function toExport() {
 
 }
 
+//导出新库存统计
+function toExportNew() {
+
+
+	var search = $("#serach").val();
+	var start = $("#start").val();
+	var end = $("#end").val();
+	var type = $("#type").val();
+	var areaId = $("#searchArea").val();
+	var searchAgent = $("#agent").val();
+	
+	if(start==""||end==""){
+	jqueryAlert({
+		    'icon'    : getRootPath() +'/plugs/alert/img/error.png',
+		    'content' : "导入的时间段不能为空",
+		    'closeTime' : 2000,
+		})
+		return;
+	}
+	
+	
+	
+	
+	jqueryAlert({
+		'icon': getRootPath() + '/plugs/alert/img/right.png',
+		'content': "正在导出请稍等...",
+		'closeTime': 5000,
+	})
+	window.location.href = "stockStatistics/exportNew?search=" + search + "&start=" + start + "&end=" + end + "&type=" + type + "&areaId=" + areaId + "&searchAgent=" + searchAgent;
+
+}
+
 
 //生成出库单
 function outboundOrder(o) {
 
-jqueryAlert({
+	jqueryAlert({
 		'icon': getRootPath() + '/plugs/alert/img/right.png',
 		'content': "正在生成数据请稍等...",
 		'closeTime': 5000,
 	})
-	window.location.href="stockStatistics/exportOutBoundOrder?id="+o;
+	window.location.href = "stockStatistics/exportOutBoundOrder?id=" + o;
 }
 
 
@@ -121,9 +153,9 @@ function revoke(o) {
 							//							$("#revokeNum").text(data.data.revokeNum);
 							$("#revoke" + o).css("color", "red");
 							$("#revoke" + o).text("已撤销");
-							$("#outbound"+o).hide();
-							$("#qrcode"+o).hide();
-							
+							$("#outbound" + o).hide();
+							$("#qrcode" + o).hide();
+
 							M.dialog3.close();
 							jqueryAlert({
 								'content': data.msg
@@ -231,31 +263,63 @@ function toDownloadQRcode(o) {
 
 
 
-function showQRCode(o,o2){
+function showQRCode(o, o2) {
 	$("#showqrcode").modal('show');
-	
+
 	$.ajax({
-		type : 'POST',
-		url : getRootPath() + "/stockStatistics/getQRCode",
-		dataType : "json",
+		type: 'POST',
+		url: getRootPath() + "/stockStatistics/getQRCode",
+		dataType: "json",
 		data: "id=" + o,
-		success : function(data) {
-		if(o2!=null){
-		$("#qrcodename").text(o2)
-		}
-			$("#qrcode").attr("src",data.data)
+		success: function(data) {
+			if (o2 != null) {
+				$("#qrcodename").text(o2)
+			}
+			$("#qrcode").attr("src", data.data)
 		}
 	});
-	
+
 }
 
 
 
+function editStockStatistics() {
+
+	var a = $("input[name='ids']:checked").length;
+	if (a == 0) {
+		swal({
+			type: "warning",
+			title: "",
+			text: "批量修改库存统计信息至少选择一项!!",
+		});
+
+	} else {
+
+		$("#editStockStatistics").modal('show');
+
+		var batchids = "";
+		var id = $("input[name='ids']:checked");
+		var str = "";
+		$(id).each(function() {
+			str += this.value + ",";
+		});
+		if (str != "") {
+			batchids = str.substring(0, str.length - 1);
+		}
+
+		$("#stockid").val(batchids);
+	}
+
+}
 
 
 
+function getitem(o) {
 
+$("#_"+o).val('')
+$("#"+o).toggle();
 
+}
 
 
 

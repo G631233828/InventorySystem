@@ -1,5 +1,7 @@
 package zhongchiedu.inventory.pojo;
 
+import java.math.BigDecimal;
+
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 
@@ -67,18 +69,8 @@ public class Stock extends GeneralBean<Stock> {
 	@Transient 
 	private long stocknum;//导入库存数量 不会将这个数据放入数据库
 	
-	//20221118 添加发票号、收款单号、付款单号
-	private String purchaseInvoiceNo;//采购发票号
+	
+	
 
-	private String receiptNo;//收款单号
-	private String paymentOrderNo;//付款单号
-	
-	
-	
-	
-	
-	
-	
-	
 
 }
