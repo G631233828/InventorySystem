@@ -269,22 +269,22 @@
 														th:title="${stockStatistics?.customer}"
 														th:text="${stockStatistics?.customer != null}?${#strings.abbreviate(stockStatistics?.customer,25)}:'--------'"></td>
 
-													<td class="numeric inprice"  th:id="|inprice_${stockStatistics?.id}|"  th:ondblclick="|return changeInprice('${stockStatistics?.id}','${stockStatistics.inprice}','inprice')|"
+													<td class="numeric inprice"  th:id="|inprice_${stockStatistics?.id}|"  th:ondblclick="|return change('${stockStatistics?.id}','inprice')|"
 														th:style="${#lists.contains(listColums,'inprice')}?'':'display:none;'"
 														th:text="${stockStatistics.inprice != 0.0}?${stockStatistics?.inprice}:'0.0'">
 														
 														</td>
 
-													<td class="numeric sailesInvoiceNo" th:id="|sailesInvoiceNo_${stockStatistics?.id}|" th:ondblclick="|return changeInprice('${stockStatistics?.id}','${stockStatistics.sailesInvoiceNo}','sailesInvoiceNo')|"
+													<td class="numeric sailesInvoiceNo" th:id="|sailesInvoiceNo_${stockStatistics?.id}|" th:ondblclick="|return change('${stockStatistics?.id}','sailesInvoiceNo')|"
 														th:style="${#lists.contains(listColums,'sailesInvoiceNo')}?'':'display:none;'"
-														th:text="${stockStatistics.sailesInvoiceNo != null}?${stockStatistics?.sailesInvoiceNo}:'--------'"></td>
-													<td class="numeric purchaseInvoiceNo" th:id="|purchaseInvoiceNo_${stockStatistics?.id}|"   th:ondblclick="|return changeInprice('${stockStatistics?.id}','${stockStatistics.purchaseInvoiceNo}','purchaseInvoiceNo')|"
+														th:text="${stockStatistics.sailesInvoiceNo != null}?${stockStatistics?.sailesInvoiceNo}:''"></td>
+													<td class="numeric purchaseInvoiceNo" th:id="|purchaseInvoiceNo_${stockStatistics?.id}|"   th:ondblclick="|return change('${stockStatistics?.id}','purchaseInvoiceNo')|"
 														th:style="${#lists.contains(listColums,'purchaseInvoiceNo')}?'':'display:none;'">[[${stockStatistics?.purchaseInvoiceNo}]]</td>
-													<td class="numeric receiptNo"  th:id="|receiptNo_${stockStatistics?.id}|"  th:ondblclick="|return changeInprice('${stockStatistics?.id}','${stockStatistics.receiptNo}','receiptNo')|"
+													<td class="numeric receiptNo"  th:id="|receiptNo_${stockStatistics?.id}|"  th:ondblclick="|return change('${stockStatistics?.id}','receiptNo')|"
 														th:style="${#lists.contains(listColums,'receiptNo')}?'':'display:none;'">[[${stockStatistics?.receiptNo}]]</td>
 														
 													<td class="numeric paymentOrderNo"
-														th:id="|paymentOrderNo_${stockStatistics?.id}|"  th:ondblclick="|return changeInprice('${stockStatistics?.id}','${stockStatistics.paymentOrderNo}','paymentOrderNo')|"
+														th:id="|paymentOrderNo_${stockStatistics?.id}|"  th:ondblclick="|return change('${stockStatistics?.id}','paymentOrderNo')|"
 														th:style="${#lists.contains(listColums,'paymentOrderNo')}?'':'display:none;'">[[${stockStatistics?.paymentOrderNo}]]</td>
 
 

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<!-- saved from url=(0052)http://getbootstrap.com/docs/4.0/examples/dashboard/ -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<body>
+
+
+
+	<!-- 信息提示 -->
+	<div aria-labelledby="myLargeModalLabel" role="dialog" tabindex="-1"
+		class="modal fade bs-example-modal-lg" style="display: none;"
+		th:fragment="editStockStatistics" id="editStockStatistics">
+
+		<div class="modal-dialog modal-lg"
+			style="margin-top: 10%; width: 700px;">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">×</button>
+					<h4>批量修改库存统计信息</h4>
+				</div>
+				<div class="content-wrap">
+
+					<div class="body-nest" id="Blank_Page_Content">
+						<div class="row">
+							<!-- edit form column -->
+							<div class="col-md-12 personal-info">
+
+								<form class="form-horizontal" enctype="multipart/form-data"
+									id="batchStockStatisticsForm">
+							
+
+									<div class="form-group">
+											<label class="col-lg-3  text-info " >选择修改项：</label>
+										<div class="row">
+											<div class="col-lg-12 ">
+												<label class="col-lg-4  text-info " >入库总额：
+												<input onchange="return getitem('it0')"  name="item" type="checkbox"  class="numeric" value="0">
+												</label>
+												<label class="col-lg-4  text-info " >销售发票号：
+												<input onchange="return getitem('it1')"  name="item" type="checkbox"  class="numeric" value="1">
+												</label>
+												<label class="col-lg-4  text-info " >采购发票号：
+												<input onchange="return getitem('it2')" name="item" type="checkbox"  class="numeric" value="2">
+												</label>
+											</div>
+											<div class="col-lg-12 ">
+												<label class="col-lg-4  text-info " >银行收款单号：
+												<input onchange="return getitem('it3')" name="item" type="checkbox" class="numeric" value="3">
+												</label>
+												<label class="col-lg-4  text-info " >银行付款单号：
+												<input onchange="return getitem('it4')" name="item" type="checkbox"  class="numeric" value="4">
+												</label>
+											</div>
+										</div>
+									</div>
+									
+									<div class="form-group" id="it0" style="display: none;">
+										<div class="row">
+											<label class="col-lg-3  text-info " >入库总额：</label>
+											<div class="col-lg-8 ">
+												<input type="text" class="form-control"
+													name="inprice" id="_it0">
+											</div>
+										</div>
+									</div>
+									<div class="form-group" id="it1" style="display: none;">
+										<div class="row">
+											<label class="col-lg-3  text-info " >销售发票号：</label>
+											<div class="col-lg-8 ">
+												<input type="text" class="form-control"
+													name="sailesInvoiceNo" id="_it1">
+											</div>
+										</div>
+									</div>
+									<div class="form-group" id="it2" style="display: none;" >
+										<div class="row">
+											<label class="col-lg-3  text-info " >采购发票号：</label>
+											<div class="col-lg-8 ">
+												<input type="text" class="form-control" 
+													name="purchaseInvoiceNo" id="_it2">
+											</div>
+										</div>
+									</div>
+									<div class="form-group " id="it3" style="display: none;">
+										<div class="row">
+											<label class="col-lg-3  text-info " >银行收款单号：</label>
+											<div class="col-lg-8 ">
+												<input type="text" class="form-control"
+													name="receiptNo" id="_it3">
+											</div>
+										</div>
+									</div>
+									
+									<div class="form-group" id="it4" style="display: none;">
+										<div class="row">
+											<label class="col-lg-3  text-info " >银行付款单号：</label>
+											<div class="col-lg-8 ">
+												<input type="text" class="form-control"
+													name="paymentOrderNo" id="_it4">
+											</div>
+										</div>
+									</div>
+									
+									
+									
+									
+									<input name="stockid" type="hidden" value="" id="stockid">
+									
+									<div class="form-group">
+										<label class="col-lg-12 control-label"></label>
+										<div class="col-md-10">
+										</div>
+										
+										<div class="col-md-2">
+											<button type="button" onclick="return batchEditStockStatisticsForm()" class="btn btn-success">修改</button>
+
+										</div>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+
+
+				</div>
+
+
+
+			</div>
+
+		</div>
+	</div>
+</body>
+
+</html>

@@ -2,6 +2,7 @@ package zhongchiedu.inventory.service.Impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,6 +18,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
@@ -901,79 +903,177 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		return null;
 	}
 
-
-
 	@Override
 	public void updateStockStatistics(String ids, Double inprice, String purchaseInvoiceNo, String receiptNo,
-			String paymentOrderNo,String sailesInvoiceNo) {
-	
+			String paymentOrderNo, String sailesInvoiceNo) {
+
 		List<String> array = Arrays.asList(ids.split(","));
-		
-		for(String id:array) {
+
+		for (String id : array) {
 			StockStatistics stockStatistics = this.findOneById(id, StockStatistics.class);
-			if(inprice!=null) {
+			if (inprice != null) {
 				stockStatistics.setInprice(inprice);
 			}
-			if(!purchaseInvoiceNo.equals("null")) {
+			if (!purchaseInvoiceNo.equals("null")) {
 				stockStatistics.setPurchaseInvoiceNo(purchaseInvoiceNo);
 			}
-			if(!receiptNo.equals("null")) {
+			if (!receiptNo.equals("null")) {
 				stockStatistics.setReceiptNo(receiptNo);
 			}
-			if(!paymentOrderNo.equals("null")) {
+			if (!paymentOrderNo.equals("null")) {
 				stockStatistics.setPaymentOrderNo(paymentOrderNo);
 			}
-			if(!sailesInvoiceNo.equals("null")) {
+			if (!sailesInvoiceNo.equals("null")) {
 				stockStatistics.setSailesInvoiceNo(sailesInvoiceNo);
 			}
-			
+
 			this.save(stockStatistics);
 		}
-		
-		
-		
-		
-		
+
 	}
-	
+
 	@Override
 	public Workbook newExport2(HttpServletRequest request, String search, String start, String end, String type,
 			String name, String areaId, String searchAgent) {
 
-		List<Stock> listStock = this.findStocksBySearch(search, areaId, searchAgent);
+		// List<Stock> listStock = this.findStocksBySearch(search, areaId, searchAgent);
 		// 获取所有的库存
 		List<StockStatistics> list = this.findStockStatistics(search, start, end, type, areaId, searchAgent);
 		List<Map<String, Object>> outlist = new ArrayList<>();
-		// 获取 start时间 （第一天）库存的初始数量  出库数量+剩余库存数量  num+newNum
+		// 获取 start时间 （第一天）库存的初始数量 出库数量+剩余库存数量 num+newNum
 		// 获取所有的设备
-		for(Stock stock:listStock) {
-			//在库存统计中获取遍历所有设备
-			for (StockStatistics st : list) {
-				if (stock.getId().equals(st.getStock().getId())) {
-//					Map<String, Object> out = new HashMap<>();
-//					
-//					System.out.println(st.getCreateTime()+",出入库数量"+st.getNum()+",新数量"+st.getNewNum());
-//					//设备第一条数据为期初库存 判断是入库还是出库
-//					out.put("oldprice", Common.isEmpty(stock.getPrice()) ? "" : stock.getPrice());
-//					if(!st.isInOrOut()) {
-//						//如果是出库，需要吧出库的数量加回来
-//						out.put("oldprice", Common.isEmpty(stock.getPrice()) ? "" : stock.getPrice());
-//					}
-					//先把每个设备的出库记录放map中在处理数据
-					
-					
-				}
-					
-					
-				}
+		Map<String, List<StockStatistics>> map = new HashMap<String, List<StockStatistics>>();
+		// 在库存统计中获取遍历所有设备
+		for (StockStatistics st : list) {
+			String stockId = st.getStock().getId();
+			boolean containsKey = map.containsKey(stockId);
+			if (containsKey) {
+				List<StockStatistics> mlist = map.get(stockId);
+				mlist.add(st);
+			} else {
+				List<StockStatistics> ls = new ArrayList<StockStatistics>();
+				ls.add(st);
+				map.put(stockId, ls);
+			}
+		}
+		//集合的最后一条数据就是起初日期
+		//遍历map ，将map数据放到outlist中
+		
+		
+		for(Map.Entry<String, List<StockStatistics>> entry:map.entrySet()) {
+			
+
+			Map<String, Object> outmap = new HashMap<>();//定义输出到excel的map
+			
+			//期初库存 获取集合的最后一条数据为第一条记录
+			
+			StockStatistics gs = entry.getValue().get(entry.getValue().size()-1);
+			//获取设备其他信息
+			outmap.put("area", Common.isEmpty(gs.getArea()) ? "" : gs.getArea().getName());
+			outmap.put("stockName", Common.isEmpty(gs.getStock().getName()) ? "" : gs.getStock().getName());
+			outmap.put("modelName",
+					Common.isEmpty(gs.getStock().getModel()) ? "" : gs.getStock().getModel());
+			outmap.put("scope", Common.isEmpty(gs.getStock().getScope()) ? "" : gs.getStock().getScope());
+			if(Common.isNotEmpty(gs.getStock().getGoodsStorage())) {
+				outmap.put("goodsStorage", Common.isNotEmpty(gs.getStock().getGoodsStorage().getShelflevel())?"/"+gs.getStock().getGoodsStorage().getShelflevel():"");
+			}
+		
+			outmap.put("agent", Common.isEmpty(gs.getStock().isAgent()) ? "" : gs.getStock().isAgent()?"是":"否");
+			outmap.put("unit",
+					Common.isEmpty(gs.getStock().getUnit()) ? "" : gs.getStock().getUnit().getName());
 			
 			
+			BigDecimal qcnum ;//期初库存
+			BigDecimal dj = new BigDecimal(0);//单价
+			BigDecimal zj = new BigDecimal(0);//总金额
+			if(!gs.isInOrOut()) {
+				//如果是出库需要把出库的数量加回来
+				BigDecimal newNum = new BigDecimal(gs.getNewNum());
+				BigDecimal num =new BigDecimal( gs.getNum());
+				qcnum = newNum.add(num) ;//获得期初库存数量
+			}else {
+				qcnum =  new BigDecimal(gs.getNewNum());
+			}
+			System.out.println(gs.getStock().getName());
+			
+			if(Common.isNotEmpty(gs.getStock().getPrice())) {
+			String price = gs.getStock().getPrice();
+			boolean numeric = StringUtils.isNumeric(price);
+			if(!numeric) {
+				price ="0";
+			}
+			
+				dj = new BigDecimal(price) ;//期初单价
+				zj = qcnum.multiply(dj).setScale(2,BigDecimal.ROUND_HALF_UP);//出库总额
+			}
+		
+			outmap.put("oldprice",dj);
+			outmap.put("oldinventory",qcnum);
+			outmap.put("oldpriceall",zj);
+			
+//			//20221123 添加出库入库总价
+//			private Double inprice;
+
+			long in =0;//入库数量
+			long inpriceall =0;//入库总价
+			long out =0;//出库数量
+			int insize =0; //获入库次数
+			int outsize =0;//获取出库次数
+			
+			for (StockStatistics st : entry.getValue()) {
+				
+				if(st.isInOrOut()) {
+					in+=st.getNum();//入库总数
+					insize++;//入库量计数
+					inpriceall+=Common.isNotEmpty(st.getInprice())?st.getInprice():0;//所有入库总额
+				}else {
+					out+=st.getNum();//出库总数
+					outsize++;//出库量计数
+					
+				}
+			}
+			
+			
+			BigDecimal a = new BigDecimal(inpriceall);
+			BigDecimal b = new BigDecimal(in);
+			
+			BigDecimal c = new BigDecimal(0);
+			if(in>0) {
+				c =  a.divide(b,2,BigDecimal.ROUND_HALF_UP);
+			}
+			
+			outmap.put("in",in);//入库数量
+			outmap.put("inprice",c);//入库单价=所有入库总额/入库数量
+			outmap.put("inpriceall",inpriceall);//入库总额
+			
+			
+			BigDecimal d = new BigDecimal(out);
+			BigDecimal e = new BigDecimal(in);
+			BigDecimal outpriceall = d.multiply(e).setScale(2,BigDecimal.ROUND_HALF_UP);//出库总额
+			outmap.put("out",out);//出库数量
+			outmap.put("outprice",c);//出库单价=所有入库总额/入库数量
+			outmap.put("outpriceall",outpriceall);//出库总额
+			
+			//期末库存数量  单价  金额
+			StockStatistics gsend = entry.getValue().get(0);
+			long qmnum =0;//期初库存
+//			long qmdj =0;//单价
+//			long qmzj =0;//总金额
+			
+			qmnum = gsend.getNewNum();//期末库存数量
+			BigDecimal qmzj =zj.add(a).subtract(outpriceall);//期末总价
+			BigDecimal qmdj = new BigDecimal(0);
+			if(qmnum>0) {
+				 qmdj =  qmzj.divide(new BigDecimal(qmnum),2,BigDecimal.ROUND_HALF_UP);
+			}
+			outmap.put("newprice",qmdj);
+			outmap.put("newinventory",qmnum);
+			outmap.put("newpriceall",qmzj);
+			outlist.add(outmap);
+		
 		}
 		
-		
-		
-		
-		
+
 		
 		
 		
@@ -981,9 +1081,8 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 		Map<String, Object> dataMap = new HashMap<>();
 
-		dataMap.put("list", null);
-		dataMap.put("title", start+"~"+end+"库存统计");
-		
+		dataMap.put("inlist", outlist);
+		dataMap.put("title", start + "~" + end + "库存统计");
 
 		String ctxPath = request.getServletContext().getRealPath("/WEB-INF/Templates/");
 		String fileName = "新库存统计导出模板.xlsx";
@@ -1001,12 +1100,19 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		return doc;
 
 	}
-	
-	
-	
-	
-	
-	
-	
 
+	
+	public static void main(String[] args) {
+		
+		
+		long a =2004;
+		double b =20.333f;
+		BigDecimal bd = new BigDecimal(b);
+		BigDecimal bd2 = new BigDecimal(a);
+		BigDecimal divide = bd.divide(bd2,2,BigDecimal.ROUND_HALF_UP);
+		BigDecimal multiply = bd.multiply(bd2).setScale(2,BigDecimal.ROUND_HALF_UP);
+		System.out.println(multiply);
+	}
+	
+	
 }
