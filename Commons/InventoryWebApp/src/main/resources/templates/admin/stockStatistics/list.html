@@ -165,11 +165,13 @@
 												<th class="numeric entryName"
 													th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'">项目名称</th>
 												<th class="numeric itemNo"
-													th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'">项目编号</th>
+													th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'">采购付款申请单编码</th>
 												<th class="numeric stockName"
 													th:style="${#lists.contains(listColums,'stockName')}?'':'display:none;'">设备名称</th>
 												<th class="numeric stockModel"
 													th:style="${#lists.contains(listColums,'stockModel')}?'':'display:none;'">设备型号</th>
+												<th class="numeric brand"
+													th:style="${#lists.contains(listColums,'brand')}?'':'display:none;'">品牌</th>
 												<th class="numeric storageTime"
 													th:style="${#lists.contains(listColums,'storageTime')}?'':'display:none;'">入库时间</th>
 												<th class="numeric inNum"
@@ -242,6 +244,10 @@
 														th:style="${#lists.contains(listColums,'stockModel')}?'':'display:none;'"
 														th:title="${stockStatistics?.stock?.model}"
 														th:text="${#strings.abbreviate(stockStatistics?.stock?.model,20)}"></td>
+													<td class="numeric stockModel" id="stockModel"
+														th:style="${#lists.contains(listColums,'brand')}?'':'display:none;'"
+														th:title="${stockStatistics?.stock?.brand?.name}"
+														th:text="${#strings.abbreviate(stockStatistics?.stock?.brand?.name,20)}"></td>
 													<td class="numeric storageTime" id="storageTime"
 														th:style="${#lists.contains(listColums,'storageTime')}?'':'display:none;'"
 														th:text="${stockStatistics.storageTime!=null}?${stockStatistics?.storageTime}:'--------'"></td>
@@ -331,7 +337,7 @@
 													#strings.isEmpty(stockStatistics.paymentOrderNo)&&
 													#strings.isEmpty(stockStatistics.sailesInvoiceNo)}|
 													">
-													
+											
 													<shiro:hasPermission 	name="stockStatistics:edit">
 														<button class="btn btn-primary btn-xs btcancle"
 																th:id="${stockStatistics?.id}"

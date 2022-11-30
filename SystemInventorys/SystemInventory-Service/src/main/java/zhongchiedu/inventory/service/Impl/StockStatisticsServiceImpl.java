@@ -983,19 +983,18 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 					Common.isEmpty(gs.getStock().getUnit()) ? "" : gs.getStock().getUnit().getName());
 			
 			
-			BigDecimal qcnum ;//期初库存
+			BigDecimal qcnum ;//期初库存 为当前时间的前一次库存数量
 			BigDecimal dj = new BigDecimal(0);//单价
 			BigDecimal zj = new BigDecimal(0);//总金额
-			if(!gs.isInOrOut()) {
-				//如果是出库需要把出库的数量加回来
-				BigDecimal newNum = new BigDecimal(gs.getNewNum());
-				BigDecimal num =new BigDecimal( gs.getNum());
-				qcnum = newNum.add(num) ;//获得期初库存数量
+			BigDecimal newNum = new BigDecimal(gs.getNewNum());
+			BigDecimal num =new BigDecimal( gs.getNum());
+			if(gs.isInOrOut()) {
+				//如果是入库，需要减去入库数量
+				qcnum =  newNum.subtract(num);
 			}else {
-				qcnum =  new BigDecimal(gs.getNewNum());
+				//如果是出库 需要吧出库数量加回去
+				qcnum = newNum.add(num) ;//获得期初库存数量
 			}
-			System.out.println(gs.getStock().getName());
-			
 			if(Common.isNotEmpty(gs.getStock().getPrice())) {
 			String price = gs.getStock().getPrice();
 			boolean numeric = StringUtils.isNumeric(price);
@@ -1017,18 +1016,18 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			long in =0;//入库数量
 			long inpriceall =0;//入库总价
 			long out =0;//出库数量
-			int insize =0; //获入库次数
-			int outsize =0;//获取出库次数
+//			int insize =0; //获入库次数
+//			int outsize =0;//获取出库次数
 			
 			for (StockStatistics st : entry.getValue()) {
 				
 				if(st.isInOrOut()) {
 					in+=st.getNum();//入库总数
-					insize++;//入库量计数
+//					insize++;//入库量计数
 					inpriceall+=Common.isNotEmpty(st.getInprice())?st.getInprice():0;//所有入库总额
 				}else {
 					out+=st.getNum();//出库总数
-					outsize++;//出库量计数
+//					outsize++;//出库量计数
 					
 				}
 			}
@@ -1037,21 +1036,21 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			BigDecimal a = new BigDecimal(inpriceall);
 			BigDecimal b = new BigDecimal(in);
 			
-			BigDecimal c = new BigDecimal(0);
+			BigDecimal crkdj = new BigDecimal(0);
 			if(in>0) {
-				c =  a.divide(b,2,BigDecimal.ROUND_HALF_UP);
+				crkdj =  a.divide(b,2,BigDecimal.ROUND_HALF_UP);
 			}
 			
 			outmap.put("in",in);//入库数量
-			outmap.put("inprice",c);//入库单价=所有入库总额/入库数量
+			outmap.put("inprice",crkdj);//入库单价=所有入库总额/入库数量
 			outmap.put("inpriceall",inpriceall);//入库总额
 			
 			
 			BigDecimal d = new BigDecimal(out);
-			BigDecimal e = new BigDecimal(in);
-			BigDecimal outpriceall = d.multiply(e).setScale(2,BigDecimal.ROUND_HALF_UP);//出库总额
+//			BigDecimal e = new BigDecimal(in);
+			BigDecimal outpriceall = d.multiply(crkdj).setScale(2,BigDecimal.ROUND_HALF_UP);//出库总额
 			outmap.put("out",out);//出库数量
-			outmap.put("outprice",c);//出库单价=所有入库总额/入库数量
+			outmap.put("outprice",crkdj);//出库单价=所有入库总额/入库数量
 			outmap.put("outpriceall",outpriceall);//出库总额
 			
 			//期末库存数量  单价  金额

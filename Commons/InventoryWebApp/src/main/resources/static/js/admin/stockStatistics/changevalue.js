@@ -1,6 +1,6 @@
 function change(o,o2) {
 var o1 = $("#" + o2 + "_" + o).text();
-	$("#" + o2 + "_" + o).html(`<input name="` + o2 + `" id="` + o2 + `id_` + o + `" value="` + o1 + `" onblur="return hideinput('` + o + `','` + o1 + `','` + o2 + `')">`)
+	$("#" + o2 + "_" + o).html(`<input name="` + o2 + `" id="` + o2 + `id_` + o + `" value="` + o1 + `" onkeydown="return dosubmit(event)"  onblur="return hideinput('` + o + `','` + o1 + `','` + o2 + `')">`)
 
 }
 
@@ -30,3 +30,20 @@ function hideinput(o, o1, o2) {
 	$("#" + o2 + "_" + o).text(v);
 
 }
+
+function dosubmit(e){
+
+	if(e.keyCode ==13){
+$("#serach").focus();
+		
+	}
+	return;
+}
+
+
+
+
+
+
+
+

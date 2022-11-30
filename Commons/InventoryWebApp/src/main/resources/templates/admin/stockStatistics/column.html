@@ -101,6 +101,8 @@
                                             <tr>
                                              	<td class="numeric">银行付款单号</td>
                                                 <td class="numeric" onclick="return selectColumn('paymentOrderNo');"><input type="checkbox" th:checked="${#lists.contains(listColums,'paymentOrderNo')}?'checked':'false'" id="ch_paymentOrderNo"></td>
+                                             	<td class="numeric">品牌</td>
+                                                <td class="numeric" onclick="return selectColumn('brand');"><input type="checkbox" th:checked="${#lists.contains(listColums,'brand')}?'checked':'false'" id="ch_brand"></td>
                                              </tr>
                                        
                                            
