@@ -83,12 +83,13 @@ public class StockStatisticsController {
 			@RequestParam(value = "type", defaultValue = "") String type,
 			@RequestParam(value = "id", defaultValue = "") String id,
 			@RequestParam(value = "searchArea", defaultValue = "") String searchArea,
+			@RequestParam(value = "userId", defaultValue = "") String userId,
 			@RequestParam(value = "searchAgent", defaultValue = "") String searchAgent) {
 		// 区域
 		List<Area> areas = this.areaService.findAllArea(false);
 		model.addAttribute("areas", areas);
 		Pagination<StockStatistics> pagination = this.stockStatisticsService.findpagination(pageNo, pageSize, search,
-				start, end, type, id, searchArea, searchAgent);
+				start, end, type, id, searchArea, searchAgent,userId);
 		model.addAttribute("pageList", pagination);
 		List<String> listColums = this.columnService.findColumns("stockStatistics");
 		model.addAttribute("listColums", listColums);
@@ -100,6 +101,8 @@ public class StockStatisticsController {
 		model.addAttribute("pageSize", pageSize);
 		model.addAttribute("searchArea", searchArea);
 		model.addAttribute("searchAgent", searchAgent);
+		model.addAttribute("userId", userId);
+		
 		return "admin/stockStatistics/list";
 	}
 
@@ -503,7 +506,8 @@ public class StockStatisticsController {
 				return new BasicDataResult(400, "入库金额输入有误，请输入正确的数字", "");
 				
 			}
-			this.stockStatisticsService.updateStockStatistics(stockid, dinprice, purchaseInvoiceNo, receiptNo, paymentOrderNo,sailesInvoiceNo);
+			User user = (User) session.getAttribute(Contents.USER_SESSION);
+			this.stockStatisticsService.updateStockStatistics(stockid, dinprice, purchaseInvoiceNo, receiptNo, paymentOrderNo,sailesInvoiceNo,user);
 			
 			return new BasicDataResult(200, "修改统计数据成功", "");
 		

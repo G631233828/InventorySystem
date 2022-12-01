@@ -105,7 +105,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	@Override
 	@SystemServiceLog(description = "分页查询库存统计信息")
 	public Pagination<StockStatistics> findpagination(Integer pageNo, Integer pageSize, String search, String start,
-			String end, String type, String id, String searchArea, String searchAgent) {
+			String end, String type, String id, String searchArea, String searchAgent,String userId) {
 
 		// 分页查询数据
 		Pagination<StockStatistics> pagination = null;
@@ -117,6 +117,9 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			}
 			if (Common.isNotEmpty(searchAgent)) {
 				query = query.addCriteria(Criteria.where("agent").is(Boolean.valueOf(searchAgent)));
+			}
+			if (Common.isNotEmpty(userId)) {
+				query = query.addCriteria(Criteria.where("financeUser.$id").is(new ObjectId(userId)));
 			}
 
 			query = this.findbySearch(search, start, end, type, query, searchArea);
@@ -153,12 +156,17 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			List<Object> userId = this.findUsers(search);
 			ca1.orOperator(Criteria.where("stock.$id").in(stockId), Criteria.where("user.$id").in(userId),
 					Criteria.where("name").regex(search), Criteria.where("personInCharge").regex(search),
-					Criteria.where("projectName").regex(search), Criteria.where("customer").regex(search));
+					Criteria.where("projectName").regex(search), Criteria.where("customer").regex(search),
+					Criteria.where("sailesInvoiceNo").regex(search), Criteria.where("inprice").regex(search),
+					Criteria.where("purchaseInvoiceNo").regex(search), Criteria.where("receiptNo").regex(search),
+					Criteria.where("paymentOrderNo").regex(search));
 		}
 
 		if (Common.isNotEmpty(start) && Common.isNotEmpty(end)) {
 			ca2.orOperator(Criteria.where("storageTime").gte(start).lte(end),
-					Criteria.where("depotTime").gte(start).lte(end));
+					Criteria.where("depotTime").gte(start).lte(end),
+					Criteria.where("editFinanceTime").gte(start).lte(end)
+					);
 		}
 		query.addCriteria(ca.andOperator(ca1, ca2));
 
@@ -905,7 +913,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 	@Override
 	public void updateStockStatistics(String ids, Double inprice, String purchaseInvoiceNo, String receiptNo,
-			String paymentOrderNo, String sailesInvoiceNo) {
+			String paymentOrderNo, String sailesInvoiceNo,User user) {
 
 		List<String> array = Arrays.asList(ids.split(","));
 
@@ -926,7 +934,8 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			if (!sailesInvoiceNo.equals("null")) {
 				stockStatistics.setSailesInvoiceNo(sailesInvoiceNo);
 			}
-
+				stockStatistics.setEditFinanceTime(Common.fromDateH());
+				stockStatistics.setFinanceUser(user);
 			this.save(stockStatistics);
 		}
 

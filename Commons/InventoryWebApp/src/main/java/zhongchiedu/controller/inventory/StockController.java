@@ -604,6 +604,24 @@ public class StockController {
 		}
 		if(Common.isNotEmpty(id)) {
 			 list = Arrays.asList(id.split(","));
+			 list.forEach(o->{
+				 List getstockSession = (List) session.getAttribute(Contents.STOCK_LIST);
+					
+					if(getstockSession==null) {
+						List listid = new ArrayList<>();
+						listid.add(o);
+						session.setAttribute(Contents.STOCK_LIST, listid);
+					}else {
+						if(!getstockSession.contains(id)) {
+							getstockSession.add(o);
+							session.setAttribute(Contents.STOCK_LIST, getstockSession);
+						}
+						
+					}
+			 });
+			
+			 
+			 
 		}
 
 		

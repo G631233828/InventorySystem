@@ -88,6 +88,14 @@ public class StockStatistics extends GeneralBean<StockStatistics> {
 	private String receiptNo;//银行收款单号
 	private String paymentOrderNo;//银行付款单号
 	
+	//20221201
+	private String editFinanceTime;//修改 上面几项信息的时间
+	@DBRef
+	private User financeUser;
+	
+	
+	
+	
 	
 
 }

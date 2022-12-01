@@ -55,6 +55,26 @@ function toExport() {
 
 }
 
+function findMineEidt(){
+	
+var pageSize = $("#pageSize").val();
+	var search = $("#serach").val();
+	var start = $("#start").val();
+	var end = $("#end").val();
+	var type = $("#type").val();
+	var searchArea = $("#searchArea").val();
+	var searchAgent = $("#agent").val();
+	var userId = $("#userId").val();
+
+	/*
+	 * if (search == null || search == "") { swal({ type : "warning", title :
+	 * "", text : "查询内容不能为空!!", }); return ; }
+	 */
+	window.location.href = "stockStatisticss?pageSize=" + pageSize + "&search="
+		+ search + "&start=" + start + "&end=" + end + "&type=" + type + "&searchArea=" + searchArea + "&searchAgent=" + searchAgent+ "&userId=" + userId;
+
+}
+
 //导出新库存统计
 function toExportNew() {
 

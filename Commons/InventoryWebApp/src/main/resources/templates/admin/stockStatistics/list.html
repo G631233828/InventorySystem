@@ -93,7 +93,7 @@
 											id="start" placeholder="开始日期" th:value="${start}" type="text">
 										<input class="form-control datepicker" readonly="readonly"
 											id="end" placeholder="结束日期" th:value="${end}" type="text">
-
+<input type="hidden" name="userId" th:value="${session.user_session.id}" id="userId">
 										<select class="filter-status form-control" id="type"
 											name="type">
 											<option value="all" th:selected="${type == 'all'}">所有
@@ -123,9 +123,7 @@
 											<i class="entypo-export"> </i>导出库存出入统计报表
 										</button>
 
-										<button class="btn btn-default" onclick="return toExportNew()">
-											<i class="entypo-export"> </i>导出新出入统计报表
-										</button>
+										
 
 
 									</div>
@@ -140,6 +138,15 @@
 											onclick="return editStockStatistics()">
 											<i class="entypo-search"> </i> 批量编辑
 										</button>
+										<button class="btn btn-default" onclick="return toExportNew()">
+											<i class="entypo-export"> </i>导出新出入统计报表
+										</button>
+										
+										<button class="btn btn-default" onclick="return findMineEidt()">
+											<i class="entypo-export"> </i>查看我编辑的
+										</button>
+										
+										
 							</div>
 							</shiro:hasPermission>
 
@@ -396,24 +403,24 @@
 											<ul class="pagination pagination-split pull-right"
 												style="margin-top: 0px;">
 												<li th:class="${pageList?.pageNo } eq 1 ?disabled:''"><a
-													th:href="${pageList?.pageNo} eq 1?'javascript:void(0);':@{/stockStatisticss(pageNo=1,pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end})}">首页</a>
+													th:href="${pageList?.pageNo} eq 1?'javascript:void(0);':@{/stockStatisticss(pageNo=1,pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId})}">首页</a>
 												</li>
 												<li th:class="${pageList?.pageNo } eq 1 ?disabled:''"><a
-													th:href="${pageList?.pageNo} eq 1?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.upPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end})}">上一页</a>
+													th:href="${pageList?.pageNo} eq 1?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.upPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId})}">上一页</a>
 												</li>
 												<li th:each="page:${pageList?.navigatepageNums}"
 													th:class="${page  == pageList?.pageNo}?active:''"><a
-													th:href="${page eq pageList?.pageNo}?'javascript:void(0)':@{/stockStatisticss(pageNo=${page},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end})}">[[${page}]]</a>
+													th:href="${page eq pageList?.pageNo}?'javascript:void(0)':@{/stockStatisticss(pageNo=${page},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId})}">[[${page}]]</a>
 												</li>
 												<li
 													th:class="${pageList?.pageNo eq pageList?.totalPage}?disabled:''">
 													<a
-													th:href="${pageList?.pageNo eq pageList?.totalPage}?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.nextPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end})}">下一页</a>
+													th:href="${pageList?.pageNo eq pageList?.totalPage}?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.nextPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId})}">下一页</a>
 												</li>
 												<li
 													th:class="${pageList?.pageNo eq pageList?.totalPage}?disabled:''">
 													<a
-													th:href="${pageList?.pageNo eq pageList?.totalPage}?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.totalPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end})}">尾页</a>
+													th:href="${pageList?.pageNo eq pageList?.totalPage}?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.totalPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId})}">尾页</a>
 												</li>
 											</ul>
 										</div>
