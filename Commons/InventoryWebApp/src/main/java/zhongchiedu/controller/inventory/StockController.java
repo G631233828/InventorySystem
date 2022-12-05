@@ -102,8 +102,8 @@ public class StockController {
 		model.addAttribute("errorImport", errorImport);
 		Pagination<Stock> pagination = this.stockService.findpagination(pageNo, pageSize, search, searchArea,searchAgent);
 		model.addAttribute("pageList", pagination);
-
-		List<String> listColums = this.columnService.findColumns("stock");
+		User user = (User) session.getAttribute(Contents.USER_SESSION);
+		List<String> listColums = this.columnService.findColumns("stock",user.getId());
 		model.addAttribute("listColums", listColums);
 
 		session.setAttribute("pageNo", pageNo);
@@ -411,8 +411,9 @@ public class StockController {
 	@RequestMapping(value = "/stock/columns", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public BasicDataResult editColumns(@RequestParam(value = "column", defaultValue = "") String column,
-			@RequestParam(value = "flag", defaultValue = "") boolean flag) {
-		return this.columnService.editColumns("stock", column, flag);
+			@RequestParam(value = "flag", defaultValue = "") boolean flag,HttpSession session) {
+		User user = (User) session.getAttribute(Contents.USER_SESSION);
+		return this.columnService.editColumns("stock", column, flag,user.getId());
 	}
 
 	@RequestMapping(value = "/stock/getSupplier", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")

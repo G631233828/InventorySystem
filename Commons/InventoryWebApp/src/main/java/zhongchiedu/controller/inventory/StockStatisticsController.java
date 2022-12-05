@@ -91,7 +91,14 @@ public class StockStatisticsController {
 		Pagination<StockStatistics> pagination = this.stockStatisticsService.findpagination(pageNo, pageSize, search,
 				start, end, type, id, searchArea, searchAgent,userId);
 		model.addAttribute("pageList", pagination);
-		List<String> listColums = this.columnService.findColumns("stockStatistics");
+		
+//		double sum = pagination.getDatas().stream().mapToDouble(StockStatistics::getInprice).sum();
+//		model.addAttribute("sum", sum);
+//		List<StockStatistics> datas = pagination.getDatas();
+//		model.addAttribute("stlist", datas);
+		User user = (User) session.getAttribute(Contents.USER_SESSION);
+		List<String> listColums = this.columnService.findColumns("stockStatistics",user.getId());
+		
 		model.addAttribute("listColums", listColums);
 		model.addAttribute("search", search);
 		model.addAttribute("start", start);
@@ -181,8 +188,10 @@ public class StockStatisticsController {
 	@RequestMapping(value = "/stockStatistics/columns", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public BasicDataResult editColumns(@RequestParam(value = "column", defaultValue = "") String column,
-			@RequestParam(value = "flag", defaultValue = "") boolean flag) {
-		return this.columnService.editColumns("stockStatistics", column, flag);
+			@RequestParam(value = "flag", defaultValue = "") boolean flag,HttpSession session) {
+		User user = (User) session.getAttribute(Contents.USER_SESSION);
+		
+		return this.columnService.editColumns("stockStatistics", column, flag,user.getId());
 	}
 
 	@RequestMapping(value = "/stockStatistics/revoke", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")

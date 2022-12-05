@@ -26,6 +26,7 @@ public class Column extends GeneralBean<Column> {
 	private static final long serialVersionUID = 1L;
 	private String name;//集合名称
 	private List<String> columns;//显示的列
+	private String userId;
 	
 	
 }

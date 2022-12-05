@@ -384,6 +384,83 @@
 
 
 										</tbody>
+										
+										
+										
+										
+												<shiro:hasPermission 	name="stockStatistics:edit">
+										<thead class="cf">
+											<tr>
+												<th class="numeric" >
+													合计
+												</th>
+												
+												<th class="numeric area"
+													th:style="${#lists.contains(listColums,'area')}?'':'display:none;'"></th>
+												<th class="numeric entryName"
+													th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'"></th>
+												<th class="numeric itemNo"
+													th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'"></th>
+												<th class="numeric stockName"
+													th:style="${#lists.contains(listColums,'stockName')}?'':'display:none;'"></th>
+												<th class="numeric stockModel"
+													th:style="${#lists.contains(listColums,'stockModel')}?'':'display:none;'"></th>
+												<th class="numeric brand"
+													th:style="${#lists.contains(listColums,'brand')}?'':'display:none;'"></th>
+												<th class="numeric storageTime"
+													th:style="${#lists.contains(listColums,'storageTime')}?'':'display:none;'"></th>
+												<th class="numeric inNum"
+													th:style="${#lists.contains(listColums,'inNum')}?'':'display:none;'"></th>
+												<th class="numeric depotTime"
+													th:style="${#lists.contains(listColums,'depotTime')}?'':'display:none;'"></th>
+												<th class="numeric outNum"
+													th:style="${#lists.contains(listColums,'outNum')}?'':'display:none;'"></th>
+												<th class="numeric newNum"
+													th:style="${#lists.contains(listColums,'newNum')}?'':'display:none;'"></th>
+												<th class="numeric revokeNum"
+													th:style="${#lists.contains(listColums,'revokeNum')}?'':'display:none;'"></th>
+												<th class="numeric personInCharge"
+													th:style="${#lists.contains(listColums,'personInCharge')}?'':'display:none;'"></th>
+												<th class="numeric projectName"
+													th:style="${#lists.contains(listColums,'projectName')}?'':'display:none;'"></th>
+												<th class="numeric customer"
+													th:style="${#lists.contains(listColums,'customer')}?'':'display:none;'"></th>
+												<th class="numeric inprice" id="heji"
+													th:style="${#lists.contains(listColums,'inprice')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![inprice==null?0:inprice])}]]</th>
+												<th class="numeric sailesInvoiceNo"
+													th:style="${#lists.contains(listColums,'sailesInvoiceNo')}?'':'display:none;'"></th>
+
+												<th class="numeric purchaseInvoiceNo"
+													th:style="${#lists.contains(listColums,'purchaseInvoiceNo')}?'':'display:none;'"></th>
+												<th class="numeric receiptNo"
+													th:style="${#lists.contains(listColums,'receiptNo')}?'':'display:none;'"></th>
+												<th class="numeric paymentOrderNo"
+													th:style="${#lists.contains(listColums,'paymentOrderNo')}?'':'display:none;'"></th>
+
+												<th class="numeric user"
+													th:style="${#lists.contains(listColums,'user')}?'':'display:none;'"></th>
+												<th class="numeric description"
+													th:style="${#lists.contains(listColums,'description')}?'':'display:none;'"></th>
+												<th class="numeric revoke"
+													th:style="${#lists.contains(listColums,'revoke')}?'':'display:none;'"></th>
+												<th class="numeric sign"
+													th:style="${#lists.contains(listColums,'sign')}?'':'display:none;'"></th>
+
+												<th class="numeric"></th>
+											</tr>
+										</thead>
+										
+										</shiro:hasPermission>
+										
+										
+										
+										
+										
+										
+										
+										
+										
+										
 									</table>
 								</div>
 								<form method="post" id="deleteForm">

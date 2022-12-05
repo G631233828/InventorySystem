@@ -8,9 +8,9 @@ import zhongchiedu.inventory.pojo.Column;
 
 public interface ColumnService extends GeneralService<Column> {
 	
-	public List<String> findColumns(String name);
+	public List<String> findColumns(String name,String userId);
 	
-	public BasicDataResult editColumns(String name,String showcolumn,boolean flag);
+	public BasicDataResult editColumns(String name,String showcolumn,boolean flag,String userId);
 	
 	
 	

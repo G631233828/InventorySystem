@@ -85,8 +85,8 @@ public class InventoryTransferController {
 		model.addAttribute("errorImport", errorImport);
 		Pagination<InventoryTransfer> pagination = this.inventoryTransferService.findpagination(pageNo, pageSize,start,end, search);
 		model.addAttribute("pageList", pagination);
-
-		List<String> listColums = this.columnService.findColumns("inventoryTransfer");
+		User user = (User) session.getAttribute(Contents.USER_SESSION);
+		List<String> listColums = this.columnService.findColumns("inventoryTransfer",user.getId());
 		model.addAttribute("listColums", listColums);
 
 		session.setAttribute("pageNo", pageNo);
@@ -283,8 +283,9 @@ public class InventoryTransferController {
 	@RequestMapping(value = "/inventoryTransfer/columns", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public BasicDataResult editColumns(@RequestParam(value = "column", defaultValue = "") String column,
-			@RequestParam(value = "flag", defaultValue = "") boolean flag) {
-		return this.columnService.editColumns("inventoryTransfer", column, flag);
+			@RequestParam(value = "flag", defaultValue = "") boolean flag,HttpSession session) {
+		User user = (User) session.getAttribute(Contents.USER_SESSION);
+		return this.columnService.editColumns("inventoryTransfer", column, flag,user.getId());
 	}
 	
 	

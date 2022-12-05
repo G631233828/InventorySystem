@@ -66,7 +66,8 @@ public class ProjectStockStatisticsController {
 		Pagination<ProjectStockStatistics> pagination = this.projectStockStatisticsService.findpagination(pageNo,
 				pageSize, search, start, end, type, id,searchArea);
 		model.addAttribute("pageList", pagination);
-		List<String> listColums = this.columnService.findColumns("projectStockStatistics");
+		User user = (User) session.getAttribute(Contents.USER_SESSION);
+		List<String> listColums = this.columnService.findColumns("projectStockStatistics",user.getId());
 		model.addAttribute("listColums", listColums);
 		model.addAttribute("search", search);
 		model.addAttribute("start", start);
@@ -111,8 +112,9 @@ public class ProjectStockStatisticsController {
 	@RequestMapping(value = "/projectStockStatistics/columns", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public BasicDataResult editColumns(@RequestParam(value = "column", defaultValue = "") String column,
-			@RequestParam(value = "flag", defaultValue = "") boolean flag) {
-		return this.columnService.editColumns("projectStockStatistics", column, flag);
+			@RequestParam(value = "flag", defaultValue = "") boolean flag,HttpSession session) {
+		User user = (User) session.getAttribute(Contents.USER_SESSION);
+		return this.columnService.editColumns("projectStockStatistics", column, flag,user.getId());
 	}
 
 	@RequestMapping(value = "/projectStockStatistics/revoke", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
@@ -120,6 +122,7 @@ public class ProjectStockStatisticsController {
 	@SystemControllerLog(description = "项目出入库撤销")
 	@RequiresPermissions(value = "projectStockStatistics:revoke")
 	public BasicDataResult revoke(@RequestParam(value = "id", defaultValue = "") String id) {
+		
 		return this.projectStockStatisticsService.revoke(id);
 	}
 

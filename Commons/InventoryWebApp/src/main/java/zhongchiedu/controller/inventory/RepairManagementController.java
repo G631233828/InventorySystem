@@ -73,8 +73,8 @@ public class RepairManagementController {
 		model.addAttribute("errorImport", errorImport);
 		Pagination<RepairManagement> pagination = this.repairManagementService.findpagination(pageNo, pageSize,start,end, search);
 		model.addAttribute("pageList", pagination);
-
-		List<String> listColums = this.columnService.findColumns("repairManagement");
+		User user = (User) session.getAttribute(Contents.USER_SESSION);
+		List<String> listColums = this.columnService.findColumns("repairManagement",user.getId());
 		model.addAttribute("listColums", listColums);
 
 		session.setAttribute("pageNo", pageNo);
@@ -256,8 +256,9 @@ public class RepairManagementController {
 	@RequestMapping(value = "/repairManagement/columns", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public BasicDataResult editColumns(@RequestParam(value = "column", defaultValue = "") String column,
-			@RequestParam(value = "flag", defaultValue = "") boolean flag) {
-		return this.columnService.editColumns("repairManagement", column, flag);
+			@RequestParam(value = "flag", defaultValue = "") boolean flag,HttpSession session) {
+		User user = (User) session.getAttribute(Contents.USER_SESSION);
+		return this.columnService.editColumns("repairManagement", column, flag,user.getId());
 	}
 	
 	

@@ -25,8 +25,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import lombok.extern.slf4j.Slf4j;
 import zhongchiedu.common.utils.BasicDataResult;
+import zhongchiedu.common.utils.Contents;
 import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.framework.pagination.Pagination;
+import zhongchiedu.general.pojo.User;
 import zhongchiedu.inventory.pojo.Brand;
 import zhongchiedu.inventory.pojo.Category;
 import zhongchiedu.inventory.pojo.Supplier;
@@ -75,7 +77,8 @@ public class SupplierController {
 		model.addAttribute("errorImport", errorImport);
 		Pagination<Supplier> pagination = this.supplierService.findpagination(pageNo, pageSize,search);
 		model.addAttribute("pageList", pagination);
-		List<String> listColums = this.columnService.findColumns("supplier");
+		User user = (User) session.getAttribute(Contents.USER_SESSION);
+		List<String> listColums = this.columnService.findColumns("supplier",user.getId());
 		model.addAttribute("listColums",listColums);
 		model.addAttribute("pageSize", pageSize);
 		model.addAttribute("search", search);
@@ -229,9 +232,10 @@ public class SupplierController {
 	
 	@RequestMapping(value = "/supplier/columns", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public BasicDataResult editColumns(@RequestParam(value = "column", defaultValue = "") String column,@RequestParam(value = "flag", defaultValue = "") boolean flag) {
+	public BasicDataResult editColumns(@RequestParam(value = "column", defaultValue = "") String column,@RequestParam(value = "flag", defaultValue = "") boolean flag,HttpSession session) {
 		//TODO请求没有提交过来明天debug一下
-		return this.columnService.editColumns("supplier", column,flag);
+		User user = (User) session.getAttribute(Contents.USER_SESSION);
+		return this.columnService.editColumns("supplier", column,flag,user.getId());
 	}
 	
 	

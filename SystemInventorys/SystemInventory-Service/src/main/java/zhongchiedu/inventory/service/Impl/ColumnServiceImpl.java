@@ -20,9 +20,10 @@ import zhongchiedu.log.annotation.SystemServiceLog;
 public class ColumnServiceImpl extends GeneralServiceImpl<Column> implements ColumnService {
 	@Override
 	@SystemServiceLog(description="根据标识获取所有列")
-	public List<String> findColumns(String name) {
+	public List<String> findColumns(String name,String userId) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("name").is(name));
+		query.addCriteria(Criteria.where("userId").is(userId));
 		Column column = this.findOneByQuery(query, Column.class);
 		if(Common.isNotEmpty(column)){
 			return column.getColumns();
@@ -37,9 +38,10 @@ public class ColumnServiceImpl extends GeneralServiceImpl<Column> implements Col
 
 	@Override
 	@SystemServiceLog(description="编辑列")
-	public BasicDataResult editColumns(String name,String showcolumn,boolean flag) {
+	public BasicDataResult editColumns(String name,String showcolumn,boolean flag,String userId) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("name").is(name));
+		query.addCriteria(Criteria.where("userId").is(userId));
 		Column column = this.findOneByQuery(query, Column.class);
 		if(Common.isEmpty(column)){
 			//新建一个
@@ -48,6 +50,7 @@ public class ColumnServiceImpl extends GeneralServiceImpl<Column> implements Col
 			list.add(showcolumn);
 			column.setName(name);
 			column.setColumns(list);
+			column.setUserId(userId);
 			this.insert(column);
 			return  BasicDataResult.build(200, "添加成功", showcolumn);
 		}else{
@@ -61,6 +64,7 @@ public class ColumnServiceImpl extends GeneralServiceImpl<Column> implements Col
 				list.add(showcolumn);
 			}
 			column.setColumns(list);
+			column.setUserId(userId);
 			this.save(column);
 			return BasicDataResult.build(200, "修改成功", showcolumn);
 		}

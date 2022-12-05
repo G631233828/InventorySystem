@@ -34,8 +34,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import lombok.extern.slf4j.Slf4j;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.Common;
+import zhongchiedu.common.utils.Contents;
 import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.framework.pagination.Pagination;
+import zhongchiedu.general.pojo.User;
 import zhongchiedu.inventory.pojo.Area;
 import zhongchiedu.inventory.pojo.GoodsStorage;
 import zhongchiedu.inventory.pojo.ProjectStock;
@@ -88,8 +90,8 @@ public class ProjectStockController {
 		Pagination<ProjectStock> pagination = this.projectStockService.findpagination(pageNo, pageSize, search,
 				projectName, searchArea);
 		model.addAttribute("pageList", pagination);
-
-		List<String> listColums = this.columnService.findColumns("projectStock");
+		User user = (User) session.getAttribute(Contents.USER_SESSION);
+		List<String> listColums = this.columnService.findColumns("projectStock",user.getId());
 		
 		Set set = this.projectStockService.findProjectNames();
 		
@@ -372,8 +374,9 @@ public class ProjectStockController {
 	@RequestMapping(value = "/projectStock/columns", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public BasicDataResult editColumns(@RequestParam(value = "column", defaultValue = "") String column,
-			@RequestParam(value = "flag", defaultValue = "") boolean flag) {
-		return this.columnService.editColumns("projectStock", column, flag);
+			@RequestParam(value = "flag", defaultValue = "") boolean flag,HttpSession session) {
+		User user = (User) session.getAttribute(Contents.USER_SESSION);
+		return this.columnService.editColumns("projectStock", column, flag,user.getId());
 	}
 
 	@RequestMapping(value = "/projectStock/getSupplier", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")

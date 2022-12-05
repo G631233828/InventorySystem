@@ -5,8 +5,13 @@ var o1 = $("#" + o2 + "_" + o).text();
 }
 
 function hideinput(o, o1, o2) {
+
 	var v = $("#" + o2 + "id_" + o).val();
 	if (v != o1) {
+	var heji = parseFloat($("#heji").text());
+	var newheji =Number(heji)+Number(v)-Number(o1);
+	$("#heji").text(newheji.toFixed(2));
+	
 		//ajax提交数据库
 		$.ajax({
 			dataType: "json",
