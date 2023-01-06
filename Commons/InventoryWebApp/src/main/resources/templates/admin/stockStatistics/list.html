@@ -87,13 +87,15 @@
 											
 											<option value="100" th:selected="${pageSize == 100}">100
 											
-										</select> <input class="form-control" id="serach" placeholder="模糊匹配"
-											th:value="${search}" type="text"> <input
+										</select> 
+										<input class="form-control" id="serach" placeholder="模糊匹配"
+											th:value="${search}" type="text"> 
+										<input
 											class="form-control datepicker" readonly="readonly"
 											id="start" placeholder="开始日期" th:value="${start}" type="text">
 										<input class="form-control datepicker" readonly="readonly"
 											id="end" placeholder="结束日期" th:value="${end}" type="text">
-<input type="hidden" name="userId" th:value="${session.user_session.id}" id="userId">
+								<input type="hidden" name="userId" th:value="${session.user_session.id}" id="userId">
 										<select class="filter-status form-control" id="type"
 											name="type">
 											<option value="all" th:selected="${type == 'all'}">所有
@@ -171,6 +173,8 @@
 													th:style="${#lists.contains(listColums,'area')}?'':'display:none;'">区域</th>
 												<th class="numeric entryName"
 													th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'">项目名称</th>
+												<th class="numeric supplier"
+													th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'">供应商</th>
 												<th class="numeric itemNo"
 													th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'">采购付款申请单编码</th>
 												<th class="numeric stockName"
@@ -201,6 +205,9 @@
 													th:style="${#lists.contains(listColums,'inprice')}?'':'display:none;'">入库总金额</th>
 												<th class="numeric sailesInvoiceNo"
 													th:style="${#lists.contains(listColums,'sailesInvoiceNo')}?'':'display:none;'">销售发票号</th>
+													
+												<th class="numeric sailesInvoiceDate"
+													th:style="${#lists.contains(listColums,'sailesInvoiceDate')}?'':'display:none;'">销售发票开具日期</th>
 
 												<th class="numeric purchaseInvoiceNo"
 													th:style="${#lists.contains(listColums,'purchaseInvoiceNo')}?'':'display:none;'">采购发票号</th>
@@ -241,6 +248,11 @@
 														th:style="${#lists.contains(listColums,'area')}?'':'display:none;'">[[${stockStatistics?.area?.name}]]</td>
 													<td class="numeric entryName" id="entryName"
 														th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'">[[${stockStatistics?.stock?.entryName}]]</td>
+													<td class="numeric supplier" id="supplier"
+														th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'">
+														<a href="javascript:;"
+														th:onclick="|return showSupplier('${stock?.supplier?.id}')|">[[${stockStatistics?.stock?.supplier?.name}]]</a>
+													</td>
 													<td class="numeric itemNo" id="itemNo"
 														th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'">[[${stockStatistics?.stock?.itemNo}]]</td>
 													<td class="numeric stockName" id="stockName"
@@ -291,8 +303,14 @@
 													<td class="numeric sailesInvoiceNo" th:id="|sailesInvoiceNo_${stockStatistics?.id}|" th:ondblclick="|return change('${stockStatistics?.id}','sailesInvoiceNo')|"
 														th:style="${#lists.contains(listColums,'sailesInvoiceNo')}?'':'display:none;'"
 														th:text="${stockStatistics.sailesInvoiceNo != null}?${stockStatistics?.sailesInvoiceNo}:''"></td>
+														
+													<td class="numeric sailesInvoiceDate" th:id="|sailesInvoiceDate_${stockStatistics?.id}|" th:ondblclick="|return changeDate('${stockStatistics?.id}','sailesInvoiceDate')|"
+														th:style="${#lists.contains(listColums,'sailesInvoiceDate')}?'':'display:none;'"
+														th:text="${stockStatistics.sailesInvoiceDate != null}?${stockStatistics?.sailesInvoiceDate}:''"></td>
+													
 													<td class="numeric purchaseInvoiceNo" th:id="|purchaseInvoiceNo_${stockStatistics?.id}|"   th:ondblclick="|return change('${stockStatistics?.id}','purchaseInvoiceNo')|"
 														th:style="${#lists.contains(listColums,'purchaseInvoiceNo')}?'':'display:none;'">[[${stockStatistics?.purchaseInvoiceNo}]]</td>
+														
 													<td class="numeric receiptNo"  th:id="|receiptNo_${stockStatistics?.id}|"  th:ondblclick="|return change('${stockStatistics?.id}','receiptNo')|"
 														th:style="${#lists.contains(listColums,'receiptNo')}?'':'display:none;'">[[${stockStatistics?.receiptNo}]]</td>
 														
@@ -370,7 +388,7 @@
 																th:onclick="|return toDownloadQRcode('${stockStatistics.id}')|">
 																<i class="fontawesome-cloud-download"> </i>
 															</button>
-															<button class="btn btn-default btn-sm" title="出库二维码"
+															<button class="btn btn-default btn-sm" title="出库二维码" th:if="${stockStatistics.depotTime!=null}"
 																th:onclick="|return showQRCode('${stockStatistics.id}','${stockStatistics?.projectName}')|">
 																<i class="icon icon-view-thumb"> </i>
 
@@ -399,6 +417,8 @@
 													th:style="${#lists.contains(listColums,'area')}?'':'display:none;'"></th>
 												<th class="numeric entryName"
 													th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'"></th>
+												<th class="numeric supplier"
+													th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'"></th>
 												<th class="numeric itemNo"
 													th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'"></th>
 												<th class="numeric stockName"

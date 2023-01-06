@@ -234,7 +234,7 @@ function selectColumn(o) {
 
 $(".datepicker").datepicker({
 	language: "zh-CN",
-	format: "yyyy-mm-dd 00:00:00",
+	format: "yyyy-mm-dd",
 	keyboardNavigation: false,
 	forceParse: false,
 	autoclose: true

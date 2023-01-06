@@ -16,6 +16,7 @@ var sailesInvoiceNo = $("#_it1").val();//销售发票号
 var purchaseInvoiceNo = $("#_it2").val();//采购发票号
 var receiptNo = $("#_it3").val();//银行收款单号
 var paymentOrderNo = $("#_it4").val();//银行付款单号
+var sailesInvoiceDate = $("#_it5").val();//销售发票开具日期
 
 
 	$.ajax({
@@ -43,6 +44,9 @@ var paymentOrderNo = $("#_it4").val();//银行付款单号
 		}
 		if(paymentOrderNo!=""){
 			$("#paymentOrderNo_"+this.value).text(paymentOrderNo);
+		}
+		if(sailesInvoiceDate!=""){
+			$("#sailesInvoiceDate_"+this.value).text(sailesInvoiceDate);
 		}
 	
 		

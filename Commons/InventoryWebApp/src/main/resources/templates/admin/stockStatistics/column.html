@@ -104,6 +104,13 @@
                                              	<td class="numeric">品牌</td>
                                                 <td class="numeric" onclick="return selectColumn('brand');"><input type="checkbox" th:checked="${#lists.contains(listColums,'brand')}?'checked':'false'" id="ch_brand"></td>
                                              </tr>
+                                            <tr>
+                                             	<td class="numeric">销售发票开具日期</td>
+                                                <td class="numeric" onclick="return selectColumn('sailesInvoiceDate');"><input type="checkbox" th:checked="${#lists.contains(listColums,'sailesInvoiceDate')}?'checked':'false'" id="ch_sailesInvoiceDate"></td>
+                                             	<td class="numeric">供应商</td>
+                                                <td class="numeric" onclick="return selectColumn('supplier');"><input type="checkbox" th:checked="${#lists.contains(listColums,'supplier')}?'checked':'false'" id="ch_supplier"></td>
+											
+                                             </tr>
                                        
                                            
                                         </tbody>

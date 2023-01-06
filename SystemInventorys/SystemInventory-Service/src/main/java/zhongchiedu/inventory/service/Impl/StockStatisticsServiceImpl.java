@@ -165,7 +165,8 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		if (Common.isNotEmpty(start) && Common.isNotEmpty(end)) {
 			ca2.orOperator(Criteria.where("storageTime").gte(start).lte(end),
 					Criteria.where("depotTime").gte(start).lte(end),
-					Criteria.where("editFinanceTime").gte(start).lte(end)
+					Criteria.where("editFinanceTime").gte(start).lte(end),
+					Criteria.where("sailesInvoiceDate").gte(start).lte(end)
 					);
 		}
 		query.addCriteria(ca.andOperator(ca1, ca2));
@@ -913,7 +914,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 	@Override
 	public void updateStockStatistics(String ids, Double inprice, String purchaseInvoiceNo, String receiptNo,
-			String paymentOrderNo, String sailesInvoiceNo,User user) {
+			String paymentOrderNo, String sailesInvoiceNo,String sailesInvoiceDate,User user) {
 
 		List<String> array = Arrays.asList(ids.split(","));
 
@@ -933,6 +934,9 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			}
 			if (!sailesInvoiceNo.equals("null")) {
 				stockStatistics.setSailesInvoiceNo(sailesInvoiceNo);
+			}
+			if (!sailesInvoiceDate.equals("null")) {
+				stockStatistics.setSailesInvoiceDate(sailesInvoiceDate);
 			}
 				stockStatistics.setEditFinanceTime(Common.fromDateH());
 				stockStatistics.setFinanceUser(user);

@@ -92,6 +92,8 @@ public class StockStatistics extends GeneralBean<StockStatistics> {
 	private String editFinanceTime;//修改 上面几项信息的时间
 	@DBRef
 	private User financeUser;
+	//20221205 添加销售发票开具日期
+	private String sailesInvoiceDate;
 	
 	
 	

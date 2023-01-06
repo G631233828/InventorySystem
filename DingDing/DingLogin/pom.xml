@@ -34,7 +34,7 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>com.taobao.top</groupId>
             <artifactId>top-api-sdk-dev</artifactId>
