@@ -19,7 +19,7 @@ import zhongchiedu.inventory.pojo.StockStatistics;
 public interface StockStatisticsService extends GeneralService<StockStatistics> {
 	
 	
-	public Pagination<StockStatistics> findpagination(Integer pageNo,Integer pageSize,String search,String start,String end,String type,String id,String searchArea,String searchAgent,String userId);
+	public Pagination<StockStatistics> findpagination(Integer pageNo,Integer pageSize,String search,String start,String end,String type,String id,String searchArea,String searchAgent,String userId,String revoke);
 	
 	public BasicDataResult inOrOutstockStatistics(StockStatistics stockStatistics,User user);
 	

@@ -104,11 +104,20 @@
 											
 											<option value="out" th:selected="${type == 'out'}">出库
 											
-										</select> <select class="filter-status form-control" id="agent"
+										</select>
+										
+										<select class="filter-status form-control" id="agent"
 											onchange="return searchVal()">
 											<option value="" selected>--选择商品类别--</option>
 											<option value="true" th:selected="${searchAgent=='true'}">代理商品</option>
 											<option value="false" th:selected="${searchAgent=='false'}">非代理商品</option>
+										</select>
+										
+										<select class="filter-status form-control" id="revoke"
+											onchange="return searchVal()">
+											<option value="0" selected>--选择状态--</option>
+											<option value="1" th:selected="${revoke=='1'}">已撤销</option>
+											<option value="2" th:selected="${revoke=='2'}">正常</option>
 										</select>
 
 
@@ -500,24 +509,24 @@
 											<ul class="pagination pagination-split pull-right"
 												style="margin-top: 0px;">
 												<li th:class="${pageList?.pageNo } eq 1 ?disabled:''"><a
-													th:href="${pageList?.pageNo} eq 1?'javascript:void(0);':@{/stockStatisticss(pageNo=1,pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId})}">首页</a>
+													th:href="${pageList?.pageNo} eq 1?'javascript:void(0);':@{/stockStatisticss(pageNo=1,pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId},revoke=${revoke})}">首页</a>
 												</li>
 												<li th:class="${pageList?.pageNo } eq 1 ?disabled:''"><a
-													th:href="${pageList?.pageNo} eq 1?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.upPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId})}">上一页</a>
+													th:href="${pageList?.pageNo} eq 1?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.upPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId},revoke=${revoke})}">上一页</a>
 												</li>
 												<li th:each="page:${pageList?.navigatepageNums}"
 													th:class="${page  == pageList?.pageNo}?active:''"><a
-													th:href="${page eq pageList?.pageNo}?'javascript:void(0)':@{/stockStatisticss(pageNo=${page},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId})}">[[${page}]]</a>
+													th:href="${page eq pageList?.pageNo}?'javascript:void(0)':@{/stockStatisticss(pageNo=${page},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId},revoke=${revoke})}">[[${page}]]</a>
 												</li>
 												<li
 													th:class="${pageList?.pageNo eq pageList?.totalPage}?disabled:''">
 													<a
-													th:href="${pageList?.pageNo eq pageList?.totalPage}?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.nextPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId})}">下一页</a>
+													th:href="${pageList?.pageNo eq pageList?.totalPage}?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.nextPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId},revoke=${revoke})}">下一页</a>
 												</li>
 												<li
 													th:class="${pageList?.pageNo eq pageList?.totalPage}?disabled:''">
 													<a
-													th:href="${pageList?.pageNo eq pageList?.totalPage}?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.totalPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId})}">尾页</a>
+													th:href="${pageList?.pageNo eq pageList?.totalPage}?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.totalPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId},revoke=${revoke})}">尾页</a>
 												</li>
 											</ul>
 										</div>

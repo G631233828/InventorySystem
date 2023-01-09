@@ -84,12 +84,14 @@ public class StockStatisticsController {
 			@RequestParam(value = "id", defaultValue = "") String id,
 			@RequestParam(value = "searchArea", defaultValue = "") String searchArea,
 			@RequestParam(value = "userId", defaultValue = "") String userId,
-			@RequestParam(value = "searchAgent", defaultValue = "") String searchAgent) {
+			@RequestParam(value = "searchAgent", defaultValue = "") String searchAgent,
+			@RequestParam(value = "revoke", defaultValue = "") String revoke
+			) {
 		// 区域
 		List<Area> areas = this.areaService.findAllArea(false);
 		model.addAttribute("areas", areas);
 		Pagination<StockStatistics> pagination = this.stockStatisticsService.findpagination(pageNo, pageSize, search,
-				start, end, type, id, searchArea, searchAgent,userId);
+				start, end, type, id, searchArea, searchAgent,userId,revoke);
 		model.addAttribute("pageList", pagination);
 		
 //		double sum = pagination.getDatas().stream().mapToDouble(StockStatistics::getInprice).sum();
@@ -101,6 +103,7 @@ public class StockStatisticsController {
 		
 		model.addAttribute("listColums", listColums);
 		model.addAttribute("search", search);
+		model.addAttribute("revoke", revoke);
 		model.addAttribute("start", start);
 		model.addAttribute("end", end);
 		model.addAttribute("id", id);

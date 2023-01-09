@@ -67,6 +67,7 @@ import zhongchiedu.inventory.pojo.StockStatistics;
 import zhongchiedu.inventory.service.QrCodeService;
 import zhongchiedu.inventory.service.SignService;
 import zhongchiedu.inventory.service.StockStatisticsService;
+import zhongchiedu.inventory.service.SupplierService;
 import zhongchiedu.log.annotation.SystemServiceLog;
 
 @Service
@@ -88,6 +89,10 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 	@Autowired
 	private SignService signService;
+	
+	@Autowired
+	private SupplierService supplierService;
+	
 
 	@Value("${qrcode.weburl}")
 	private String weburl;
@@ -105,7 +110,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	@Override
 	@SystemServiceLog(description = "分页查询库存统计信息")
 	public Pagination<StockStatistics> findpagination(Integer pageNo, Integer pageSize, String search, String start,
-			String end, String type, String id, String searchArea, String searchAgent,String userId) {
+			String end, String type, String id, String searchArea, String searchAgent,String userId,String revoke) {
 
 		// 分页查询数据
 		Pagination<StockStatistics> pagination = null;
@@ -121,7 +126,13 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			if (Common.isNotEmpty(userId)) {
 				query = query.addCriteria(Criteria.where("financeUser.$id").is(new ObjectId(userId)));
 			}
-
+			if(Common.isNotEmpty(revoke)) {
+				if(revoke.equals("1")) {
+					query.addCriteria(Criteria.where("revoke").is(true));
+				}else if(revoke.equals("2")) {
+					query.addCriteria(Criteria.where("revoke").is(false));
+				}
+			}
 			query = this.findbySearch(search, start, end, type, query, searchArea);
 			query.with(new Sort(new Order(Direction.DESC, "createTime")));
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, StockStatistics.class);
@@ -187,10 +198,11 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	public List<Object> findStocks(String search) {
 		List<Object> list = new ArrayList<>();
 		Query query = new Query();
+		List<Object> findSupplierIds = this.supplierService.findSupplierIds(search);
 		Criteria ca = new Criteria();
-
 		query.addCriteria(ca.orOperator(Criteria.where("name").regex(search), Criteria.where("model").regex(search),
 				Criteria.where("entryName").regex(search), Criteria.where("itemNo").regex(search),
+				Criteria.where("supplier.$id").in(findSupplierIds),
 				Criteria.where("projectLeader").regex(search)));
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		List<Stock> lists = this.stockService.find(query, Stock.class);

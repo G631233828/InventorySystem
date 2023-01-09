@@ -43,6 +43,7 @@ public interface SupplierService extends GeneralService<Supplier> {
 	
 	public BasicDataResult findOneById(String id);
 	
+	public List<Object> findSupplierIds(String search);
 	
 	
 	
