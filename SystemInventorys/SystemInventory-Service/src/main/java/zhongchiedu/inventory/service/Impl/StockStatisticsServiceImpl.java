@@ -425,8 +425,10 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 									Common.isEmpty(st.getStock().getUnit()) ? "" : st.getStock().getUnit().getName());
 							in.put("depotTime", st.getStorageTime());
 							in.put("num", st.getNum());
-//							in.put("purchaseInvoiceNo", Common.isEmpty(st.getStock().getPurchaseInvoiceNo()) ? ""
-//									: st.getStock().getPurchaseInvoiceNo());
+							in.put("purchaseInvoiceNo", Common.isEmpty(st.getPurchaseInvoiceNo()) ? ""
+									: st.getPurchaseInvoiceNo());
+							
+							
 //							in.put("paymentOrderNo", Common.isEmpty(st.getStock().getPaymentOrderNo()) ? ""
 //									: st.getStock().getPaymentOrderNo());
 							in.put("supplier", Common.isEmpty(st.getStock().getSupplier()) ? ""
@@ -448,6 +450,8 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 							out.put("num", st.getNum());
 							out.put("sailesInvoiceNo",
 									Common.isEmpty(st.getSailesInvoiceNo()) ? "" : st.getSailesInvoiceNo());
+							out.put("sailesInvoiceDate",
+									Common.isEmpty(st.getSailesInvoiceDate()) ? "" : st.getSailesInvoiceDate());
 //							out.put("receiptNo",
 //									Common.isEmpty(st.getStock().getReceiptNo()) ? "" : st.getStock().getReceiptNo());
 							out.put("customer", Common.isEmpty(st.getCustomer()) ? "" : st.getCustomer());

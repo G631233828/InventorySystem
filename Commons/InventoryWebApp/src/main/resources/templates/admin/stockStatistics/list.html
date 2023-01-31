@@ -272,7 +272,7 @@
 														th:style="${#lists.contains(listColums,'stockModel')}?'':'display:none;'"
 														th:title="${stockStatistics?.stock?.model}"
 														th:text="${#strings.abbreviate(stockStatistics?.stock?.model,20)}"></td>
-													<td class="numeric stockModel" id="stockModel"
+													<td class="numeric brand" id="brand"
 														th:style="${#lists.contains(listColums,'brand')}?'':'display:none;'"
 														th:title="${stockStatistics?.stock?.brand?.name}"
 														th:text="${#strings.abbreviate(stockStatistics?.stock?.brand?.name,20)}"></td>
@@ -502,7 +502,7 @@
 										<div class="col-md-6">
 											<div class="dataTables_info hidden-xs"
 												style="margin-top: 0px;" role="status" aria-live="polite"
-												th:text="|每页显示${pageList?.pageSize}行
+												th:text="|当前页共${#lists.size(pageList?.datas)}行
 										－ 当前页${pageList?.pageNo}页 － 共${pageList?.totalPage}页|"></div>
 										</div>
 										<div class="col-md-6">
