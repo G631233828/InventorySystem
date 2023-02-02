@@ -17,13 +17,14 @@ function searchVal() {
 	var type = $("#type").val();
 	var searchArea = $("#searchArea").val();
 	var searchAgent = $("#agent").val();
+	var revoke = $("#revoke").val();
 
 	/*
 	 * if (search == null || search == "") { swal({ type : "warning", title :
 	 * "", text : "查询内容不能为空!!", }); return ; }
 	 */
 	window.location.href = "stockStatisticss?pageSize=" + pageSize + "&search="
-		+ search + "&start=" + start + "&end=" + end + "&type=" + type + "&searchArea=" + searchArea + "&searchAgent=" + searchAgent;
+		+ search + "&start=" + start + "&end=" + end + "&type=" + type + "&searchArea=" + searchArea + "&searchAgent=" + searchAgent+ "&revoke=" + revoke;
 }
 // function searchSize() {
 //	
@@ -234,7 +235,7 @@ function selectColumn(o) {
 
 $(".datepicker").datepicker({
 	language: "zh-CN",
-	format: "yyyy-mm-dd 00:00:00",
+	format: "yyyy-mm-dd",
 	keyboardNavigation: false,
 	forceParse: false,
 	autoclose: true

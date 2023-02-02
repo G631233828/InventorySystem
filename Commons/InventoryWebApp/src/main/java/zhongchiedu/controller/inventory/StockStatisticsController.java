@@ -84,12 +84,14 @@ public class StockStatisticsController {
 			@RequestParam(value = "id", defaultValue = "") String id,
 			@RequestParam(value = "searchArea", defaultValue = "") String searchArea,
 			@RequestParam(value = "userId", defaultValue = "") String userId,
-			@RequestParam(value = "searchAgent", defaultValue = "") String searchAgent) {
+			@RequestParam(value = "searchAgent", defaultValue = "") String searchAgent,
+			@RequestParam(value = "revoke", defaultValue = "") String revoke
+			) {
 		// 区域
 		List<Area> areas = this.areaService.findAllArea(false);
 		model.addAttribute("areas", areas);
 		Pagination<StockStatistics> pagination = this.stockStatisticsService.findpagination(pageNo, pageSize, search,
-				start, end, type, id, searchArea, searchAgent,userId);
+				start, end, type, id, searchArea, searchAgent,userId,revoke);
 		model.addAttribute("pageList", pagination);
 		
 //		double sum = pagination.getDatas().stream().mapToDouble(StockStatistics::getInprice).sum();
@@ -101,6 +103,7 @@ public class StockStatisticsController {
 		
 		model.addAttribute("listColums", listColums);
 		model.addAttribute("search", search);
+		model.addAttribute("revoke", revoke);
 		model.addAttribute("start", start);
 		model.addAttribute("end", end);
 		model.addAttribute("id", id);
@@ -500,7 +503,8 @@ public class StockStatisticsController {
 			@RequestParam(value = "purchaseInvoiceNo", defaultValue = "null") String purchaseInvoiceNo,
 			@RequestParam(value = "receiptNo", defaultValue = "null") String receiptNo,
 			@RequestParam(value = "paymentOrderNo", defaultValue = "null") String paymentOrderNo,
-			@RequestParam(value = "sailesInvoiceNo", defaultValue = "null") String sailesInvoiceNo
+			@RequestParam(value = "sailesInvoiceNo", defaultValue = "null") String sailesInvoiceNo,
+			@RequestParam(value = "sailesInvoiceDate", defaultValue = "null") String sailesInvoiceDate
 			) {
 		
 			Double dinprice=null;
@@ -516,7 +520,7 @@ public class StockStatisticsController {
 				
 			}
 			User user = (User) session.getAttribute(Contents.USER_SESSION);
-			this.stockStatisticsService.updateStockStatistics(stockid, dinprice, purchaseInvoiceNo, receiptNo, paymentOrderNo,sailesInvoiceNo,user);
+			this.stockStatisticsService.updateStockStatistics(stockid, dinprice, purchaseInvoiceNo, receiptNo, paymentOrderNo,sailesInvoiceNo,sailesInvoiceDate,user);
 			
 			return new BasicDataResult(200, "修改统计数据成功", "");
 		

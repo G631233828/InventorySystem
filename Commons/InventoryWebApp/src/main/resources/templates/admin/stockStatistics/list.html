@@ -87,13 +87,15 @@
 											
 											<option value="100" th:selected="${pageSize == 100}">100
 											
-										</select> <input class="form-control" id="serach" placeholder="模糊匹配"
-											th:value="${search}" type="text"> <input
+										</select> 
+										<input class="form-control" id="serach" placeholder="模糊匹配"
+											th:value="${search}" type="text"> 
+										<input
 											class="form-control datepicker" readonly="readonly"
 											id="start" placeholder="开始日期" th:value="${start}" type="text">
 										<input class="form-control datepicker" readonly="readonly"
 											id="end" placeholder="结束日期" th:value="${end}" type="text">
-<input type="hidden" name="userId" th:value="${session.user_session.id}" id="userId">
+								<input type="hidden" name="userId" th:value="${session.user_session.id}" id="userId">
 										<select class="filter-status form-control" id="type"
 											name="type">
 											<option value="all" th:selected="${type == 'all'}">所有
@@ -102,11 +104,20 @@
 											
 											<option value="out" th:selected="${type == 'out'}">出库
 											
-										</select> <select class="filter-status form-control" id="agent"
+										</select>
+										
+										<select class="filter-status form-control" id="agent"
 											onchange="return searchVal()">
 											<option value="" selected>--选择商品类别--</option>
 											<option value="true" th:selected="${searchAgent=='true'}">代理商品</option>
 											<option value="false" th:selected="${searchAgent=='false'}">非代理商品</option>
+										</select>
+										
+										<select class="filter-status form-control" id="revoke"
+											onchange="return searchVal()">
+											<option value="0" selected>--选择状态--</option>
+											<option value="1" th:selected="${revoke=='1'}">已撤销</option>
+											<option value="2" th:selected="${revoke=='2'}">正常</option>
 										</select>
 
 
@@ -171,6 +182,8 @@
 													th:style="${#lists.contains(listColums,'area')}?'':'display:none;'">区域</th>
 												<th class="numeric entryName"
 													th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'">项目名称</th>
+												<th class="numeric supplier"
+													th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'">供应商</th>
 												<th class="numeric itemNo"
 													th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'">采购付款申请单编码</th>
 												<th class="numeric stockName"
@@ -201,6 +214,9 @@
 													th:style="${#lists.contains(listColums,'inprice')}?'':'display:none;'">入库总金额</th>
 												<th class="numeric sailesInvoiceNo"
 													th:style="${#lists.contains(listColums,'sailesInvoiceNo')}?'':'display:none;'">销售发票号</th>
+													
+												<th class="numeric sailesInvoiceDate"
+													th:style="${#lists.contains(listColums,'sailesInvoiceDate')}?'':'display:none;'">销售发票开具日期</th>
 
 												<th class="numeric purchaseInvoiceNo"
 													th:style="${#lists.contains(listColums,'purchaseInvoiceNo')}?'':'display:none;'">采购发票号</th>
@@ -241,6 +257,11 @@
 														th:style="${#lists.contains(listColums,'area')}?'':'display:none;'">[[${stockStatistics?.area?.name}]]</td>
 													<td class="numeric entryName" id="entryName"
 														th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'">[[${stockStatistics?.stock?.entryName}]]</td>
+													<td class="numeric supplier" id="supplier"
+														th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'">
+														<a href="javascript:;"
+														th:onclick="|return showSupplier('${stock?.supplier?.id}')|">[[${stockStatistics?.stock?.supplier?.name}]]</a>
+													</td>
 													<td class="numeric itemNo" id="itemNo"
 														th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'">[[${stockStatistics?.stock?.itemNo}]]</td>
 													<td class="numeric stockName" id="stockName"
@@ -251,7 +272,7 @@
 														th:style="${#lists.contains(listColums,'stockModel')}?'':'display:none;'"
 														th:title="${stockStatistics?.stock?.model}"
 														th:text="${#strings.abbreviate(stockStatistics?.stock?.model,20)}"></td>
-													<td class="numeric stockModel" id="stockModel"
+													<td class="numeric brand" id="brand"
 														th:style="${#lists.contains(listColums,'brand')}?'':'display:none;'"
 														th:title="${stockStatistics?.stock?.brand?.name}"
 														th:text="${#strings.abbreviate(stockStatistics?.stock?.brand?.name,20)}"></td>
@@ -291,8 +312,14 @@
 													<td class="numeric sailesInvoiceNo" th:id="|sailesInvoiceNo_${stockStatistics?.id}|" th:ondblclick="|return change('${stockStatistics?.id}','sailesInvoiceNo')|"
 														th:style="${#lists.contains(listColums,'sailesInvoiceNo')}?'':'display:none;'"
 														th:text="${stockStatistics.sailesInvoiceNo != null}?${stockStatistics?.sailesInvoiceNo}:''"></td>
+														
+													<td class="numeric sailesInvoiceDate" th:id="|sailesInvoiceDate_${stockStatistics?.id}|" th:ondblclick="|return changeDate('${stockStatistics?.id}','sailesInvoiceDate')|"
+														th:style="${#lists.contains(listColums,'sailesInvoiceDate')}?'':'display:none;'"
+														th:text="${stockStatistics.sailesInvoiceDate != null}?${stockStatistics?.sailesInvoiceDate}:''"></td>
+													
 													<td class="numeric purchaseInvoiceNo" th:id="|purchaseInvoiceNo_${stockStatistics?.id}|"   th:ondblclick="|return change('${stockStatistics?.id}','purchaseInvoiceNo')|"
 														th:style="${#lists.contains(listColums,'purchaseInvoiceNo')}?'':'display:none;'">[[${stockStatistics?.purchaseInvoiceNo}]]</td>
+														
 													<td class="numeric receiptNo"  th:id="|receiptNo_${stockStatistics?.id}|"  th:ondblclick="|return change('${stockStatistics?.id}','receiptNo')|"
 														th:style="${#lists.contains(listColums,'receiptNo')}?'':'display:none;'">[[${stockStatistics?.receiptNo}]]</td>
 														
@@ -370,7 +397,7 @@
 																th:onclick="|return toDownloadQRcode('${stockStatistics.id}')|">
 																<i class="fontawesome-cloud-download"> </i>
 															</button>
-															<button class="btn btn-default btn-sm" title="出库二维码"
+															<button class="btn btn-default btn-sm" title="出库二维码" th:if="${stockStatistics.depotTime!=null}"
 																th:onclick="|return showQRCode('${stockStatistics.id}','${stockStatistics?.projectName}')|">
 																<i class="icon icon-view-thumb"> </i>
 
@@ -399,6 +426,8 @@
 													th:style="${#lists.contains(listColums,'area')}?'':'display:none;'"></th>
 												<th class="numeric entryName"
 													th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'"></th>
+												<th class="numeric supplier"
+													th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'"></th>
 												<th class="numeric itemNo"
 													th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'"></th>
 												<th class="numeric stockName"
@@ -473,31 +502,31 @@
 										<div class="col-md-6">
 											<div class="dataTables_info hidden-xs"
 												style="margin-top: 0px;" role="status" aria-live="polite"
-												th:text="|每页显示${pageList?.pageSize}行
+												th:text="|当前页共${#lists.size(pageList?.datas)}行
 										－ 当前页${pageList?.pageNo}页 － 共${pageList?.totalPage}页|"></div>
 										</div>
 										<div class="col-md-6">
 											<ul class="pagination pagination-split pull-right"
 												style="margin-top: 0px;">
 												<li th:class="${pageList?.pageNo } eq 1 ?disabled:''"><a
-													th:href="${pageList?.pageNo} eq 1?'javascript:void(0);':@{/stockStatisticss(pageNo=1,pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId})}">首页</a>
+													th:href="${pageList?.pageNo} eq 1?'javascript:void(0);':@{/stockStatisticss(pageNo=1,pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId},revoke=${revoke})}">首页</a>
 												</li>
 												<li th:class="${pageList?.pageNo } eq 1 ?disabled:''"><a
-													th:href="${pageList?.pageNo} eq 1?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.upPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId})}">上一页</a>
+													th:href="${pageList?.pageNo} eq 1?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.upPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId},revoke=${revoke})}">上一页</a>
 												</li>
 												<li th:each="page:${pageList?.navigatepageNums}"
 													th:class="${page  == pageList?.pageNo}?active:''"><a
-													th:href="${page eq pageList?.pageNo}?'javascript:void(0)':@{/stockStatisticss(pageNo=${page},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId})}">[[${page}]]</a>
+													th:href="${page eq pageList?.pageNo}?'javascript:void(0)':@{/stockStatisticss(pageNo=${page},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId},revoke=${revoke})}">[[${page}]]</a>
 												</li>
 												<li
 													th:class="${pageList?.pageNo eq pageList?.totalPage}?disabled:''">
 													<a
-													th:href="${pageList?.pageNo eq pageList?.totalPage}?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.nextPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId})}">下一页</a>
+													th:href="${pageList?.pageNo eq pageList?.totalPage}?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.nextPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId},revoke=${revoke})}">下一页</a>
 												</li>
 												<li
 													th:class="${pageList?.pageNo eq pageList?.totalPage}?disabled:''">
 													<a
-													th:href="${pageList?.pageNo eq pageList?.totalPage}?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.totalPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId})}">尾页</a>
+													th:href="${pageList?.pageNo eq pageList?.totalPage}?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.totalPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId},revoke=${revoke})}">尾页</a>
 												</li>
 											</ul>
 										</div>

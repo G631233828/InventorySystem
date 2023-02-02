@@ -19,7 +19,7 @@ import zhongchiedu.inventory.pojo.StockStatistics;
 public interface StockStatisticsService extends GeneralService<StockStatistics> {
 	
 	
-	public Pagination<StockStatistics> findpagination(Integer pageNo,Integer pageSize,String search,String start,String end,String type,String id,String searchArea,String searchAgent,String userId);
+	public Pagination<StockStatistics> findpagination(Integer pageNo,Integer pageSize,String search,String start,String end,String type,String id,String searchArea,String searchAgent,String userId,String revoke);
 	
 	public BasicDataResult inOrOutstockStatistics(StockStatistics stockStatistics,User user);
 	
@@ -45,7 +45,7 @@ public interface StockStatisticsService extends GeneralService<StockStatistics> 
 	
 	public Workbook newExport2( HttpServletRequest request,String search,String start,String end,String type,String name,String areaId,String searchAgent);
 	
-	public  void updateStockStatistics(String ids,Double inprice,String purchaseInvoiceNo,String receiptNo,String paymentOrderNo,String sailesInvoiceNo,User user);
+	public  void updateStockStatistics(String ids,Double inprice,String purchaseInvoiceNo,String receiptNo,String paymentOrderNo,String sailesInvoiceNo,String sailesInvoiceDate,User user);
 	
 	
 	

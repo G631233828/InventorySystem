@@ -432,6 +432,19 @@ public String upload( HttpServletRequest request, HttpSession session){
 		Supplier supplier = this.findOneById(id, Supplier.class);
 		return Common.isNotEmpty(supplier)?BasicDataResult.build(200, "查询成功", supplier):BasicDataResult.build(400, "查询失败", null);
 	}
+
+
+	@Override
+	public List<Object> findSupplierIds(String search) {
+		Query query = new Query();
+		Query findbySearch = this.findbySearch(search, query);
+		List<Object> list = new ArrayList<Object>();
+		List<Supplier> lists = this.find(findbySearch, Supplier.class);
+		for(Supplier s:lists) {
+			list.add(new ObjectId(s.getId()));
+		}
+		return list;
+	}
 	
 	
 	
