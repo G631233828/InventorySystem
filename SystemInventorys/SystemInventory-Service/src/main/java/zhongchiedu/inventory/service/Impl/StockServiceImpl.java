@@ -469,8 +469,17 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				//新添加了入库数量
 				importStock.setStocknum(Long.valueOf(resultexcel[i][j + 4].trim()));
 				
+				String n = resultexcel[i][j + 5].trim();
+				boolean num = Common.isInteger(n);
+				if(num) {
+					importStock.setPrice(n);// 价格
+				}else {
+					error += "<span class='entypo-attention'></span>导入文件过程中出现不合法的金额<b>&nbsp;&nbsp;" + n
+							+ "&nbsp;&nbsp;</b>，第<b>&nbsp&nbsp" + (i + 1)
+							+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
+					continue;
+				}
 				
-				importStock.setPrice(resultexcel[i][j + 5].trim());// 价格
 
 				String unitName = resultexcel[i][j + 6].trim();
 				if (Common.isNotEmpty(unitName)) {

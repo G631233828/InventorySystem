@@ -1146,7 +1146,7 @@ public class Common {
 	 * @return
 	 */
 	public static boolean isInteger(String str) {  
-        Pattern pattern = Pattern.compile("^[-\\+]?[\\d]*$");  
+        Pattern pattern = Pattern.compile("^[0-9]+(\\.?[0-9]+)?$");  
         return pattern.matcher(str).matches();  
   }
 	
@@ -1169,9 +1169,11 @@ public class Common {
 //
 //		deleteFile(file, "E:/");
 
-		String dateYMDHM = getDateYMDHM("2021sdfsdf:11");
-		System.out.println(dateYMDHM);
+//		String dateYMDHM = getDateYMDHM("2021sdfsdf:11");
+//		System.out.println(dateYMDHM);
 
+		boolean integer = Common.isInteger("123.12");
+		System.out.println(integer);
 
 	}
 
