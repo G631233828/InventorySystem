@@ -60,6 +60,10 @@ public class PreStock extends GeneralBean<PreStock> {
 	
 	private String entryName;//项目名称
 	private String itemNo;//项目编号
-	
-	
+
+	//20230207  添加出库入库总金额
+	private Double inprice;
+	private String purchaseInvoiceNo;//采购发票号
+
+
 }

@@ -870,7 +870,12 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			stockStatistics.setPreStock(true);// 预入库方式入库
 			stockStatistics.setInOrOut(true);
 			stockStatistics.setNum(preStock.getActualReceiptQuantity());// 设置实际入库数量
-
+			if(Common.isNotEmpty(preStock.getInprice())){
+				stockStatistics.setInprice(preStock.getInprice());
+			}
+			if(Common.isNotEmpty(preStock.getPurchaseInvoiceNo())){
+				stockStatistics.setPurchaseInvoiceNo(preStock.getPurchaseInvoiceNo());
+			}
 		}
 
 		Stock stock = this.findByAreaNameModel(areaId, name, model,entryName);

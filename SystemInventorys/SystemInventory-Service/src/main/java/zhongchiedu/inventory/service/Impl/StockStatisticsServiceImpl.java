@@ -272,6 +272,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				stockStatistics.setStorageTime(Common.fromDateH());
 				stockStatistics.setNewNum(newNum);
 				lockInsert(stockStatistics);
+
 				return BasicDataResult.build(200, "商品入库成功", stockStatistics);
 			} else {
 				// 出库

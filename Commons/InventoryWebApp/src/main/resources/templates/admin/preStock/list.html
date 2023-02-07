@@ -179,6 +179,8 @@
 											<th class="numeric">项目名称</th>
 											<th class="numeric">项目编号</th>
 											<th class="numeric">预计入库数量</th>
+											<th class="numeric">预入库总金额</th>
+											<th class="numeric">采购发票单</th>
 											<th class="numeric" th:if="${session.status}!=1">实际入库数量</th>
 											<th class="numeric">发布人</th>
 											<th class="numeric" th:if="${session.status}!=1">处理人</th>
@@ -205,6 +207,8 @@
 												<td class="numeric">[[${stock?.entryName}]]</td>
 												<td class="numeric">[[${stock?.itemNo}]]</td>
 												<td class="numeric">[[${stock?.estimatedInventoryQuantity}]]</td>
+												<td class="numeric">[[${stock?.inprice}]]</td>
+												<td class="numeric">[[${stock?.purchaseInvoiceNo}]]</td>
 												<td class="numeric" th:if="${session.status}!=1">[[${stock?.actualReceiptQuantity}]]</td>
 												<td class="numeric">[[${stock?.publisher?.userName}]]</td>
 												<td class="numeric" th:if="${session.status}!=1">[[${stock?.handler?.userName}]]</td>
