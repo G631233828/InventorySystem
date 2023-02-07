@@ -53,7 +53,6 @@ public class StockStatistics extends GeneralBean<StockStatistics> {
 	private String personInCharge;//责任人
 	private String projectName;   //项目名
 	private String customer;//客户
-	
 	//预入库方式  新增
 	private boolean preStock = false;//预入库
 	
