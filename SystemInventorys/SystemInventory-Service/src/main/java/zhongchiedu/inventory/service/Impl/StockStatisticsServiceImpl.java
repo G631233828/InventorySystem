@@ -487,6 +487,104 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 	}
 
+	@Override
+	@SystemServiceLog(description = "导出适配金蝶的报表")
+	public Workbook toJD(HttpServletRequest request, String search, String start, String end, String type,
+							  String name, String areaId, String searchAgent) {
+
+		List<Stock> listStock = this.findStocksBySearch(search, areaId, searchAgent);
+		// 获取所有的库存
+		List<StockStatistics> list = this.findStockStatistics(search, start, end, type, areaId, searchAgent);
+
+		List<Map<String, Object>> inlist = new ArrayList<>();
+		List<Map<String, Object>> outlist = new ArrayList<>();
+
+		for (Stock stock : listStock) {
+			// 获取所有的设备
+			for (StockStatistics st : list) {
+
+				if (st.getStock() != null) {
+					if (stock.getId().equals(st.getStock().getId())) {
+						if (st.isInOrOut()) {
+							// 入库统计
+							Map<String, Object> in = new HashMap<>();
+							in.put("itemNo", Common.isEmpty(stock.getItemNo()) ? "" : stock.getItemNo());
+							in.put("id", Common.isEmpty(st.getId()) ? "" : st.getId());
+							in.put("cg","赊购");
+							in.put("area", Common.isEmpty(stock.getArea()) ? "" : stock.getArea().getName());
+							in.put("projectName", Common.isEmpty(st.getProjectName()) ? "" : st.getProjectName());
+							in.put("stockName", Common.isEmpty(st.getStock().getName()) ? "" : st.getStock().getName());
+							in.put("modelName",
+									Common.isEmpty(st.getStock().getModel()) ? "" : st.getStock().getModel());
+							in.put("price", Common.isEmpty(st.getStock().getPrice()) ? "" : st.getStock().getPrice());
+							in.put("unit",
+									Common.isEmpty(st.getStock().getUnit()) ? "" : st.getStock().getUnit().getName());
+							in.put("depotTime", st.getStorageTime());
+							in.put("num", st.getNum());
+							in.put("purchaseInvoiceNo", Common.isEmpty(st.getPurchaseInvoiceNo()) ? ""
+									: st.getPurchaseInvoiceNo());
+
+
+//							in.put("paymentOrderNo", Common.isEmpty(st.getStock().getPaymentOrderNo()) ? ""
+//									: st.getStock().getPaymentOrderNo());
+							in.put("supply","联想");
+							inlist.add(in);
+						} else {
+							Map<String, Object> out = new HashMap<>();
+							out.put("itemNo", Common.isEmpty(stock.getItemNo()) ? "" : stock.getItemNo());
+							out.put("id", Common.isEmpty(st.getId()) ? "" : st.getId());
+							out.put("fs","无");
+							out.put("area", Common.isEmpty(stock.getArea()) ? "" : stock.getArea().getName());
+							out.put("projectName", Common.isEmpty(st.getProjectName()) ? "" : st.getProjectName());
+							out.put("stockName",
+									Common.isEmpty(st.getStock().getName()) ? "" : st.getStock().getName());
+							out.put("modelName",
+									Common.isEmpty(st.getStock().getModel()) ? "" : st.getStock().getModel());
+							out.put("price", Common.isEmpty(st.getStock().getPrice()) ? "" : st.getStock().getPrice());
+							out.put("unit",
+									Common.isEmpty(st.getStock().getUnit()) ? "" : st.getStock().getUnit().getName());
+							out.put("depotTime", st.getDepotTime());
+							out.put("num", st.getNum());
+							out.put("sailesInvoiceNo",
+									Common.isEmpty(st.getSailesInvoiceNo()) ? "" : st.getSailesInvoiceNo());
+							out.put("sailesInvoiceDate",
+									Common.isEmpty(st.getSailesInvoiceDate()) ? "" : st.getSailesInvoiceDate());
+							out.put("receiptNo",
+									Common.isEmpty(st.getReceiptNo()) ? "" : st.getReceiptNo());
+							out.put("customer", Common.isEmpty(st.getCustomer()) ? "" : st.getCustomer());
+							outlist.add(out);
+
+						}
+
+					}
+				}
+			}
+		}
+
+		Map<String, Object> dataMap = new HashMap<>();
+
+		dataMap.put("inlist", inlist);
+		dataMap.put("outlist", outlist);
+
+		String ctxPath = request.getServletContext().getRealPath("/WEB-INF/Templates/");
+		String fileName = "金蝶库存统计导出模板.xlsx";
+		TemplateExportParams params = new TemplateExportParams(ctxPath + fileName, true);
+		Workbook doc = null;
+
+		try {
+			doc = ExcelExportUtil.exportExcel(params, dataMap);
+//							WordUtil.exportWord(ctxPath+fileName, dataMap);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return doc;
+
+	}
+
+
+
 	/**
 	 * 创建样式
 	 * 

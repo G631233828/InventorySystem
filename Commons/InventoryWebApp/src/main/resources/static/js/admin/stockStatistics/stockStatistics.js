@@ -56,6 +56,25 @@ function toExport() {
 
 }
 
+function toJD() {
+
+
+	var search = $("#serach").val();
+	var start = $("#start").val();
+	var end = $("#end").val();
+	var type = $("#type").val();
+	var areaId = $("#searchArea").val();
+	var searchAgent = $("#agent").val();
+	jqueryAlert({
+		'icon': getRootPath() + '/plugs/alert/img/right.png',
+		'content': "正在导出请稍等...",
+		'closeTime': 5000,
+	})
+	window.location.href = "stockStatistics/toJD?search=" + search + "&start=" + start + "&end=" + end + "&type=" + type + "&areaId=" + areaId + "&searchAgent=" + searchAgent;
+
+}
+
+
 function findMineEidt(){
 	
 var pageSize = $("#pageSize").val();
