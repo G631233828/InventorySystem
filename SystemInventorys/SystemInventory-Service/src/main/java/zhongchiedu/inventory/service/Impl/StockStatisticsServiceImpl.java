@@ -523,11 +523,12 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 							in.put("num", st.getNum());
 							in.put("purchaseInvoiceNo", Common.isEmpty(st.getPurchaseInvoiceNo()) ? ""
 									: st.getPurchaseInvoiceNo());
-
+							in.put("supplier", Common.isEmpty(st.getStock().getSupplier()) ? ""
+									: st.getStock().getSupplier().getName());
 
 //							in.put("paymentOrderNo", Common.isEmpty(st.getStock().getPaymentOrderNo()) ? ""
 //									: st.getStock().getPaymentOrderNo());
-							in.put("supply","联想");
+
 							inlist.add(in);
 						} else {
 							Map<String, Object> out = new HashMap<>();
