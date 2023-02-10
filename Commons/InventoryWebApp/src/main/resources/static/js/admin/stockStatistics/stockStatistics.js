@@ -24,7 +24,7 @@ function searchVal() {
 	 * "", text : "查询内容不能为空!!", }); return ; }
 	 */
 	window.location.href = "stockStatisticss?pageSize=" + pageSize + "&search="
-		+ search + "&start=" + start + "&end=" + end + "&type=" + type + "&searchArea=" + searchArea + "&searchAgent=" + searchAgent+ "&revoke=" + revoke;
+		+ search + "&start=" + start + "&end=" + end + " 23:59:59" + "&type=" + type + "&searchArea=" + searchArea + "&searchAgent=" + searchAgent+ "&revoke=" + revoke;
 }
 // function searchSize() {
 //	
@@ -52,7 +52,7 @@ function toExport() {
 		'content': "正在导出请稍等...",
 		'closeTime': 5000,
 	})
-	window.location.href = "stockStatistics/export?search=" + search + "&start=" + start + "&end=" + end + "&type=" + type + "&areaId=" + areaId + "&searchAgent=" + searchAgent;
+	window.location.href = "stockStatistics/export?search=" + search + "&start=" + start + "&end=" + end + " 23:59:59" + "&type=" + type + "&areaId=" + areaId + "&searchAgent=" + searchAgent;
 
 }
 
@@ -70,7 +70,7 @@ function toJD() {
 		'content': "正在导出请稍等...",
 		'closeTime': 5000,
 	})
-	window.location.href = "stockStatistics/toJD?search=" + search + "&start=" + start + "&end=" + end + "&type=" + type + "&areaId=" + areaId + "&searchAgent=" + searchAgent;
+	window.location.href = "stockStatistics/toJD?search=" + search + "&start=" + start + "&end=" + end + " 23:59:59" + "&type=" + type + "&areaId=" + areaId + "&searchAgent=" + searchAgent;
 
 }
 
@@ -91,7 +91,7 @@ var pageSize = $("#pageSize").val();
 	 * "", text : "查询内容不能为空!!", }); return ; }
 	 */
 	window.location.href = "stockStatisticss?pageSize=" + pageSize + "&search="
-		+ search + "&start=" + start + "&end=" + end + "&type=" + type + "&searchArea=" + searchArea + "&searchAgent=" + searchAgent+ "&userId=" + userId;
+		+ search + "&start=" + start + "&end=" + end + " 23:59:59" + "&type=" + type + "&searchArea=" + searchArea + "&searchAgent=" + searchAgent+ "&userId=" + userId;
 
 }
 
@@ -123,7 +123,7 @@ function toExportNew() {
 		'content': "正在导出请稍等...",
 		'closeTime': 5000,
 	})
-	window.location.href = "stockStatistics/exportNew?search=" + search + "&start=" + start + "&end=" + end + "&type=" + type + "&areaId=" + areaId + "&searchAgent=" + searchAgent;
+	window.location.href = "stockStatistics/exportNew?search=" + search + "&start=" + start + "&end=" + end + " 23:59:59" + "&type=" + type + "&areaId=" + areaId + "&searchAgent=" + searchAgent;
 
 }
 

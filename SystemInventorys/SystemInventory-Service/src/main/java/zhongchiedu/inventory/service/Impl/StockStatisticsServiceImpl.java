@@ -175,9 +175,10 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 		if (Common.isNotEmpty(start) && Common.isNotEmpty(end)) {
 			ca2.orOperator(Criteria.where("storageTime").gte(start).lte(end),
-					Criteria.where("depotTime").gte(start).lte(end),
-					Criteria.where("editFinanceTime").gte(start).lte(end),
-					Criteria.where("sailesInvoiceDate").gte(start).lte(end)
+					Criteria.where("depotTime").gte(start).lte(end)
+//					,
+//					Criteria.where("editFinanceTime").gte(start).lte(end),
+//					Criteria.where("sailesInvoiceDate").gte(start).lte(end)
 					);
 		}
 		query.addCriteria(ca.andOperator(ca1, ca2));
@@ -495,11 +496,13 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		List<Stock> listStock = this.findStocksBySearch(search, areaId, searchAgent);
 		// 获取所有的库存
 		List<StockStatistics> list = this.findStockStatistics(search, start, end, type, areaId, searchAgent);
-
+		System.out.println("end"+end);
 		List<Map<String, Object>> inlist = new ArrayList<>();
 		List<Map<String, Object>> outlist = new ArrayList<>();
-
+		int inN=0;
+		int OutN=0;
 		for (Stock stock : listStock) {
+
 			// 获取所有的设备
 			for (StockStatistics st : list) {
 
@@ -510,16 +513,20 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 							Map<String, Object> in = new HashMap<>();
 							in.put("itemNo", Common.isEmpty(stock.getItemNo()) ? "" : stock.getItemNo());
 							in.put("id", Common.isEmpty(st.getId()) ? "" : st.getId());
+							inN++;
+							in.put("dj",createDJ(end,inN,"RK"));
 							in.put("cg","赊购");
 							in.put("area", Common.isEmpty(stock.getArea()) ? "" : stock.getArea().getName());
 							in.put("projectName", Common.isEmpty(st.getProjectName()) ? "" : st.getProjectName());
 							in.put("stockName", Common.isEmpty(st.getStock().getName()) ? "" : st.getStock().getName());
 							in.put("modelName",
 									Common.isEmpty(st.getStock().getModel()) ? "" : st.getStock().getModel());
-							in.put("price", Common.isEmpty(st.getStock().getPrice()) ? "" : st.getStock().getPrice());
+//							in.put("price", Common.isEmpty(st.getStock().getPrice()) ? "" : st.getStock().getPrice());
+							//单价=入库总金额/入库数量
+							in.put("price",devide(st.getInprice(),st.getNum()));
 							in.put("unit",
 									Common.isEmpty(st.getStock().getUnit()) ? "" : st.getStock().getUnit().getName());
-							in.put("depotTime", st.getStorageTime());
+							in.put("depotTime", st.getStorageTime().substring(0,10));
 							in.put("num", st.getNum());
 							in.put("purchaseInvoiceNo", Common.isEmpty(st.getPurchaseInvoiceNo()) ? ""
 									: st.getPurchaseInvoiceNo());
@@ -534,7 +541,9 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 							Map<String, Object> out = new HashMap<>();
 							out.put("itemNo", Common.isEmpty(stock.getItemNo()) ? "" : stock.getItemNo());
 							out.put("id", Common.isEmpty(st.getId()) ? "" : st.getId());
-							out.put("fs","无");
+							OutN++;
+							out.put("dj",createDJ(end,OutN,"CK"));
+							out.put("fs","赊销");
 							out.put("area", Common.isEmpty(stock.getArea()) ? "" : stock.getArea().getName());
 							out.put("projectName", Common.isEmpty(st.getProjectName()) ? "" : st.getProjectName());
 							out.put("stockName",
@@ -544,7 +553,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 							out.put("price", Common.isEmpty(st.getStock().getPrice()) ? "" : st.getStock().getPrice());
 							out.put("unit",
 									Common.isEmpty(st.getStock().getUnit()) ? "" : st.getStock().getUnit().getName());
-							out.put("depotTime", st.getDepotTime());
+							out.put("depotTime", st.getDepotTime().substring(0,10));
 							out.put("num", st.getNum());
 							out.put("sailesInvoiceNo",
 									Common.isEmpty(st.getSailesInvoiceNo()) ? "" : st.getSailesInvoiceNo());
@@ -584,7 +593,20 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 	}
 
+   //生成固定的单据编号
+	public String createDJ(String end,Integer i,String  tou){
+		String endnew=end.replace("-","").substring(0,8);
+		return tou+endnew + StringUtils.leftPad(String.valueOf(i), 8, '0');
+	}
 
+	public BigDecimal devide(Double price,long num1){
+		if(Common.isEmpty(price)){
+			return new BigDecimal(0);
+		}
+		BigDecimal inprice=new BigDecimal(price);
+		BigDecimal num=new BigDecimal(num1);
+		return inprice.divide(num,2,BigDecimal.ROUND_HALF_UP);
+	}
 
 	/**
 	 * 创建样式
