@@ -1034,7 +1034,8 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				// 生成二维码
 				String path = dir + qrcodepath + "/";
 				Common.checkPathAndMkdirs(path);
-				File outputFile = new File(path + /* stock.getName()+stock.getModel()+ */stock.getId() + ".png");
+				String fn = (stock.getName()+stock.getModel()).replace("\\", "").replace("/", "").replace("*", "x").replace(":", "").replace("\"", "").replace("|", "").replace("<", "").replace(">", "");
+				File outputFile = new File(path +fn + stock.getId() + ".png");
 				MatrixToImageWriter.writeToFile(bitMatrix, format, outputFile);
 				// 保存图片信息
 				MultiMedia saveQrCode = this.multiMediaService.saveQrCode(outputFile, dir, qrcodepath, "PHOTO");
@@ -1114,6 +1115,28 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		}
 		
 
+		
+		
+	}
+
+	@Override
+	public List<Stock> findStockByType(String type) {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("isDelete").is(false));
+		query.addCriteria(Criteria.where("isDisable").is(false));
+		if("1".equals(type)) {
+			//获取所有二维码
+		}else if("2".equals(type)) {
+			query.addCriteria(Criteria.where("inventory").gt(0));
+		}
+		
+		List<Stock> list = this.find(query, Stock.class);
+
+		list.forEach(s->{
+			this.createStockQrCode(s.getId());
+		});	
+		
+		return list;
 		
 		
 	}

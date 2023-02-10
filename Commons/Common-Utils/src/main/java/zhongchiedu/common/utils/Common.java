@@ -1172,9 +1172,13 @@ public class Common {
 //		String dateYMDHM = getDateYMDHM("2021sdfsdf:11");
 //		System.out.println(dateYMDHM);
 
-		boolean integer = Common.isInteger("123.12");
-		System.out.println(integer);
-
+		
+		String n ="光跳纤(千兆多模/黄色）LC-SC";
+		String replace = n.replace("\\", "").replace("/", "");
+		System.out.println(replace);
+		
+		
+		
 	}
 
 }

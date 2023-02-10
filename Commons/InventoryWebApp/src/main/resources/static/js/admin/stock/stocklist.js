@@ -482,6 +482,12 @@ function cleanSearch() {
 
 
 function toDownloadQRcode(o) {
+var search = $("#serach").val();
+	if(search=="所有库存二维码"||search=="有库存二维码"){
+		window.location.href = "stock/downloadQRcode?id=" + o+"&search="+search;
+		return;
+}
+
 	if (o != "") {
 		//下载单个
 		window.location.href = "stock/downloadQRcode?id=" + o;

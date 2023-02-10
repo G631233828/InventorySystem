@@ -467,9 +467,20 @@ public class StockController {
 	 */
 	@RequestMapping(value = "stock/downloadQRcode")
 	@SystemControllerLog(description = "下载二维码")
-	public ModelAndView download(HttpServletRequest request, HttpServletResponse response, String id) throws Exception {
-
-		List<Stock> list = this.stockService.findStockByIds(id);
+	public ModelAndView download(HttpServletRequest request, HttpServletResponse response, String id,String search) throws Exception {
+		
+		List<Stock> list=null;
+		
+		if("所有库存二维码".equals(search.trim())) {
+			//获取所有库存二维码
+			list = this.stockService.findStockByType("1");
+		}else if("有库存二维码".equals(search.trim())) 
+		{
+			list = this.stockService.findStockByType("2");
+		}else {
+			list = this.stockService.findStockByIds(id);
+		}
+		
 
 		String contentType = "application/octet-stream";
 		if (list.size() == 1) {
