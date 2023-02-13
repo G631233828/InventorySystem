@@ -534,10 +534,13 @@ public class StockStatisticsController {
 			@RequestParam(value = "receiptNo", defaultValue = "null") String receiptNo,
 			@RequestParam(value = "paymentOrderNo", defaultValue = "null") String paymentOrderNo,
 			@RequestParam(value = "sailesInvoiceNo", defaultValue = "null") String sailesInvoiceNo,
-			@RequestParam(value = "sailesInvoiceDate", defaultValue = "null") String sailesInvoiceDate
+			@RequestParam(value = "sailesInvoiceDate", defaultValue = "null") String sailesInvoiceDate,
+			@RequestParam(value = "purchaseInvoiceDate", defaultValue = "null") String purchaseInvoiceDate,
+			 @RequestParam(value = "sailPrice", defaultValue = "null") String sailPrice
 			) {
 		
 			Double dinprice=null;
+			Double dsailPrice=null;
 			try {
 				if(!inprice.equals("null")) {
 					dinprice = Double.parseDouble(inprice);
@@ -549,8 +552,21 @@ public class StockStatisticsController {
 				return new BasicDataResult(400, "入库金额输入有误，请输入正确的数字", "");
 				
 			}
+
+		try {
+			if(!sailPrice.equals("null")) {
+				dsailPrice = Double.parseDouble(sailPrice);
+			}else {
+				dsailPrice=null;
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+			return new BasicDataResult(400, "销售金额输入有误，请输入正确的数字", "");
+
+		}
 			User user = (User) session.getAttribute(Contents.USER_SESSION);
-			this.stockStatisticsService.updateStockStatistics(stockid, dinprice, purchaseInvoiceNo, receiptNo, paymentOrderNo,sailesInvoiceNo,sailesInvoiceDate,user);
+			this.stockStatisticsService.updateStockStatistics(stockid, dinprice, purchaseInvoiceNo, receiptNo, paymentOrderNo,sailesInvoiceNo,sailesInvoiceDate,user,
+					purchaseInvoiceDate,dsailPrice);
 			
 			return new BasicDataResult(200, "修改统计数据成功", "");
 		

@@ -93,10 +93,13 @@ public class StockStatistics extends GeneralBean<StockStatistics> {
 	private User financeUser;
 	//20221205 添加销售发票开具日期
 	private String sailesInvoiceDate;
-	
-	
-	
-	
+
+	//采购发票到票时间
+	private String purchaseInvoiceDate;
+
+
+	//销售总金额
+	private Double sailPrice;
 	
 
 }

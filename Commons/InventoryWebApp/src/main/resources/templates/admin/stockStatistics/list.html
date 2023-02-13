@@ -215,11 +215,16 @@
 													th:style="${#lists.contains(listColums,'customer')}?'':'display:none;'">客户</th>
 												<th class="numeric inprice"
 													th:style="${#lists.contains(listColums,'inprice')}?'':'display:none;'">入库总金额</th>
+												<th class="numeric sailPrice"
+													th:style="${#lists.contains(listColums,'sailPrice')}?'':'display:none;'">销售总金额</th>
 												<th class="numeric sailesInvoiceNo"
 													th:style="${#lists.contains(listColums,'sailesInvoiceNo')}?'':'display:none;'">销售发票号</th>
 													
 												<th class="numeric sailesInvoiceDate"
 													th:style="${#lists.contains(listColums,'sailesInvoiceDate')}?'':'display:none;'">销售发票开具日期</th>
+
+												<th class="numeric purchaseInvoiceDate"
+													th:style="${#lists.contains(listColums,'purchaseInvoiceDate')}?'':'display:none;'">采购发票倒票日期</th>
 
 												<th class="numeric purchaseInvoiceNo"
 													th:style="${#lists.contains(listColums,'purchaseInvoiceNo')}?'':'display:none;'">采购发票号</th>
@@ -312,14 +317,24 @@
 														
 														</td>
 
+													<td class="numeric sailPrice"  th:id="|sailPrice_${stockStatistics?.id}|"  th:ondblclick="|return change('${stockStatistics?.id}','sailPrice')|"
+														th:style="${#lists.contains(listColums,'sailPrice')}?'':'display:none;'"
+														th:text="${stockStatistics.sailPrice != 0.0}?${stockStatistics?.sailPrice}:'0.0'">
+
+													</td>
+
 													<td class="numeric sailesInvoiceNo" th:id="|sailesInvoiceNo_${stockStatistics?.id}|" th:ondblclick="|return change('${stockStatistics?.id}','sailesInvoiceNo')|"
 														th:style="${#lists.contains(listColums,'sailesInvoiceNo')}?'':'display:none;'"
 														th:text="${stockStatistics.sailesInvoiceNo != null}?${stockStatistics?.sailesInvoiceNo}:''"></td>
-														
+
 													<td class="numeric sailesInvoiceDate" th:id="|sailesInvoiceDate_${stockStatistics?.id}|" th:ondblclick="|return changeDate('${stockStatistics?.id}','sailesInvoiceDate')|"
 														th:style="${#lists.contains(listColums,'sailesInvoiceDate')}?'':'display:none;'"
 														th:text="${stockStatistics.sailesInvoiceDate != null}?${stockStatistics?.sailesInvoiceDate}:''"></td>
-													
+
+													<td class="numeric purchaseInvoiceDate" th:id="|purchaseInvoiceDate_${stockStatistics?.id}|" th:ondblclick="|return changeDate('${stockStatistics?.id}','purchaseInvoiceDate')|"
+														th:style="${#lists.contains(listColums,'purchaseInvoiceDate')}?'':'display:none;'"
+														th:text="${stockStatistics.purchaseInvoiceDate != null}?${stockStatistics?.purchaseInvoiceDate}:''"></td>
+
 													<td class="numeric purchaseInvoiceNo" th:id="|purchaseInvoiceNo_${stockStatistics?.id}|"   th:ondblclick="|return change('${stockStatistics?.id}','purchaseInvoiceNo')|"
 														th:style="${#lists.contains(listColums,'purchaseInvoiceNo')}?'':'display:none;'">[[${stockStatistics?.purchaseInvoiceNo}]]</td>
 														
@@ -459,9 +474,14 @@
 													th:style="${#lists.contains(listColums,'customer')}?'':'display:none;'"></th>
 												<th class="numeric inprice" id="heji"
 													th:style="${#lists.contains(listColums,'inprice')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![inprice==null?0:inprice])}]]</th>
+												<th class="numeric sailPrice"
+													th:style="${#lists.contains(listColums,'sailPrice')}?'':'display:none;'"></th>
 												<th class="numeric sailesInvoiceNo"
 													th:style="${#lists.contains(listColums,'sailesInvoiceNo')}?'':'display:none;'"></th>
-
+												<th class="numeric sailesInvoiceDate"
+													th:style="${#lists.contains(listColums,'sailesInvoiceDate')}?'':'display:none;'"></th>
+												<th class="numeric purchaseInvoiceDate"
+													th:style="${#lists.contains(listColums,'purchaseInvoiceDate')}?'':'display:none;'"></th>
 												<th class="numeric purchaseInvoiceNo"
 													th:style="${#lists.contains(listColums,'purchaseInvoiceNo')}?'':'display:none;'"></th>
 												<th class="numeric receiptNo"

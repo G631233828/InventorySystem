@@ -739,20 +739,23 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				cell.setCellValue("");
 				
 			}
-
 			cell = row.createCell(1);
+			cell.setCellStyle(style);
+			cell.setCellValue(stock.getId());
+
+			cell = row.createCell(1+1);
 			cell.setCellStyle(style);
 			cell.setCellValue(stock.getName());
 
-			cell = row.createCell(2);
+			cell = row.createCell(2+1);
 			cell.setCellStyle(style);
 			cell.setCellValue(stock.getModel());
 
-			cell = row.createCell(3);
+			cell = row.createCell(3+1);
 			cell.setCellStyle(style);
 			cell.setCellValue(stock.getScope());
 
-			cell = row.createCell(4);
+			cell = row.createCell(4+1);
 			cell.setCellStyle(style);
 			if (Common.isNotEmpty(stock.getGoodsStorage())) {
 				String level = "";
@@ -764,7 +767,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				cell.setCellValue("-/-");
 
 			}
-			cell = row.createCell(5);
+			cell = row.createCell(5+1);
 			cell.setCellStyle(style);
 			if (Common.isNotEmpty(stock.getUnit())) {
 				cell.setCellValue(stock.getUnit().getName());
@@ -772,7 +775,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				cell.setCellValue("");
 			}
 
-			cell = row.createCell(6);
+			cell = row.createCell(6+1);
 			cell.setCellStyle(style);
 			if (Common.isNotEmpty(stock.getPrice())) {
 				cell.setCellValue(stock.getPrice());
@@ -780,11 +783,11 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				cell.setCellValue("");
 			}
 
-			cell = row.createCell(7);
+			cell = row.createCell(7+1);
 			cell.setCellStyle(style);
 			cell.setCellValue(stock.getInventory());
 
-			cell = row.createCell(8);
+			cell = row.createCell(8+1);
 			cell.setCellStyle(style);
 			if (Common.isNotEmpty(stock.getInventory()) && Common.isNotEmpty(stock.getPrice())) {
 				cell.setCellValue(stock.getInventory() * Double.valueOf(stock.getPrice()));
@@ -793,7 +796,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			}
 
 			
-			cell = row.createCell(9);
+			cell = row.createCell(9+1);
 			cell.setCellStyle(style);
 			cell.setCellValue(stock.isAgent()==true?"是":"否");
 
@@ -810,6 +813,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	public List<String> title() {
 		List<String> list = new ArrayList<>();
 		list.add("区域");
+		list.add("物料代码(*)");
 		list.add("设备名称");
 		list.add("品名型号");
 		list.add("使用范围");
