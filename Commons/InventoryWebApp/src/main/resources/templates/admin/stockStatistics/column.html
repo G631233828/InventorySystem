@@ -116,6 +116,11 @@
                                                 <td class="numeric">销售总金额</td>
                                                 <td class="numeric" onclick="return selectColumn('sailPrice');"><input type="checkbox" th:checked="${#lists.contains(listColums,'sailPrice')}?'checked':'false'" id="ch_sailPrice"></td>
                                             </tr>
+
+                                            <tr>
+                                                <td class="numeric">采购付款申请单编码(新)</td>
+                                                <td class="numeric" onclick="return selectColumn('newItemNo');"><input type="checkbox" th:checked="${#lists.contains(listColums,'newItemNo')}?'checked':'false'" id="ch_newItemNo"></td>
+                                            </tr>
                                            
                                         </tbody>
                                     </table>

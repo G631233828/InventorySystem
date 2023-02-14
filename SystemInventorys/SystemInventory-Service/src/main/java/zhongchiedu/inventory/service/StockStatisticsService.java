@@ -47,7 +47,8 @@ public interface StockStatisticsService extends GeneralService<StockStatistics> 
 
 	public Workbook newExport2( HttpServletRequest request,String search,String start,String end,String type,String name,String areaId,String searchAgent);
 	
-	public  void updateStockStatistics(String ids,Double inprice,String purchaseInvoiceNo,String receiptNo,String paymentOrderNo,String sailesInvoiceNo,String sailesInvoiceDate,User user,String purchaseInvoiceDate,Double sailPrice);
+	public  void updateStockStatistics(String ids,Double inprice,String purchaseInvoiceNo,String receiptNo,String paymentOrderNo,String sailesInvoiceNo,
+									   String sailesInvoiceDate,User user,String purchaseInvoiceDate,Double sailPrice,String newItemNo);
 	
 	
 	

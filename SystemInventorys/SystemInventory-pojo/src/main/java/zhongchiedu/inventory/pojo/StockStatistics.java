@@ -100,6 +100,9 @@ public class StockStatistics extends GeneralBean<StockStatistics> {
 
 	//销售总金额
 	private Double sailPrice;
-	
+
+
+	//采购付款申请单编码(新) 2023.2.14
+	private String newItemNo;
 
 }

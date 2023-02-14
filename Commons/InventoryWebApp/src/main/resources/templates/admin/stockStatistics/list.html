@@ -189,6 +189,8 @@
 													th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'">供应商</th>
 												<th class="numeric itemNo"
 													th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'">采购付款申请单编码</th>
+												<th class="numeric newItemNo"
+													th:style="${#lists.contains(listColums,'newItemNo')}?'':'display:none;'">采购付款申请单编码(新)</th>
 												<th class="numeric stockName"
 													th:style="${#lists.contains(listColums,'stockName')}?'':'display:none;'">设备名称</th>
 												<th class="numeric stockModel"
@@ -272,6 +274,8 @@
 													</td>
 													<td class="numeric itemNo" id="itemNo"
 														th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'">[[${stockStatistics?.stock?.itemNo}]]</td>
+													<td class="numeric newItemNo" th:id="|newItemNo_${stockStatistics?.id}|"   th:ondblclick="|return change('${stockStatistics?.id}','newItemNo')|"
+														th:style="${#lists.contains(listColums,'newItemNo')}?'':'display:none;'">[[${stockStatistics?.newItemNo}]]</td>
 													<td class="numeric stockName" id="stockName"
 														th:style="${#lists.contains(listColums,'stockName')}?'':'display:none;'"
 														th:title="${stockStatistics?.stock?.name}"
@@ -448,6 +452,8 @@
 													th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'"></th>
 												<th class="numeric itemNo"
 													th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'"></th>
+												<th class="numeric newItemNo"
+													th:style="${#lists.contains(listColums,'newItemNo')}?'':'display:none;'"></th>
 												<th class="numeric stockName"
 													th:style="${#lists.contains(listColums,'stockName')}?'':'display:none;'"></th>
 												<th class="numeric stockModel"
@@ -457,13 +463,13 @@
 												<th class="numeric storageTime"
 													th:style="${#lists.contains(listColums,'storageTime')}?'':'display:none;'"></th>
 												<th class="numeric inNum"
-													th:style="${#lists.contains(listColums,'inNum')}?'':'display:none;'"></th>
+													th:style="${#lists.contains(listColums,'inNum')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![inOrOut?num:0])}]]</th>
 												<th class="numeric depotTime"
 													th:style="${#lists.contains(listColums,'depotTime')}?'':'display:none;'"></th>
 												<th class="numeric outNum"
-													th:style="${#lists.contains(listColums,'outNum')}?'':'display:none;'"></th>
+													th:style="${#lists.contains(listColums,'outNum')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![inOrOut?0:num])}]]</th>
 												<th class="numeric newNum"
-													th:style="${#lists.contains(listColums,'newNum')}?'':'display:none;'"></th>
+													th:style="${#lists.contains(listColums,'newNum')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![newNum==null?0:newNum])}]]</th>
 												<th class="numeric revokeNum"
 													th:style="${#lists.contains(listColums,'revokeNum')}?'':'display:none;'"></th>
 												<th class="numeric personInCharge"
@@ -475,7 +481,7 @@
 												<th class="numeric inprice" id="heji"
 													th:style="${#lists.contains(listColums,'inprice')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![inprice==null?0:inprice])}]]</th>
 												<th class="numeric sailPrice"
-													th:style="${#lists.contains(listColums,'sailPrice')}?'':'display:none;'"></th>
+													th:style="${#lists.contains(listColums,'sailPrice')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![sailPrice==null?0:sailPrice])}]]</th>
 												<th class="numeric sailesInvoiceNo"
 													th:style="${#lists.contains(listColums,'sailesInvoiceNo')}?'':'display:none;'"></th>
 												<th class="numeric sailesInvoiceDate"
