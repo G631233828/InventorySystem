@@ -57,6 +57,15 @@
 												<label class="col-lg-4  text-info " >销售发票开具日期：
 												<input onchange="return getitem('it5')" name="item" type="checkbox"  class="numeric" value="5">
 												</label>
+
+												<label class="col-lg-4  text-info " >采购付款申请单编码(新)：
+													<input onchange="return getitem('it6')" name="item" type="checkbox"  class="numeric" value="6">
+												</label>
+
+												<label class="col-lg-4  text-info " >采购发票到票时间：
+													<input onchange="return getitem('it7')" name="item" type="checkbox"  class="numeric" value="7">
+												</label>
+
 												
 											</div>
 										</div>
@@ -115,6 +124,26 @@
 											<div class="col-lg-8 ">
 												<input type="text" class="form-control datepicker" readonly="readonly"
 													name="sailesInvoiceDate" id="_it5">
+											</div>
+										</div>
+									</div>
+
+									<div class="form-group" id="it6" style="display: none;">
+										<div class="row">
+											<label class="col-lg-3  text-info " >采购付款申请单编码(新)：</label>
+											<div class="col-lg-8 ">
+												<input type="text" class="form-control"
+													   name="newItemNo" id="_it6">
+											</div>
+										</div>
+									</div>
+
+									<div class="form-group" id="it7" style="display: none;">
+										<div class="row">
+											<label class="col-lg-3  text-info " >采购发票到票时间：</label>
+											<div class="col-lg-8 ">
+												<input type="text" class="form-control datepicker" readonly="readonly"
+													   name="purchaseInvoiceDate" id="_it7">
 											</div>
 										</div>
 									</div>

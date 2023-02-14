@@ -536,7 +536,8 @@ public class StockStatisticsController {
 			@RequestParam(value = "sailesInvoiceNo", defaultValue = "null") String sailesInvoiceNo,
 			@RequestParam(value = "sailesInvoiceDate", defaultValue = "null") String sailesInvoiceDate,
 			@RequestParam(value = "purchaseInvoiceDate", defaultValue = "null") String purchaseInvoiceDate,
-			 @RequestParam(value = "sailPrice", defaultValue = "null") String sailPrice
+			@RequestParam(value = "sailPrice", defaultValue = "null") String sailPrice,
+			@RequestParam(value = "newItemNo", defaultValue = "null") String newItemNo
 			) {
 		
 			Double dinprice=null;
@@ -566,7 +567,7 @@ public class StockStatisticsController {
 		}
 			User user = (User) session.getAttribute(Contents.USER_SESSION);
 			this.stockStatisticsService.updateStockStatistics(stockid, dinprice, purchaseInvoiceNo, receiptNo, paymentOrderNo,sailesInvoiceNo,sailesInvoiceDate,user,
-					purchaseInvoiceDate,dsailPrice);
+					purchaseInvoiceDate,dsailPrice,newItemNo);
 			
 			return new BasicDataResult(200, "修改统计数据成功", "");
 		
