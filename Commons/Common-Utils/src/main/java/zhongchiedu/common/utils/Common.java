@@ -1145,7 +1145,10 @@ public class Common {
 	 * @param str
 	 * @return
 	 */
-	public static boolean isInteger(String str) {  
+	public static boolean isInteger(String str) {
+		if(Common.isEmpty(str)){
+			return true;
+		}
         Pattern pattern = Pattern.compile("^[0-9]+(\\.?[0-9]+)?$");  
         return pattern.matcher(str).matches();  
   }

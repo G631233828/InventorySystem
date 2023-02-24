@@ -22,7 +22,7 @@ public interface StockStatisticsService extends GeneralService<StockStatistics> 
 	public Pagination<StockStatistics> findpagination(Integer pageNo,Integer pageSize,String search,String start,String end,String type,String id,String searchArea,String searchAgent,String userId,String revoke);
 	
 	public BasicDataResult inOrOutstockStatistics(StockStatistics stockStatistics,User user);
-	
+		
 	public long updateStock(Stock stock,long num,boolean inOrOut);
 	
 	public BasicDataResult revoke(String id);
