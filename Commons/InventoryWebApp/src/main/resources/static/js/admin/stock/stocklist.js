@@ -368,7 +368,23 @@ function toExport() {
 	var searchAgent = $("#agent").val();
 
 
-	window.location.href = "stock/export?areaId=" + areaId + "&searchAgent=" + searchAgent;
+	window.location.href = "stock/exportTJ?areaId=" + areaId + "&searchAgent=" + searchAgent;
+
+
+}
+
+
+function toExportTJ() {
+	jqueryAlert({
+		'icon': getRootPath() + '/plugs/alert/img/right.png',
+		'content': "正在导出请稍等...",
+		'closeTime': 5000,
+	})
+	var areaId = $("#searchArea").val();
+	var searchAgent = $("#agent").val();
+
+
+	window.location.href = "stock/exportTJ?areaId=" + areaId + "&searchAgent=" + searchAgent;
 
 
 }

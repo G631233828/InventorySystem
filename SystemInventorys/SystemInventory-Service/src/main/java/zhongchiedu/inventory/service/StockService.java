@@ -40,11 +40,13 @@ public interface StockService extends GeneralService<Stock> {
 	
 	public String upload( HttpServletRequest request, HttpSession session);
 	
-	public Stock findByName(String areaName,String name,String model,String entryName);
+	public Stock findByName(String areaName,String name,String model,String supplierName);
 	
 	public BasicDataResult findOneById(String id);
 	
 	public HSSFWorkbook export(String name,String areaId,String searchAgent);
+
+	public HSSFWorkbook exportTJ(String name,String areaId,String searchAgent);
 	
 	public List<Stock> findLowStock(int num);
 	

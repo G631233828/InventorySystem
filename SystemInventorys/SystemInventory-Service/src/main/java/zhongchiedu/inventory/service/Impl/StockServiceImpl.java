@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -507,7 +508,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				importStock.setAgent(agent=="是");
 				
 
-				stock = this.findByName(areaName,name, model, entryName);
+				stock = this.findByName(areaName,name, model, supplierName);
 				
 				 StockStatistics stockStatistics = new StockStatistics();//
 				 stockStatistics.setNum(importStock.getStocknum());//
@@ -609,21 +610,24 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	}
 
 	/**
-	 * 查找区域信息跟设备名称型号是否有冲突的
+	 * 区域，设备名称、型号，供应商
 	 */
 	@Override
-	public Stock findByName(String areaName,String name, String model,String entryName) {
+	public Stock findByName(String areaName,String name, String model,String supplierName) {
 		//获取areaid信息
 		Area area = this.areaService.findByName(areaName);
+		Supplier supplier=this.supplierService.findByName(supplierName);
 		Query query = new Query();
 		if (Common.isNotEmpty(area.getId())) {
 			query.addCriteria(Criteria.where("area.$id").is(new ObjectId(area.getId())));
 		}
+		if(Common.isNotEmpty(supplier.getId())){
+			query.addCriteria(Criteria.where("supplier.$id").is(new ObjectId(supplier.getId())));
+		}
+
 		query.addCriteria(Criteria.where("name").is(name));
 		query.addCriteria(Criteria.where("model").is(model));
-		if(Common.isNotEmpty(entryName)) {
-			query.addCriteria(Criteria.where("entryName").is(entryName));
-		}
+
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		Stock stock = this.findOneByQuery(query, Stock.class);
 		/*
@@ -653,7 +657,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		// 创建sheet
 		HSSFSheet sheet = wb.createSheet(name);
 		HSSFCellStyle style = createStyle(wb);
-		List<String> title = this.title();
+		List<String> title = this.title(true);
 		this.createHead(sheet, title, style, name);
 		this.createTitle(sheet, title, style);
 		this.createStock(sheet, title, style, areaId,searchAgent);
@@ -661,6 +665,26 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		sheet.autoSizeColumn(1, true);
 		return wb;
 	}
+
+	@Override
+	@SystemServiceLog(description = "导出库存量总和表")
+	public HSSFWorkbook exportTJ(String name, String areaId,String searchAgent) {
+		HSSFWorkbook wb = new HSSFWorkbook();
+		// 创建sheet
+		HSSFSheet sheet = wb.createSheet(name);
+		HSSFCellStyle style = createStyle(wb);
+		List<String> title = this.title(false);
+		this.createHead(sheet, title, style, name);
+		this.createTitle(sheet, title, style);
+		this.createStockTJ(sheet, title, style, areaId,searchAgent);
+		sheet.setDefaultColumnWidth(12);
+		sheet.autoSizeColumn(1, true);
+		return wb;
+	}
+
+
+
+
 
 	/**
 	 * 创建样式
@@ -805,26 +829,104 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 	}
 
+
+	public void createStockTJ(HSSFSheet sheet, List<String> title, HSSFCellStyle style, String areaId,String searchAgent) {
+
+		int j = 1;
+		// 获取所有的库存
+		List<Stock> list = this.findAllStock(false, areaId,searchAgent);
+
+		Map<String, List<Stock>> stocks=list.stream().collect(Collectors.groupingBy(stock -> fetchGroupKey(stock)));
+
+		for(String key:stocks.keySet()){
+			//区域，设备名称和型号相同的库存量总和
+			if(Common.isNotEmpty(key)){
+			Long sums=stocks.get(key).stream().mapToLong(Stock::getInventory).sum();
+            String[] ss=key.split("_");
+			String area=ss[0];
+			String name=ss[1];
+			String model=Common.isNotEmpty(ss[2])?ss[2]:"";
+
+			String unit=Common.isNotEmpty(stocks.get(key).get(0).getUnit())?stocks.get(key).get(0).getUnit().getName():"单位空";
+
+
+			HSSFRow row = sheet.createRow(j + 1);
+
+			HSSFCell cell = row.createCell(0);
+			cell.setCellStyle(style);
+			cell.setCellValue(area);
+
+			cell = row.createCell(1);
+			cell.setCellStyle(style);
+			cell.setCellValue(name);
+
+
+			cell = row.createCell(2);
+			cell.setCellStyle(style);
+			cell.setCellValue(model);
+
+
+			cell = row.createCell(3);
+			cell.setCellStyle(style);
+			cell.setCellValue(unit);
+
+
+			cell = row.createCell(4);
+			cell.setCellStyle(style);
+			cell.setCellValue(sums);
+
+			j++;
+			}
+		}
+
+
+	}
+
+
+
+	/**
+	 * 根据区域，设备名称和设备型号分组
+	 * @param stock
+	 * @return
+	 */
+	private String fetchGroupKey(Stock stock){
+		String areaname=Common.isNotEmpty(stock.getArea().getName())?stock.getArea().getName():"区域空";
+		String name=Common.isNotEmpty(stock.getName())?stock.getName():"设备名为空";
+		String model=Common.isNotEmpty(stock.getModel())?stock.getModel():"设备型号为空";
+		return areaname+"_"+name+"_"+model;
+	}
+
+
 	/**
 	 * 设置title
 	 * 
 	 * @return
 	 */
-	public List<String> title() {
+	public List<String> title(boolean a) {
 		List<String> list = new ArrayList<>();
-		list.add("区域");
-		list.add("物料代码(*)");
-		list.add("设备名称");
-		list.add("品名型号");
-		list.add("使用范围");
-		list.add("货架号/层");
-		list.add("计量单位 ");
-		list.add("单价");
-		list.add("当前库存");
-		list.add("总价");
-		list.add("代理商品");
+		if(a){
+			list.add("区域");
+			list.add("物料代码(*)");
+			list.add("设备名称");
+			list.add("设备型号");
+			list.add("使用范围");
+			list.add("货架号/层");
+			list.add("计量单位 ");
+			list.add("单价");
+			list.add("当前库存");
+			list.add("总价");
+			list.add("代理商品");
+		}else{
+			list.add("区域");
+			list.add("设备名称");
+			list.add("设备型号");
+			list.add("计量单位");
+			list.add("当前库存");
+		}
 		return list;
 	}
+
+
 
 	@Override
 	@SystemServiceLog(description = "查询低库存量信息")

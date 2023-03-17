@@ -453,7 +453,36 @@ public class StockController {
 		}
 
 	}
-	
+
+	/**
+	 * 导出库存报表库存量统计
+	 * @param response
+	 * @param areaId
+	 * @param searchAgent
+	 */
+	@RequestMapping(value = "/stock/exportTJ")
+	public void exportStockTJ(HttpServletResponse response,
+							@RequestParam(value = "areaId", defaultValue = "") String areaId,
+							@RequestParam(value = "searchAgent", defaultValue = "") String searchAgent) {
+		try {
+			response.setContentType("application/vnd.ms-excel");
+			String name = Common.fromDateYM() + "库存报表TJ";
+			String fileName = new String((name).getBytes("gb2312"), "ISO8859-1");
+			HSSFWorkbook wb = this.stockService.exportTJ(name, areaId,searchAgent);
+			response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xls");
+			OutputStream ouputStream = response.getOutputStream();
+			wb.write(ouputStream);
+			ouputStream.flush();
+			ouputStream.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+
+
+
 	
 	@Value("${upload.savedir}")
 	private String dir;
