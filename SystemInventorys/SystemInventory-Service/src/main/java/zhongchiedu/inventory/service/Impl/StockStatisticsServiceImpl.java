@@ -49,11 +49,7 @@ import cn.afterturn.easypoi.entity.ImageEntity;
 import cn.afterturn.easypoi.excel.ExcelExportUtil;
 import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import lombok.extern.slf4j.Slf4j;
-import zhongchiedu.common.utils.BasicDataResult;
-import zhongchiedu.common.utils.Common;
-import zhongchiedu.common.utils.Contents;
-import zhongchiedu.common.utils.MatrixToImageWriter;
-import zhongchiedu.common.utils.WordUtil;
+import zhongchiedu.common.utils.*;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralServiceImpl;
 import zhongchiedu.general.pojo.MultiMedia;
@@ -511,10 +507,16 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 						if (st.isInOrOut()) {
 							// 入库统计
 							Map<String, Object> in = new HashMap<>();
+							//设备名称+型号+计量单位
+							String str=(Common.isEmpty(st.getStock().getName()) ? "" : st.getStock().getName())
+									+(Common.isEmpty(st.getStock().getModel()) ? "" : st.getStock().getModel())
+									+(Common.isEmpty(st.getStock().getUnit()) ? "" : st.getStock().getUnit().getName());
+
 							in.put("itemNo", Common.isEmpty(stock.getItemNo()) ? "" : stock.getItemNo());
-							in.put("id", Common.isEmpty(st.getId()) ? "" : st.getId());
+//							in.put("id", Common.isEmpty(st.getId()) ? "" : st.getId());
+							in.put("id",createIdByStr(str));
 							inN++;
-							in.put("dj",createDJ(end,inN,"RK"));
+							in.put("dj",createDJ(end,inN,""));
 							in.put("cg","赊购");
 							in.put("area", Common.isEmpty(stock.getArea()) ? "" : stock.getArea().getName());
 							in.put("projectName", Common.isEmpty(st.getProjectName()) ? "" : st.getProjectName());
@@ -539,10 +541,16 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 							inlist.add(in);
 						} else {
 							Map<String, Object> out = new HashMap<>();
+							//设备名称+型号+计量单位
+							String str=(Common.isEmpty(st.getStock().getName()) ? "" : st.getStock().getName())
+									+(Common.isEmpty(st.getStock().getModel()) ? "" : st.getStock().getModel())
+									+(Common.isEmpty(st.getStock().getUnit()) ? "" : st.getStock().getUnit().getName());
+
 							out.put("itemNo", Common.isEmpty(stock.getItemNo()) ? "" : stock.getItemNo());
-							out.put("id", Common.isEmpty(st.getId()) ? "" : st.getId());
+//							out.put("id", Common.isEmpty(st.getId()) ? "" : st.getId());
+							out.put("id",createIdByStr(str));
 							OutN++;
-							out.put("dj",createDJ(end,OutN,"CK"));
+							out.put("dj",createDJ(end,OutN,""));
 							out.put("fs","赊销");
 							out.put("area", Common.isEmpty(stock.getArea()) ? "" : stock.getArea().getName());
 							out.put("projectName", Common.isEmpty(st.getProjectName()) ? "" : st.getProjectName());
@@ -597,6 +605,12 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	public String createDJ(String end,Integer i,String  tou){
 		String endnew=end.replace("-","").substring(0,8);
 		return tou+endnew + StringUtils.leftPad(String.valueOf(i), 8, '0');
+	}
+
+
+	public String createIdByStr(String str){
+		String newStr=str.replace(".","");
+		return PinyinTool.getPinYinHeadChar(newStr);
 	}
 
 	public BigDecimal devide(Double price,long num1){

@@ -508,7 +508,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				importStock.setAgent(agent=="是");
 				
 
-				stock = this.findByName(areaName,name, model, supplierName);
+				stock = this.findByName(areaName,name, model, entryName);
 				
 				 StockStatistics stockStatistics = new StockStatistics();//
 				 stockStatistics.setNum(importStock.getStocknum());//
@@ -609,11 +609,43 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 	}
 
+
 	/**
-	 * 区域，设备名称、型号，供应商
+	 *   查找区域信息，设备名称，型号是否有冲突
+	 */
+
+	@Override
+	public Stock findByName(String areaName,String name,String model,String entryName){
+		Area area = this.areaService.findByName(areaName);
+
+		Query query = new Query();
+		if (Common.isNotEmpty(area.getId())) {
+			query.addCriteria(Criteria.where("area.$id").is(new ObjectId(area.getId())));
+		}
+
+
+		query.addCriteria(Criteria.where("name").is(name));
+		query.addCriteria(Criteria.where("model").is(model));
+
+		if (Common.isNotEmpty(entryName)) {
+			query.addCriteria(Criteria.where("entryName").is(entryName));
+		}
+
+		query.addCriteria(Criteria.where("isDelete").is(false));
+		Stock stock = this.findOneByQuery(query, Stock.class);
+		/*
+		 * if(Common.isEmpty(stock)){ Stock ca = new Stock(); ca.setName(name);
+		 * this.insert(ca); return ca; }
+		 */
+		return stock;
+	}
+
+
+	/**
+	 * 根据区域，设备名称、型号，供应商
 	 */
 	@Override
-	public Stock findByName(String areaName,String name, String model,String supplierName) {
+	public Stock findByNameSupplier(String areaName,String name, String model,String supplierName) {
 		//获取areaid信息
 		Area area = this.areaService.findByName(areaName);
 		Supplier supplier=this.supplierService.findByName(supplierName);

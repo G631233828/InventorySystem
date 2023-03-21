@@ -39,9 +39,13 @@ public interface StockService extends GeneralService<Stock> {
 	public String BatchImport(File file, int row, HttpSession session);
 	
 	public String upload( HttpServletRequest request, HttpSession session);
-	
-	public Stock findByName(String areaName,String name,String model,String supplierName);
-	
+
+
+	public Stock findByName(String areaName,String name,String model,String entryName);
+
+	public Stock findByNameSupplier(String areaName,String name,String model,String supplierName);
+
+
 	public BasicDataResult findOneById(String id);
 	
 	public HSSFWorkbook export(String name,String areaId,String searchAgent);
