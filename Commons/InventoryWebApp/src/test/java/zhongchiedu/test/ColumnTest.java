@@ -42,6 +42,7 @@ public class ColumnTest {
 
 		
 		BasicDataResult result = this.columnService.editColumns("supplier", "name",true,null);
+		System.out.println(result);
 		
 	}
 

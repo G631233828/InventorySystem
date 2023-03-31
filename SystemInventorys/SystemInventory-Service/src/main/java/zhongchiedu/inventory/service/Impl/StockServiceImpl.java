@@ -1134,11 +1134,11 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			try {
 				Hashtable<EncodeHintType, String> hints = new Hashtable<EncodeHintType, String>();
 				hints.put(EncodeHintType.CHARACTER_SET, "utf-8"); // 内容所使用字符集编码
-				String urlpath = "wechat/cargoFromStorage/" + stockId;
+				String urlpath = "wechat/cargoFromStorage/"+ stockId;
 				String url = weburl + urlpath;
 				BitMatrix bitMatrix = new MultiFormatWriter().encode(url, BarcodeFormat.QR_CODE, width, height, hints);
 				// 生成二维码
-				String path = dir + qrcodepath + "/";
+				String path = dir + qrcodepath + File.separator;
 				Common.checkPathAndMkdirs(path);
 				String fn = (stock.getName()+stock.getModel()).replace("\\", "").replace("/", "").replace("*", "x").replace(":", "").replace("\"", "").replace("|", "").replace("<", "").replace(">", "");
 				File outputFile = new File(path +fn + stock.getId() + ".png");

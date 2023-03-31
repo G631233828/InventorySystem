@@ -4,10 +4,12 @@ wx:
       - appId: wx40d294a89bcd9fcb
         secret: e48b8b33730cb8bf7ed2aa26e671549b
         token: zhongchi
-        aesKey: HbQ8Z0VJjGXgc5AmyuBMpqmDDj2YJJgNEPVFrDbjoZ2        tmpDirFile: D://AAA
+        aesKey: HbQ8Z0VJjGXgc5AmyuBMpqmDDj2YJJgNEPVFrDbjoZ2#        tmpDirFile: D://AAA
+        tmpDirFile: /zc/
         
    
-    server-url: http://zhongchiedu.com
+    server-url: http://zhongchi.top
+#    server-url: http://zhongchiedu.com
     #server-url: http://m7xm9x.natappfree.cc
 
 logging:
@@ -23,11 +25,13 @@ qrcode:
   height: 300
   width: 300
   #weburl: http://m7xm9x.natappfree.cc/WXWebApp/
-  weburl: http://zhongchiedu.com/WXWebApp/
+  weburl: http://zhongchi.top/WXWebApp/
+#  weburl: http://zhongchiedu.com/WXWebApp/
   format: png
   qrcodepath: upload/qrcode/
 upload:
-  savedir: D:/
+  savedir: /zc/
+#  savedir: D:/
 #图片列表配置
   qrCode: upload/qrcode/
 #预入库
