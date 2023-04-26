@@ -30,6 +30,7 @@ import zhongchiedu.general.pojo.User;
 import zhongchiedu.inventory.pojo.ProjectPickup;
 import zhongchiedu.inventory.pojo.Stock;
 import zhongchiedu.inventory.pojo.StockStatistics;
+import zhongchiedu.inventory.service.Impl.NewCustomerServiceImpl;
 import zhongchiedu.inventory.service.ProjectPickupService;
 import zhongchiedu.inventory.service.SignService;
 import zhongchiedu.inventory.service.StockService;
@@ -70,6 +71,9 @@ public class ProjectPickupController {
 
 	@Autowired
 	private StockService stockService;
+
+	@Autowired
+	private NewCustomerServiceImpl newCustomerService;
 	
 	/**
 	 * 出库页面 （扫码进去）
@@ -100,8 +104,8 @@ public class ProjectPickupController {
 		//获取库存商品信息
 		Stock stock = this.stockService.findOneById(stockId, Stock.class);
 		model.addAttribute("stock", stock);
-		
-		
+		BasicDataResult dr=this.newCustomerService.ajaxgetCustomer("幼儿园");
+		model.addAttribute("dr",dr);
 		// 通过code获取微信相关信息
 		WxOAuth2Service oAuth2Service = this.wxMpService.getOAuth2Service();
 		WxOAuth2AccessToken accessToken;

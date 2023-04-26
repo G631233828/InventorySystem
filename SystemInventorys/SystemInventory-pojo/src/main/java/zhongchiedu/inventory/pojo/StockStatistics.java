@@ -105,4 +105,11 @@ public class StockStatistics extends GeneralBean<StockStatistics> {
 	//采购付款申请单编码(新) 2023.2.14
 	private String newItemNo;
 
+	@DBRef
+	private NewCustomer newCustomer;
+
+	private String accepter; //签收人 +
+
+	private Boolean confirm; //是否确认
+
 }

@@ -120,6 +120,13 @@
                                             <tr>
                                                 <td class="numeric">采购付款申请单编码(新)</td>
                                                 <td class="numeric" onclick="return selectColumn('newItemNo');"><input type="checkbox" th:checked="${#lists.contains(listColums,'newItemNo')}?'checked':'false'" id="ch_newItemNo"></td>
+                                                <td class="numeric">领料人</td>
+                                                <td class="numeric" onclick="return selectColumn('accepter');"><input type="checkbox" th:checked="${#lists.contains(listColums,'accepter')}?'checked':'false'" id="ch_accepter"></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="numeric">出库单号</td>
+                                                <td class="numeric" onclick="return selectColumn('outboundOrder');"><input type="checkbox" th:checked="${#lists.contains(listColums,'outboundOrder')}?'checked':'false'" id="ch_outboundOrder"></td>
+
                                             </tr>
                                            
                                         </tbody>

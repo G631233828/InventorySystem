@@ -233,8 +233,8 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 					  Criteria.where("goodsStorage.$id").in(goodsStorage),
 					  Criteria.where("supplier.$id").in(suppliersId),
 					  Criteria.where("brand.$id").in(brand),
-					  Criteria.where("name").regex(search),
-					Criteria.where("model").regex(search), Criteria.where("scope").regex(search),
+					  Criteria.where("name").regex(search, "i"),
+					Criteria.where("model").regex(search, "i"), Criteria.where("scope").regex(search),
 					Criteria.where("entryName").regex(search),Criteria.where("itemNo").regex(search),
 					Criteria.where("projectLeader").regex(search))
 					);

@@ -72,6 +72,8 @@ public class StockStatisticsController {
 
 	private @Autowired AreaServiceImpl areaService;
 
+
+
 	@GetMapping("stockStatisticss")
 	@RequiresPermissions(value = "stockStatistics:list")
 	@SystemControllerLog(description = "查询库存统计")
@@ -100,7 +102,7 @@ public class StockStatisticsController {
 //		model.addAttribute("stlist", datas);
 		User user = (User) session.getAttribute(Contents.USER_SESSION);
 		List<String> listColums = this.columnService.findColumns("stockStatistics",user.getId());
-		
+
 		model.addAttribute("listColums", listColums);
 		model.addAttribute("search", search);
 		model.addAttribute("revoke", revoke);
@@ -143,7 +145,7 @@ public class StockStatisticsController {
 	@RequiresPermissions(value = "stockStatistics:out")
 	@SystemControllerLog(description = "设备出库")
 	public BasicDataResult batchOut(String batchid, String batchnum, String batchdescription,
-			String batchpersonInCharge, String batchprojectName, String batchcustomer, HttpSession session) {
+			String batchpersonInCharge, String batchprojectName, String batchcustomer,String accepter, HttpSession session) {
 
 		String[] ids = batchid.split(",");
 		String[] nums = batchnum.split(",");
@@ -162,6 +164,7 @@ public class StockStatisticsController {
 			StockStatistics st = new StockStatistics();
 			st.setStock(stock);
 			st.setNum(Long.valueOf(batchnumList.get(i)));
+			st.setAccepter(accepter);
 			st.setPersonInCharge(batchpersonInCharge);
 			st.setProjectName(batchprojectName);
 			st.setCustomer(batchcustomer);

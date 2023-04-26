@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -143,7 +144,6 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 	@SystemServiceLog(description = "条件查询库统计信息")
 	public Query findbySearch(String search, String start, String end, String type, Query query, String areaId) {
-
 		Criteria ca = new Criteria();
 		Criteria ca1 = new Criteria();
 		Criteria ca2 = new Criteria();
@@ -159,6 +159,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		}
 
 		if (Common.isNotEmpty(search)) {
+
 			List<Object> stockId = this.findStocks(search);
 			List<Object> userId = this.findUsers(search);
 			ca1.orOperator(Criteria.where("stock.$id").in(stockId), Criteria.where("user.$id").in(userId),
@@ -166,6 +167,9 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 					Criteria.where("projectName").regex(search), Criteria.where("customer").regex(search),
 					Criteria.where("sailesInvoiceNo").regex(search), Criteria.where("inprice").regex(search),
 					Criteria.where("purchaseInvoiceNo").regex(search), Criteria.where("receiptNo").regex(search),
+					Criteria.where("newItemNo").regex(search),
+					Criteria.where("outboundOrder").regex(search),
+					Criteria.where("accepter").regex(search),
 					Criteria.where("paymentOrderNo").regex(search));
 		}
 
@@ -197,10 +201,14 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		Query query = new Query();
 		List<Object> findSupplierIds = this.supplierService.findSupplierIds(search);
 		Criteria ca = new Criteria();
-		query.addCriteria(ca.orOperator(Criteria.where("name").regex(search), Criteria.where("model").regex(search),
+		ca.orOperator(
 				Criteria.where("entryName").regex(search), Criteria.where("itemNo").regex(search),
+				Criteria.where("name").regex(search,"i"),
 				Criteria.where("supplier.$id").in(findSupplierIds),
-				Criteria.where("projectLeader").regex(search)));
+				Criteria.where("projectLeader").regex(search),
+				Criteria.where("model").regex(search,"i"));
+//				Criteria.where("model").regex("^" +search.replace("*",".*") + "$", "i"));
+		query.addCriteria(ca);
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		List<Stock> lists = this.stockService.find(query, Stock.class);
 		for (Stock li : lists) {
@@ -248,7 +256,6 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	@Override
 	@SystemServiceLog(description = "库存出库入库")
 	public BasicDataResult inOrOutstockStatistics(StockStatistics stockStatistics, User user) {
-
 		long num = stockStatistics.getNum();
 		if (num <= 0) {
 			return BasicDataResult.build(400, "操作的数据有误！", null);
@@ -272,12 +279,14 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 				return BasicDataResult.build(200, "商品入库成功", stockStatistics);
 			} else {
+
 				// 出库
 				long newNum = this.updateStock(stock, num, false);
 				if (newNum == -1) {
 					// 出货数量不够
 					return BasicDataResult.build(400, "货物库存数量不足", null);
 				}
+
 				stockStatistics.setDepotTime(Common.fromDateH());
 				stockStatistics.setNewNum(newNum);
 				lockInsert(stockStatistics);
@@ -431,6 +440,8 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 //									: st.getStock().getPaymentOrderNo());
 							in.put("supplier", Common.isEmpty(st.getStock().getSupplier()) ? ""
 									: st.getStock().getSupplier().getName());
+							in.put("purchaseInvoiceDate", Common.isEmpty(st.getPurchaseInvoiceDate()) ? ""
+									: st.getPurchaseInvoiceDate());
 							inlist.add(in);
 						} else {
 							Map<String, Object> out = new HashMap<>();
@@ -453,6 +464,8 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 //							out.put("receiptNo",
 //									Common.isEmpty(st.getStock().getReceiptNo()) ? "" : st.getStock().getReceiptNo());
 							out.put("customer", Common.isEmpty(st.getCustomer()) ? "" : st.getCustomer());
+							out.put("purchaseInvoiceDate", Common.isEmpty(st.getPurchaseInvoiceDate()) ? ""
+									: st.getPurchaseInvoiceDate());
 							outlist.add(out);
 
 						}
@@ -535,8 +548,8 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 							in.put("supplier", Common.isEmpty(st.getStock().getSupplier()) ? ""
 									: st.getStock().getSupplier().getName());
 
-//							in.put("paymentOrderNo", Common.isEmpty(st.getStock().getPaymentOrderNo()) ? ""
-//									: st.getStock().getPaymentOrderNo());
+							in.put("purchaseInvoiceDate", Common.isEmpty(st.getPurchaseInvoiceDate()) ? ""
+									: st.getPurchaseInvoiceDate());
 
 							inlist.add(in);
 						} else {
@@ -570,6 +583,8 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 							out.put("receiptNo",
 									Common.isEmpty(st.getReceiptNo()) ? "" : st.getReceiptNo());
 							out.put("customer", Common.isEmpty(st.getCustomer()) ? "" : st.getCustomer());
+							out.put("purchaseInvoiceDate", Common.isEmpty(st.getPurchaseInvoiceDate()) ? ""
+									: st.getPurchaseInvoiceDate());
 							outlist.add(out);
 
 						}
@@ -1243,6 +1258,8 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			outmap.put("newprice",qmdj);
 			outmap.put("newinventory",qmnum);
 			outmap.put("newpriceall",qmzj);
+			outmap.put("purchaseInvoiceDate", Common.isEmpty(gs.getPurchaseInvoiceDate()) ? ""
+					: gs.getPurchaseInvoiceDate());
 			outlist.add(outmap);
 		
 		}
