@@ -19,8 +19,10 @@ wx:
         secret: e48b8b33730cb8bf7ed2aa26e671549b
         token: zhongchi
         aesKey: HbQ8Z0VJjGXgc5AmyuBMpqmDDj2YJJgNEPVFrDbjoZ2
-        tmpDirFile: D://AAA
-    server-url: http://zhongchiedu.com
+#        tmpDirFile: D://AAA
+        tmpDirFile: /zc/
+#    server-url: http://zhongchiedu.com
+    server-url: http://zhongchi.top
     #server-url: http://m7xm9x.natappfree.cc
 ##预入库之后发送通知处理
 
@@ -32,7 +34,8 @@ templateId: C13mVUYAhCV40w12DFrEnvFmuRRErQliLUMbRle4eic
 qrcode:
   height: 300
   width: 300
-  weburl: http://zhongchiedu.com/WXWebApp/
+  #weburl: http://zhongchiedu.com/WXWebApp/
+  weburl: http://zhongchi.top/WXWebApp/
   #weburl: http://m7xm9x.natappfree.cc/WXWebApp/
   format: png
   qrcodepath: upload/qrcode/
@@ -40,7 +43,8 @@ qrcode:
 
 
 upload:
-  savedir: D:/
+  #savedir: D:/
+  savedir: /zc/
 #图片列表配置
   qrCode: upload/qrcode/
 

@@ -500,7 +500,10 @@ public class StockController {
 		
 		List<Stock> list=null;
 		
-		if("所有库存二维码".equals(search.trim())) {
+		if(Common.isEmpty(search)) {
+			list = this.stockService.findStockByIds(id);
+		}
+		else if("所有库存二维码".equals(search.trim())) {
 			//获取所有库存二维码
 			list = this.stockService.findStockByType("1");
 		}else if("有库存二维码".equals(search.trim())) 

@@ -1,6 +1,7 @@
 package zhongchiedu.config;
 
 
+import java.io.File;
 import java.util.Collections;
 
 import javax.servlet.ServletContext;
@@ -35,9 +36,9 @@ public class MVCConfig extends WebMvcConfigurerAdapter {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
 //    	registry.addResourceHandler("/img/**").addResourceLocations("file:"+filepath+"/"); 
 //    	registry.addResourceHandler(savePath+"/**").addResourceLocations("file:"+savePath+"/");
-    	registry.addResourceHandler(imgpath+"/**").addResourceLocations("file:"+dir+imgpath+"/");
-    	registry.addResourceHandler(video+"/**").addResourceLocations("file:"+dir+video+"/");
-    	registry.addResourceHandler(qrcodepath+"/**").addResourceLocations("file:"+dir+qrcodepath+"/");
+    	registry.addResourceHandler(imgpath+"/**").addResourceLocations("file:"+dir+imgpath+File.separator);
+    	registry.addResourceHandler(video+"/**").addResourceLocations("file:"+dir+video+File.separator);
+    	registry.addResourceHandler(qrcodepath+"/**").addResourceLocations("file:"+dir+File.separator +qrcodepath+File.separator);
 	    	super.addResourceHandlers(registry);
 	    }
 		  
