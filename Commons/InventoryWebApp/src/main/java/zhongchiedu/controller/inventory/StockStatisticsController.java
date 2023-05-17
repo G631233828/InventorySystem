@@ -87,13 +87,14 @@ public class StockStatisticsController {
 			@RequestParam(value = "searchArea", defaultValue = "") String searchArea,
 			@RequestParam(value = "userId", defaultValue = "") String userId,
 			@RequestParam(value = "searchAgent", defaultValue = "") String searchAgent,
-			@RequestParam(value = "revoke", defaultValue = "") String revoke
+			@RequestParam(value = "revoke", defaultValue = "") String revoke,
+			@RequestParam(value = "confirm", defaultValue = "") String confirm
 			) {
 		// 区域
 		List<Area> areas = this.areaService.findAllArea(false);
 		model.addAttribute("areas", areas);
 		Pagination<StockStatistics> pagination = this.stockStatisticsService.findpagination(pageNo, pageSize, search,
-				start, end, type, id, searchArea, searchAgent,userId,revoke);
+				start, end, type, id, searchArea, searchAgent,userId,revoke,confirm);
 		model.addAttribute("pageList", pagination);
 		
 //		double sum = pagination.getDatas().stream().mapToDouble(StockStatistics::getInprice).sum();
@@ -114,7 +115,7 @@ public class StockStatisticsController {
 		model.addAttribute("searchArea", searchArea);
 		model.addAttribute("searchAgent", searchAgent);
 		model.addAttribute("userId", userId);
-		
+		model.addAttribute("confirm",confirm);
 		return "admin/stockStatistics/list";
 	}
 
@@ -207,6 +208,25 @@ public class StockStatisticsController {
 	public BasicDataResult revoke(@RequestParam(value = "id", defaultValue = "") String id) {
 		return this.stockStatisticsService.revoke(id);
 	}
+
+	@RequestMapping(value = "/stockStatistics/confirm", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	@SystemControllerLog(description = "核对")
+	@RequiresPermissions(value = "stockStatistics:confirm")
+	public BasicDataResult confirm(@RequestParam(value = "id", defaultValue = "") String id) {
+		if(id.contains(",")){
+			String[] ids = id.split(",");
+			for (String newid: ids) {
+				StockStatistics st = this.stockStatisticsService.findOneById(newid, StockStatistics.class);
+				st.setConfirm(true);
+				this.stockStatisticsService.save(st);
+			}
+			return BasicDataResult.build(200, "已核对", "");
+		}else{
+			return this.stockStatisticsService.confirm(id);
+		}
+	}
+
 
 	/**
 	 * 导出excel

@@ -18,13 +18,13 @@ function searchVal() {
 	var searchArea = $("#searchArea").val();
 	var searchAgent = $("#agent").val();
 	var revoke = $("#revoke").val();
-
+	var confirm = $("#confirm").val();
 	/*
 	 * if (search == null || search == "") { swal({ type : "warning", title :
 	 * "", text : "查询内容不能为空!!", }); return ; }
 	 */
 	window.location.href = "stockStatisticss?pageSize=" + pageSize + "&search="
-		+ search + "&start=" + start + "&end=" + end + " 23:59:59" + "&type=" + type + "&searchArea=" + searchArea + "&searchAgent=" + searchAgent+ "&revoke=" + revoke;
+		+ search + "&start=" + start + "&end=" + end + " 23:59:59" + "&type=" + type + "&searchArea=" + searchArea + "&searchAgent=" + searchAgent+ "&revoke=" + revoke + "&confirm=" + confirm;
 }
 // function searchSize() {
 //	
@@ -219,6 +219,62 @@ function revoke(o) {
 
 }
 
+function confirm(o) {
+
+
+	var M = {
+
+	}
+	if (M.dialog3) {
+		return M.dialog3.show();
+	}
+	M.dialog3 = jqueryAlert({
+		'title': '核对提醒',
+		'content': '您当前正在做核对的操作',
+		'modal': true,
+		'buttons': {
+			'确定': function() {
+				$.ajax({
+					type: 'GET',
+					url: 'stockStatistics/confirm',
+					data: "id=" + o,
+					dataType: 'json',
+					success: function(data) {
+						if (data.status == 200) {
+							//							$("#revokeNum").text(data.data.revokeNum);
+
+							$("#confirm_" + o).text("已核对");
+							$("#outbound" + o).hide();
+							$("#qrcode" + o).hide();
+							$("#ckcode" + o).hide();
+							var a='cx_'+o;
+							var  b='cwx_'+o;
+							$("button[name="+a+"]").hide();
+							$("button[name="+b+"]").hide();
+							$("#confirm" + o).addClass("danger")
+							M.dialog3.close();
+							jqueryAlert({
+								'content': data.msg
+							})
+						} else {
+							M.dialog3.close();
+							jqueryAlert({
+								'content': data.msg
+							})
+						}
+					}
+				})
+
+			},
+			'取消': function() {
+				M.dialog3.close();
+			}
+		}
+	})
+
+}
+
+
 //	
 //
 //	$(document).delegate(".btcancle", 'click', function() {
@@ -348,6 +404,83 @@ function editStockStatistics() {
 		}
 
 		$("#stockid").val(batchids);
+	}
+
+}
+
+function confirms(){
+	var a = $("input[name='ids']:checked").length;
+	if (a == 0) {
+		swal({
+			type: "warning",
+			title: "",
+			text: "批量核对库存统计信息至少选择一项!!",
+		});
+
+	} else{
+
+		var batchids = "";
+		var id = $("input[name='ids']:checked");
+		var str = "";
+		$(id).each(function() {
+			str += this.value + ",";
+		});
+		if (str != "") {
+			batchids = str.substring(0, str.length - 1);
+		}
+
+		var M = {
+
+		}
+		if (M.dialog3) {
+			return M.dialog3.show();
+		}
+		M.dialog3 = jqueryAlert({
+			'title': '核对提醒',
+			'content': '您当前正在做核对的操作',
+			'modal': true,
+			'buttons': {
+				'确定': function() {
+					$.ajax({
+						type: 'GET',
+						url: 'stockStatistics/confirm',
+						data: "id=" + batchids,
+						dataType: 'json',
+						success: function(data) {
+							if (data.status == 200) {
+
+								$(id).each(function() {
+								var o=this.value;
+								$("#confirm_" + o).text("已核对");
+								$("#outbound" + o).hide();
+								$("#qrcode" + o).hide();
+								$("#ckcode" + o).hide();
+								var a='cx_'+o;
+								var  b='cwx_'+o;
+								$("button[name="+a+"]").hide();
+								$("button[name="+b+"]").hide();
+								$("#confirm" + o).addClass("danger")
+								});
+								M.dialog3.close();
+								jqueryAlert({
+									'content': data.msg
+								})
+							} else {
+								M.dialog3.close();
+								console.log("失败"+batchids);
+								jqueryAlert({
+									'content': data.msg
+								})
+							}
+						}
+					})
+
+				},
+				'取消': function() {
+					M.dialog3.close();
+				}
+			}
+		})
 	}
 
 }

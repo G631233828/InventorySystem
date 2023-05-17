@@ -108,8 +108,9 @@ public class StockStatistics extends GeneralBean<StockStatistics> {
 	@DBRef
 	private NewCustomer newCustomer;
 
+
 	private String accepter; //签收人 +
 
-	private Boolean confirm; //是否确认
+	private Boolean confirm = false; //是否确认
 
 }

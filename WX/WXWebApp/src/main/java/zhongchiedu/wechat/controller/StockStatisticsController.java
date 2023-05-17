@@ -80,7 +80,7 @@ public class StockStatisticsController {
 			@RequestParam(value = "search", defaultValue = "") String search) {
 		
 		Pagination<StockStatistics> pagination = this.stockStatisticsService.findpagination(pageNo, pageSize, search,
-				"", "", "", "","","","","");
+				"", "", "", "","","","","","");
 		model.addAttribute("pageList", pagination);
 		model.addAttribute("search", search);
 

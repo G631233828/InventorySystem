@@ -107,7 +107,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	@Override
 	@SystemServiceLog(description = "分页查询库存统计信息")
 	public Pagination<StockStatistics> findpagination(Integer pageNo, Integer pageSize, String search, String start,
-			String end, String type, String id, String searchArea, String searchAgent,String userId,String revoke) {
+			String end, String type, String id, String searchArea, String searchAgent,String userId,String revoke,String confirm) {
 
 		// 分页查询数据
 		Pagination<StockStatistics> pagination = null;
@@ -119,6 +119,9 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			}
 			if (Common.isNotEmpty(searchAgent)) {
 				query = query.addCriteria(Criteria.where("agent").is(Boolean.valueOf(searchAgent)));
+			}
+			if (Common.isNotEmpty(confirm)) {
+				query = query.addCriteria(Criteria.where("confirm").is(Boolean.valueOf(confirm)));
 			}
 			if (Common.isNotEmpty(userId)) {
 				query = query.addCriteria(Criteria.where("financeUser.$id").is(new ObjectId(userId)));
@@ -385,6 +388,19 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 	}
 
+
+	@Override
+	@SystemServiceLog(description = "核对信息")
+	public BasicDataResult confirm(String id) {
+		StockStatistics st = this.findOneById(id, StockStatistics.class);
+		if (st.getConfirm()) {
+			return BasicDataResult.build(400, "该信息已经核对，不需要核对", null);
+		}
+		st.setConfirm(true);
+		this.save(st);
+		return BasicDataResult.build(200, "已核对", st);
+	}
+
 	@SystemServiceLog(description = "撤销后更新库存信息")
 	public StockStatistics updateStockStatistics(StockStatistics stockStatistics) {
 		lockinsert.lock();
@@ -434,10 +450,10 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 							in.put("num", st.getNum());
 							in.put("purchaseInvoiceNo", Common.isEmpty(st.getPurchaseInvoiceNo()) ? ""
 									: st.getPurchaseInvoiceNo());
-							
+
 							in.put("newItemNo",Common.isEmpty(st.getNewItemNo()) ? "" : st.getNewItemNo());
-//							in.put("paymentOrderNo", Common.isEmpty(st.getStock().getPaymentOrderNo()) ? ""
-//									: st.getStock().getPaymentOrderNo());
+							in.put("paymentOrderNo", Common.isEmpty(st.getPaymentOrderNo()) ? ""
+									: st.getPaymentOrderNo());
 							in.put("supplier", Common.isEmpty(st.getStock().getSupplier()) ? ""
 									: st.getStock().getSupplier().getName());
 							in.put("purchaseInvoiceDate", Common.isEmpty(st.getPurchaseInvoiceDate()) ? ""

@@ -120,6 +120,13 @@
 											<option value="2" th:selected="${revoke=='2'}">正常</option>
 										</select>
 
+										<select class="filter-status form-control" id="confirm"
+												onchange="return searchVal()">
+											<option value="" selected>--是否核对--</option>
+											<option value="true" th:selected="${confirm=='true'}">已核对</option>
+											<option value="false" th:selected="${confirm=='false'}">未核对</option>
+										</select>
+
 
 										<button class="btn btn-default btn-sm"
 											onclick="return searchVal()">
@@ -149,6 +156,11 @@
 											onclick="return editStockStatistics()">
 											<i class="entypo-search"> </i> 批量编辑
 										</button>
+								<button class="btn btn-primary btn-sm"
+										onclick="return confirms()">
+									<i class="fa fa-edit"> </i> 批量核对
+								</button>
+
 										<button class="btn btn-default" onclick="return toExportNew()">
 											<i class="entypo-export"> </i>导出新出入统计报表
 										</button>
@@ -255,7 +267,7 @@
 											<!-- 目录 -->
 											<th:block th:each="stockStatistics:${pageList?.datas}">
 											
-												<tr>
+												<tr th:id="|confirm${stockStatistics?.id}|" th:classappend="${stockStatistics?.confirm} ?  danger : _">
 												<shiro:hasPermission 	name="stockStatistics:edit">
 													<td class="numeric">
 														<div class="checkbox checkbox-inline"
@@ -278,7 +290,7 @@
 													</td>
 													<td class="numeric itemNo" id="itemNo"
 														th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'">[[${stockStatistics?.stock?.itemNo}]]</td>
-													<td class="numeric newItemNo" th:id="|newItemNo_${stockStatistics?.id}|"   th:ondblclick="|return change('${stockStatistics?.id}','newItemNo')|"
+													<td class="numeric newItemNo" th:id="|newItemNo_${stockStatistics?.id}|"   th:ondblclick="|return change('${stockStatistics?.id}','newItemNo',${stockStatistics?.confirm})|"
 														th:style="${#lists.contains(listColums,'newItemNo')}?'':'display:none;'">[[${stockStatistics?.newItemNo}]]</td>
 													<td class="numeric stockName" id="stockName"
 														th:style="${#lists.contains(listColums,'stockName')}?'':'display:none;'"
@@ -326,38 +338,38 @@
 														th:style="${#lists.contains(listColums,'outboundOrder')}?'':'display:none;'"
 														th:text="${stockStatistics.outboundOrder != null}?${stockStatistics?.outboundOrder}:'--------'"></td>
 
-													<td class="numeric inprice"  th:id="|inprice_${stockStatistics?.id}|"  th:ondblclick="|return change('${stockStatistics?.id}','inprice')|"
+													<td class="numeric inprice"  th:id="|inprice_${stockStatistics?.id}|"  th:ondblclick="|return change('${stockStatistics?.id}','inprice',${stockStatistics?.confirm})|"
 														th:style="${#lists.contains(listColums,'inprice')}?'':'display:none;'"
 														th:text="${stockStatistics.inprice != 0.0}?${stockStatistics?.inprice}:'0.0'">
 														
 														</td>
 
-													<td class="numeric sailPrice"  th:id="|sailPrice_${stockStatistics?.id}|"  th:ondblclick="|return change('${stockStatistics?.id}','sailPrice')|"
+													<td class="numeric sailPrice"  th:id="|sailPrice_${stockStatistics?.id}|"  th:ondblclick="|return change('${stockStatistics?.id}','sailPrice',${stockStatistics?.confirm})|"
 														th:style="${#lists.contains(listColums,'sailPrice')}?'':'display:none;'"
 														th:text="${stockStatistics.sailPrice != 0.0}?${stockStatistics?.sailPrice}:'0.0'">
 
 													</td>
 
-													<td class="numeric sailesInvoiceNo" th:id="|sailesInvoiceNo_${stockStatistics?.id}|" th:ondblclick="|return change('${stockStatistics?.id}','sailesInvoiceNo')|"
+													<td class="numeric sailesInvoiceNo" th:id="|sailesInvoiceNo_${stockStatistics?.id}|" th:ondblclick="|return change('${stockStatistics?.id}','sailesInvoiceNo',${stockStatistics?.confirm})|"
 														th:style="${#lists.contains(listColums,'sailesInvoiceNo')}?'':'display:none;'"
 														th:text="${stockStatistics.sailesInvoiceNo != null}?${stockStatistics?.sailesInvoiceNo}:''"></td>
 
-													<td class="numeric sailesInvoiceDate" th:id="|sailesInvoiceDate_${stockStatistics?.id}|" th:ondblclick="|return changeDate('${stockStatistics?.id}','sailesInvoiceDate')|"
+													<td class="numeric sailesInvoiceDate" th:id="|sailesInvoiceDate_${stockStatistics?.id}|" th:ondblclick="|return changeDate('${stockStatistics?.id}','sailesInvoiceDate',${stockStatistics?.confirm})|"
 														th:style="${#lists.contains(listColums,'sailesInvoiceDate')}?'':'display:none;'"
 														th:text="${stockStatistics.sailesInvoiceDate != null}?${stockStatistics?.sailesInvoiceDate}:''"></td>
 
-													<td class="numeric purchaseInvoiceDate" th:id="|purchaseInvoiceDate_${stockStatistics?.id}|" th:ondblclick="|return changeDate('${stockStatistics?.id}','purchaseInvoiceDate')|"
+													<td class="numeric purchaseInvoiceDate" th:id="|purchaseInvoiceDate_${stockStatistics?.id}|" th:ondblclick="|return changeDate('${stockStatistics?.id}','purchaseInvoiceDate',${stockStatistics?.confirm})|"
 														th:style="${#lists.contains(listColums,'purchaseInvoiceDate')}?'':'display:none;'"
 														th:text="${stockStatistics.purchaseInvoiceDate != null}?${stockStatistics?.purchaseInvoiceDate}:''"></td>
 
-													<td class="numeric purchaseInvoiceNo" th:id="|purchaseInvoiceNo_${stockStatistics?.id}|"   th:ondblclick="|return change('${stockStatistics?.id}','purchaseInvoiceNo')|"
+													<td class="numeric purchaseInvoiceNo" th:id="|purchaseInvoiceNo_${stockStatistics?.id}|"   th:ondblclick="|return change('${stockStatistics?.id}','purchaseInvoiceNo',${stockStatistics?.confirm})|"
 														th:style="${#lists.contains(listColums,'purchaseInvoiceNo')}?'':'display:none;'">[[${stockStatistics?.purchaseInvoiceNo}]]</td>
 														
-													<td class="numeric receiptNo"  th:id="|receiptNo_${stockStatistics?.id}|"  th:ondblclick="|return change('${stockStatistics?.id}','receiptNo')|"
+													<td class="numeric receiptNo"  th:id="|receiptNo_${stockStatistics?.id}|"  th:ondblclick="|return changeyinhang('${stockStatistics?.id}','receiptNo',${stockStatistics?.confirm})|"
 														th:style="${#lists.contains(listColums,'receiptNo')}?'':'display:none;'">[[${stockStatistics?.receiptNo}]]</td>
 														
 													<td class="numeric paymentOrderNo"
-														th:id="|paymentOrderNo_${stockStatistics?.id}|"  th:ondblclick="|return change('${stockStatistics?.id}','paymentOrderNo')|"
+														th:id="|paymentOrderNo_${stockStatistics?.id}|"  th:ondblclick="|return changeyinhang('${stockStatistics?.id}','paymentOrderNo',${stockStatistics?.confirm})|"
 														th:style="${#lists.contains(listColums,'paymentOrderNo')}?'':'display:none;'">[[${stockStatistics?.paymentOrderNo}]]</td>
 
 
@@ -381,22 +393,25 @@
 													</td>
 													
 													
-													<td class="numeric">										
+													<td class="numeric">
 													<th:block th:if="|
 													${#strings.isEmpty(stockStatistics.purchaseInvoiceNo)&&
 													#strings.isEmpty(stockStatistics.receiptNo)&&
 													#strings.isEmpty(stockStatistics.paymentOrderNo)&&
+													!stockStatistics?.confirm&&
 													#strings.isEmpty(stockStatistics.sailesInvoiceNo)}|
 													">
 													<shiro:hasPermission 	name="stockStatistics:revoke">
 														<button class="btn btn-primary btn-xs btcancle" id="revoke"
-																th:id="${stockStatistics?.id}"
+																th:id="${stockStatistics?.id}" th:name="|cx_${stockStatistics?.id}|"
 																th:onclick="|return revoke('${stockStatistics?.id}')|">
 																<i class="fa fa-edit"> </i>撤销 
 															</button>
 														</shiro:hasPermission> 
 													
 													</th:block>
+
+
 													
 													<th:block th:unless="|
 													${#strings.isEmpty(stockStatistics.purchaseInvoiceNo)&&
@@ -407,17 +422,29 @@
 											
 													<shiro:hasPermission 	name="stockStatistics:edit">
 														<button class="btn btn-primary btn-xs btcancle"
-																th:id="${stockStatistics?.id}"
+																th:id="${stockStatistics?.id}" th:name="|cwx_${stockStatistics?.id}|"
 																th:onclick="|return revoke('${stockStatistics?.id}')|">
 																<i class="fa fa-edit"> </i>财务撤销 
 															</button>
 														</shiro:hasPermission> 
 													
 													</th:block>
+
+														<th:block>
+															<shiro:hasPermission 	name="stockStatistics:confirm">
+																<button class="btn btn-primary btn-xs btcancle" id="confirmbtn"
+																		th:id="|confirm_${stockStatistics?.id}|"
+																		th:onclick="|return confirm('${stockStatistics?.id}')|"
+																		th:text="${!stockStatistics?.confirm?'核对':'已核对'}">
+																	<i class="fa fa-edit"> </i>
+																</button>
+															</shiro:hasPermission>
+
+														</th:block>
 														
 													
 														<th:block
-															th:if="${stockStatistics?.revoke == false || stockStatistics?.sign!='one'}">
+															th:if="${(stockStatistics?.revoke == false || stockStatistics?.sign!='one') && !stockStatistics?.confirm}">
 															<button class="btn btn-default btn-sm"
 																th:if="${stockStatistics.depotTime!=null}"
 																th:id="|outbound${stockStatistics?.id}|" title="生成出库单"
@@ -430,14 +457,15 @@
 																th:onclick="|return toDownloadQRcode('${stockStatistics.id}')|">
 																<i class="fontawesome-cloud-download"> </i>
 															</button>
-															<button class="btn btn-default btn-sm" title="出库二维码" th:if="${stockStatistics.depotTime!=null}"
+															<button class="btn btn-default btn-sm" th:id="|ckcode${stockStatistics?.id}|" title="出库二维码" th:if="${stockStatistics.depotTime!=null}"
 																th:onclick="|return showQRCode('${stockStatistics.id}','${stockStatistics?.projectName}')|">
 																<i class="icon icon-view-thumb"> </i>
 
 															</button>
 
 
-														</th:block></td>
+														</th:block>
+													</td>
 												</tr>
 												<!-- 菜单 -->
 											</th:block>
@@ -553,24 +581,24 @@
 											<ul class="pagination pagination-split pull-right"
 												style="margin-top: 0px;">
 												<li th:class="${pageList?.pageNo } eq 1 ?disabled:''"><a
-													th:href="${pageList?.pageNo} eq 1?'javascript:void(0);':@{/stockStatisticss(pageNo=1,pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId},revoke=${revoke})}">首页</a>
+													th:href="${pageList?.pageNo} eq 1?'javascript:void(0);':@{/stockStatisticss(pageNo=1,pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId},revoke=${revoke},confirm=${confirm})}">首页</a>
 												</li>
 												<li th:class="${pageList?.pageNo } eq 1 ?disabled:''"><a
-													th:href="${pageList?.pageNo} eq 1?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.upPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId},revoke=${revoke})}">上一页</a>
+													th:href="${pageList?.pageNo} eq 1?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.upPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId},revoke=${revoke},confirm=${confirm})}">上一页</a>
 												</li>
 												<li th:each="page:${pageList?.navigatepageNums}"
 													th:class="${page  == pageList?.pageNo}?active:''"><a
-													th:href="${page eq pageList?.pageNo}?'javascript:void(0)':@{/stockStatisticss(pageNo=${page},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId},revoke=${revoke})}">[[${page}]]</a>
+													th:href="${page eq pageList?.pageNo}?'javascript:void(0)':@{/stockStatisticss(pageNo=${page},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId},revoke=${revoke},confirm=${confirm})}">[[${page}]]</a>
 												</li>
 												<li
 													th:class="${pageList?.pageNo eq pageList?.totalPage}?disabled:''">
 													<a
-													th:href="${pageList?.pageNo eq pageList?.totalPage}?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.nextPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId},revoke=${revoke})}">下一页</a>
+													th:href="${pageList?.pageNo eq pageList?.totalPage}?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.nextPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId},revoke=${revoke},confirm=${confirm})}">下一页</a>
 												</li>
 												<li
 													th:class="${pageList?.pageNo eq pageList?.totalPage}?disabled:''">
 													<a
-													th:href="${pageList?.pageNo eq pageList?.totalPage}?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.totalPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId},revoke=${revoke})}">尾页</a>
+													th:href="${pageList?.pageNo eq pageList?.totalPage}?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.totalPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId},revoke=${revoke},confirm=${confirm})}">尾页</a>
 												</li>
 											</ul>
 										</div>
