@@ -36,6 +36,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -49,6 +50,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -1160,8 +1162,86 @@ public class Common {
 	public static String getOrderNum() {
 		return String.valueOf(System.currentTimeMillis());
 	}
+	
+	/**
+	 * String 日期转换Calendar
+	 * @param date
+	 * @return
+	 */
+	public static Calendar getCalendar(String inputdate) {
+		SimpleDateFormat sdf= new SimpleDateFormat("yyyy-MM-dd");
 
-	public static void main(String[] args) throws ParseException {
+		Date date = null;
+		try {
+			date = sdf.parse(inputdate);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		Calendar calendar = Calendar.getInstance();
+
+		calendar.setTime(date);
+		return calendar;
+	}
+	
+
+    public static Long getLastMonthStartTime(String date)  {
+    	Calendar calendar = getCalendar(date);
+        String timeZone = "GMT+8:00";
+        calendar.setTimeZone(TimeZone.getTimeZone(timeZone));
+        calendar.add(Calendar.YEAR, 0);
+        calendar.add(Calendar.MONTH, -1);
+        calendar.set(Calendar.DAY_OF_MONTH, 1);// 设置为1号,当前日期既为本月第一天
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+ 
+        return calendar.getTimeInMillis();
+
+    }
+	 public static Long getLastMonthEndTime(String date) {
+		 Calendar calendar = getCalendar(date);
+	        String timeZone = "GMT+8:00";
+	        calendar.setTimeZone(TimeZone.getTimeZone(timeZone));
+	        calendar.add(Calendar.YEAR, 0);
+	        calendar.add(Calendar.MONTH, -1);
+	        calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));// 获取当前月最后一天
+	        calendar.set(Calendar.HOUR_OF_DAY, 23);
+	        calendar.set(Calendar.MINUTE, 59);
+	        calendar.set(Calendar.SECOND, 59);
+	        calendar.set(Calendar.MILLISECOND, 999);
+	 
+	        return calendar.getTimeInMillis();
+	    }
+
+	
+	
+	
+	public static Map<String,String> findDateByInputDate(String date){
+		
+			Map<String,String> map = new HashMap<String, String>();
+		
+			Long startTime = getLastMonthStartTime(date);
+	        Long endTime = getLastMonthEndTime(date);
+	        
+	        DateTimeFormatter ftf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+	        String startTimeStr = ftf.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(startTime), ZoneId.systemDefault()));
+	        String endTimeStr = ftf.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(endTime), ZoneId.systemDefault()));
+	        map.put("startDate", startTimeStr);
+	        map.put("endDate", endTimeStr);
+		return map;
+		
+	}
+	
+	
+	
+	
+	
+	
+
+	public static void main(String[] args) throws Exception {
 //		List<String> file = new ArrayList<String>();
 //		file.add("E:/fescar-server-0.4.2.zip");
 //		file.add("E:/内网穿透工具.7z");
@@ -1175,12 +1255,32 @@ public class Common {
 //		String dateYMDHM = getDateYMDHM("2021sdfsdf:11");
 //		System.out.println(dateYMDHM);
 
+//		
+//		String n ="光跳纤(千兆多模/黄色）LC-SC";
+//		String replace = n.replace("\\", "").replace("/", "");
+//		System.out.println(replace);
+//		
+		Map<String, String> findDateByInputDate = findDateByInputDate("2023-02-02");
+		System.out.println(findDateByInputDate);
 		
-		String n ="光跳纤(千兆多模/黄色）LC-SC";
-		String replace = n.replace("\\", "").replace("/", "");
-		System.out.println(replace);
 		
-		
+	List list1 = new ArrayList();
+	list1.add("1");
+	list1.add("6");
+	list1.add("2");
+	list1.add("3");
+	list1.add("4");
+	list1.add("5");
+	
+	List list2 = new ArrayList();
+	list2.add("1");
+	list2.add("7");
+	list2.add("4");
+	list2.add("11");
+	list2.add("224");
+	list2.add("3");
+	
+
 		
 	}
 

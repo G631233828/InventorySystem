@@ -12,9 +12,11 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -150,7 +152,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		Criteria ca = new Criteria();
 		Criteria ca1 = new Criteria();
 		Criteria ca2 = new Criteria();
-
+		end=end+" 23:59:59";
 		if (type.equals("in")) {
 			query.addCriteria(Criteria.where("inOrOut").is(true));
 		} else if (type.equals("out")) {
@@ -1146,8 +1148,11 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			String name, String areaId, String searchAgent) {
 
 		// List<Stock> listStock = this.findStocksBySearch(search, areaId, searchAgent);
+		
 		// 获取所有的库存
 		List<StockStatistics> list = this.findStockStatistics(search, start, end, type, areaId, searchAgent);
+		
+		
 		List<Map<String, Object>> outlist = new ArrayList<>();
 		// 获取 start时间 （第一天）库存的初始数量 出库数量+剩余库存数量 num+newNum
 		// 获取所有的设备
@@ -1310,6 +1315,209 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		return doc;
 
 	}
+	
+	
+	
+	@Override
+	public Workbook newExport3(HttpServletRequest request, String search, String start, String end, String type,
+			String name, String areaId, String searchAgent) {
+
+		// List<Stock> listStock = this.findStocksBySearch(search, areaId, searchAgent);
+		//获取选择月份的统计数据
+		List<StockStatistics> list1 = this.findStockStatistics(search, start, end, type, areaId, searchAgent);
+		
+		
+		Map<String, String> findDateByInputDate = Common.findDateByInputDate(start);
+		String ostart = findDateByInputDate.get("startDate");
+		String oend = findDateByInputDate.get("endDate");
+		
+		List<StockStatistics> list2 = this.findStockStatistics(search, ostart, oend, type, areaId, searchAgent);
+		   List<StockStatistics> list = list1.stream().filter(
+			        item ->list2.stream().map(e -> e.getStock().getId())
+			        .collect(Collectors.toList())
+			        .contains(item.getStock().getId()))
+			        .collect(Collectors.toList());
+		
+		// 获取所有的库存
+		
+		
+		List<Map<String, Object>> outlist = new ArrayList<>();
+		// 获取 start时间 （第一天）库存的初始数量 出库数量+剩余库存数量 num+newNum
+		// 获取所有的设备
+		Map<String, List<StockStatistics>> map = new HashMap<String, List<StockStatistics>>();
+		// 在库存统计中获取遍历所有设备
+		for (StockStatistics st : list) {
+			String stockId = st.getStock().getId();
+			boolean containsKey = map.containsKey(stockId);
+			if (containsKey) {
+				List<StockStatistics> mlist = map.get(stockId);
+				mlist.add(st);
+			} else {
+				List<StockStatistics> ls = new ArrayList<StockStatistics>();
+				ls.add(st);
+				map.put(stockId, ls);
+			}
+		}
+		//集合的最后一条数据就是起初日期
+		//遍历map ，将map数据放到outlist中
+		
+		
+		for(Map.Entry<String, List<StockStatistics>> entry:map.entrySet()) {
+			
+
+			Map<String, Object> outmap = new HashMap<>();//定义输出到excel的map
+			
+			//期初库存 获取集合的最后一条数据为第一条记录
+			
+			StockStatistics gs = entry.getValue().get(entry.getValue().size()-1);
+			//获取设备其他信息
+			outmap.put("area", Common.isEmpty(gs.getArea()) ? "" : gs.getArea().getName());
+			outmap.put("stockName", Common.isEmpty(gs.getStock().getName()) ? "" : gs.getStock().getName());
+			outmap.put("modelName",
+					Common.isEmpty(gs.getStock().getModel()) ? "" : gs.getStock().getModel());
+			outmap.put("scope", Common.isEmpty(gs.getStock().getScope()) ? "" : gs.getStock().getScope());
+			if(Common.isNotEmpty(gs.getStock().getGoodsStorage())) {
+				outmap.put("goodsStorage", Common.isNotEmpty(gs.getStock().getGoodsStorage().getShelflevel())?"/"+gs.getStock().getGoodsStorage().getShelflevel():"");
+			}
+		
+			outmap.put("agent", Common.isEmpty(gs.getStock().isAgent()) ? "" : gs.getStock().isAgent()?"是":"否");
+			outmap.put("unit",
+					Common.isEmpty(gs.getStock().getUnit()) ? "" : gs.getStock().getUnit().getName());
+			
+			
+			BigDecimal qcnum ;//期初库存 为当前时间的前一次库存数量
+			BigDecimal dj = new BigDecimal(0);//单价
+			BigDecimal zj = new BigDecimal(0);//总金额
+			BigDecimal newNum = new BigDecimal(gs.getNewNum());
+			BigDecimal num =new BigDecimal( gs.getNum());
+			if(gs.isInOrOut()) {
+				//如果是入库，需要减去入库数量
+				qcnum =  newNum.subtract(num);
+			}else {
+				//如果是出库 需要吧出库数量加回去
+				qcnum = newNum.add(num) ;//获得期初库存数量
+			}
+			if(Common.isNotEmpty(gs.getStock().getPrice())) {
+			String price = gs.getStock().getPrice();
+			boolean numeric = StringUtils.isNumeric(price);
+			if(!numeric) {
+				price ="0";
+			}
+			
+				dj = new BigDecimal(price) ;//期初单价
+				zj = qcnum.multiply(dj).setScale(2,BigDecimal.ROUND_HALF_UP);//出库总额
+			}
+		
+			outmap.put("oldprice",dj);
+			outmap.put("oldinventory",qcnum);
+			outmap.put("oldpriceall",zj);
+			
+//			//20221123 添加出库入库总价
+//			private Double inprice;
+
+			long in =0;//入库数量
+			long inpriceall =0;//入库总价
+			long out =0;//出库数量
+//			int insize =0; //获入库次数
+//			int outsize =0;//获取出库次数
+			
+			for (StockStatistics st : entry.getValue()) {
+				
+				if(st.isInOrOut()) {
+					in+=st.getNum();//入库总数
+//					insize++;//入库量计数
+					inpriceall+=Common.isNotEmpty(st.getInprice())?st.getInprice():0;//所有入库总额
+				}else {
+					out+=st.getNum();//出库总数
+//					outsize++;//出库量计数
+					
+				}
+			}
+			
+			
+			BigDecimal a = new BigDecimal(inpriceall);
+			BigDecimal b = new BigDecimal(in);
+			
+			BigDecimal crkdj = new BigDecimal(0);
+			if(in>0) {
+				crkdj =  a.divide(b,2,BigDecimal.ROUND_HALF_UP);
+			}
+			
+			outmap.put("in",in);//入库数量
+			outmap.put("inprice",crkdj);//入库单价=所有入库总额/入库数量
+			outmap.put("inpriceall",inpriceall);//入库总额
+			
+			
+			BigDecimal d = new BigDecimal(out);
+//			BigDecimal e = new BigDecimal(in);
+			BigDecimal outpriceall = d.multiply(crkdj).setScale(2,BigDecimal.ROUND_HALF_UP);//出库总额
+			outmap.put("out",out);//出库数量
+			outmap.put("outprice",crkdj);//出库单价=所有入库总额/入库数量
+			outmap.put("outpriceall",outpriceall);//出库总额
+			
+			//期末库存数量  单价  金额
+			StockStatistics gsend = entry.getValue().get(0);
+			long qmnum =0;//期初库存
+//			long qmdj =0;//单价
+//			long qmzj =0;//总金额
+			
+			qmnum = gsend.getNewNum();//期末库存数量
+			BigDecimal qmzj =zj.add(a).subtract(outpriceall);//期末总价
+			BigDecimal qmdj = new BigDecimal(0);
+			if(qmnum>0) {
+				 qmdj =  qmzj.divide(new BigDecimal(qmnum),2,BigDecimal.ROUND_HALF_UP);
+			}
+			outmap.put("newprice",qmdj);
+			outmap.put("newinventory",qmnum);
+			outmap.put("newpriceall",qmzj);
+			outmap.put("purchaseInvoiceDate", Common.isEmpty(gs.getPurchaseInvoiceDate()) ? ""
+					: gs.getPurchaseInvoiceDate());
+			outlist.add(outmap);
+		
+		}
+		
+
+		
+		
+		
+		
+
+		Map<String, Object> dataMap = new HashMap<>();
+
+		dataMap.put("inlist", outlist);
+		dataMap.put("title", start + "~" + end + "库存统计");
+
+		String ctxPath = request.getServletContext().getRealPath("/WEB-INF/Templates/");
+		String fileName = "新库存统计导出模板.xlsx";
+		TemplateExportParams params = new TemplateExportParams(ctxPath + fileName, true);
+		Workbook doc = null;
+
+		try {
+			doc = ExcelExportUtil.exportExcel(params, dataMap);
+//							WordUtil.exportWord(ctxPath+fileName, dataMap);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return doc;
+
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 	
 	public static void main(String[] args) {

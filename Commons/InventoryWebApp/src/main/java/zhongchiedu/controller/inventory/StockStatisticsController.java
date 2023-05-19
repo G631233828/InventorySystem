@@ -323,6 +323,35 @@ public class StockStatisticsController {
 		
 		
 	}
+	
+	@RequestMapping(value = "/stockStatistics/exportNew3", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+	@SystemControllerLog(description = "")
+	public void exportNew3 (@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
+			@RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize, HttpSession session,
+			@RequestParam(value = "search", defaultValue = "") String search,
+			@RequestParam(value = "start", defaultValue = "") String start,
+			@RequestParam(value = "end", defaultValue = "") String end,
+			@RequestParam(value = "type", defaultValue = "") String type,
+			@RequestParam(value = "id", defaultValue = "") String id,
+			@RequestParam(value = "areaId", defaultValue = "") String areaId,
+			@RequestParam(value = "searchAgent", defaultValue = "") String searchAgent, HttpServletResponse response,
+			HttpServletRequest request) throws Exception{
+		
+		String exportName = start+"~"+end+"库存统计";
+		
+		response.setContentType("application/vnd.ms-excel");
+		String fileName = new String((exportName).getBytes("gb2312"), "ISO8859-1");
+		response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xlsx");
+		Workbook newExport = this.stockStatisticsService.newExport3(request, search, start, end, type, fileName, areaId, searchAgent);
+		
+		OutputStream out = response.getOutputStream();
+		newExport.write(out);
+		out.flush();
+		out.close();
+		
+		
+		
+	}
 //	/**
 //	 * 导出excel
 //	 */
