@@ -87,12 +87,13 @@ public class StockStatisticsController {
 			@RequestParam(value = "searchArea", defaultValue = "") String searchArea,
 			@RequestParam(value = "userId", defaultValue = "") String userId,
 			@RequestParam(value = "searchAgent", defaultValue = "") String searchAgent,
-			@RequestParam(value = "revoke", defaultValue = "") String revoke,
+			@RequestParam(value = "revoke", defaultValue = "2") String revoke,
 			@RequestParam(value = "confirm", defaultValue = "") String confirm
 			) {
 		// 区域
 		List<Area> areas = this.areaService.findAllArea(false);
 		model.addAttribute("areas", areas);
+		revoke="2";//默认都是正常 隐藏 已撤销
 		Pagination<StockStatistics> pagination = this.stockStatisticsService.findpagination(pageNo, pageSize, search,
 				start, end, type, id, searchArea, searchAgent,userId,revoke,confirm);
 		model.addAttribute("pageList", pagination);

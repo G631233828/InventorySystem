@@ -126,7 +126,8 @@
                                             <tr>
                                                 <td class="numeric">出库单号</td>
                                                 <td class="numeric" onclick="return selectColumn('outboundOrder');"><input type="checkbox" th:checked="${#lists.contains(listColums,'outboundOrder')}?'checked':'false'" id="ch_outboundOrder"></td>
-
+                                                <td class="numeric">复核签名</td>
+                                                <td class="numeric" onclick="return selectColumn('othersign');"><input type="checkbox" th:checked="${#lists.contains(listColums,'othersign')}?'checked':'false'" id="ch_othersign"></td>
                                             </tr>
                                            
                                         </tbody>

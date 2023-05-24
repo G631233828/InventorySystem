@@ -41,7 +41,7 @@ public interface StockStatisticsService extends GeneralService<StockStatistics> 
 	
 	public StockStatistics createStockStatisticsQrCodeAndDownload(String id);
 	
-	public Map<Object,Object> stockStatisticsPickup(StockStatistics stockStatistics);
+	public Map<Object,Object> stockStatisticsPickup(StockStatistics stockStatistics,String i);
 	
 	public Workbook newExport( HttpServletRequest request,String search,String start,String end,String type,String name,String areaId,String searchAgent);
 

@@ -263,7 +263,8 @@
 													th:style="${#lists.contains(listColums,'revoke')}?'':'display:none;'">状态</th>
 												<th class="numeric sign"
 													th:style="${#lists.contains(listColums,'sign')}?'':'display:none;'">签名</th>
-
+												<th class="numeric othersign"
+													th:style="${#lists.contains(listColums,'othersign')}?'':'display:none;'">复核签名</th>
 												<th class="numeric">操作</th>
 											</tr>
 										</thead>
@@ -395,7 +396,12 @@
 														th:style="${stockStatistics?.mysign ==null}?'color:red':'color:green'"
 														th:text="${stockStatistics?.mysign ==null}?'未签名':'已签名'"></label>
 													</td>
-													
+													<td class="numeric othersign" id="othersign"
+														th:style="${#lists.contains(listColums,'othersign')}?'':'display:none;'">
+														<label th:if="${stockStatistics.depotTime!=null}"
+															   th:style="${stockStatistics?.othersign ==null}?'color:red':'color:green'"
+															   th:text="${stockStatistics?.othersign ==null}?'未签名':'已签名'"></label>
+													</td>
 													
 													<td class="numeric">
 													<th:block th:if="|
@@ -550,7 +556,8 @@
 													th:style="${#lists.contains(listColums,'revoke')}?'':'display:none;'"></th>
 												<th class="numeric sign"
 													th:style="${#lists.contains(listColums,'sign')}?'':'display:none;'"></th>
-
+												<th class="numeric othersign"
+													th:style="${#lists.contains(listColums,'othersign')}?'':'display:none;'"></th>
 												<th class="numeric"></th>
 											</tr>
 										</thead>

@@ -182,7 +182,7 @@ table tr td font {
 
 
 		<div class="page-hd">
-			<h1 class="page-hd-title">请签名确认</h1>
+			<h1 class="page-hd-title"th:text="${sign != null}?'已有签名,请复合后签名':'请签名确认'"></h1>
 
 		</div>
 

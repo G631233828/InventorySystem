@@ -152,10 +152,11 @@ public class ProjectPickupController {
 		String path="general/batchOut";
 		
 		StockStatistics stock = this.stockStatisticsService.findOneById(stockId, StockStatistics.class);
-		
-		if(Common.isNotEmpty(stock.getMysign())) {
-			//已经提交过
-			Map<Object, Object> map = this.stockStatisticsService.stockStatisticsPickup(stock);
+
+		//
+		if(Common.isNotEmpty(stock.getOthersign())) {
+			//两个签名已经提交过
+			Map<Object, Object> map = this.stockStatisticsService.stockStatisticsPickup(stock,"sign");
 			model.addAttribute("map", map);
 			if(Common.isNotEmpty(stock.getOpenId())) {
 				WXUserInfo getwXUserInfo = this.wXUserInfoService.findUserByOpenId(stock.getOpenId());
@@ -167,7 +168,10 @@ public class ProjectPickupController {
 			
 			path="general/batchOutSuccess";
 			
-		}else {
+		}
+		if(Common.isNotEmpty(stock.getMysign())) {
+			model.addAttribute("sign",stock.getMysign());
+		}
 			List<StockStatistics> list = this.stockStatisticsService.findByoutboundOrder(stock.getOutboundOrder());
 			model.addAttribute("list", list);
 			model.addAttribute("stock", stock);
@@ -188,10 +192,6 @@ public class ProjectPickupController {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
-		
-		
-		
 		
 		return path;
 	}
@@ -211,10 +211,10 @@ public class ProjectPickupController {
 	}
 	
 	@PostMapping("/stockStatisticsPickup")
-	@SystemControllerLog(description = "库存取货")
+	@SystemControllerLog(description = "签字")
 	public String stockStatisticsPickup(Model model,HttpServletRequest request, @ModelAttribute("stockStatistics") StockStatistics stockStatistics) {
 		
-		Map<Object, Object> map = this.stockStatisticsService.stockStatisticsPickup(stockStatistics);
+		Map<Object, Object> map = this.stockStatisticsService.stockStatisticsPickup(stockStatistics,"notsign");
 		ProjectPickup p = new ProjectPickup();
 		p.setOpenId(stockStatistics.getOpenId());
 		WXUserInfo wXUserInfo = this.wXUserInfoService.updateWXuserInfo(p);

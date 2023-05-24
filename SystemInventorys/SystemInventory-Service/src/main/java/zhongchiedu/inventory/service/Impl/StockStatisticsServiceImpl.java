@@ -934,6 +934,19 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			dataMap.put("image", " ");
 
 		}
+		ImageEntity oimage = new ImageEntity();
+		oimage.setHeight(40);
+		oimage.setWidth(80);
+		if (Common.isNotEmpty(stockStatistics.getOthersign())) {
+			byte[] b = Base64.getDecoder()
+					.decode(stockStatistics.getOthersign().getSign().replace("data:image/png;base64,", ""));
+			oimage.setData(b);
+			oimage.setType(ImageEntity.Data);
+			dataMap.put("otherimage", oimage);
+		} else {
+			dataMap.put("otherimage", " ");
+
+		}
 
 		String outboundOrder = Common.isEmpty(stockStatistics.getOutboundOrder()) ? ""
 				: stockStatistics.getOutboundOrder();
@@ -1051,7 +1064,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	}
 
 	@Override
-	public Map<Object, Object> stockStatisticsPickup(StockStatistics stockStatistics) {
+	public Map<Object, Object> stockStatisticsPickup(StockStatistics stockStatistics,String i) {
 		String outboundOrder = stockStatistics.getOutboundOrder();
 		List<StockStatistics> st = this.findByoutboundOrder(outboundOrder);
 		Map<Object, Object> map = new HashMap<>();
@@ -1060,36 +1073,52 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		map.put("customer", st.get(0).getCustomer());
 		map.put("description", st.get(0).getDescription());
 		map.put("outboundOrder", st.get(0).getOutboundOrder());
+		if(i.equals("sign")){
+			//已经签名2个不用判断
+		map.put("sign", st.get(0).getMysign().getSign());
+		map.put("othersign",st.get(0).getOthersign().getSign());
+		map.put("time", st.get(0).getPickupTime());
+		}else{
+			try {
+				String dateYMDHM = Common.getDateYMDHM(new Date());
+				stockStatistics.setPickupTime(dateYMDHM);
 
-		try {
-			String dateYMDHM = Common.getDateYMDHM(new Date());
-			stockStatistics.setPickupTime(dateYMDHM);
+				map.put("time", dateYMDHM);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 
-			map.put("time", dateYMDHM);
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			if (Common.isEmpty(st.get(0).getMysign()) && Common.isEmpty(st.get(0).getOthersign())) {
+				map.put("sign", stockStatistics.getSign());
+				// 保存签名
+				Sign sign = new Sign();
+				sign.setSign(stockStatistics.getSign());
+				this.signService.save(sign);
+
+				st.forEach(s -> {
+					s.setMysign(sign);
+					s.setOpenId(stockStatistics.getOpenId());
+					s.setPickupTime(stockStatistics.getPickupTime());
+					this.save(s);
+				});
+			}else{
+				//sign不为空，othersign为空的情况下，将form表单中的sign传入othersign，且保存pthersign
+				map.put("sign", st.get(0).getMysign().getSign());
+				map.put("othersign", stockStatistics.getSign());
+				// 保存签名
+				Sign sign = new Sign();
+				sign.setSign(stockStatistics.getSign());
+				this.signService.save(sign);
+				st.forEach(s -> {
+					s.setOthersign(sign);
+					s.setOpenId(stockStatistics.getOpenId());
+					s.setPickupTime(stockStatistics.getPickupTime());
+					this.save(s);
+				});
+			}
 		}
 
-		if (Common.isEmpty(st.get(0).getMysign())) {
-			map.put("sign", stockStatistics.getSign());
-			// 保存签名
-			Sign sign = new Sign();
-			sign.setSign(stockStatistics.getSign());
-			this.signService.save(sign);
-
-			st.forEach(s -> {
-				s.setMysign(sign);
-				s.setOpenId(stockStatistics.getOpenId());
-				s.setPickupTime(stockStatistics.getPickupTime());
-				this.save(s);
-			});
-
-		} else {
-			map.put("sign", st.get(0).getMysign().getSign());
-			map.put("time", st.get(0).getPickupTime());
-
-		}
 		return map;
 	}
 

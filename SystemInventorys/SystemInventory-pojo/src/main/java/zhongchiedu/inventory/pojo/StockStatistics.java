@@ -67,6 +67,8 @@ public class StockStatistics extends GeneralBean<StockStatistics> {
 	
 	private String sign;//
 
+
+
 	@DBRef
 	private QrCode qrCode;//出库登记二维码
 	
@@ -76,7 +78,11 @@ public class StockStatistics extends GeneralBean<StockStatistics> {
 	
 	@DBRef
 	private Sign mysign;//微信签名
-	
+
+
+	@DBRef
+	private Sign othersign;//第二個簽名
+
 	//20221118 添加销售发票号
 	private String sailesInvoiceNo;//销售发票号
 	
