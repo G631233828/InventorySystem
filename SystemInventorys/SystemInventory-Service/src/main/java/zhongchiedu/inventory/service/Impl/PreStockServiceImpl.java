@@ -1,6 +1,7 @@
 package zhongchiedu.inventory.service.Impl;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -31,17 +32,11 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
-import zhongchiedu.common.utils.BasicDataResult;
-import zhongchiedu.common.utils.Common;
-import zhongchiedu.common.utils.FileOperateUtil;
+import zhongchiedu.common.utils.*;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralServiceImpl;
-import zhongchiedu.inventory.pojo.Brand;
-import zhongchiedu.inventory.pojo.Category;
-import zhongchiedu.inventory.pojo.GoodsStorage;
-import zhongchiedu.inventory.pojo.PreStock;
-import zhongchiedu.inventory.pojo.Supplier;
-import zhongchiedu.inventory.pojo.SystemClassification;
+import zhongchiedu.general.pojo.User;
+import zhongchiedu.inventory.pojo.*;
 import zhongchiedu.inventory.service.AreaService;
 import zhongchiedu.inventory.service.PreStockService;
 import zhongchiedu.log.annotation.SystemServiceLog;
@@ -300,104 +295,105 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 
 	}
 
-	@SystemServiceLog(description = "批量导入库存信息")
+	@SystemServiceLog(description = "批量导入预库存信息")
 	public String BatchImport(File file, int row, HttpSession session) {
-		return "";
-//		String error = "";
-//		String[][] resultexcel = null;
-//		try {
-//			resultexcel = ExcelReadUtil.readExcel(file, 0);
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//		int rowLength = resultexcel.length;
-//		ProcessInfo pri = new ProcessInfo();
-//		pri.allnum = rowLength;
-//		for (int i = 1; i < rowLength; i++) {
-//			Query query = new Query();
-//			PreStock importPreStock = new PreStock();
-//
-//			pri.nownum = i;
-//			pri.lastnum = rowLength - i;
-//			session.setAttribute("proInfo", pri);
-//			int j = 0;
-//			try {
-//
-//				PreStock stock = null; // 库存信息
-//				Supplier supplier = null;
-//				Unit unit = null;
-//				String areaName = resultexcel[i][j].trim();// 区域名称
-//				// 通过区域名称查询区域是否存在
-//				Area getarea = this.areaService.findByName(areaName);
-//				if (Common.isEmpty(getarea)) {
-//					error += "<span class='entypo-attention'></span>导入文件过程中，第<b>&nbsp&nbsp" + (i + 1)
-//							+ "行出现未添加的区域，请手动去修改该条信息或创建区域！&nbsp&nbsp</b></br>";
-//					return error;
-//				}
-//				importPreStock.setArea(getarea);
-//				String name = resultexcel[i][j + 1].trim();// 设备名称
-//				if (Common.isEmpty(name)) {
-//					error += "<span class='entypo-attention'></span>导入文件过程中出现设备名称为空，第<b>&nbsp&nbsp" + (i + 1)
-//							+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
-//					continue;
-//				}
-//				importPreStock.setName(name); // 设备名称
-//				String model = resultexcel[i][j + 2].trim();
-//				if (Common.isEmpty(name)) {
-//					error += "<span class='entypo-attention'></span>导入文件过程中出现设备型号为空，第<b>&nbsp&nbsp" + (i + 1)
-//							+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
-//					continue;
-//				}
-//				importPreStock.setModel(model);// 设备型号
-//				importPreStock.setScope(resultexcel[i][j + 3].trim());// 使用范围
-//				importPreStock.setPrice(resultexcel[i][j + 4].trim());// 价格
-//
-//				String unitName = resultexcel[i][j + 5].trim();
-//				if (Common.isNotEmpty(unitName)) {
-//					// 根据供应商名称查找，看供应商是否存在
-//					unit = this.unitService.findByName(unitName);
-//				}
-//				importPreStock.setUnit(unit);
-//				importPreStock.setMaintenance(resultexcel[i][j + 6].trim());// 维保
-//				String supplierName = resultexcel[i][j + 7].trim();// 供应商名称
-//				if (Common.isNotEmpty(supplierName)) {
-//					// 根据供应商名称查找，看供应商是否存在
-//					supplier = this.supplierService.findByName(supplierName);
-//					if (Common.isEmpty(supplier)) {
-//						error += "<span class='entypo-attention'></span>导入文件过程中出现不存在的供应商<b>&nbsp;&nbsp;" + supplierName
-//								+ "&nbsp;&nbsp;</b>，请先添加供应商，第<b>&nbsp&nbsp" + (i + 1)
-//								+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
-//						continue;
-//					}
-//				}
-//				importPreStock.setSupplier(supplier);
-//
-//				stock = this.findByName(name, model);
-//				if (Common.isNotEmpty(stock)) {
-//					// 设备已存在
-//					error += "<span class='entypo-attention'></span>导入文件过程中设备已经存在，设备名称<b>&nbsp;&nbsp;" + stock.getName()
-//							+ "&nbsp;&nbsp;</b>，第<b>&nbsp&nbsp" + (i + 1) + "请手动去修改该条信息！&nbsp&nbsp</b></br>";
-//					continue;
-//				} else {
-//					// 添加新设备
-//					this.insert(importPreStock);
-//				}
-//
-//				// 捕捉批量导入过程中遇到的错误，记录错误行数继续执行下去
-//			} catch (Exception e) {
-//				log.debug("导入文件过程中出现错误第" + (i + 1) + "行出现错误" + e);
-//				String aa = e.getLocalizedMessage();
-//				String b = aa.substring(aa.indexOf(":") + 1, aa.length()).replaceAll("\"", "");
-//				error += "<span class='entypo-attention'></span>导入文件过程中出现错误第<b>&nbsp&nbsp" + (i + 1)
-//						+ "&nbsp&nbsp</b>行出现错误内容为<b>&nbsp&nbsp" + b + "&nbsp&nbsp</b></br>";
-//				if ((i + 1) < rowLength) {
-//					continue;
-//				}
-//
-//			}
-//		}
-//		log.info(error);
-//		return error;
+		User user = (User) session.getAttribute(Contents.USER_SESSION);
+
+		String error = "";
+		String[][] resultexcel = null;
+		try {
+			resultexcel = ExcelReadUtil.readExcel(file, 0);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		int rowLength = resultexcel.length;
+		ProcessInfo pri = new ProcessInfo();
+		pri.allnum = rowLength;
+		for (int i = 1; i < rowLength; i++) {
+			Query query = new Query();
+			PreStock importPreStock = new PreStock();
+
+			pri.nownum = i;
+			pri.lastnum = rowLength - i;
+			session.setAttribute("proInfo", pri);
+			int j = 0;
+			try {
+
+				PreStock stock = null; // 库存信息
+				Supplier supplier = null;
+				Unit unit = null;
+				String areaName = resultexcel[i][j].trim();// 区域名称
+				// 通过区域名称查询区域是否存在
+				Area getarea = this.areaService.findByName(areaName);
+				if (Common.isEmpty(getarea)) {
+					error += "<span class='entypo-attention'></span>导入文件过程中，第<b>&nbsp&nbsp" + (i + 1)
+							+ "行出现未添加的区域，请手动去修改该条信息或创建区域！&nbsp&nbsp</b></br>";
+					return error;
+				}
+				importPreStock.setArea(getarea);
+				String name = resultexcel[i][j + 1].trim();// 设备名称
+				if (Common.isEmpty(name)) {
+					error += "<span class='entypo-attention'></span>导入文件过程中出现设备名称为空，第<b>&nbsp&nbsp" + (i + 1)
+							+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
+					continue;
+				}
+				importPreStock.setName(name);
+				String model = resultexcel[i][j + 2].trim();// 设备型号
+				if (Common.isEmpty(name)) {
+					error += "<span class='entypo-attention'></span>导入文件过程中出现设备型号为空，第<b>&nbsp&nbsp" + (i + 1)
+							+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
+					continue;
+				}
+				importPreStock.setModel(model);
+				importPreStock.setEstimatedInventoryQuantity(Long.valueOf(resultexcel[i][j + 3].trim()));// 预备入库的数量
+				importPreStock.setEntryName(resultexcel[i][j + 5].trim());// 项目名称
+
+				String unitName = resultexcel[i][j + 4].trim();//单位
+				if (Common.isNotEmpty(unitName)) {
+					// 根据供应商名称查找，看供应商是否存在
+					unit = this.unitService.findByName(unitName);
+				}
+				importPreStock.setUnit(unit);
+//				importPreStock.setMaintenance(resultexcel[i][j + 6].trim()); 维保
+				String supplierName = resultexcel[i][j + 6].trim();// 供应商名称
+				if (Common.isNotEmpty(supplierName)) {
+					// 根据供应商名称查找，看供应商是否存在
+					supplier = this.supplierService.findByName(supplierName);
+					if (Common.isEmpty(supplier)) {
+						error += "<span class='entypo-attention'></span>导入文件过程中出现不存在的供应商<b>&nbsp;&nbsp;" + supplierName
+								+ "&nbsp;&nbsp;</b>，请先添加供应商，第<b>&nbsp&nbsp" + (i + 1)
+								+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
+						continue;
+					}
+				}
+				importPreStock.setSupplier(supplier);
+				importPreStock.setPublisher(user);// 发布人
+				stock = this.findByName(name, model,1);//预入库查重
+				if (Common.isNotEmpty(stock)) {
+					// 设备已存在
+					error += "<span class='entypo-attention'></span>该设备预库存已经存在，设备名称<b>&nbsp;&nbsp;" + stock.getName()
+							+ "&nbsp;&nbsp;</b>，第<b>&nbsp&nbsp" + (i + 1) + "请手动去修改该条信息！&nbsp&nbsp</b></br>";
+					continue;
+				} else {
+					// 添加新设备
+					this.insert(importPreStock);
+				}
+
+				// 捕捉批量导入过程中遇到的错误，记录错误行数继续执行下去
+			} catch (Exception e) {
+				log.debug("导入文件过程中出现错误第" + (i + 1) + "行出现错误" + e);
+				String aa = e.getLocalizedMessage();
+				String b = aa.substring(aa.indexOf(":") + 1, aa.length()).replaceAll("\"", "");
+				error += "<span class='entypo-attention'></span>导入文件过程中出现错误第<b>&nbsp&nbsp" + (i + 1)
+						+ "&nbsp&nbsp</b>行出现错误内容为<b>&nbsp&nbsp" + b + "&nbsp&nbsp</b></br>";
+				if ((i + 1) < rowLength) {
+					continue;
+				}
+
+			}
+		}
+		log.info(error);
+		return error;
 	}
 
 	/**
@@ -436,10 +432,11 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 	 * 根据单位名称查找单位，如果没有则创建一个
 	 */
 	@Override
-	public PreStock findByName(String name, String model) {
+	public PreStock findByName(String name, String model,Integer status) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("name").is(name));
 		query.addCriteria(Criteria.where("model").is(model));
+		query.addCriteria(Criteria.where("status").is(status));
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		PreStock stock = this.findOneByQuery(query, PreStock.class);
 		/*

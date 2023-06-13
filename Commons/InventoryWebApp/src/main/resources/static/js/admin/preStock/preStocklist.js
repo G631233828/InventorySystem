@@ -1,3 +1,7 @@
+function batchImput() {
+	$("#mybatchUpload").modal('show');
+
+}
 
 function searchVal() {
 

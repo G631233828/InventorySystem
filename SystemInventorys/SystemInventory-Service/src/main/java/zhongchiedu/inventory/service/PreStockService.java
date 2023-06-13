@@ -10,6 +10,9 @@ import zhongchiedu.framework.service.GeneralService;
 import zhongchiedu.inventory.pojo.PreStock;
 import zhongchiedu.inventory.pojo.Stock;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 public interface PreStockService extends GeneralService<PreStock> {
 	
 	public Pagination<PreStock> findpagination(Integer pageNo,Integer pageSize,String search,String searchArea,int status);
@@ -23,15 +26,15 @@ public interface PreStockService extends GeneralService<PreStock> {
 	
 	public BasicDataResult todisable(String id);
 	
-	public PreStock findByName(String name,String model);
+	public PreStock findByName(String name,String model,Integer status);
 	
 	public BasicDataResult findOneById(String id);
 	
 	public HSSFWorkbook export(String name,String areaId);
 	
 	public List<PreStock> findAllPreStockByStatus(boolean isdisable,int status);
-	
-	
-	
+
+
+
 	
 }

@@ -79,6 +79,11 @@
 										</button>
 									</shiro:hasPermission>
 
+									<button class="btn btn-success" onclick="return batchImput()">
+										<i class="fontawesome-upload"> </i>批量导入
+									</button>
+
+
 									<shiro:hasPermission name="preStock:edit">
 										<button class="btn btn-primary btn-sm"
 											onclick="return toeditPage('','preStock')">
@@ -303,6 +308,7 @@
 		</div>
 
 		<div th:replace="public/public::myModal"></div>
+		<div th:replace="admin/preStock/batch::mybatch"></div>
 		<script type="text/javascript" th:inline="javascript"
 			th:src="@{/js/admin/preStock/preStocklist.js}"></script>
 	</div>
@@ -310,6 +316,7 @@
 	<!--  END OF PAPER WRAP -->
 	<!-- 右侧隐藏菜单start -->
 	<div th:replace="public/public::right"></div>
+
 	<!-- 右侧隐藏菜单end-->
 	<!-- 底部js -->
 	<div th:replace="public/public_js::pub_js"></div>
@@ -317,8 +324,13 @@
 	<div th:replace="public/public::footer"></div>
 	<!-- Sweet alert -->
 	<script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
-
-
+	<script type="text/javascript"
+			th:src="@{/plugs/prettyfile/bootstrap-prettyfile.js}"></script>
+	<script type="text/javascript"
+			th:src="@{/plugs/validate/jquery.validate.min.js}"></script>
+	<script type="text/javascript"
+			th:src="@{/plugs/validate/messages_zh.min.js}"></script>
+	<div th:replace="public/public_js::validator"></div>
 
 
 </body>

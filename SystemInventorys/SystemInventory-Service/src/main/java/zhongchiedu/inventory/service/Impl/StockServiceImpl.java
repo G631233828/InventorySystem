@@ -1000,7 +1000,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		String name = preStock.getName();
 		String model = preStock.getModel();
 		String entryName= preStock.getEntryName();
-		// 1.通过区域、设备名称、设备型号判断设备是否在库存中已经存在
+		// 1.通过区域、设备名称、设备型号,和项目名称 判断设备是否在库存中已经存在
 		StockStatistics stockStatistics = new StockStatistics();
 		// 字段绑定
 		if (Common.isNotEmpty(preStock)) {

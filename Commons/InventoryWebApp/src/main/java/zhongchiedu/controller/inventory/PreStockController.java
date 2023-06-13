@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -27,12 +29,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import lombok.extern.slf4j.Slf4j;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.Common;
 import zhongchiedu.common.utils.Contents;
+import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.general.pojo.User;
 import zhongchiedu.inventory.pojo.Area;
@@ -365,6 +369,44 @@ public class PreStockController {
 		
 		
 		return new BasicDataResult().build(200, "消息推送成功", null);
+	}
+
+
+	/**
+	 * 模版下载
+	 *
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/prestock/download")
+	@SystemControllerLog(description = "下载库存管理导入模版")
+	public ModelAndView download(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		String storeName = "预库存管理模版.xlsx";
+		String contentType = "application/octet-stream";
+		String UPLOAD = "Templates/";
+		FileOperateUtil.download(request, response, storeName, contentType, UPLOAD);
+		return null;
+	}
+
+	/***
+	 * 文件上传
+	 *
+	 * @param request
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/prestock/upload")
+	@SystemControllerLog(description = "批量导入预库存管理")
+	public ModelAndView upload(HttpServletRequest request, HttpSession session, RedirectAttributes attr) {
+		log.info("开始上传文件");
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.setViewName("redirect:/preStocks");
+		String error = this.preStockService.upload(request, session);
+		attr.addFlashAttribute("errorMsg", error);
+		return modelAndView;
+
 	}
 
 public static void main(String[] args) {
