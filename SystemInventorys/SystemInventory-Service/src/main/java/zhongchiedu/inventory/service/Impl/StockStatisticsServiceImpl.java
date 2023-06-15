@@ -59,14 +59,8 @@ import zhongchiedu.general.pojo.MultiMedia;
 import zhongchiedu.general.pojo.User;
 import zhongchiedu.general.service.MultiMediaService;
 import zhongchiedu.general.service.Impl.UserServiceImpl;
-import zhongchiedu.inventory.pojo.QrCode;
-import zhongchiedu.inventory.pojo.Sign;
-import zhongchiedu.inventory.pojo.Stock;
-import zhongchiedu.inventory.pojo.StockStatistics;
-import zhongchiedu.inventory.service.QrCodeService;
-import zhongchiedu.inventory.service.SignService;
-import zhongchiedu.inventory.service.StockStatisticsService;
-import zhongchiedu.inventory.service.SupplierService;
+import zhongchiedu.inventory.pojo.*;
+import zhongchiedu.inventory.service.*;
 import zhongchiedu.log.annotation.SystemServiceLog;
 
 @Service
@@ -91,7 +85,9 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	
 	@Autowired
 	private SupplierService supplierService;
-	
+
+	@Autowired
+	private PreStockService preStockService;
 
 	@Value("${qrcode.weburl}")
 	private String weburl;
@@ -350,8 +346,38 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 	}
 
+	@SystemServiceLog(description = "撤销预入库信息")
+	public long updatePreStock(Stock stock, long num, boolean inOrOut,StockStatistics st) {
+		lock.lock();
+		long oldnum = stock.getInventory();
+		long newnum = 0;
+		try {
+				// 撤销入库
+				if ((oldnum - num) < 0) {
+					return -1;
+				}
+				if(st.isPreStock()){
+				PreStock preStock=preStockService.findOneById(st.getPreStockId(),PreStock.class);
+				long renum=preStock.getActualReceiptQuantity()-num;
+				preStock.setActualReceiptQuantity(renum);
+				preStock.setStatus(1);
+				this.preStockService.save(preStock);
+				}
+				newnum = oldnum - num;
+				stock.setInventory(newnum);
+				stock.setIsDelete(false);
+				this.stockService.save(stock);
+				return newnum;
+
+		} finally {
+			lock.unlock();
+		}
+
+	}
+
+
 	@Override
-	@SystemServiceLog(description = "插销库存信息")
+	@SystemServiceLog(description = "撤销库存信息")
 	public BasicDataResult revoke(String id) {
 		StockStatistics st = this.findOneById(id, StockStatistics.class);
 		if (st.isRevoke()) {
@@ -369,10 +395,10 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 		long newNum = 0L;
 		if (Common.isNotEmpty(st.getStorageTime())) {
-			// 撤销出库
-			newNum = this.updateStock(stock, st.getNum(), false);
-		} else {
 			// 撤销入库
+			newNum = this.updatePreStock(stock, st.getNum(), false,st);
+		} else {
+			// 撤销出库
 			newNum = this.updateStock(stock, st.getNum(), true);
 		}
 		if (newNum == -1) {

@@ -24,7 +24,9 @@ public interface StockStatisticsService extends GeneralService<StockStatistics> 
 	public BasicDataResult inOrOutstockStatistics(StockStatistics stockStatistics,User user);
 		
 	public long updateStock(Stock stock,long num,boolean inOrOut);
-	
+
+
+
 	public BasicDataResult revoke(String id);
 
 	public BasicDataResult confirm(String id);

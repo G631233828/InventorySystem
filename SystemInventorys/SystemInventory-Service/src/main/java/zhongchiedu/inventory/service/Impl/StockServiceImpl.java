@@ -995,7 +995,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	}
 
 	@Override
-	public void preStockToStock(PreStock preStock) {
+	public void preStockToStock(PreStock preStock,long actnum) {
 		String areaId = preStock.getArea().getId();
 		String name = preStock.getName();
 		String model = preStock.getModel();
@@ -1007,7 +1007,9 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			stockStatistics.setUser(preStock.getHandler());// 操作人
 			stockStatistics.setPreStock(true);// 预入库方式入库
 			stockStatistics.setInOrOut(true);
+			stockStatistics.setPreStockId(preStock.getId());
 			stockStatistics.setNum(preStock.getActualReceiptQuantity());// 设置实际入库数量
+
 			if(Common.isNotEmpty(preStock.getInprice())){
 				stockStatistics.setInprice(preStock.getInprice());
 			}
@@ -1047,8 +1049,8 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		// 修改预库存状态
 		// 预入库
 		long estimatedInventoryQuantity = preStock.getEstimatedInventoryQuantity();
-		// 实际入库
-		long actualReceiptQuantity = preStock.getActualReceiptQuantity();
+		// 实际入库=之前入库的加现在入库的
+		long actualReceiptQuantity =actnum + preStock.getActualReceiptQuantity();
 
 //		if (estimatedInventoryQuantity >= actualReceiptQuantity) {
 //			preStock.setStatus(2);
@@ -1059,10 +1061,10 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 //			// 实际入库>预入库
 //			preStock.setStatus(4);// 超量入库
 //		}
-		if(actualReceiptQuantity>0) {
+		if(estimatedInventoryQuantity-actualReceiptQuantity == 0) {
 			preStock.setStatus(2);
 		}
-
+		preStock.setActualReceiptQuantity(actualReceiptQuantity);
 		this.preStockService.saveOrUpdate(preStock);
 	}
 

@@ -55,7 +55,8 @@ public class StockStatistics extends GeneralBean<StockStatistics> {
 	private String customer;//客户
 	//预入库方式  新增
 	private boolean preStock = false;//预入库
-	
+
+	private String preStockId;//预备入库的id
 	@DBRef
 	private Area area;
 	

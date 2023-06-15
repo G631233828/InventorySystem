@@ -56,7 +56,7 @@ public interface StockService extends GeneralService<Stock> {
 	
 	public Set<String> findProjectNames();
 	
-	public void preStockToStock(PreStock preStock);
+	public void preStockToStock(PreStock preStock,long actnum);
 	
 	public BasicDataResult pickUpApplicationToStock(PickUpApplication pickUpApplication);
 	

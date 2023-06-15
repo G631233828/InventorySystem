@@ -216,7 +216,7 @@ public class PreStockController {
 		Integer pageSize = (Integer) session.getAttribute("prepageSize");
 		String search = (String) session.getAttribute("presearch");
 		String searchArea = (String) session.getAttribute("presearchArea");
-		String status = "2";
+		String status = "1";
 		
 		//获取预入库设备状态
 		PreStock getpreStock = this.preStockService.findOneById(preStock.getId(), PreStock.class);
@@ -230,7 +230,7 @@ public class PreStockController {
 		
 		User suser = (User) session.getAttribute(Contents.USER_SESSION);
 		preStock.setHandler(suser);
-		this.stockService.preStockToStock(preStock);
+		this.stockService.preStockToStock(preStock,getpreStock.getActualReceiptQuantity());
 		
 		
 		//创建通知

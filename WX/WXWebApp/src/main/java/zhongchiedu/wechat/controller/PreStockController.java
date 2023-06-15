@@ -287,7 +287,7 @@ public class PreStockController {
 		
 		User suser = (User) session.getAttribute(Contents.WECHAT_WEB_SESSION);
 		preStock.setHandler(suser);
-		this.stockService.preStockToStock(preStock);
+		this.stockService.preStockToStock(preStock,getpreStock.getActualReceiptQuantity());
 
 		//创建通知
 		Set<User> users = this.inventoryRoleService.findAllUserInInventoryRole();
@@ -313,7 +313,7 @@ public class PreStockController {
 			map.put("keyword3", "设备已经存放在:"+getpreStock.getArea().getName());
 		}
 
-		map.put("remark", "预计入库数量："+getpreStock.getEstimatedInventoryQuantity()+"\n实际入库:"+preStock.getActualReceiptQuantity()+"\n入库操作已完成!");
+		map.put("remark", "预计入库数量："+getpreStock.getEstimatedInventoryQuantity()+"\n实际已入库:"+(preStock.getActualReceiptQuantity()+getpreStock.getActualReceiptQuantity())+"\n入库操作已完成!");
 		users.stream().filter(user->Common.isEmpty(user.getOpenId())).forEach(user->{
 			errorMsg.append("用户："+user.getUserName()+"尚未绑定微信<BR/>");
 		});
