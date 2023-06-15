@@ -508,8 +508,8 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 									Common.isEmpty(st.getSailPrice()) ? "" : st.getSailPrice());
 							out.put("sailesInvoiceDate",
 									Common.isEmpty(st.getSailesInvoiceDate()) ? "" : st.getSailesInvoiceDate());
-//							out.put("receiptNo",
-//									Common.isEmpty(st.getStock().getReceiptNo()) ? "" : st.getStock().getReceiptNo());
+							out.put("receiptNo",
+									Common.isEmpty(st.getReceiptNo()) ? "" : st.getReceiptNo());
 							out.put("customer", Common.isEmpty(st.getCustomer()) ? "" : st.getCustomer());
 							out.put("purchaseInvoiceDate", Common.isEmpty(st.getPurchaseInvoiceDate()) ? ""
 									: st.getPurchaseInvoiceDate());
