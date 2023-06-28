@@ -207,8 +207,8 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			}
 			query.addCriteria(Criteria.where("isDelete").is(false));
 			// query.with(new Sort(new Order(Direction.DESC, "createTime")));
-			query.with(new Sort(new Order(Direction.DESC, "updateTime")));
-//			query.with(new Sort(new Order(Direction.DESC, "inventory")));
+//			query.with(new Sort(new Order(Direction.DESC, "updateTime")));
+			query.with(new Sort(new Order(Direction.DESC, "inventory")));
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, Stock.class);
 			if (pagination == null)
 				pagination = new Pagination<Stock>();

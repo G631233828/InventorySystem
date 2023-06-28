@@ -280,11 +280,11 @@
 											<ul class="pagination pagination-split pull-right"
 												style="margin-top: 0px;">
 												<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
-													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/preStock?pageNo=}+${pageList.upPage}">上一页</a>
+													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/preStocks?pageNo=}+${pageList.upPage}">上一页</a>
 												</li>
 												<li th:each="page:${pageList.navigatepageNums}"
 													th:class="${page  == pageList.pageNo}?active:''"><a
-													th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/preStock?pageNo=}+${page}">[[${page}]]</a>
+													th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/preStocks?pageNo=}+${page}">[[${page}]]</a>
 												</li>
 												<li
 													th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
