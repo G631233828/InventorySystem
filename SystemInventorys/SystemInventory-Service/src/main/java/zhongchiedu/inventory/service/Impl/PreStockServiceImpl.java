@@ -368,11 +368,14 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 				}
 				importPreStock.setSupplier(supplier);
 				importPreStock.setPublisher(user);// 发布人
-				stock = this.findByName(name, model,1);//预入库查重
+				stock = this.findByName(getarea,name, model,1);//预入库查重
 				if (Common.isNotEmpty(stock)) {
+					long newnum=this.updatePreStock(stock,importPreStock.getEstimatedInventoryQuantity());
+					error += "<span class='entypo-attention'></span>该设备预库存已经存在，预库存数量将会叠加<b>&nbsp;&nbsp;" + stock.getName()
+							+ "&nbsp;&nbsp;</b>，预库存量为"+newnum+"！&nbsp&nbsp</b></br>";
 					// 设备已存在
-					error += "<span class='entypo-attention'></span>该设备预库存已经存在，设备名称<b>&nbsp;&nbsp;" + stock.getName()
-							+ "&nbsp;&nbsp;</b>，第<b>&nbsp&nbsp" + (i + 1) + "请手动去修改该条信息！&nbsp&nbsp</b></br>";
+//					error += "<span class='entypo-attention'></span>该设备预库存已经存在，设备名称<b>&nbsp;&nbsp;" + stock.getName()
+//							+ "&nbsp;&nbsp;</b>，第<b>&nbsp&nbsp" + (i + 1) + "请手动去修改该条信息！&nbsp&nbsp</b></br>";
 					continue;
 				} else {
 					// 添加新设备
@@ -396,6 +399,24 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 		return error;
 	}
 
+	/**
+	 * 更新预库存中的预计入库数量
+	 * @param stock
+	 * @param num
+	 * @return
+	 */
+	private long updatePreStock(PreStock stock,long num){
+			lock.lock();
+			long newnum=0;
+			try{
+				newnum=stock.getEstimatedInventoryQuantity()+num;
+				stock.setEstimatedInventoryQuantity(newnum);
+				this.save(stock);
+				return newnum;
+			}finally {
+				lock.unlock();
+			}
+		}
 	/**
 	 * 执行上传文件，返回错误消息
 	 */
@@ -432,8 +453,11 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 	 * 根据单位名称查找单位，如果没有则创建一个
 	 */
 	@Override
-	public PreStock findByName(String name, String model,Integer status) {
+	public PreStock findByName(Area area,String name, String model,Integer status) {
 		Query query = new Query();
+		if (Common.isNotEmpty(area.getId())) {
+			query.addCriteria(Criteria.where("area.$id").is(new ObjectId(area.getId())));
+		}
 		query.addCriteria(Criteria.where("name").is(name));
 		query.addCriteria(Criteria.where("model").is(model));
 		query.addCriteria(Criteria.where("status").is(status));

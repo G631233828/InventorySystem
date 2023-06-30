@@ -7,6 +7,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralService;
+import zhongchiedu.inventory.pojo.Area;
 import zhongchiedu.inventory.pojo.PreStock;
 import zhongchiedu.inventory.pojo.Stock;
 
@@ -26,7 +27,7 @@ public interface PreStockService extends GeneralService<PreStock> {
 	
 	public BasicDataResult todisable(String id);
 	
-	public PreStock findByName(String name,String model,Integer status);
+	public PreStock findByName(Area area, String name, String model, Integer status);
 	
 	public BasicDataResult findOneById(String id);
 	

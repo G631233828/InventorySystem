@@ -280,16 +280,16 @@
 											<ul class="pagination pagination-split pull-right"
 												style="margin-top: 0px;">
 												<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
-													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/preStocks?pageNo=}+${pageList.upPage}">上一页</a>
+													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/preStocks(pageNo=${pageList.upPage},pageSize=${session.pageSize},search=${session.search},searchArea=${session.searchArea},status=${session.status})}">上一页</a>
 												</li>
 												<li th:each="page:${pageList.navigatepageNums}"
 													th:class="${page  == pageList.pageNo}?active:''"><a
-													th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/preStocks?pageNo=}+${page}">[[${page}]]</a>
+													th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/preStocks(pageNo=${page},pageSize=${session.pageSize},search=${session.search},searchArea=${session.searchArea},status=${session.status})}">[[${page}]]</a>
 												</li>
 												<li
 													th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
 													<a
-													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/preStock?pageNo=}+${pageList.nextPage}">下一页</a>
+													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/preStocks(pageNo=${pageList.nextPage},pageSize=${session.pageSize},search=${session.search},searchArea=${session.searchArea},status=${session.status})}">下一页</a>
 												</li>
 											</ul>
 										</div>
