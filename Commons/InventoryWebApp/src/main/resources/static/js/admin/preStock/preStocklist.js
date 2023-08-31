@@ -57,7 +57,7 @@ function toExport(){
 	var areaId = $("#searchArea").val();
 	
 	
-	window.location.href = "stock/export?areaId="+areaId;
+	window.location.href = "prestock/export?areaId="+areaId;
 	
 	
 }

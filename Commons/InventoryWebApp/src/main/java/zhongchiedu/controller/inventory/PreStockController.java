@@ -1,5 +1,7 @@
 package zhongchiedu.controller.inventory;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -14,6 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -408,6 +412,46 @@ public class PreStockController {
 		return modelAndView;
 
 	}
+
+	/**
+	 * 导出excel
+	 */
+//	@RequestMapping(value = "/prestock/export")
+//	public void exportStock(HttpServletResponse response,
+//							@RequestParam(value = "areaId", defaultValue = "") String areaId) {
+//		try {
+//			response.setContentType("application/vnd.ms-excel");
+//			String name = Common.fromDateYM() + "预库存报表";
+//			String fileName = new String((name).getBytes("gb2312"), "ISO8859-1");
+//			HSSFWorkbook wb = this.preStockService.export(name, areaId);
+//			response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xls");
+//			OutputStream ouputStream = response.getOutputStream();
+//			wb.write(ouputStream);
+//			ouputStream.flush();
+//			ouputStream.close();
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//
+//	}
+
+	@RequestMapping(value = "/prestock/export")
+	public void exportpreStock(HttpServletResponse response,HttpServletRequest request,
+							@RequestParam(value = "areaId", defaultValue = "") String areaId)  throws Exception{
+		String exportName = Common.fromDateYMD() + "预库存报表";
+
+		response.setContentType("application/vnd.ms-excel");
+		String fileName = new String((exportName).getBytes("gb2312"), "ISO8859-1");
+		response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xlsx");
+		Workbook newExport = this.preStockService.newExport(request,fileName, areaId);
+
+		OutputStream out = response.getOutputStream();
+		newExport.write(out);
+		out.flush();
+		out.close();
+
+	}
+
 
 public static void main(String[] args) {
 	StringBuilder errorMsg = new StringBuilder();

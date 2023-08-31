@@ -2,23 +2,23 @@ package zhongchiedu.inventory.service.Impl;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import cn.afterturn.easypoi.excel.ExcelExportUtil;
+import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.bson.types.ObjectId;
 import org.springframework.beans.BeanUtils;
@@ -70,6 +70,7 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 				// update
 				PreStock ed = this.findOneById(stock.getId(), PreStock.class);
 				BeanUtils.copyProperties(stock, ed);
+				stock.setUpdateTime(new Date());
 				this.save(stock);
 			} else {
 				// insert
@@ -479,7 +480,7 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 	}
 
 	@Override
-	@SystemServiceLog(description = "导出库存信息")
+	@SystemServiceLog(description = "导出预库存信息")
 	public HSSFWorkbook export(String name, String areaId) {
 		HSSFWorkbook wb = new HSSFWorkbook();
 
@@ -627,6 +628,63 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 //			j++;
 //		}
 
+	}
+
+	public Workbook newExport(HttpServletRequest request, String name, String areaId){
+		List<PreStock> list = this.findAllPreStock(false, areaId);
+		List<Map<String, Object>> arrayList = new ArrayList<>();
+		List<Map<String, Object>> doneList = new ArrayList<>();
+		for (PreStock stock : list) {
+			if(stock.getStatus() == 1){
+				Map<String, Object> in = new HashMap<>();
+				in.put("area", Common.isEmpty(stock.getArea().getName()) ? "" : stock.getArea().getName());
+				in.put("name", Common.isEmpty(stock.getName()) ? "" : stock.getName());
+				in.put("model", Common.isEmpty(stock.getModel()) ? "" : stock.getModel());
+				in.put("esq", Common.isEmpty(stock.getEstimatedInventoryQuantity()) ? "" : stock.getEstimatedInventoryQuantity());
+				in.put("arq", Common.isEmpty(stock.getActualReceiptQuantity()) ? "" : stock.getActualReceiptQuantity());
+				in.put("sy",stock.getEstimatedInventoryQuantity()-stock.getActualReceiptQuantity());
+				in.put("unit", Common.isEmpty(stock.getUnit().getName()) ? "" : stock.getUnit().getName());
+				arrayList.add(in);
+			} else if (stock.getStatus() == 2) {
+				Map<String, Object> done = new HashMap<>();
+				done.put("area", Common.isEmpty(stock.getArea().getName()) ? "" : stock.getArea().getName());
+				done.put("name", Common.isEmpty(stock.getName()) ? "" : stock.getName());
+				done.put("model", Common.isEmpty(stock.getModel()) ? "" : stock.getModel());
+				done.put("esq", Common.isEmpty(stock.getEstimatedInventoryQuantity()) ? "" : stock.getEstimatedInventoryQuantity());
+				done.put("arq", Common.isEmpty(stock.getActualReceiptQuantity()) ? "" : stock.getActualReceiptQuantity());
+				done.put("sy",stock.getEstimatedInventoryQuantity()-stock.getActualReceiptQuantity());
+				done.put("unit", Common.isEmpty(stock.getUnit().getName()) ? "" : stock.getUnit().getName());
+//				上次修改时间
+//				String lastTime="";
+//				try {
+//					lastTime=Common.isEmpty(stock.getUpdateTime())?"":Common.getDateYMDHM(stock.getUpdateTime());
+//				} catch (ParseException e) {
+//					throw new RuntimeException(e);
+//				}
+//				done.put("lastTime",lastTime);
+				doneList.add(done);
+			}
+
+		}
+		Map<String, Object> dataMap = new HashMap<>();
+
+		dataMap.put("inlist", arrayList);
+		dataMap.put("outlist", doneList);
+
+		String ctxPath = request.getServletContext().getRealPath("/WEB-INF/Templates/");
+		String fileName = "预入库管理模板.xlsx";
+		TemplateExportParams params = new TemplateExportParams(ctxPath + fileName, true);
+		Workbook doc = null;
+
+		try {
+			doc = ExcelExportUtil.exportExcel(params, dataMap);
+//							WordUtil.exportWord(ctxPath+fileName, dataMap);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return doc;
 	}
 
 	/**

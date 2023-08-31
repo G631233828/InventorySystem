@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 
+import org.apache.poi.ss.usermodel.Workbook;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralService;
@@ -35,7 +36,7 @@ public interface PreStockService extends GeneralService<PreStock> {
 	
 	public List<PreStock> findAllPreStockByStatus(boolean isdisable,int status);
 
-
+	public Workbook newExport(HttpServletRequest request, String name, String areaId);
 
 	
 }
