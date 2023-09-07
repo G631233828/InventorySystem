@@ -28,7 +28,7 @@ public interface PreStockService extends GeneralService<PreStock> {
 	
 	public BasicDataResult todisable(String id);
 	
-	public PreStock findByName(Area area, String name, String model, Integer status);
+	public PreStock findByName(Area area, String name, String model, Integer status,String entryName);
 	
 	public BasicDataResult findOneById(String id);
 	

@@ -131,8 +131,9 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 				query = this.findbySearch(search, query);
 			}
 			query.addCriteria(Criteria.where("isDelete").is(false));
-			// query.with(new Sort(new Order(Direction.DESC, "createTime")));
+			 query.with(new Sort(new Order(Direction.DESC, "createTime")));
 			query.with(new Sort(new Order(Direction.DESC, "inventory")));
+
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, PreStock.class);
 			if (pagination == null)
 				pagination = new Pagination<PreStock>();
@@ -157,7 +158,9 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 											 * Criteria.where("goodsStorage.$id").in(goodsStorage),
 											 * Criteria.where("supplier.$id").in(suppliersId),
 											 */ Criteria.where("name").regex(search),
-					Criteria.where("model").regex(search), Criteria.where("scope").regex(search)));
+					Criteria.where("model").regex(search),
+					Criteria.where("entryName").regex(search),
+					Criteria.where("scope").regex(search)));
 		}
 
 		return query;
@@ -348,7 +351,7 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 				importPreStock.setModel(model);
 				importPreStock.setEstimatedInventoryQuantity(Long.valueOf(resultexcel[i][j + 3].trim()));// 预备入库的数量
 				importPreStock.setEntryName(resultexcel[i][j + 5].trim());// 项目名称
-
+				String entryName=resultexcel[i][j + 5].trim();
 				String unitName = resultexcel[i][j + 4].trim();//单位
 				if (Common.isNotEmpty(unitName)) {
 					// 根据供应商名称查找，看供应商是否存在
@@ -369,7 +372,7 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 				}
 				importPreStock.setSupplier(supplier);
 				importPreStock.setPublisher(user);// 发布人
-				stock = this.findByName(getarea,name, model,1);//预入库查重
+				stock = this.findByName(getarea,name, model,1,entryName);//预入库查重 区域，名字，型号，项目名称
 				if (Common.isNotEmpty(stock)) {
 					long newnum=this.updatePreStock(stock,importPreStock.getEstimatedInventoryQuantity());
 					error += "<span class='entypo-attention'></span>该设备预库存已经存在，预库存数量将会叠加<b>&nbsp;&nbsp;" + stock.getName()
@@ -454,13 +457,14 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 	 * 根据单位名称查找单位，如果没有则创建一个
 	 */
 	@Override
-	public PreStock findByName(Area area,String name, String model,Integer status) {
+	public PreStock findByName(Area area,String name, String model,Integer status,String entryName) {
 		Query query = new Query();
 		if (Common.isNotEmpty(area.getId())) {
 			query.addCriteria(Criteria.where("area.$id").is(new ObjectId(area.getId())));
 		}
 		query.addCriteria(Criteria.where("name").is(name));
 		query.addCriteria(Criteria.where("model").is(model));
+		query.addCriteria(Criteria.where("entryName").is(entryName));
 		query.addCriteria(Criteria.where("status").is(status));
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		PreStock stock = this.findOneByQuery(query, PreStock.class);

@@ -195,6 +195,7 @@
 											<th class="numeric">剩余入库数量</th>
 											<th class="numeric">发布人</th>
 											<th class="numeric" th:if="${session.status}!=1">处理人</th>
+											<th class="numeric">录入时间</th>
 											<th class="numeric" th:if="${session.status}==1">预计入库时间</th>
 											<th class="numeric">入库状态</th>
 											<th class="numeric">操作</th>
@@ -225,6 +226,7 @@
 												<td class="numeric">[[${stock?.estimatedInventoryQuantity}-${stock?.actualReceiptQuantity}]]</td>
 												<td class="numeric">[[${stock?.publisher?.userName}]]</td>
 												<td class="numeric" th:if="${session.status}!=1">[[${stock?.handler?.userName}]]</td>
+												<td class="numeric" th:text="${#dates.format(stock?.createTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
 												<td class="numeric" th:if="${session.status}==1"
 													th:text="${#dates.format(stock?.estimatedWarehousingTime,'yyyy-MM-dd hh:mm')}"></td>
 												<td class="numeric"
