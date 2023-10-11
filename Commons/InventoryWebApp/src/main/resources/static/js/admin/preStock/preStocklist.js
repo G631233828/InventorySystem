@@ -205,7 +205,128 @@ function wechatPush(o){
 	});
 }
 
+/**
+ *批量导出
+ *
+ */
+function batchOut() {
+	var batchids = "";
+	var id = $("input[name='ids']:checked");
+	var str = "";
+	$(id).each(function() {
+		str += this.value + ",";
+	});
+	if (str != "") {
+		batchids = str.substring(0, str.length - 1);
+	}
+	$.ajax({
+		type: 'POST',
+		url: 'prestock/getItems',
+		data: "id=" + batchids,
+		dataType: 'json',
+		success: function(data) {
+			if (data.status == 200) {
+				var prestocklist = "";
+				$.each(data.data, function(index, item) {
+					prestocklist += ` <tr id=stock_` + item.id + `>
+                               <td class="numeric">`+ item.name + `</td>
+                               <td class="numeric">`+ item.model + `</td>
+                               <td class="numeric">`+ item.actualReceiptQuantity + `</td>
+                               <td class="numeric">
+							   <input type="hidden" name="batchid" value="`+ item.id + `"> 
+                               <input type="text" onblur="return setStockNum('`+ item.id + `')"  class="form-control stockval batchout" id=stocknum_` + item.id + `   name="batchnum" >
+                               </td>
+                               <td class="numeric">
+                               <button class="btn " type="button" onclick="return deleteStock('`+ item.id + `')" > <i  class="fa fa-trash-o">移除 </i>
+							  </button>
+                                </td>  </tr>`
+				});
+				$("#prestocklist").html(prestocklist)
+				$("#mystockbatchout").modal('show');
+			} else {
+				jqueryAlert({
+					'icon': getRootPath() + '/plugs/alert/img/error.png',
+					'content': data.msg,
+					'closeTime': 2000,
+				})
+			}
 
+		}
+	})
+
+}
+
+function setStockNum(o) {
+
+	var val = $("#stocknum_" + o).val();
+
+	$.ajax({
+		dataType: "json",
+		type: "POST",
+		url: getRootPath() + "/prestock/checkNum",
+		data: "id=" + o + "&num=" + val,
+		success: function(data) {
+
+			if (data.status == 200) {
+
+
+			} else {
+				jqueryAlert({
+					'icon': getRootPath() + '/plugs/alert/img/error.png',
+					'content': data.msg,
+					'closeTime': 2000,
+				})
+				$("#stocknum_" + o).val('')
+
+			}
+
+		}
+	});
+
+
+}
+
+function deleteStock(o) {
+	$("#stock_" + o).html('');
+}
+
+function batchFormSubmit() {
+
+	$.ajax({
+		dataType: "json",
+		type: "POST",
+		url: getRootPath() + "/prestock/batchOut",
+		data: $("#BatchOutstockStatisticsForm").serialize(),
+		success: function(data) {
+			if (data.status == 200) {
+				$.each(data.data, function(index, item) {
+					var eiq = item.estimatedInventoryQuantity;
+					var aiq = item.actualReceiptQuantity;
+					var eaiq= eiq - aiq;
+					$("#eaquantity_" + item.id).text(eaiq);
+					$("#acquantity_" + item.id).text(aiq);
+				});
+				jqueryAlert({
+					'icon': getRootPath() + '/plugs/alert/img/right.png',
+					'content': data.msg,
+					'closeTime': 2000,
+				})
+
+				$("#mystockbatchout").modal('hide');
+			} else {
+				jqueryAlert({
+					'icon': getRootPath() + '/plugs/alert/img/error.png',
+					'content': data.msg,
+					'closeTime': 2000,
+				})
+			}
+
+
+		}
+	});
+
+
+}
 
 
 

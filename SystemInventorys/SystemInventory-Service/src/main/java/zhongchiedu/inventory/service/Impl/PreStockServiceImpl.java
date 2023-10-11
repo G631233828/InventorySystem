@@ -641,23 +641,23 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 		for (PreStock stock : list) {
 			if(stock.getStatus() == 1){
 				Map<String, Object> in = new HashMap<>();
-				in.put("area", Common.isEmpty(stock.getArea().getName()) ? "" : stock.getArea().getName());
+				in.put("area", Common.isEmpty(stock.getArea()) ? "" : stock.getArea().getName());
 				in.put("name", Common.isEmpty(stock.getName()) ? "" : stock.getName());
 				in.put("model", Common.isEmpty(stock.getModel()) ? "" : stock.getModel());
 				in.put("esq", Common.isEmpty(stock.getEstimatedInventoryQuantity()) ? "" : stock.getEstimatedInventoryQuantity());
 				in.put("arq", Common.isEmpty(stock.getActualReceiptQuantity()) ? "" : stock.getActualReceiptQuantity());
 				in.put("sy",stock.getEstimatedInventoryQuantity()-stock.getActualReceiptQuantity());
-				in.put("unit", Common.isEmpty(stock.getUnit().getName()) ? "" : stock.getUnit().getName());
+				in.put("unit", Common.isEmpty(stock.getUnit()) ? "" : stock.getUnit().getName());
 				arrayList.add(in);
 			} else if (stock.getStatus() == 2) {
 				Map<String, Object> done = new HashMap<>();
-				done.put("area", Common.isEmpty(stock.getArea().getName()) ? "" : stock.getArea().getName());
+				done.put("area", Common.isEmpty(stock.getArea()) ? "" : stock.getArea().getName());
 				done.put("name", Common.isEmpty(stock.getName()) ? "" : stock.getName());
 				done.put("model", Common.isEmpty(stock.getModel()) ? "" : stock.getModel());
 				done.put("esq", Common.isEmpty(stock.getEstimatedInventoryQuantity()) ? "" : stock.getEstimatedInventoryQuantity());
 				done.put("arq", Common.isEmpty(stock.getActualReceiptQuantity()) ? "" : stock.getActualReceiptQuantity());
 				done.put("sy",stock.getEstimatedInventoryQuantity()-stock.getActualReceiptQuantity());
-				done.put("unit", Common.isEmpty(stock.getUnit().getName()) ? "" : stock.getUnit().getName());
+				done.put("unit", Common.isEmpty(stock.getUnit()) ? "" : stock.getUnit().getName());
 //				上次修改时间
 //				String lastTime="";
 //				try {
@@ -719,6 +719,15 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 		}
 		query.addCriteria(Criteria.where("isDisable").is(isdisable == true ? true : false));
 		query.addCriteria(Criteria.where("isDelete").is(false));
+		return this.find(query, PreStock.class);
+	}
+
+	@Override
+	public List<PreStock> findStocksByIds(List ids) {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("_id").in(ids));
+		query.addCriteria(Criteria.where("isDelete").is(false));
+		query.addCriteria(Criteria.where("isDisable").is(false));
 		return this.find(query, PreStock.class);
 	}
 

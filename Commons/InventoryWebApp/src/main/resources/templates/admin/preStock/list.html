@@ -102,6 +102,10 @@
 										<i class="entypo-export"> </i>导出预库存
 									</button>
 
+									<button class="btn btn-success" onclick="return batchOut()">
+										<i class="fontawesome-upload"> </i>批量出库
+									</button>
+
 								</div>
 
 								<div class="titleClose">
@@ -222,8 +226,8 @@
 												<td class="numeric">[[${stock?.estimatedInventoryQuantity}]]</td>
 <!--												<td class="numeric">[[${stock?.inprice}]]</td>-->
 <!--												<td class="numeric">[[${stock?.purchaseInvoiceNo}]]</td>-->
-												<td class="numeric" >[[${stock?.actualReceiptQuantity}]]</td>
-												<td class="numeric">[[${stock?.estimatedInventoryQuantity}-${stock?.actualReceiptQuantity}]]</td>
+												<td class="numeric" th:id="|acquantity_${stock?.id}|">[[${stock?.actualReceiptQuantity}]]</td>
+												<td class="numeric" th:id="|eaquantity_${stock?.id}|">[[${stock?.estimatedInventoryQuantity}-${stock?.actualReceiptQuantity}]]</td>
 												<td class="numeric">[[${stock?.publisher?.userName}]]</td>
 												<td class="numeric" th:if="${session.status}!=1">[[${stock?.handler?.userName}]]</td>
 												<td class="numeric" th:text="${#dates.format(stock?.createTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
@@ -321,6 +325,7 @@
 
 		<div th:replace="public/public::myModal"></div>
 		<div th:replace="admin/preStock/batch::mybatch"></div>
+		<div th:replace="admin/preStock/batchout::mystockbatchout"></div>
 		<script type="text/javascript" th:inline="javascript"
 			th:src="@{/js/admin/preStock/preStocklist.js}"></script>
 	</div>

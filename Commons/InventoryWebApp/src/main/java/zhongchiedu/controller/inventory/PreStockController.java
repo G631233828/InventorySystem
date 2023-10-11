@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -43,12 +44,7 @@ import zhongchiedu.common.utils.Contents;
 import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.general.pojo.User;
-import zhongchiedu.inventory.pojo.Area;
-import zhongchiedu.inventory.pojo.GoodsStorage;
-import zhongchiedu.inventory.pojo.InventoryRole;
-import zhongchiedu.inventory.pojo.PreStock;
-import zhongchiedu.inventory.pojo.Supplier;
-import zhongchiedu.inventory.pojo.Unit;
+import zhongchiedu.inventory.pojo.*;
 import zhongchiedu.inventory.service.InventoryRoleService;
 import zhongchiedu.inventory.service.StockService;
 import zhongchiedu.inventory.service.Impl.AreaServiceImpl;
@@ -452,6 +448,112 @@ public class PreStockController {
 
 	}
 
+
+	@RequestMapping(value = "/prestock/getItems", method = RequestMethod.POST)
+	@ResponseBody
+	public BasicDataResult getItems(HttpSession session,String id) {
+//		List list = (List) session.getAttribute(Contents.STOCK_LIST);
+//		if(list==null&& Common.isEmpty(id)) {
+//			return new BasicDataResult(400, "获取出库列表失败，请先添加或选中出库商品！", null);
+//		}
+//		if(Common.isNotEmpty(id)) {
+//			list = Arrays.asList(id.split(","));
+//			list.forEach(o->{
+//				List getstockSession = (List) session.getAttribute(Contents.STOCK_LIST);
+//
+//				if(getstockSession==null) {
+//					List listid = new ArrayList<>();
+//					listid.add(o);
+//					session.setAttribute(Contents.STOCK_LIST, listid);
+//				}else {
+//					if(!getstockSession.contains(id)) {
+//						getstockSession.add(o);
+//						session.setAttribute(Contents.STOCK_LIST, getstockSession);
+//					}
+//
+//				}
+//			});
+//
+//
+//
+//		}
+
+		List list=new ArrayList<>();
+
+		if(Common.isNotEmpty(id)) {
+			list = Arrays.asList(id.split(","));
+
+		}
+
+		if(Common.isNotEmpty(list)&&list.size()>0) {
+			List<PreStock> stocks = this.preStockService.findStocksByIds(list);
+			List<PreStock> liststock = new ArrayList<>();
+			//便利 数据过滤
+			stocks.forEach(s->{
+				PreStock stock = new PreStock();
+				stock.setName(s.getName());
+				stock.setActualReceiptQuantity(s.getEstimatedInventoryQuantity()-s.getActualReceiptQuantity());//用actualReceiptQuantity代替库存量
+				stock.setModel(s.getModel());
+				stock.setId(s.getId());
+				liststock.add(stock);
+			});
+			return new BasicDataResult(200, "获取入库列表", liststock);
+		}else {
+			return new BasicDataResult(400, "获取入库列表失败，请先添加入库商品！", null);
+		}
+
+	}
+
+	@RequestMapping(value = "/prestock/checkNum", method = RequestMethod.POST)
+	@ResponseBody
+	public BasicDataResult checkNum(HttpSession session,
+									@RequestParam(value = "id", defaultValue = "") String id,
+									@RequestParam(value = "num", defaultValue = "") String num) {
+		if(Common.isNotEmpty(id)) {
+
+			boolean isnum = StringUtils.isNumeric(num);
+			if(!isnum) {
+				return new BasicDataResult(400, "请输入合法的数字！", "");
+			}
+			//根据id获取库存商品
+			PreStock stock = this.preStockService.findOneById(id, PreStock.class);
+			Long eaqu=stock.getEstimatedInventoryQuantity()-stock.getActualReceiptQuantity();
+			if(eaqu<Long.valueOf(num)) {
+				return new BasicDataResult(400, "入库数量大于库存数量，请检查！", "");
+			}
+			return new BasicDataResult(200, "库存无误！", "");
+		}
+
+		return new BasicDataResult(400, "获取库存信息失败", "");
+	}
+
+	@RequestMapping(value = "/prestock/batchOut", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	@SystemControllerLog(description = "批量入库")
+	public BasicDataResult batchOut(String batchid, String batchnum, HttpSession session) {
+		String[] ids = batchid.split(",");
+		String[] nums = batchnum.split(",");
+		List<String> batchidList = Arrays.asList(ids);
+		List<String> batchnumList = Arrays.asList(nums);
+		if (batchidList.size() != batchnumList.size()) {
+			return new BasicDataResult(400, "出库商品与id不匹配", "");
+		}
+		List<Object> list = new ArrayList<>();
+		for (int i = 0; i < batchidList.size(); i++) {
+			PreStock preStock=this.preStockService.findOneById(batchidList.get(i),PreStock.class);
+			PreStock stock=new PreStock();
+			stock.setId(preStock.getId());
+			stock.setEstimatedInventoryQuantity(preStock.getEstimatedInventoryQuantity());
+			Long actnum=preStock.getActualReceiptQuantity();//之前入库的数量
+			stock.setActualReceiptQuantity(actnum+Long.valueOf(batchnumList.get(i)));
+			preStock.setActualReceiptQuantity(Long.valueOf(batchnumList.get(i)));
+			this.stockService.preStockToStock(preStock,actnum);
+			list.add(stock);
+		}
+
+
+		return new BasicDataResult(200, "批量出库成功!", list);
+	}
 
 public static void main(String[] args) {
 	StringBuilder errorMsg = new StringBuilder();

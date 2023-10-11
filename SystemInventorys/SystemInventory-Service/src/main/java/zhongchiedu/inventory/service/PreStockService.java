@@ -38,5 +38,5 @@ public interface PreStockService extends GeneralService<PreStock> {
 
 	public Workbook newExport(HttpServletRequest request, String name, String areaId);
 
-	
+	public List<PreStock> findStocksByIds(List ids);
 }
