@@ -374,6 +374,7 @@ function toExport() {
 }
 
 
+
 function toExportTJ() {
 	jqueryAlert({
 		'icon': getRootPath() + '/plugs/alert/img/right.png',
@@ -569,7 +570,19 @@ function batchPaymentOrderNo() {
 
 }
 
+function searchbyN(size,search,area,totalpage){
+	var N=$("#searchN").val();
+	if(N <= 0 || N > totalpage){
+		swal({
+			type: "warning",
+			title: "",
+			text: "页数不对，重新填写!!",
+		});
+	}else{
+		window.location.href = "stocks?pageNo=" + N +"&pageSize=" + size + "&search=" + search + "&searchArea=" + area ;
+	}
 
+}
 
 
 

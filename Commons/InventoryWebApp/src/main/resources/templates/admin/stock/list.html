@@ -393,6 +393,7 @@
 													<a
 													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/stocks(pageNo=${pageList.totalPage},pageSize=${session.pageSize},search=${session.search},id=${id},searchArea=${session.searchArea})}">尾页</a>
 												</li>
+												<li><input class="form-control" id="searchN" style="width: 60px;" type="number" placeholder="" /> <a href="javascript:void(0);" th:onclick="|return searchbyN('${session.pageSize}','${session.search}','${session.searchArea}','${pageList.totalPage}')|">跳转</a></li>
 											</ul>
 										</div>
 									</div>

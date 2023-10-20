@@ -535,7 +535,21 @@ $("#"+o).toggle();
 
 }
 
+function searchbyN(size,search,area,totalpage,type,start,end,revoke,confirm,userId){
+	var N=$("#searchN").val();
+	var Tpage=parseInt(totalpage);
+	if(N <= 0 || N > Tpage){
+		swal({
+			type: "warning",
+			title: "",
+			text: "页数不对，重新填写!!",
+		});
+	}else{
+		window.location.href = "stockStatisticss?pageNo=" + N +"&pageSize=" + size + "&search=" + search + "&searchArea=" + area +"&type="
+			+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=" + userId;
+	}
 
+}
 
 
 
