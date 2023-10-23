@@ -19,7 +19,8 @@ var paymentOrderNo = $("#_it4").val();//银行付款单号
 var sailesInvoiceDate = $("#_it5").val();//销售发票开具日期
 var newItemNo = $("#_it6").val();//采购付款申请单编码(新)
 var purchaseInvoiceDate = $("#_it7").val();//采购发票到票时间
-	alert(newItemNo)
+var description = 	$("#_it8").val();//备注
+	// alert(newItemNo)
 	$.ajax({
 		dataType: "json",
 		type: "POST",
@@ -55,6 +56,9 @@ var purchaseInvoiceDate = $("#_it7").val();//采购发票到票时间
 			$("#purchaseInvoiceDate_"+this.value).text(purchaseInvoiceDate);
 		}
 
+		if(description!=""){
+			$("#description_"+this.value).text(description);
+		}
 	});
 
 			jqueryAlert({

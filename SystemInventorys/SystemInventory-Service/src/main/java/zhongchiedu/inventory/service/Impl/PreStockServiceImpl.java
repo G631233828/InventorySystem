@@ -132,7 +132,7 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 			}
 			query.addCriteria(Criteria.where("isDelete").is(false));
 			 query.with(new Sort(new Order(Direction.DESC, "createTime")));
-			query.with(new Sort(new Order(Direction.DESC, "inventory")));
+			query.with(new Sort(new Order(Direction.DESC, "inventory"))); //按照库存量排序
 
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, PreStock.class);
 			if (pagination == null)
@@ -731,4 +731,41 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 		return this.find(query, PreStock.class);
 	}
 
+	@Override
+	public void updateStockStatistics(String ids,Double inprice,String purchaseInvoiceNo,String purchaseInvoiceDate,String paymentOrderNo,String itemNo){
+		List<String> array = Arrays.asList(ids.split(","));
+		for (String id : array) {
+			PreStock preStock = this.findOneById(id, PreStock.class);
+			if (inprice != null) {
+				preStock.setInprice(inprice);
+			}
+			if (!purchaseInvoiceNo.equals("null")) {
+				preStock.setPurchaseInvoiceNo(purchaseInvoiceNo);
+			}
+//			if (!receiptNo.equals("null")) {
+//				stockStatistics.setReceiptNo(receiptNo);
+//			}
+			if (!paymentOrderNo.equals("null")) {
+				preStock.setPaymentOrderNo(paymentOrderNo);
+			}
+//			if (!sailesInvoiceNo.equals("null")) {
+//				stockStatistics.setSailesInvoiceNo(sailesInvoiceNo);
+//			}
+//			if (!sailesInvoiceDate.equals("null")) {
+//				stockStatistics.setSailesInvoiceDate(sailesInvoiceDate);
+//			}
+			if (!purchaseInvoiceDate.equals("null")) {
+				preStock.setPurchaseInvoiceDate(purchaseInvoiceDate);
+			}
+//			if (sailPrice != null) {
+//				stockStatistics.setSailPrice(sailPrice);
+//			}
+			if(!itemNo.equals("null")){
+				preStock.setItemNo(itemNo);
+			}
+//			stockStatistics.setEditFinanceTime(Common.fromDateH());
+//			stockStatistics.setFinanceUser(user);
+			this.save(preStock);
+		}
+	}
 }

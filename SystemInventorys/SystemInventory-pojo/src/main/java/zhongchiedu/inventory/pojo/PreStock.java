@@ -59,11 +59,13 @@ public class PreStock extends GeneralBean<PreStock> {
 	
 	
 	private String entryName;//项目名称
-	private String itemNo;//项目编号
+	private String itemNo;//采购付款单编码（新）
 
 	//20230207  添加出库入库总金额
 	private Double inprice;
 	private String purchaseInvoiceNo;//采购发票号
 
-
+	//采购发票到票时间
+	private String purchaseInvoiceDate;
+	private String paymentOrderNo;//银行付款日期
 }

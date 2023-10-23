@@ -555,6 +555,39 @@ public class PreStockController {
 		return new BasicDataResult(200, "批量出库成功!", list);
 	}
 
+
+
+	@RequestMapping(value = "/prestock/batchEditprestock", method = RequestMethod.POST)
+	@ResponseBody
+	public BasicDataResult batchPaymentOrderNo(HttpSession session,
+											   @RequestParam(value = "stockid", defaultValue = "") String stockid,
+											   @RequestParam(value = "inprice", defaultValue = "null") String inprice,
+											   @RequestParam(value = "purchaseInvoiceNo", defaultValue = "null") String purchaseInvoiceNo,
+											   @RequestParam(value = "paymentOrderNo", defaultValue = "null") String paymentOrderNo,
+											   @RequestParam(value = "purchaseInvoiceDate", defaultValue = "null") String purchaseInvoiceDate,
+											   @RequestParam(value = "itemNo", defaultValue = "null") String itemNo
+	) {
+
+		Double dinprice=null;
+		Double dsailPrice=null;
+		try {
+			if(!inprice.equals("null")) {
+				dinprice = Double.parseDouble(inprice);
+			}else {
+				dinprice=null;
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+			return new BasicDataResult(400, "入库金额输入有误，请输入正确的数字", "");
+
+		}
+
+		User user = (User) session.getAttribute(Contents.USER_SESSION);
+		this.preStockService.updateStockStatistics(stockid, dinprice, purchaseInvoiceNo,purchaseInvoiceDate,paymentOrderNo,itemNo);
+		return new BasicDataResult(200, "修改统计数据成功", "");
+
+	}
+
 public static void main(String[] args) {
 	StringBuilder errorMsg = new StringBuilder();
 	System.out.println(errorMsg.length()==0);

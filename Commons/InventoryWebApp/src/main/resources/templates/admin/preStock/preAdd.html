@@ -123,11 +123,20 @@
 												</div>
 											</div>
 											<div class="form-group" id="modelform">
-												<label class="col-lg-1 control-label">项目编号：</label>
+												<label class="col-lg-1 control-label">采购付款单编码（新）：</label>
 												<div class="col-lg-6">
 													<input class="form-control" id="itemNo"
-														placeholder="请输入项目编号" name="itemNo"
+														placeholder="请输入采购付款单编码（新）" name="itemNo"
 														th:value="${stock?.itemNo}">
+												</div>
+											</div>
+
+											<div class="form-group" id="modelform">
+												<label class="col-lg-1 control-label">银行付款日期</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="paymentOrderNo"
+														   placeholder="请输入银行付款日期" name="paymentOrderNo"
+														   th:value="${stock?.paymentOrderNo}">
 												</div>
 											</div>
 
@@ -257,6 +266,15 @@
 													<input class="form-control" id="actualReceiptQuantity"
 														placeholder="请输入实际入库数量" name="actualReceiptQuantity" required="required"
 														th:value="${stock?.actualReceiptQuantity}">
+												</div>
+											</div>
+
+											<div class="form-group">
+												<label class="col-lg-1 control-label">银行发票到票日期：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="purchaseInvoiceDate"
+														   placeholder="请输入银行发票到票日期" name="purchaseInvoiceDate" readonly="readonly"
+														   th:value="${stock?.purchaseInvoiceDate}">
 												</div>
 											</div>
 

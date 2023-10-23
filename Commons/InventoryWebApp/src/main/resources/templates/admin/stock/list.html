@@ -355,6 +355,51 @@
 
 
 										</tbody>
+
+										<thead class="cf">
+										<tr>
+											<th class="numeric" >
+												合计
+											</th>
+
+											<th class="numeric area"
+												th:style="${#lists.contains(listColums,'area')}?'':'display:none;'"></th>
+											<th class="numeric name"
+												th:style="${#lists.contains(listColums,'name')}?'':'display:none;'"></th>
+											<th class="numeric model"
+												th:style="${#lists.contains(listColums,'model')}?'':'display:none;'"></th>
+											<th class="numeric entryName"
+												th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'"></th>
+											<th class="numeric itemNo"
+												th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'"></th>
+											<!-- <th class="numeric scope"
+                                                th:style="${#lists.contains(listColums,'scope')}?'':'display:none;'">使用范围</th> -->
+											<th class="numeric brand"
+												th:style="${#lists.contains(listColums,'brand')}?'':'display:none;'"></th>
+											<th class="numeric goodsStorage"
+												th:style="${#lists.contains(listColums,'goodsStorage')}?'':'display:none;'"></th>
+											<th class="numeric price"
+												th:style="${#lists.contains(listColums,'price')}?'':'display:none;'"></th>
+											<!-- <th class="numeric receivables"
+                                                th:style="${#lists.contains(listColums,'receivables')}?'':'display:none;'">应收款</th> -->
+											<th class="numeric agent"
+												th:style="${#lists.contains(listColums,'agent')}?'':'display:none;'"></th>
+											<th class="numeric unit"
+												th:style="${#lists.contains(listColums,'unit')}?'':'display:none;'"></th>
+											<!-- 	<th class="numeric maintenance"
+                                                th:style="${#lists.contains(listColums,'maintenance')}?'':'display:none;'">维保</th> -->
+											<th class="numeric supplier"
+												th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'"></th>
+											<th class="numeric inventory"
+												th:style="${#lists.contains(listColums,'inventory')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![inventory==null?0:inventory])}]]</th>
+											<th class="numeric email"
+												th:style="${#lists.contains(listColums,'email')}?'':'display:none;'"></th>
+											<th class="numeric"></th>
+											<th class="numeric"></th>
+										</tr>
+										</thead>
+
+
 									</table>
 								</div>
 								<form method="post" id="deleteForm">

@@ -206,9 +206,9 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				query = this.findbySearch(search, query);
 			}
 			query.addCriteria(Criteria.where("isDelete").is(false));
-			// query.with(new Sort(new Order(Direction.DESC, "createTime")));
+			 query.with(new Sort(new Order(Direction.DESC, "createTime")));
 //			query.with(new Sort(new Order(Direction.DESC, "updateTime")));
-			query.with(new Sort(new Order(Direction.DESC, "inventory")));
+//			query.with(new Sort(new Order(Direction.DESC, "inventory"))); 按库存量排序
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, Stock.class);
 			if (pagination == null)
 				pagination = new Pagination<Stock>();
@@ -994,6 +994,11 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		return projects;
 	}
 
+	/***
+	 * 预库存入库
+	 * @param preStock  预库存参数
+	 * @param actnum    预库存的实际已经入库的数量
+	 */
 	@Override
 	public void preStockToStock(PreStock preStock,long actnum) {
 		String areaId = preStock.getArea().getId();
@@ -1011,10 +1016,23 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			stockStatistics.setNum(preStock.getActualReceiptQuantity());// 设置实际入库数量
 
 			if(Common.isNotEmpty(preStock.getInprice())){
-				stockStatistics.setInprice(preStock.getInprice());
+				stockStatistics.setInprice(preStock.getInprice());//入库总金额
 			}
 			if(Common.isNotEmpty(preStock.getPurchaseInvoiceNo())){
-				stockStatistics.setPurchaseInvoiceNo(preStock.getPurchaseInvoiceNo());
+				stockStatistics.setPurchaseInvoiceNo(preStock.getPurchaseInvoiceNo());//采购发票号
+			}
+
+			if(Common.isNotEmpty(preStock.getPaymentOrderNo())){
+				stockStatistics.setPaymentOrderNo(preStock.getPaymentOrderNo());//银行付款日期
+			}
+			if(Common.isNotEmpty(preStock.getPurchaseInvoiceDate())){
+				stockStatistics.setPurchaseInvoiceDate(preStock.getPurchaseInvoiceDate());//采购发票到票时间
+			}
+			if(Common.isNotEmpty(preStock.getItemNo())){
+				stockStatistics.setNewItemNo(preStock.getItemNo());//采购付款单编码（新）
+			}
+			if(Common.isNotEmpty(preStock.getDescription())){
+				stockStatistics.setDescription(preStock.getDescription());//备注
 			}
 		}
 

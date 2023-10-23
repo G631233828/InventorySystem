@@ -76,6 +76,10 @@ $("#estimatedWarehousingTime").fdatepicker({
 	pickTime: true
 });
 
+$("#purchaseInvoiceDate").fdatepicker({
+	format: 'yyyy-mm-dd',
+	pickTime: true
+});
 
 
 

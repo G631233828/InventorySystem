@@ -1,353 +1,379 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
-	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
 
 <head th:include="public/public_css::pub_css"></head>
 <head>
-<meta charset="utf-8">
-<link rel="stylesheet" type="text/css"
-	th:href="@{/assets/js/progress-bar/number-pb.css}">
-<link th:href="@{/plugs/sweetalert/sweetalert.css}" rel="stylesheet">
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css"
+          th:href="@{/assets/js/progress-bar/number-pb.css}">
+    <link th:href="@{/plugs/sweetalert/sweetalert.css}" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/plugs/datapicker/datepicker3.css}">
+    <script type="text/javascript"
+            th:src="@{/plugs/datapicker/bootstrap-datepicker.js}"></script>
 </head>
 <script th:src="@{/icon/iconfont.js}"></script>
 <style>
-@font-face {
-	font-family: 'iconfont';
-	src: url('icon/iconfont.ttf?t=1631513698345') format('truetype');
-}
+    @font-face {
+        font-family: 'iconfont';
+        src: url('icon/iconfont.ttf?t=1631513698345') format('truetype');
+    }
 
-.iconfont {
-	font-family: "iconfont" !important;
-	font-size: 12px;
-	font-style: normal;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-}
+    .iconfont {
+        font-family: "iconfont" !important;
+        font-size: 12px;
+        font-style: normal;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
 
-.wx {
-	background-color: #56bb23;
-}
+    .wx {
+        background-color: #56bb23;
+    }
 </style>
 <body>
-	<!-- Preloader -->
-	<div id="preloader">
-		<div id="status">&nbsp;</div>
-	</div>
-	<!-- TOP NAVBAR -->
-	<div th:replace="public/public::top"></div>
-	<!-- /END OF TOP NAVBAR -->
+<!-- Preloader -->
+<div id="preloader">
+    <div id="status">&nbsp;</div>
+</div>
+<!-- TOP NAVBAR -->
+<div th:replace="public/public::top"></div>
+<!-- /END OF TOP NAVBAR -->
 
-	<!-- SIDE MENU -->
-	<div th:replace="public/public::left(activeUri='stockManager')"></div>
-	<!-- END OF SIDE MENU -->
+<!-- SIDE MENU -->
+<div th:replace="public/public::left(activeUri='stockManager')"></div>
+<!-- END OF SIDE MENU -->
 
-	<!--  PAPER WRAP -->
-	<div class="wrap-fluid">
-		<div class="container-fluid paper-wrap bevel tlbr">
-
-
-			<!-- CONTENT -->
-			<!--TITLE -->
-			<div th:replace="public/public::title"></div>
-			<!--/ TITLE -->
-
-			<!-- BREADCRUMB -->
-			<div th:replace="public/public::menu"></div>
-			<!-- END OF BREADCRUMB -->
+<!--  PAPER WRAP -->
+<div class="wrap-fluid">
+    <div class="container-fluid paper-wrap bevel tlbr">
 
 
-			<div class="content-wrap">
-				<div class="row">
+        <!-- CONTENT -->
+        <!--TITLE -->
+        <div th:replace="public/public::title"></div>
+        <!--/ TITLE -->
+
+        <!-- BREADCRUMB -->
+        <div th:replace="public/public::menu"></div>
+        <!-- END OF BREADCRUMB -->
 
 
-					<div class="col-sm-12">
-						<div class="body-nest" id="alert" th:if="${errorMsg!=''}">
-							<div class="alert alert-danger">
-								<button data-dismiss="alert" class="close" type="button">×</button>
-								<th:block th:utext="${errorMsg}">
-								</th:block>
-							</div>
-
-						</div>
-						<div class="nest" id="tableStaticClose">
-							<div class="title-alt">
-								<div>
-									<shiro:hasPermission name="preStock:add">
-										<button class="btn btn-default btn-sm"
-											th:onclick="|window.location.href='@{/preStock}'|">
-											<i class="glyphicon glyphicon-plus"> </i> 添加预库存
-										</button>
-									</shiro:hasPermission>
-
-									<button class="btn btn-success" onclick="return batchImput()">
-										<i class="fontawesome-upload"> </i>批量导入
-									</button>
+        <div class="content-wrap">
+            <div class="row">
 
 
-									<shiro:hasPermission name="preStock:edit">
-										<button class="btn btn-primary btn-sm"
-											onclick="return toeditPage('','preStock')">
-											<i class="fa fa-edit"> </i>编辑
-										</button>
-									</shiro:hasPermission>
+                <div class="col-sm-12">
+                    <div class="body-nest" id="alert" th:if="${errorMsg!=''}">
+                        <div class="alert alert-danger">
+                            <button data-dismiss="alert" class="close" type="button">×</button>
+                            <th:block th:utext="${errorMsg}">
+                            </th:block>
+                        </div>
 
-									<shiro:hasPermission name="preStock:delete">
-										<button class="btn btn-danger btn-sm"
-											th:onclick="|return del('','@{/preStock/}')|">
-											<i class="fa fa-trash-o"> </i>删除
-										</button>
-									</shiro:hasPermission>
+                    </div>
+                    <div class="nest" id="tableStaticClose">
+                        <div class="title-alt">
+                            <div>
+                                <shiro:hasPermission name="preStock:add">
+                                    <button class="btn btn-default btn-sm"
+                                            th:onclick="|window.location.href='@{/preStock}'|">
+                                        <i class="glyphicon glyphicon-plus"> </i> 添加预库存
+                                    </button>
+                                </shiro:hasPermission>
 
-									<button class="btn btn-default" onclick="return toExport()">
-										<i class="entypo-export"> </i>导出预库存
-									</button>
-
-									<button class="btn btn-success" onclick="return batchOut()">
-										<i class="fontawesome-upload"> </i>批量出库
-									</button>
-
-								</div>
-
-								<div class="titleClose">
-									<a class="gone" href="#tableStaticClose"> <span
-										class="entypo-cancel"></span>
-									</a>
-								</div>
-								<div class="titleToggle">
-									<a class="nav-toggle-alt" href="#tableStatic"> <span
-										class="entypo-up-open"></span>
-									</a>
-								</div>
-
-							</div>
+                                <button class="btn btn-success" onclick="return batchImput()">
+                                    <i class="fontawesome-upload"> </i>批量导入
+                                </button>
 
 
-							<div class="body-nest" id="tableStatic">
+                                <shiro:hasPermission name="preStock:edit">
+                                    <button class="btn btn-primary btn-sm"
+                                            onclick="return toeditPage('','preStock')">
+                                        <i class="fa fa-edit"> </i>编辑
+                                    </button>
+                                </shiro:hasPermission>
 
-								<div class="row" style="margin-bottom: 10px;">
-									<div class="col-sm-8 form-inline">
+                                <shiro:hasPermission name="preStock:delete">
+                                    <button class="btn btn-danger btn-sm"
+                                            th:onclick="|return del('','@{/preStock/}')|">
+                                        <i class="fa fa-trash-o"> </i>删除
+                                    </button>
+                                </shiro:hasPermission>
 
-										<select class="filter-status form-control" id="searchArea"
-											onchange="return searchVal()">
-											<option value="">--选择区域--</option>
-											<option th:selected="${session.presearchArea}==${area?.id}"
-												th:each="area:${areas}" th:value="${area?.id}"
-												th:text="${area?.name}"></option>
+                                <button class="btn btn-default" onclick="return toExport()">
+                                    <i class="entypo-export"> </i>导出预库存
+                                </button>
 
-										</select> <select class="filter-status form-control" id="prestatus"
-											onchange="return searchVal()">
-											<option value="">--入库状态--</option>
-											<option th:value="1" th:selected="${session.status}==1">预入库</option>
-											<option th:value="2" th:selected="${session.status}==2">已入库</option>
+                                <button class="btn btn-success" onclick="return batchOut()">
+                                    <i class="fontawesome-upload"> </i>批量出库
+                                </button>
 
+                            </div>
 
-										</select> <select class="filter-status form-control" id="pageSize"
-											onchange="return searchVal()">
-											<option value="10" th:selected="${session.prepageSize == 10}">10
-											
-											<option value="20" th:selected="${session.prepageSize == 20}">20
+                            <div class="titleClose">
+                                <a class="gone" href="#tableStaticClose"> <span
+                                        class="entypo-cancel"></span>
+                                </a>
+                            </div>
+                            <div class="titleToggle">
+                                <a class="nav-toggle-alt" href="#tableStatic"> <span
+                                        class="entypo-up-open"></span>
+                                </a>
+                            </div>
 
-											
-											<option value="50" th:selected="${session.prepageSize == 50}">50
-
-											
-											<option value="100"
-												th:selected="${session.prepageSize == 100}">100
-										</select> <input class="form-control" id="serach" placeholder="模糊匹配"
-											th:value="${session.presearch}" type="text">
-										<button class="btn btn-default btn-sm"
-											onclick="return searchVal()">
-											<i class="entypo-search"> </i> 搜索
-										</button>
-										<button class="btn btn-default btn-sm"
-											onclick="return cleanSearch()">
-											<i class="fontawesome-remove"> </i> 清除搜索条件
-										</button>
-									</div>
-								</div>
-
-								<div class="col-sm-6"></div>
+                        </div>
 
 
-							</div>
+                        <div class="body-nest" id="tableStatic">
+
+                            <div class="row" style="margin-bottom: 10px;">
+                                <div class="col-sm-8 form-inline">
+
+                                    <select class="filter-status form-control" id="searchArea"
+                                            onchange="return searchVal()">
+                                        <option value="">--选择区域--</option>
+                                        <option th:selected="${session.presearchArea}==${area?.id}"
+                                                th:each="area:${areas}" th:value="${area?.id}"
+                                                th:text="${area?.name}"></option>
+
+                                    </select> <select class="filter-status form-control" id="prestatus"
+                                                      onchange="return searchVal()">
+                                    <option value="">--入库状态--</option>
+                                    <option th:value="1" th:selected="${session.status}==1">预入库</option>
+                                    <option th:value="2" th:selected="${session.status}==2">已入库</option>
 
 
+                                </select> <select class="filter-status form-control" id="pageSize"
+                                                  onchange="return searchVal()">
+                                    <option value="10" th:selected="${session.prepageSize == 10}">10
+
+                                    <option value="20" th:selected="${session.prepageSize == 20}">20
 
 
+                                    <option value="50" th:selected="${session.prepageSize == 50}">50
 
 
-							<section id="flip-scroll">
-								<table class="table table-bordered table-striped cf">
-									<thead class="cf">
-										<tr>
-											<th class="numeric" style="width: 20px;">
-												<div class="checkbox checkbox-inline"
-													style="margin-top: 0px;">
-													<input type="checkbox" id="checkall" name="checkall" /> <label
-														for="checkall"></label>
-												</div>
-											</th>
-											<th class="numeric">设备名称</th>
-											<th class="numeric">设备型号</th>
-											<th class="numeric">项目名称</th>
-											<th class="numeric">单位</th>
-<!--											<th class="numeric">项目编号</th>-->
-											<th class="numeric">预计入库数量</th>
-<!--											<th class="numeric">预入库总金额</th>-->
-<!--											<th class="numeric">采购发票单</th>-->
-											<th class="numeric">实际入库数量</th>
-											<th class="numeric">剩余入库数量</th>
-											<th class="numeric">发布人</th>
-											<th class="numeric" th:if="${session.status}!=1">处理人</th>
-											<th class="numeric">录入时间</th>
-											<th class="numeric" th:if="${session.status}==1">预计入库时间</th>
-											<th class="numeric">入库状态</th>
-											<th class="numeric">操作</th>
-										</tr>
-									</thead>
-									<tbody>
-										<!-- 目录 -->
-										<th:block th:each="stock:${pageList?.datas}">
-											<tr>
-												<td class="numeric">
-													<div class="checkbox checkbox-inline"
-														style="margin-top: 0px;">
-														<input type="checkbox" name="ids" th:id="${stock?.id}"
-															class="numeric" th:value="${stock?.id}"> <label
-															th:for="${stock?.id}"></label>
-													</div>
-												</td>
+                                    <option value="100"
+                                            th:selected="${session.prepageSize == 100}">100
+                                </select> <input class="form-control" id="serach" placeholder="模糊匹配"
+                                                 th:value="${session.presearch}" type="text">
+                                    <button class="btn btn-default btn-sm"
+                                            onclick="return searchVal()">
+                                        <i class="entypo-search"> </i> 搜索
+                                    </button>
+                                    <button class="btn btn-default btn-sm"
+                                            onclick="return cleanSearch()">
+                                        <i class="fontawesome-remove"> </i> 清除搜索条件
+                                    </button>
+                                </div>
+                            </div>
 
-												<td class="numeric">[[${stock?.name}]]</td>
-												<td class="numeric">[[${stock?.model}]]</td>
-												<td class="numeric">[[${stock?.entryName}]]</td>
-												<td class="numeric">[[${stock?.unit?.name}]]</td>
-<!--												<td class="numeric">[[${stock?.itemNo}]]</td>-->
-												<td class="numeric">[[${stock?.estimatedInventoryQuantity}]]</td>
-<!--												<td class="numeric">[[${stock?.inprice}]]</td>-->
-<!--												<td class="numeric">[[${stock?.purchaseInvoiceNo}]]</td>-->
-												<td class="numeric" th:id="|acquantity_${stock?.id}|">[[${stock?.actualReceiptQuantity}]]</td>
-												<td class="numeric" th:id="|eaquantity_${stock?.id}|">[[${stock?.estimatedInventoryQuantity}-${stock?.actualReceiptQuantity}]]</td>
-												<td class="numeric">[[${stock?.publisher?.userName}]]</td>
-												<td class="numeric" th:if="${session.status}!=1">[[${stock?.handler?.userName}]]</td>
-												<td class="numeric" th:text="${#dates.format(stock?.createTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
-												<td class="numeric" th:if="${session.status}==1"
-													th:text="${#dates.format(stock?.estimatedWarehousingTime,'yyyy-MM-dd hh:mm')}"></td>
-												<td class="numeric"
-													th:text="${stock?.status == 1?'预入库':stock?.status == 2?'已入库':stock?.status == 3?'部分入库':stock?.status == 4?'超量入库':''}"></td>
-												<td class="numeric">
-												<shiro:hasPermission name="preStock:in">
-														<button class="btn btn-primary btn-xs"
-															th:if="${stock?.status}==1"
-															th:onclick="|return toeditPage('${stock.id}','preStockAdd')|">
-															<i class="fa fa-edit"> </i>预库存入库
-														</button>
-													</shiro:hasPermission> 
-													<shiro:hasPermission name="preStock:wechatPush">
-														<button class="btn btn-primary btn-xs wx"
-															th:if="${stock?.status}==1"
-															th:onclick="|return wechatPush('${stock.id}')|">
-															<i class="iconfont">&#xe69a;</i> 通知仓库人员
-														</button>
-													</shiro:hasPermission> 
-													<shiro:hasPermission name="preStock:edit">
-														<button class="btn btn-primary btn-xs"
-															th:if="${stock?.status}==1"
-															th:onclick="|return toeditPage('${stock.id}','preStock')|">
-															<i class="fa fa-edit"> </i>编辑
-														</button>
-
-													</shiro:hasPermission> 
-													<shiro:hasPermission name="preStock:delete">
-														<button class="btn btn-danger btn-xs"
-															th:onclick="|return del('@{/preStock/}${stock.id}','')|">
-															<i class="fa fa-trash-o"> </i>删除
-														</button>
-													</shiro:hasPermission>
+                            <div class="col-sm-6"></div>
 
 
-													</td>
-											</tr>
-											<!-- 菜单 -->
-										</th:block>
+                        </div>
 
 
-									</tbody>
-								</table>
+                        <section id="flip-scroll">
+                            <table class="table table-bordered table-striped cf">
+                                <thead class="cf">
+                                <tr>
+                                    <th class="numeric" style="width: 20px;">
+                                        <div class="checkbox checkbox-inline"
+                                             style="margin-top: 0px;">
+                                            <input type="checkbox" id="checkall" name="checkall"/> <label
+                                                for="checkall"></label>
+                                        </div>
+                                    </th>
+                                    <th class="numeric">设备名称</th>
+                                    <th class="numeric">设备型号</th>
+                                    <th class="numeric">项目名称</th>
+                                    <th class="numeric">单位</th>
+                                    <th class="numeric">预计入库数量</th>
+                                    <th class="numeric">实际入库数量</th>
+                                    <th class="numeric">剩余入库数量</th>
+                                    <th class="numeric">入库总金额</th>
+                                    <th class="numeric">彩票发票号</th>
+                                    <th class="numeric">银行发票到票日期</th>
+                                    <th class="numeric">银行付款日期</th>
+                                    <th class="numeric">采购付款单编码（新）</th>
+                                    <th class="numeric">发布人</th>
+                                    <th class="numeric" th:if="${session.status}!=1">处理人</th>
+                                    <th class="numeric">录入时间</th>
+<!--                                    <th class="numeric" th:if="${session.status}==1">预计入库时间</th>-->
+                                    <th class="numeric">入库状态</th>
+                                    <th class="numeric">操作</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <!-- 目录 -->
+                                <th:block th:each="stock:${pageList?.datas}">
+                                    <tr>
+                                        <td class="numeric">
+                                            <div class="checkbox checkbox-inline"
+                                                 style="margin-top: 0px;">
+                                                <input type="checkbox" name="ids" th:id="${stock?.id}"
+                                                       class="numeric" th:value="${stock?.id}"> <label
+                                                    th:for="${stock?.id}"></label>
+                                            </div>
+                                        </td>
 
-								<form method="post" id="deleteForm">
-									<input name="_method" value="delete" type="hidden">
-								</form>
+                                        <td class="numeric">[[${stock?.name}]]</td>
+                                        <td class="numeric">[[${stock?.model}]]</td>
+                                        <td class="numeric">[[${stock?.entryName}]]</td>
+                                        <td class="numeric">[[${stock?.unit?.name}]]</td>
+                                        <td class="numeric">[[${stock?.estimatedInventoryQuantity}]]</td>
+                                        <td class="numeric" th:id="|acquantity_${stock?.id}|">
+                                            [[${stock?.actualReceiptQuantity}]]
+                                        </td>
+                                        <td class="numeric" th:id="|eaquantity_${stock?.id}|">
+                                            [[${stock?.estimatedInventoryQuantity}-${stock?.actualReceiptQuantity}]]
+                                        </td>
+                                        <td class="numeric inprice" th:id="|inprice_${stock?.id}|"
+                                            th:ondblclick="|return change('${stock?.id}','inprice')|"
+                                            th:text="${stock.inprice != 0.0}?${stock?.inprice}:'0.0'">
 
-								<div class="row">
+                                        </td>
+                                        <td class="numeric purchaseInvoiceNo" th:id="|purchaseInvoiceNo_${stock?.id}|"
+                                            th:ondblclick="|return change('${stock?.id}','purchaseInvoiceNo')|">[[${stock?.purchaseInvoiceNo}]]</td>
+                                        <td class="numeric purchaseInvoiceDate"
+                                            th:id="|purchaseInvoiceDate_${stock?.id}|"
+                                            th:ondblclick="|return changeDate('${stock?.id}','purchaseInvoiceDate')|"
+                                            th:text="${stock.purchaseInvoiceDate != null}?${stock?.purchaseInvoiceDate}:''"></td>
+                                        <td class="numeric paymentOrderNo"
+                                            th:id="|paymentOrderNo_${stock?.id}|"
+                                            th:ondblclick="|return change('${stock?.id}','paymentOrderNo')|">[[${stock?.paymentOrderNo}]]</td>
+                                        <td class="numeric itemNo" th:id="|itemNo_${stock?.id}|"
+                                            th:ondblclick="|return change('${stock?.id}','itemNo')|">[[${stock?.itemNo}]]</td>
 
-									<div class="col-md-12">
-										<div class="col-md-6">
-											<div class="dataTables_info hidden-xs"
-												style="margin-top: 0px;" role="status" aria-live="polite"
-												th:text="|每页显示${pageList.pageSize}行
+                                        <td class="numeric">[[${stock?.publisher?.userName}]]</td>
+                                        <td class="numeric" th:if="${session.status}!=1">
+                                            [[${stock?.handler?.userName}]]
+                                        </td>
+
+                                        <td class="numeric"
+                                            th:text="${#dates.format(stock?.createTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+<!--                                        <td class="numeric" th:if="${session.status}==1"-->
+<!--                                            th:text="${#dates.format(stock?.estimatedWarehousingTime,'yyyy-MM-dd hh:mm')}"></td>-->
+
+                                        <td class="numeric"
+                                            th:text="${stock?.status == 1?'预入库':stock?.status == 2?'已入库':stock?.status == 3?'部分入库':stock?.status == 4?'超量入库':''}"></td>
+                                        <td class="numeric">
+                                            <shiro:hasPermission name="preStock:in">
+                                                <button class="btn btn-primary btn-xs"
+                                                        th:if="${stock?.status}==1"
+                                                        th:onclick="|return toeditPage('${stock.id}','preStockAdd')|">
+                                                    <i class="fa fa-edit"> </i>预库存入库
+                                                </button>
+                                            </shiro:hasPermission>
+                                            <shiro:hasPermission name="preStock:wechatPush">
+                                                <button class="btn btn-primary btn-xs wx"
+                                                        th:if="${stock?.status}==1"
+                                                        th:onclick="|return wechatPush('${stock.id}')|">
+                                                    <i class="iconfont">&#xe69a;</i> 通知仓库人员
+                                                </button>
+                                            </shiro:hasPermission>
+                                            <shiro:hasPermission name="preStock:edit">
+                                                <button class="btn btn-primary btn-xs"
+                                                        th:if="${stock?.status}==1"
+                                                        th:onclick="|return toeditPage('${stock.id}','preStock')|">
+                                                    <i class="fa fa-edit"> </i>编辑
+                                                </button>
+
+                                            </shiro:hasPermission>
+                                            <shiro:hasPermission name="preStock:delete">
+                                                <button class="btn btn-danger btn-xs"
+                                                        th:onclick="|return del('@{/preStock/}${stock.id}','')|">
+                                                    <i class="fa fa-trash-o"> </i>删除
+                                                </button>
+                                            </shiro:hasPermission>
+
+
+                                        </td>
+                                    </tr>
+                                    <!-- 菜单 -->
+                                </th:block>
+
+
+                                </tbody>
+                            </table>
+
+                            <form method="post" id="deleteForm">
+                                <input name="_method" value="delete" type="hidden">
+                            </form>
+
+                            <div class="row">
+
+                                <div class="col-md-12">
+                                    <div class="col-md-6">
+                                        <div class="dataTables_info hidden-xs"
+                                             style="margin-top: 0px;" role="status" aria-live="polite"
+                                             th:text="|每页显示${pageList.pageSize}行
 										－ 当前页${pageList.pageNo}页 － 共${pageList.totalPage}页|"></div>
-										</div>
-										<div class="col-md-6">
-											<ul class="pagination pagination-split pull-right"
-												style="margin-top: 0px;">
-												<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
-													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/preStocks(pageNo=${pageList.upPage},pageSize=${session.pageSize},search=${session.search},searchArea=${session.searchArea},status=${session.status})}">上一页</a>
-												</li>
-												<li th:each="page:${pageList.navigatepageNums}"
-													th:class="${page  == pageList.pageNo}?active:''"><a
-													th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/preStocks(pageNo=${page},pageSize=${session.pageSize},search=${session.search},searchArea=${session.searchArea},status=${session.status})}">[[${page}]]</a>
-												</li>
-												<li
-													th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
-													<a
-													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/preStocks(pageNo=${pageList.nextPage},pageSize=${session.pageSize},search=${session.search},searchArea=${session.searchArea},status=${session.status})}">下一页</a>
-												</li>
-											</ul>
-										</div>
-									</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <ul class="pagination pagination-split pull-right"
+                                            style="margin-top: 0px;">
+                                            <li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
+                                                    th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/preStocks(pageNo=${pageList.upPage},pageSize=${session.pageSize},search=${session.search},searchArea=${session.searchArea},status=${session.status})}">上一页</a>
+                                            </li>
+                                            <li th:each="page:${pageList.navigatepageNums}"
+                                                th:class="${page  == pageList.pageNo}?active:''"><a
+                                                    th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/preStocks(pageNo=${page},pageSize=${session.pageSize},search=${session.search},searchArea=${session.searchArea},status=${session.status})}">[[${page}]]</a>
+                                            </li>
+                                            <li
+                                                    th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
+                                                <a
+                                                        th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/preStocks(pageNo=${pageList.nextPage},pageSize=${session.pageSize},search=${session.search},searchArea=${session.searchArea},status=${session.status})}">下一页</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
 
-									<!-- 分页结束 -->
-								</div>
+                                <!-- 分页结束 -->
+                            </div>
 
-							</section>
-
-
-						</div>
-
-					</div>
+                        </section>
 
 
-				</div>
+                    </div>
 
-			</div>
-		</div>
+                </div>
 
-		<div th:replace="public/public::myModal"></div>
-		<div th:replace="admin/preStock/batch::mybatch"></div>
-		<div th:replace="admin/preStock/batchout::mystockbatchout"></div>
-		<script type="text/javascript" th:inline="javascript"
-			th:src="@{/js/admin/preStock/preStocklist.js}"></script>
-	</div>
-	</div>
-	<!--  END OF PAPER WRAP -->
-	<!-- 右侧隐藏菜单start -->
-	<div th:replace="public/public::right"></div>
 
-	<!-- 右侧隐藏菜单end-->
-	<!-- 底部js -->
-	<div th:replace="public/public_js::pub_js"></div>
-	<div th:replace="public/public_js::public_script"></div>
-	<div th:replace="public/public::footer"></div>
-	<!-- Sweet alert -->
-	<script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
-	<script type="text/javascript"
-			th:src="@{/plugs/prettyfile/bootstrap-prettyfile.js}"></script>
-	<script type="text/javascript"
-			th:src="@{/plugs/validate/jquery.validate.min.js}"></script>
-	<script type="text/javascript"
-			th:src="@{/plugs/validate/messages_zh.min.js}"></script>
-	<div th:replace="public/public_js::validator"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <div th:replace="public/public::myModal"></div>
+    <div th:replace="admin/preStock/batch::mybatch"></div>
+    <div th:replace="admin/preStock/batchout::mystockbatchout"></div>
+    <script type="text/javascript" th:inline="javascript"
+            th:src="@{/js/admin/preStock/preStocklist.js}"></script>
+    <script type="text/javascript" th:inline="javascript"
+            th:src="@{/js/admin/preStock/changevalue.js}"></script>
+</div>
+</div>
+<!--  END OF PAPER WRAP -->
+<!-- 右侧隐藏菜单start -->
+<div th:replace="public/public::right"></div>
+
+<!-- 右侧隐藏菜单end-->
+<!-- 底部js -->
+<div th:replace="public/public_js::pub_js"></div>
+<div th:replace="public/public_js::public_script"></div>
+<div th:replace="public/public::footer"></div>
+<!-- Sweet alert -->
+<script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
+<script type="text/javascript"
+        th:src="@{/plugs/prettyfile/bootstrap-prettyfile.js}"></script>
+<script type="text/javascript"
+        th:src="@{/plugs/validate/jquery.validate.min.js}"></script>
+<script type="text/javascript"
+        th:src="@{/plugs/validate/messages_zh.min.js}"></script>
+<div th:replace="public/public_js::validator"></div>
 
 
 </body>

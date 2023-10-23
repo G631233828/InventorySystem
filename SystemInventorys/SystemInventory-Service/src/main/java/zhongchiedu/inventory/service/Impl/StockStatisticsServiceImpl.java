@@ -1158,7 +1158,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	@Override
 	public void updateStockStatistics(String ids, Double inprice, String purchaseInvoiceNo, String receiptNo,
 			String paymentOrderNo, String sailesInvoiceNo,String sailesInvoiceDate,
-									  User user,String purchaseInvoiceDate,Double sailPrice,String newItemNo ) {
+									  User user,String purchaseInvoiceDate,Double sailPrice,String newItemNo,String description ) {
 
 		List<String> array = Arrays.asList(ids.split(","));
 
@@ -1190,6 +1190,9 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			}
 			if(!newItemNo.equals("null")){
 				stockStatistics.setNewItemNo(newItemNo);
+			}
+			if(!description.equals("null")){
+				stockStatistics.setDescription(description);
 			}
 				stockStatistics.setEditFinanceTime(Common.fromDateH());
 				stockStatistics.setFinanceUser(user);
