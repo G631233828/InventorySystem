@@ -328,7 +328,36 @@ function batchFormSubmit() {
 
 }
 
+function showColumn() {
+	$("#mycolumn").modal('show');
+}
 
+function selectColumn(o) {
+
+	var td = "#ch_" + o;
+	var th = "." + o;
+	var flag = $(td).is(':checked');
+	flag = flag == false ? true : false;
+	$(td).prop("checked", flag);
+
+	$.ajax({
+		type: 'GET',
+		url: 'prestock/columns',
+		data: "column=" + o + "&flag=" + flag,
+		dataType: 'json',
+		success: function(data) {
+			if (data.status == 200) {
+				// $(td).attr("checked":flag);
+				if (flag) {
+					$(th).show();
+				} else {
+					$(th).hide();
+				}
+			}
+		}
+	})
+
+}
 
 
 

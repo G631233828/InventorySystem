@@ -210,9 +210,10 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				Criteria.where("model").regex(search,"i"));
 //				Criteria.where("model").regex("^" +search.replace("*",".*") + "$", "i"));
 		query.addCriteria(ca);
-		query.addCriteria(Criteria.where("isDelete").is(false));
+//		query.addCriteria(Criteria.where("isDelete").is(false));  添加此条件，则被删除的库存无法在库存统计中显示
 		List<Stock> lists = this.stockService.find(query, Stock.class);
 		for (Stock li : lists) {
+//			System.out.println(li.getId()+":"+li.getName());
 			list.add(new ObjectId(li.getId()));
 		}
 		return list;
@@ -235,7 +236,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 		}
 
-		query.addCriteria(Criteria.where("isDelete").is(false));
+//		query.addCriteria(Criteria.where("isDelete").is(false)); 被删除的库存也能在库存统计的报表中显示
 		List<Stock> lists = this.stockService.find(query, Stock.class);
 		return lists;
 	}

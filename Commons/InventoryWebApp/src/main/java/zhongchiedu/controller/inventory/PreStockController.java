@@ -45,13 +45,9 @@ import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.general.pojo.User;
 import zhongchiedu.inventory.pojo.*;
+import zhongchiedu.inventory.service.Impl.*;
 import zhongchiedu.inventory.service.InventoryRoleService;
 import zhongchiedu.inventory.service.StockService;
-import zhongchiedu.inventory.service.Impl.AreaServiceImpl;
-import zhongchiedu.inventory.service.Impl.GoodsStorageServiceImpl;
-import zhongchiedu.inventory.service.Impl.PreStockServiceImpl;
-import zhongchiedu.inventory.service.Impl.SupplierServiceImpl;
-import zhongchiedu.inventory.service.Impl.UnitServiceImpl;
 import zhongchiedu.log.annotation.SystemControllerLog;
 import zhongchiedu.wx.template.WxMsgPush;
 
@@ -80,6 +76,8 @@ public class PreStockController {
 	private @Autowired InventoryRoleService inventoryRoleService;
 
 	private @Autowired WxMsgPush wxMsgPush;
+
+	private @Autowired ColumnServiceImpl columnService;
 	@Value("${templateId1}")
 	private String templateId1;
 	@Value("${templateId2}")
@@ -103,7 +101,9 @@ public class PreStockController {
 
 		List<Area> areas = this.areaService.findAllArea(false);
 		model.addAttribute("areas", areas);
-
+		User user = (User) session.getAttribute(Contents.USER_SESSION);
+		List<String> listColums = this.columnService.findColumns("prestock",user.getId());
+		model.addAttribute("listColums", listColums);
 		session.setAttribute("prepageNo", pageNo);
 		session.setAttribute("prepageSize", pageSize);
 		session.setAttribute("presearch", search);
@@ -586,6 +586,14 @@ public class PreStockController {
 		this.preStockService.updateStockStatistics(stockid, dinprice, purchaseInvoiceNo,purchaseInvoiceDate,paymentOrderNo,itemNo);
 		return new BasicDataResult(200, "修改统计数据成功", "");
 
+	}
+
+	@RequestMapping(value = "/prestock/columns", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public BasicDataResult editColumns(@RequestParam(value = "column", defaultValue = "") String column,
+									   @RequestParam(value = "flag", defaultValue = "") boolean flag,HttpSession session) {
+		User user = (User) session.getAttribute(Contents.USER_SESSION);
+		return this.columnService.editColumns("prestock", column, flag,user.getId());
 	}
 
 public static void main(String[] args) {

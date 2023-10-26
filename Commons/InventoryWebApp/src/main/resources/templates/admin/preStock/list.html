@@ -101,6 +101,10 @@
                                     </button>
                                 </shiro:hasPermission>
 
+                                <button class="btn btn-default" onclick="return showColumn()">
+                                    <i class="entypo-list-add"> </i>显示列
+                                </button>
+
                                 <button class="btn btn-default" onclick="return toExport()">
                                     <i class="entypo-export"> </i>导出预库存
                                 </button>
@@ -108,6 +112,8 @@
                                 <button class="btn btn-success" onclick="return batchOut()">
                                     <i class="fontawesome-upload"> </i>批量出库
                                 </button>
+
+
 
                             </div>
 
@@ -186,23 +192,38 @@
                                                 for="checkall"></label>
                                         </div>
                                     </th>
-                                    <th class="numeric">设备名称</th>
-                                    <th class="numeric">设备型号</th>
-                                    <th class="numeric">项目名称</th>
-                                    <th class="numeric">单位</th>
-                                    <th class="numeric">预计入库数量</th>
-                                    <th class="numeric">实际入库数量</th>
-                                    <th class="numeric">剩余入库数量</th>
-                                    <th class="numeric">入库总金额</th>
-                                    <th class="numeric">彩票发票号</th>
-                                    <th class="numeric">银行发票到票日期</th>
-                                    <th class="numeric">银行付款日期</th>
-                                    <th class="numeric">采购付款单编码（新）</th>
-                                    <th class="numeric">发布人</th>
+                                    <th class="numeric name"
+                                        th:style="${#lists.contains(listColums,'name')}?'':'display:none;'">设备名称</th>
+                                    <th class="numeric model"
+                                        th:style="${#lists.contains(listColums,'model')}?'':'display:none;'">设备型号</th>
+                                    <th class="numeric entryName"
+                                        th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'">项目名称</th>
+                                    <th class="numeric unit"
+                                        th:style="${#lists.contains(listColums,'unit')}?'':'display:none;'">单位</th>
+                                    <th class="numeric esquantity"
+                                        th:style="${#lists.contains(listColums,'esquantity')}?'':'display:none;'">预计入库数量</th>
+                                    <th class="numeric acquantity"
+                                        th:style="${#lists.contains(listColums,'acquantity')}?'':'display:none;'">实际入库数量</th>
+                                    <th class="numeric eaquantity"
+                                        th:style="${#lists.contains(listColums,'eaquantity')}?'':'display:none;'">剩余入库数量</th>
+                                    <th class="numeric inprice"
+                                        th:style="${#lists.contains(listColums,'inprice')}?'':'display:none;'">入库总金额</th>
+                                    <th class="numeric purchaseInvoiceNo"
+                                        th:style="${#lists.contains(listColums,'purchaseInvoiceNo')}?'':'display:none;'">采购发票号</th>
+                                    <th class="numeric purchaseInvoiceDate"
+                                        th:style="${#lists.contains(listColums,'purchaseInvoiceDate')}?'':'display:none;'">采购发票到票日期</th>
+                                    <th class="numeric paymentOrderNo"
+                                        th:style="${#lists.contains(listColums,'paymentOrderNo')}?'':'display:none;'">银行付款日期</th>
+                                    <th class="numeric itemNo"
+                                        th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'">采购付款单编码（新）</th>
+                                    <th class="numeric handler"
+                                        th:style="${#lists.contains(listColums,'handler')}?'':'display:none;'">发布人</th>
                                     <th class="numeric" th:if="${session.status}!=1">处理人</th>
-                                    <th class="numeric">录入时间</th>
+                                    <th class="numeric createTime"
+                                        th:style="${#lists.contains(listColums,'createTime')}?'':'display:none;'">录入时间</th>
 <!--                                    <th class="numeric" th:if="${session.status}==1">预计入库时间</th>-->
-                                    <th class="numeric">入库状态</th>
+                                    <th class="numeric status"
+                                        th:style="${#lists.contains(listColums,'status')}?'':'display:none;'">入库状态</th>
                                     <th class="numeric">操作</th>
                                 </tr>
                                 </thead>
@@ -219,15 +240,15 @@
                                             </div>
                                         </td>
 
-                                        <td class="numeric">[[${stock?.name}]]</td>
-                                        <td class="numeric">[[${stock?.model}]]</td>
-                                        <td class="numeric">[[${stock?.entryName}]]</td>
-                                        <td class="numeric">[[${stock?.unit?.name}]]</td>
-                                        <td class="numeric">[[${stock?.estimatedInventoryQuantity}]]</td>
-                                        <td class="numeric" th:id="|acquantity_${stock?.id}|">
+                                        <td class="numeric name">[[${stock?.name}]]</td>
+                                        <td class="numeric model">[[${stock?.model}]]</td>
+                                        <td class="numeric entryName">[[${stock?.entryName}]]</td>
+                                        <td class="numeric unit">[[${stock?.unit?.name}]]</td>
+                                        <td class="numeric esquantity">[[${stock?.estimatedInventoryQuantity}]]</td>
+                                        <td class="numeric acquantity" th:id="|acquantity_${stock?.id}|">
                                             [[${stock?.actualReceiptQuantity}]]
                                         </td>
-                                        <td class="numeric" th:id="|eaquantity_${stock?.id}|">
+                                        <td class="numeric eaquantity" th:id="|eaquantity_${stock?.id}|">
                                             [[${stock?.estimatedInventoryQuantity}-${stock?.actualReceiptQuantity}]]
                                         </td>
                                         <td class="numeric inprice" th:id="|inprice_${stock?.id}|"
@@ -247,17 +268,17 @@
                                         <td class="numeric itemNo" th:id="|itemNo_${stock?.id}|"
                                             th:ondblclick="|return change('${stock?.id}','itemNo')|">[[${stock?.itemNo}]]</td>
 
-                                        <td class="numeric">[[${stock?.publisher?.userName}]]</td>
-                                        <td class="numeric" th:if="${session.status}!=1">
-                                            [[${stock?.handler?.userName}]]
-                                        </td>
+                                        <td class="numeric handler">[[${stock?.publisher?.userName}]]</td>
+<!--                                        <td class="numeric" th:if="${session.status}!=1">-->
+<!--                                            [[${stock?.handler?.userName}]]-->
+<!--                                        </td>-->
 
-                                        <td class="numeric"
+                                        <td class="numeric createTime"
                                             th:text="${#dates.format(stock?.createTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
 <!--                                        <td class="numeric" th:if="${session.status}==1"-->
 <!--                                            th:text="${#dates.format(stock?.estimatedWarehousingTime,'yyyy-MM-dd hh:mm')}"></td>-->
 
-                                        <td class="numeric"
+                                        <td class="numeric status"
                                             th:text="${stock?.status == 1?'预入库':stock?.status == 2?'已入库':stock?.status == 3?'部分入库':stock?.status == 4?'超量入库':''}"></td>
                                         <td class="numeric">
                                             <shiro:hasPermission name="preStock:in">
@@ -349,6 +370,7 @@
 
     <div th:replace="public/public::myModal"></div>
     <div th:replace="admin/preStock/batch::mybatch"></div>
+    <div th:replace="admin/preStock/column::mycolumn"></div>
     <div th:replace="admin/preStock/batchout::mystockbatchout"></div>
     <script type="text/javascript" th:inline="javascript"
             th:src="@{/js/admin/preStock/preStocklist.js}"></script>
