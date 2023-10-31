@@ -17,7 +17,7 @@ import javax.servlet.http.HttpSession;
 
 public interface PreStockService extends GeneralService<PreStock> {
 	
-	public Pagination<PreStock> findpagination(Integer pageNo,Integer pageSize,String search,String searchArea,int status);
+	public Pagination<PreStock> findpagination(Integer pageNo,Integer pageSize,String search,String searchArea,int status,String ssC);
 	
 	public void saveOrUpdate(PreStock stock);
 	

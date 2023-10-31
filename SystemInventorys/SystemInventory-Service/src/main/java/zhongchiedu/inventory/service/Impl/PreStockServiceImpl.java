@@ -116,7 +116,7 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 	@Override
 	@SystemServiceLog(description = "分页查询库存信息")
 	public Pagination<PreStock> findpagination(Integer pageNo, Integer pageSize, String search, String searchArea,
-			int status) {
+			int status,String ssC) {
 		// 分页查询数据
 		Pagination<PreStock> pagination = null;
 		try {
@@ -126,6 +126,10 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 				query = query.addCriteria(Criteria.where("area.$id").is(new ObjectId(searchArea)));
 			}
 			query.addCriteria(Criteria.where("status").is(status));
+
+			if (Common.isNotEmpty(ssC)) {
+				query = query.addCriteria(Criteria.where("systemClassification.$id").is(new ObjectId(ssC)));
+			}
 
 			if (Common.isNotEmpty(search)) {
 				query = this.findbySearch(search, query);

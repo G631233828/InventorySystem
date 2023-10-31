@@ -9,11 +9,12 @@ function searchVal() {
 	var search = $("#serach").val();
 	var searchArea = $("#searchArea").val();
 	var status = $("#prestatus").val();
+	var ssC = $("#searchssC").val();
 /*
  * if (search == null || search == "") { swal({ type : "warning", title : "",
  * text : "查询内容不能为空!!", }); return ; }
  */
-	window.location.href="preStocks?pageSize="+pageSize+"&search="+search+"&searchArea="+searchArea+"&status="+status;
+	window.location.href="preStocks?pageSize="+pageSize+"&search="+search+"&searchArea="+searchArea+"&status=" + status + "&ssC=" + ssC;
 
 }
 

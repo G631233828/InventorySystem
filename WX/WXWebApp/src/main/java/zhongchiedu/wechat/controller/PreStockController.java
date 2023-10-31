@@ -106,7 +106,7 @@ public class PreStockController {
 			@RequestParam(value = "search", defaultValue = "") String search,@RequestParam(value = "status", defaultValue = "1") String status,
 			@ModelAttribute("errorMsg") String errorMsg) {
 
-		Pagination<PreStock> pagination = this.preStockService.findpagination(pageNo, pageSize, search, "", Integer.valueOf(status));
+		Pagination<PreStock> pagination = this.preStockService.findpagination(pageNo, pageSize, search, "", Integer.valueOf(status),"");
 		model.addAttribute("pageList", pagination);
 
 		model.addAttribute("pageSize", pageSize);

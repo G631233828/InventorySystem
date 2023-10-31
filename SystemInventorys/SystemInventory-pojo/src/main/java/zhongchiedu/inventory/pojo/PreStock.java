@@ -33,6 +33,9 @@ public class PreStock extends GeneralBean<PreStock> {
 	private String price;// 单价
 	@DBRef
 	private Unit unit; // 计量单位
+
+	@DBRef
+	private SystemClassification systemClassification;//系统分类
 	private String maintenance;// 维保
 	private boolean receivables = false;// 项目应收款
 	

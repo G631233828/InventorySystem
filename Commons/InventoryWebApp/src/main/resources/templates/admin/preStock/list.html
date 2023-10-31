@@ -143,7 +143,17 @@
                                                 th:each="area:${areas}" th:value="${area?.id}"
                                                 th:text="${area?.name}"></option>
 
-                                    </select> <select class="filter-status form-control" id="prestatus"
+                                    </select>
+                                    <select class="filter-status form-control" id="searchssC"
+                                            onchange="return searchVal()">
+                                        <option value="">--选择分类--</option>
+                                        <option th:selected="${session.ssC}==${sC?.id}"
+                                                th:each="sC:${ssCs}" th:value="${sC?.id}"
+                                                th:text="${sC?.name}"></option>
+
+                                    </select>
+
+                                    <select class="filter-status form-control" id="prestatus"
                                                       onchange="return searchVal()">
                                     <option value="">--入库状态--</option>
                                     <option th:value="1" th:selected="${session.status}==1">预入库</option>
@@ -182,7 +192,11 @@
 
 
                         <section id="flip-scroll">
-                            <table class="table table-bordered table-striped cf">
+<!--                            <table class="table table-bordered table-striped cf">-->
+                            <div
+                                    style="overflow-y: auto; overflow-x: auto; white-space: nowrap; text-overflow: ellipsis;">
+                            <table
+                                    class="table table-bordered table-striped cf text-nowrap  table-hover">
                                 <thead class="cf">
                                 <tr>
                                     <th class="numeric" style="width: 20px;">
@@ -218,12 +232,15 @@
                                         th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'">采购付款单编码（新）</th>
                                     <th class="numeric handler"
                                         th:style="${#lists.contains(listColums,'handler')}?'':'display:none;'">发布人</th>
-                                    <th class="numeric" th:if="${session.status}!=1">处理人</th>
+<!--                                    <th class="numeric" th:if="${session.status}!=1">处理人</th>-->
                                     <th class="numeric createTime"
                                         th:style="${#lists.contains(listColums,'createTime')}?'':'display:none;'">录入时间</th>
 <!--                                    <th class="numeric" th:if="${session.status}==1">预计入库时间</th>-->
                                     <th class="numeric status"
                                         th:style="${#lists.contains(listColums,'status')}?'':'display:none;'">入库状态</th>
+                                    <th class="numeric ssC"
+                                        th:style="${#lists.contains(listColums,'ssC')}?'':'display:none;'">分类</th>
+
                                     <th class="numeric">操作</th>
                                 </tr>
                                 </thead>
@@ -240,46 +257,63 @@
                                             </div>
                                         </td>
 
-                                        <td class="numeric name">[[${stock?.name}]]</td>
-                                        <td class="numeric model">[[${stock?.model}]]</td>
-                                        <td class="numeric entryName">[[${stock?.entryName}]]</td>
-                                        <td class="numeric unit">[[${stock?.unit?.name}]]</td>
-                                        <td class="numeric esquantity">[[${stock?.estimatedInventoryQuantity}]]</td>
-                                        <td class="numeric acquantity" th:id="|acquantity_${stock?.id}|">
+                                        <td class="numeric name"
+                                            th:style="${#lists.contains(listColums,'name')}?'':'display:none;'">[[${stock?.name}]]</td>
+                                        <td class="numeric model"
+                                            th:style="${#lists.contains(listColums,'model')}?'':'display:none;'">[[${stock?.model}]]</td>
+                                        <td class="numeric entryName"
+                                            th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'">[[${stock?.entryName}]]</td>
+                                        <td class="numeric unit"
+                                            th:style="${#lists.contains(listColums,'unit')}?'':'display:none;'">[[${stock?.unit?.name}]]</td>
+                                        <td class="numeric esquantity"
+                                            th:style="${#lists.contains(listColums,'esquantity')}?'':'display:none;'">[[${stock?.estimatedInventoryQuantity}]]</td>
+                                        <td class="numeric acquantity" th:id="|acquantity_${stock?.id}|"
+                                            th:style="${#lists.contains(listColums,'acquantity')}?'':'display:none;'">
                                             [[${stock?.actualReceiptQuantity}]]
                                         </td>
-                                        <td class="numeric eaquantity" th:id="|eaquantity_${stock?.id}|">
+                                        <td class="numeric eaquantity" th:id="|eaquantity_${stock?.id}|"
+                                            th:style="${#lists.contains(listColums,'eaquantity')}?'':'display:none;'">
                                             [[${stock?.estimatedInventoryQuantity}-${stock?.actualReceiptQuantity}]]
                                         </td>
                                         <td class="numeric inprice" th:id="|inprice_${stock?.id}|"
+                                            th:style="${#lists.contains(listColums,'inprice')}?'':'display:none;'"
                                             th:ondblclick="|return change('${stock?.id}','inprice')|"
                                             th:text="${stock.inprice != 0.0}?${stock?.inprice}:'0.0'">
 
                                         </td>
                                         <td class="numeric purchaseInvoiceNo" th:id="|purchaseInvoiceNo_${stock?.id}|"
-                                            th:ondblclick="|return change('${stock?.id}','purchaseInvoiceNo')|">[[${stock?.purchaseInvoiceNo}]]</td>
+                                            th:ondblclick="|return change('${stock?.id}','purchaseInvoiceNo')|"
+                                            th:style="${#lists.contains(listColums,'purchaseInvoiceNo')}?'':'display:none;'">[[${stock?.purchaseInvoiceNo}]]</td>
                                         <td class="numeric purchaseInvoiceDate"
                                             th:id="|purchaseInvoiceDate_${stock?.id}|"
                                             th:ondblclick="|return changeDate('${stock?.id}','purchaseInvoiceDate')|"
-                                            th:text="${stock.purchaseInvoiceDate != null}?${stock?.purchaseInvoiceDate}:''"></td>
+                                            th:text="${stock.purchaseInvoiceDate != null}?${stock?.purchaseInvoiceDate}:''"
+                                            th:style="${#lists.contains(listColums,'purchaseInvoiceDate')}?'':'display:none;'"></td>
                                         <td class="numeric paymentOrderNo"
                                             th:id="|paymentOrderNo_${stock?.id}|"
-                                            th:ondblclick="|return change('${stock?.id}','paymentOrderNo')|">[[${stock?.paymentOrderNo}]]</td>
+                                            th:ondblclick="|return change('${stock?.id}','paymentOrderNo')|"
+                                            th:style="${#lists.contains(listColums,'paymentOrderNo')}?'':'display:none;'">[[${stock?.paymentOrderNo}]]</td>
                                         <td class="numeric itemNo" th:id="|itemNo_${stock?.id}|"
-                                            th:ondblclick="|return change('${stock?.id}','itemNo')|">[[${stock?.itemNo}]]</td>
+                                            th:ondblclick="|return change('${stock?.id}','itemNo')|"
+                                            th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'">[[${stock?.itemNo}]]</td>
 
-                                        <td class="numeric handler">[[${stock?.publisher?.userName}]]</td>
+                                        <td class="numeric handler"
+                                            th:style="${#lists.contains(listColums,'handler')}?'':'display:none;'">[[${stock?.publisher?.userName}]]</td>
 <!--                                        <td class="numeric" th:if="${session.status}!=1">-->
 <!--                                            [[${stock?.handler?.userName}]]-->
 <!--                                        </td>-->
 
                                         <td class="numeric createTime"
-                                            th:text="${#dates.format(stock?.createTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                                            th:text="${#dates.format(stock?.createTime, 'yyyy-MM-dd HH:mm:ss')}"
+                                            th:style="${#lists.contains(listColums,'createTime')}?'':'display:none;'"></td>
 <!--                                        <td class="numeric" th:if="${session.status}==1"-->
 <!--                                            th:text="${#dates.format(stock?.estimatedWarehousingTime,'yyyy-MM-dd hh:mm')}"></td>-->
 
                                         <td class="numeric status"
-                                            th:text="${stock?.status == 1?'预入库':stock?.status == 2?'已入库':stock?.status == 3?'部分入库':stock?.status == 4?'超量入库':''}"></td>
+                                            th:text="${stock?.status == 1?'预入库':stock?.status == 2?'已入库':stock?.status == 3?'部分入库':stock?.status == 4?'超量入库':''}"
+                                            th:style="${#lists.contains(listColums,'status')}?'':'display:none;'"></td>
+                                        <td class="numeric ssC" id="ssC"
+                                            th:style="${#lists.contains(listColums,'ssC')}?'':'display:none;'">[[${stock?.systemClassification?.name}]]</td>
                                         <td class="numeric">
                                             <shiro:hasPermission name="preStock:in">
                                                 <button class="btn btn-primary btn-xs"
@@ -319,7 +353,7 @@
 
                                 </tbody>
                             </table>
-
+                            </div>
                             <form method="post" id="deleteForm">
                                 <input name="_method" value="delete" type="hidden">
                             </form>

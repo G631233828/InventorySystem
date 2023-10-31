@@ -75,6 +75,8 @@ public class PreStockController {
 
 	private @Autowired InventoryRoleService inventoryRoleService;
 
+	private @Autowired SystemClassificationServiceImpl  ssCService;
+
 	private @Autowired WxMsgPush wxMsgPush;
 
 	private @Autowired ColumnServiceImpl columnService;
@@ -93,28 +95,34 @@ public class PreStockController {
 			@RequestParam(value = "search", defaultValue = "") String search,
 			@RequestParam(value = "status", defaultValue = "1") String status,
 			@RequestParam(value = "searchArea", defaultValue = "") String searchArea,
+			@RequestParam(value = "ssC", defaultValue = "") String ssC,
 			@ModelAttribute("errorMsg") String errorMsg) {
 
 		Pagination<PreStock> pagination = this.preStockService.findpagination(pageNo, pageSize, search, searchArea,
-				Integer.valueOf(status));
+				Integer.valueOf(status),ssC);
 		model.addAttribute("pageList", pagination);
+
+		List<SystemClassification>  ssCs=this.ssCService.findAllSystemClassification(false);
+		model.addAttribute("ssCs",ssCs);
 
 		List<Area> areas = this.areaService.findAllArea(false);
 		model.addAttribute("areas", areas);
 		User user = (User) session.getAttribute(Contents.USER_SESSION);
 		List<String> listColums = this.columnService.findColumns("prestock",user.getId());
+
 		model.addAttribute("listColums", listColums);
 		session.setAttribute("prepageNo", pageNo);
 		session.setAttribute("prepageSize", pageSize);
 		session.setAttribute("presearch", search);
 		session.setAttribute("presearchArea", searchArea);
 		session.setAttribute("status", status);
+		session.setAttribute("ssC",ssC);
 		model.addAttribute("prepageSize", pageSize);
 		model.addAttribute("presearch", search);
 		model.addAttribute("presearchArea", searchArea);
 		model.addAttribute("status", status);
 		model.addAttribute("errorMsg", errorMsg);
-
+		model.addAttribute("ssC",ssC);
 		return "admin/preStock/list";
 	}
 
@@ -133,6 +141,9 @@ public class PreStockController {
 		// 计量单位
 		List<Unit> listUnits = this.unitService.findAllUnit(false);
 		model.addAttribute("units", listUnits);
+
+		List<SystemClassification>  ssCs=this.ssCService.findAllSystemClassification(false);
+		model.addAttribute("ssCs",ssCs);
 		return "admin/preStock/add";
 	}
 
@@ -150,6 +161,9 @@ public class PreStockController {
 		model.addAttribute("areas", areas);
 		PreStock stock = this.preStockService.findOneById(id, PreStock.class);
 		model.addAttribute("stock", stock);
+
+		List<SystemClassification>  ssCs=this.ssCService.findAllSystemClassification(false);
+		model.addAttribute("ssCs",ssCs);
 		if (Common.isNotEmpty(stock.getArea())) {
 			// 所有货架
 			List<GoodsStorage> list = this.goodsStorageService.findAllGoodsStorage(false, stock.getArea().getId());
@@ -176,6 +190,9 @@ public class PreStockController {
 		model.addAttribute("areas", areas);
 		PreStock stock = this.preStockService.findOneById(id, PreStock.class);
 		model.addAttribute("stock", stock);
+
+		List<SystemClassification>  ssCs=this.ssCService.findAllSystemClassification(false);
+		model.addAttribute("ssCs",ssCs);
 		if (Common.isNotEmpty(stock.getArea())) {
 			// 所有货架
 			List<GoodsStorage> list = this.goodsStorageService.findAllGoodsStorage(false, stock.getArea().getId());
@@ -201,8 +218,10 @@ public class PreStockController {
 		Integer pageSize = (Integer) session.getAttribute("prepageSize");
 		String search = (String) session.getAttribute("presearch");
 		String searchArea = (String) session.getAttribute("presearchArea");
+		String ssC = (String) session.getAttribute("ssC");
+
 		return "redirect:/preStocks?pageNo=" + pageNo + "&pageSize=" + pageSize + "&search="
-				+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea;
+				+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea + "&ssC=" +ssC;
 
 	}
 
@@ -217,7 +236,8 @@ public class PreStockController {
 		String search = (String) session.getAttribute("presearch");
 		String searchArea = (String) session.getAttribute("presearchArea");
 		String status = "1";
-		
+		String ssC = (String) session.getAttribute("ssC");
+
 		//获取预入库设备状态
 		PreStock getpreStock = this.preStockService.findOneById(preStock.getId(), PreStock.class);
 		if(getpreStock.getStatus()!=1) {
@@ -225,7 +245,7 @@ public class PreStockController {
 			attr.addFlashAttribute("errorMsg", "当前订单已由他人处理，无需重复添加！");
 
 			return "redirect:/preStocks?pageNo=" + pageNo + "&pageSize=" + pageSize + "&search="
-					+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea+ "&status=" + status;
+					+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea+ "&status=" + status + "&ssC=" +ssC;
 		}
 		
 		User suser = (User) session.getAttribute(Contents.USER_SESSION);
@@ -273,7 +293,7 @@ public class PreStockController {
 		attr.addFlashAttribute("errorMsg", errorMsg);
 		
 		return "redirect:/preStocks?pageNo=" + pageNo + "&pageSize=" + pageSize + "&search="
-				+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea+ "&status=" + status;
+				+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea+ "&status=" + status + "&ssC=" +ssC;
 
 	}
 
@@ -301,9 +321,10 @@ public class PreStockController {
 		Integer pageSize = (Integer) session.getAttribute("prepageSize");
 		String search = (String) session.getAttribute("presearch");
 		String searchArea = (String) session.getAttribute("presearchArea");
+		String ssC = (String) session.getAttribute("ssC");
 
 		return "redirect:/preStocks?pageNo=" + pageNo + "&pageSize=" + pageSize + "&search="
-				+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea;
+				+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea + "&ssC=" +ssC;
 
 	}
 
@@ -319,8 +340,10 @@ public class PreStockController {
 		log.info("删除设备" + id);
 		this.preStockService.delete(id);
 		log.info("删除设备" + id + "成功");
+		String ssC = (String) session.getAttribute("ssC");
+
 		return "redirect:/preStocks?pageNo=" + pageNo + "&pageSize=" + pageSize + "&search="
-				+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea+ "&status=" + status;
+				+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea+ "&status=" + status + "&ssC=" +ssC;
 	}
 
 	@RequestMapping("/preStock/clearSearch")

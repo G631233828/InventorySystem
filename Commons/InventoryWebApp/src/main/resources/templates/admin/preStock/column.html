@@ -100,7 +100,12 @@
                                             <td class="numeric">银行付款日期</td>
                                             <td class="numeric" onclick="return selectColumn('paymentOrderNo');"><input type="checkbox" th:checked="${#lists.contains(listColums,'paymentOrderNo')}?'checked':'false'" id="ch_paymentOrderNo"></td>
                                         </tr>
-                                         
+
+                                            <tr>
+                                                <td class="numeric">分类</td>
+                                                <td class="numeric" onclick="return selectColumn('ssC');"><input type="checkbox" th:checked="${#lists.contains(listColums,'ssC')}?'checked':'false'" id="ch_ssC"></td>
+                                            </tr>
+
                                         </tbody>
                                     </table>
 				
