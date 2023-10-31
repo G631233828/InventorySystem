@@ -147,7 +147,19 @@
 												th:each="area:${areas}" th:value="${area?.id}"
 												th:text="${area?.name}"></option>
 
-										</select> <select class="filter-status form-control" id="pageSize"
+										</select>
+
+										<select class="filter-status form-control" id="searchssC"
+												onchange="return searchVal()">
+											<option value="">--选择分类--</option>
+											<option th:selected="${session.ssC}==${sC?.id}"
+													th:each="sC:${ssCs}" th:value="${sC?.id}"
+													th:text="${sC?.name}"></option>
+
+										</select>
+
+
+										<select class="filter-status form-control" id="pageSize"
 											onchange="return searchVal()">
 											<option value="10" th:selected="${session.pageSize == 10}">10
 
@@ -233,6 +245,9 @@
 													th:style="${#lists.contains(listColums,'inventory')}?'':'display:none;'">库存量</th>
 												<th class="numeric email"
 													th:style="${#lists.contains(listColums,'email')}?'':'display:none;'">供应商邮箱</th>
+												<th class="numeric ssC"
+													th:style="${#lists.contains(listColums,'ssC')}?'':'display:none;'">分类</th>
+
 												<th class="numeric">使用状态</th>
 												<th class="numeric">操作</th>
 											</tr>
@@ -296,7 +311,10 @@
 														th:style="${stock?.inventory > 5}?'color:green':${stock?.inventory == 0?'color:red':'color:blue'}">[[${stock?.inventory}]]</label></td>
 													<td class="numeric email" id="email"
 														th:style="${#lists.contains(listColums,'email')}?'':'display:none;'">[[${stock?.supplier?.email}]]</td>
-												
+
+													<td class="numeric ssC" id="ssC"
+														th:style="${#lists.contains(listColums,'ssC')}?'':'display:none;'">[[${stock?.systemClassification?.name}]]</td>
+
 													<td class="numeric" th:id="disBtn+${stock.id}"
 														th:utext="${stock.isDisable eq true }?|<button type='button' onclick=toDisable('${stock.id}','stock') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${stock.id}','stock') class='btn btn-success'>启用</button>|"></td>
 													<td class="numeric">
@@ -394,6 +412,8 @@
 												th:style="${#lists.contains(listColums,'inventory')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![inventory==null?0:inventory])}]]</th>
 											<th class="numeric email"
 												th:style="${#lists.contains(listColums,'email')}?'':'display:none;'"></th>
+											<th class="numeric ssC"
+												th:style="${#lists.contains(listColums,'ssC')}?'':'display:none;'"></th>
 											<th class="numeric"></th>
 											<th class="numeric"></th>
 										</tr>
@@ -438,7 +458,7 @@
 													<a
 													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/stocks(pageNo=${pageList.totalPage},pageSize=${session.pageSize},search=${session.search},id=${id},searchArea=${session.searchArea})}">尾页</a>
 												</li>
-												<li><input class="form-control" id="searchN" style="width: 60px;" type="number" placeholder="" /> <a href="javascript:void(0);" th:onclick="|return searchbyN('${session.pageSize}','${session.search}','${session.searchArea}','${pageList.totalPage}')|">跳转</a></li>
+												<li><input class="form-control" id="searchN" style="width: 60px;" type="number" placeholder="" /> <a href="javascript:void(0);" th:onclick="|return searchbyN('${session.pageSize}','${session.search}','${session.searchArea}','${pageList.totalPage}','${session.ssC}')|">跳转</a></li>
 											</ul>
 										</div>
 									</div>

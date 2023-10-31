@@ -188,7 +188,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 	@Override
 	@SystemServiceLog(description = "分页查询库存信息")
-	public Pagination<Stock> findpagination(Integer pageNo, Integer pageSize, String search, String searchArea,String searchAgent) {
+	public Pagination<Stock> findpagination(Integer pageNo, Integer pageSize, String search, String searchArea,String searchAgent,String ssC) {
 		// 分页查询数据
 		Pagination<Stock> pagination = null;
 		try {
@@ -197,7 +197,11 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			if (Common.isNotEmpty(searchArea)) {
 				query = query.addCriteria(Criteria.where("area.$id").is(new ObjectId(searchArea)));
 			}
-			
+
+			if (Common.isNotEmpty(ssC)) {
+				query = query.addCriteria(Criteria.where("systemClassification.$id").is(new ObjectId(ssC)));
+			}
+
 			if(Common.isNotEmpty(searchAgent)) {
 				query = query.addCriteria(Criteria.where("agent").is(Boolean.valueOf(searchAgent)));
 			}
@@ -422,6 +426,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				Supplier supplier = null;
 				Unit unit = null;
 				Brand brand = null;
+				SystemClassification ssC=null;
 				String areaName = resultexcel[i][j].trim();// 区域名称
 				// 通过区域名称查询区域是否存在
 				Area getarea = this.areaService.findByName(areaName);
@@ -506,7 +511,20 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				//新添加 是否代理商品
 				String agent =  resultexcel[i][j + 10].trim();// 获取是否代理商品
 				importStock.setAgent(agent=="是");
-				
+
+				//添加系统分类
+				String ssCName = resultexcel[i][j + 11].trim();// 系统分类
+				if (Common.isNotEmpty(ssCName)) {
+					// 根据供应商名称查找，看供应商是否存在
+					ssC = this.systemClassificationService.findByName(ssCName);
+					if (Common.isEmpty(supplier)) {
+						error += "<span class='entypo-attention'></span>导入文件过程中出现不存在的系统分类<b>&nbsp;&nbsp;" + ssCName
+								+ "&nbsp;&nbsp;</b>，请先添加系统分类，第<b>&nbsp&nbsp" + (i + 1)
+								+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
+						continue;
+					}
+				}
+				importStock.setSystemClassification(ssC);
 
 				stock = this.findByName(areaName,name, model, entryName);
 				

@@ -319,11 +319,12 @@ function searchVal() {
 	var search = $("#serach").val();
 	var searchArea = $("#searchArea").val();
 	var searchAgent = $("#agent").val();
+	var ssC = $("#searchssC").val();
 	/*
 	 * if (search == null || search == "") { swal({ type : "warning", title : "",
 	 * text : "查询内容不能为空!!", }); return ; }
 	 */
-	window.location.href = "stocks?pageSize=" + pageSize + "&search=" + search + "&searchArea=" + searchArea + "&searchAgent=" + searchAgent;
+	window.location.href = "stocks?pageSize=" + pageSize + "&search=" + search + "&searchArea=" + searchArea + "&searchAgent=" + searchAgent + "&ssC=" + ssC;
 
 }
 
@@ -570,7 +571,7 @@ function batchPaymentOrderNo() {
 
 }
 
-function searchbyN(size,search,area,totalpage){
+function searchbyN(size,search,area,totalpage,ssC){
 	var N=$("#searchN").val();
 	if(N <= 0 || N > totalpage){
 		swal({
@@ -579,7 +580,7 @@ function searchbyN(size,search,area,totalpage){
 			text: "页数不对，重新填写!!",
 		});
 	}else{
-		window.location.href = "stocks?pageNo=" + N +"&pageSize=" + size + "&search=" + search + "&searchArea=" + area ;
+		window.location.href = "stocks?pageNo=" + N +"&pageSize=" + size + "&search=" + search + "&searchArea=" + area +  "&ssC" + ssC;
 	}
 
 }

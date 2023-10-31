@@ -45,19 +45,8 @@ import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.common.utils.ZipCompress;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.general.pojo.User;
-import zhongchiedu.inventory.pojo.Area;
-import zhongchiedu.inventory.pojo.Brand;
-import zhongchiedu.inventory.pojo.GoodsStorage;
-import zhongchiedu.inventory.pojo.Stock;
-import zhongchiedu.inventory.pojo.Supplier;
-import zhongchiedu.inventory.pojo.Unit;
-import zhongchiedu.inventory.service.Impl.AreaServiceImpl;
-import zhongchiedu.inventory.service.Impl.BrandServiceImpl;
-import zhongchiedu.inventory.service.Impl.ColumnServiceImpl;
-import zhongchiedu.inventory.service.Impl.GoodsStorageServiceImpl;
-import zhongchiedu.inventory.service.Impl.StockServiceImpl;
-import zhongchiedu.inventory.service.Impl.SupplierServiceImpl;
-import zhongchiedu.inventory.service.Impl.UnitServiceImpl;
+import zhongchiedu.inventory.pojo.*;
+import zhongchiedu.inventory.service.Impl.*;
 import zhongchiedu.log.annotation.SystemControllerLog;
 
 /**
@@ -82,7 +71,10 @@ public class StockController {
 
 	private @Autowired AreaServiceImpl areaService;
 
-	private @Autowired BrandServiceImpl brandService;	
+	private @Autowired BrandServiceImpl brandService;
+
+
+	private @Autowired SystemClassificationServiceImpl  ssCService;
 	
 	@GetMapping("stocks")
 	@RequiresPermissions(value = "stock:list")
@@ -92,15 +84,19 @@ public class StockController {
 			@ModelAttribute("errorImport") String errorImport,
 			@RequestParam(value = "search", defaultValue = "") String search,
 			@RequestParam(value = "searchArea", defaultValue = "") String searchArea,
-			@RequestParam(value = "searchAgent", defaultValue = "") String searchAgent
+			@RequestParam(value = "searchAgent", defaultValue = "") String searchAgent,
+			@RequestParam(value = "ssC", defaultValue = "") String ssC
 			) {
 
 		// 区域
 		List<Area> areas = this.areaService.findAllArea(false);
 		model.addAttribute("areas", areas);
 
+		List<SystemClassification>  ssCs=this.ssCService.findAllSystemClassification(false);
+		model.addAttribute("ssCs",ssCs);
+
 		model.addAttribute("errorImport", errorImport);
-		Pagination<Stock> pagination = this.stockService.findpagination(pageNo, pageSize, search, searchArea,searchAgent);
+		Pagination<Stock> pagination = this.stockService.findpagination(pageNo, pageSize, search, searchArea,searchAgent,ssC);
 		model.addAttribute("pageList", pagination);
 		User user = (User) session.getAttribute(Contents.USER_SESSION);
 		List<String> listColums = this.columnService.findColumns("stock",user.getId());
@@ -111,11 +107,13 @@ public class StockController {
 		session.setAttribute("search", search);
 		session.setAttribute("searchArea", searchArea);
 		session.setAttribute("searchAgent", searchAgent);
+		session.setAttribute("ssC",ssC);
 
 		model.addAttribute("pageSize", pageSize);
 		model.addAttribute("search", search);
 		model.addAttribute("searchArea", searchArea);
 		model.addAttribute("searchAgent", searchAgent);
+		model.addAttribute("ssC",ssC);
 		return "admin/stock/list";
 	}
 	
@@ -153,6 +151,9 @@ public class StockController {
 		// 计量单位
 		List<Unit> listUnits = this.unitService.findAllUnit(false);
 		model.addAttribute("units", listUnits);
+
+		List<SystemClassification>  ssCs=this.ssCService.findAllSystemClassification(false);
+		model.addAttribute("ssCs",ssCs);
 
 		return "admin/stock/add";
 	}
@@ -208,9 +209,9 @@ public class StockController {
 		Integer pageSize = (Integer) session.getAttribute("pageSize");
 		String search = (String) session.getAttribute("search");
 		String searchArea = (String) session.getAttribute("searchArea");
-
+		String ssC = (String) session.getAttribute("ssC");
 			return "redirect:/stocks?pageNo=" + pageNo + "&pageSize=" + pageSize + "&search="
-					+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea;
+					+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea + "&ssC=" +ssC;
 	
 	}
 	
@@ -229,9 +230,10 @@ public class StockController {
 		Integer pageSize = (Integer) session.getAttribute("pageSize");
 		String search = (String) session.getAttribute("search");
 		String searchArea = (String) session.getAttribute("searchArea");
-		
+		String ssC = (String) session.getAttribute("ssC");
+
 		return "redirect:/stocks?pageNo=" + pageNo + "&pageSize=" + pageSize + "&search="
-		+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea;
+		+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea + "&ssC=" +ssC;
 		
 	}
 	
@@ -251,10 +253,12 @@ public class StockController {
 		Integer pageSize = (Integer) session.getAttribute("pageSize");
 		String search = (String) session.getAttribute("search");
 		String searchArea = (String) session.getAttribute("searchArea");
+		String ssC = (String) session.getAttribute("ssC");
+
 		this.stockService.saveOrUpdate(stock);
 	
 			return "redirect:/stocks?pageNo=" + pageNo + "&pageSize=" + pageSize + "&search="
-					+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea;
+					+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea+ "&ssC=" +ssC;
 		
 
 	}
@@ -281,8 +285,9 @@ public class StockController {
 		//获取所有品牌
 		List<Brand> brands = this.brandService.findAllBrand(false);
 		model.addAttribute("brands", brands);
-		
-		
+
+		List<SystemClassification>  ssCs=this.ssCService.findAllSystemClassification(false);
+		model.addAttribute("ssCs",ssCs);
 		// 区域
 		List<Area> areas = this.areaService.findAllArea(false);
 		model.addAttribute("areas", areas);
@@ -316,8 +321,10 @@ public class StockController {
 		log.info("删除设备" + id);
 		this.stockService.delete(id);
 		log.info("删除设备" + id + "成功");
+		String ssC = (String) session.getAttribute("ssC");
+
 		return "redirect:/stocks?pageNo=" + pageNo + "&pageSize=" + pageSize + "&search="
-				+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea;
+				+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea+ "&ssC=" +ssC;
 	}
 
 	/**

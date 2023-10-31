@@ -34,6 +34,10 @@ public class Stock extends GeneralBean<Stock> {
 	private String scope;// 使用范围
 	@DBRef
 	private GoodsStorage goodsStorage;// 货架号/层
+
+	@DBRef
+	private SystemClassification systemClassification;//系统分类
+
 	private String price;// 单价
 	@DBRef
 	private Unit unit; // 计量单位

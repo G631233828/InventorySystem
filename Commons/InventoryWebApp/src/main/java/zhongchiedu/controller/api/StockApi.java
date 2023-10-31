@@ -32,7 +32,7 @@ public class StockApi {
 	public Pagination<Stock> list(@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
 			@RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize, HttpSession session,
 			@RequestParam(value = "search", defaultValue = "") String search) {
-		Pagination<Stock> pagination = this.stockService.findpagination(pageNo, pageSize, search,"","");
+		Pagination<Stock> pagination = this.stockService.findpagination(pageNo, pageSize, search,"","","");
 		model.addAttribute("pageList", pagination);
 		model.addAttribute("pageSize", pageSize);
 		model.addAttribute("search", search);

@@ -82,7 +82,11 @@
                                                 <td class="numeric">代理商品</td>
                                                 <td class="numeric" onclick="return selectColumn('agent');"><input type="checkbox" th:checked="${#lists.contains(listColums,'agent')}?'checked':'false'" id="ch_agent"></td>
                                             </tr>
-                                            
+
+                                            <tr>
+                                                <td class="numeric">分类</td>
+                                                <td class="numeric" onclick="return selectColumn('ssC');"><input type="checkbox" th:checked="${#lists.contains(listColums,'ssC')}?'checked':'false'" id="ch_ssC"></td>
+                                            </tr>
                                          
                                         </tbody>
                                     </table>
