@@ -330,6 +330,7 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 				PreStock stock = null; // 库存信息
 				Supplier supplier = null;
 				Unit unit = null;
+				SystemClassification ssC=null;
 				String areaName = resultexcel[i][j].trim();// 区域名称
 				// 通过区域名称查询区域是否存在
 				Area getarea = this.areaService.findByName(areaName);
@@ -374,10 +375,24 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 						continue;
 					}
 				}
+				String ssCName = resultexcel[i][j + 7].trim();// 系统分类
+				if (Common.isNotEmpty(ssCName)) {
+					// 根据供应商名称查找，看供应商是否存在
+					ssC = this.systemClassificationService.findByName(ssCName);
+					if (Common.isEmpty(supplier)) {
+						error += "<span class='entypo-attention'></span>导入文件过程中出现不存在的系统分类<b>&nbsp;&nbsp;" + ssCName
+								+ "&nbsp;&nbsp;</b>，请先添加系统分类，第<b>&nbsp&nbsp" + (i + 1)
+								+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
+						continue;
+					}
+				}
+				importPreStock.setSystemClassification(ssC);
 				importPreStock.setSupplier(supplier);
 				importPreStock.setPublisher(user);// 发布人
 				stock = this.findByName(getarea,name, model,1,entryName);//预入库查重 区域，名字，型号，项目名称
+
 				if (Common.isNotEmpty(stock)) {
+					if(Common.isNotEmpty(ssC))stock.setSystemClassification(ssC);
 					long newnum=this.updatePreStock(stock,importPreStock.getEstimatedInventoryQuantity());
 					error += "<span class='entypo-attention'></span>该设备预库存已经存在，预库存数量将会叠加<b>&nbsp;&nbsp;" + stock.getName()
 							+ "&nbsp;&nbsp;</b>，预库存量为"+newnum+"！&nbsp&nbsp</b></br>";
@@ -419,6 +434,7 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 			try{
 				newnum=stock.getEstimatedInventoryQuantity()+num;
 				stock.setEstimatedInventoryQuantity(newnum);
+
 				this.save(stock);
 				return newnum;
 			}finally {
