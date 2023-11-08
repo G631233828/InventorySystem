@@ -104,6 +104,8 @@
                                             <tr>
                                                 <td class="numeric">分类</td>
                                                 <td class="numeric" onclick="return selectColumn('ssC');"><input type="checkbox" th:checked="${#lists.contains(listColums,'ssC')}?'checked':'false'" id="ch_ssC"></td>
+                                                <td class="numeric">供应商</td>
+                                                <td class="numeric" onclick="return selectColumn('supplier');"><input type="checkbox" th:checked="${#lists.contains(listColums,'supplier')}?'checked':'false'" id="ch_supplier"></td>
                                             </tr>
 
                                         </tbody>

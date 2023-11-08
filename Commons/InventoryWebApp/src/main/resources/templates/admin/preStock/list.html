@@ -240,7 +240,8 @@
                                         th:style="${#lists.contains(listColums,'status')}?'':'display:none;'">入库状态</th>
                                     <th class="numeric ssC"
                                         th:style="${#lists.contains(listColums,'ssC')}?'':'display:none;'">分类</th>
-
+                                    <th class="numeric supplier"
+                                        th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'">供应商</th>
                                     <th class="numeric">操作</th>
                                 </tr>
                                 </thead>
@@ -314,6 +315,8 @@
                                             th:style="${#lists.contains(listColums,'status')}?'':'display:none;'"></td>
                                         <td class="numeric ssC" id="ssC"
                                             th:style="${#lists.contains(listColums,'ssC')}?'':'display:none;'">[[${stock?.systemClassification?.name}]]</td>
+                                        <td class="numeric supplier" id="supplier"
+                                            th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'">[[${stock?.supplier?.name}]]</td>
                                         <td class="numeric">
                                             <shiro:hasPermission name="preStock:in">
                                                 <button class="btn btn-primary btn-xs"
