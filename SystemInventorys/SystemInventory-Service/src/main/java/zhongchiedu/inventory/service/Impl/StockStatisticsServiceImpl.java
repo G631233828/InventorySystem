@@ -105,7 +105,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	@Override
 	@SystemServiceLog(description = "分页查询库存统计信息")
 	public Pagination<StockStatistics> findpagination(Integer pageNo, Integer pageSize, String search, String start,
-			String end, String type, String id, String searchArea, String searchAgent,String userId,String revoke,String confirm) {
+			String end, String type, String id, String searchArea, String searchAgent,String userId,String revoke,String confirm,String ssC) {
 
 		// 分页查询数据
 		Pagination<StockStatistics> pagination = null;
@@ -124,6 +124,12 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			if (Common.isNotEmpty(userId)) {
 				query = query.addCriteria(Criteria.where("financeUser.$id").is(new ObjectId(userId)));
 			}
+
+//			if (Common.isNotEmpty(ssC)) {
+//				query = query.addCriteria(Criteria.where("systemClassification.$id").is(new ObjectId(ssC)));
+//			}
+
+
 			if(Common.isNotEmpty(revoke)) {
 				if(revoke.equals("1")) {
 					query.addCriteria(Criteria.where("revoke").is(true));
@@ -131,7 +137,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 					query.addCriteria(Criteria.where("revoke").is(false));
 				}
 			}
-			query = this.findbySearch(search, start, end, type, query, searchArea);
+			query = this.findbySearch(search, start, end, type, query, searchArea,ssC);
 			query.with(new Sort(new Order(Direction.DESC, "createTime")));
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, StockStatistics.class);
 			if (pagination == null)
@@ -144,10 +150,11 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	}
 
 	@SystemServiceLog(description = "条件查询库统计信息")
-	public Query findbySearch(String search, String start, String end, String type, Query query, String areaId) {
+	public Query findbySearch(String search, String start, String end, String type, Query query, String areaId,String ssC) {
 		Criteria ca = new Criteria();
 		Criteria ca1 = new Criteria();
 		Criteria ca2 = new Criteria();
+		Criteria ca3 = new Criteria();
 		end=end+" 23:59:59";
 		if (type.equals("in")) {
 			query.addCriteria(Criteria.where("inOrOut").is(true));
@@ -158,9 +165,12 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		if (Common.isNotEmpty(areaId)) {
 			query = query.addCriteria(Criteria.where("area.$id").is(new ObjectId(areaId)));
 		}
-
+		List<Object> stockIdByssC=null;
+		if(Common.isNotEmpty(ssC)){
+			stockIdByssC=findStocksByssCId(ssC);
+			ca3.orOperator(Criteria.where("stock.$id").in(stockIdByssC));
+		}
 		if (Common.isNotEmpty(search)) {
-
 			List<Object> stockId = this.findStocks(search);
 			List<Object> userId = this.findUsers(search);
 			ca1.orOperator(Criteria.where("stock.$id").in(stockId), Criteria.where("user.$id").in(userId),
@@ -174,6 +184,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 					Criteria.where("paymentOrderNo").regex(search));
 		}
 
+
 		if (Common.isNotEmpty(start) && Common.isNotEmpty(end)) {
 			ca2.orOperator(Criteria.where("storageTime").gte(start).lte(end),
 					Criteria.where("depotTime").gte(start).lte(end)
@@ -182,7 +193,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 //					Criteria.where("sailesInvoiceDate").gte(start).lte(end)
 					);
 		}
-		query.addCriteria(ca.andOperator(ca1, ca2));
+		query.addCriteria(ca.andOperator(ca1, ca2,ca3));
 
 		query.addCriteria(Criteria.where("isDelete").is(false));
 
@@ -212,6 +223,19 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		query.addCriteria(ca);
 //		query.addCriteria(Criteria.where("isDelete").is(false));  添加此条件，则被删除的库存无法在库存统计中显示
 		List<Stock> lists = this.stockService.find(query, Stock.class);
+		for (Stock li : lists) {
+//			System.out.println(li.getId()+":"+li.getName());
+			list.add(new ObjectId(li.getId()));
+		}
+		return list;
+	}
+
+	@SystemServiceLog(description = "根据分类的id查询stock")
+	public List<Object> findStocksByssCId(String ssC){
+		List<Object> list = new ArrayList<>();
+		Query query = new Query();
+		query = query.addCriteria(Criteria.where("systemClassification.$id").is(new ObjectId(ssC)));
+		List<Stock> lists=this.stockService.find(query,Stock.class);
 		for (Stock li : lists) {
 //			System.out.println(li.getId()+":"+li.getName());
 			list.add(new ObjectId(li.getId()));
@@ -842,7 +866,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		if (Common.isNotEmpty(searchAgent)) {
 			query = query.addCriteria(Criteria.where("agent").is(Boolean.valueOf(searchAgent)));
 		}
-		query = this.findbySearch(search, start, end, type, query, areaId);
+		query = this.findbySearch(search, start, end, type, query, areaId,"");
 		query.with(new Sort(new Order(Direction.DESC, "createTime")));
 		query.addCriteria(Criteria.where("revoke").is(false));
 		List<StockStatistics> list = this.find(query, StockStatistics.class);

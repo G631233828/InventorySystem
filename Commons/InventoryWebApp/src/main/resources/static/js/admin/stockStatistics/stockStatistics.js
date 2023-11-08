@@ -19,12 +19,13 @@ function searchVal() {
 	var searchAgent = $("#agent").val();
 	var revoke = $("#revoke").val();
 	var confirm = $("#confirm").val();
+	var ssC = $("#searchssC").val();
 	/*
 	 * if (search == null || search == "") { swal({ type : "warning", title :
 	 * "", text : "查询内容不能为空!!", }); return ; }
 	 */
 	window.location.href = "stockStatisticss?pageSize=" + pageSize + "&search="
-		+ search + "&start=" + start + "&end=" + end  + "&type=" + type + "&searchArea=" + searchArea + "&searchAgent=" + searchAgent+ "&revoke=" + revoke + "&confirm=" + confirm;
+		+ search + "&start=" + start + "&end=" + end  + "&type=" + type + "&searchArea=" + searchArea + "&searchAgent=" + searchAgent+ "&revoke=" + revoke + "&confirm=" + confirm + "&ssC=" + ssC;
 }
 // function searchSize() {
 //	
@@ -535,7 +536,7 @@ $("#"+o).toggle();
 
 }
 
-function searchbyN(size,search,area,totalpage,type,start,end,revoke,confirm,userId){
+function searchbyN(size,search,area,totalpage,type,start,end,revoke,confirm,userId,ssC){
 	var N=$("#searchN").val();
 	var Tpage=parseInt(totalpage);
 	if(N <= 0 || N > Tpage){
@@ -546,7 +547,7 @@ function searchbyN(size,search,area,totalpage,type,start,end,revoke,confirm,user
 		});
 	}else{
 		window.location.href = "stockStatisticss?pageNo=" + N +"&pageSize=" + size + "&search=" + search + "&searchArea=" + area +"&type="
-			+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=" + userId;
+			+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=" + userId + "&ssC="+ssC;
 	}
 
 }

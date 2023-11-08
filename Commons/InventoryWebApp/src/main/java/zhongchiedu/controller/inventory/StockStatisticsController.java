@@ -43,15 +43,9 @@ import zhongchiedu.common.utils.WordUtil;
 import zhongchiedu.common.utils.ZipCompress;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.general.pojo.User;
-import zhongchiedu.inventory.pojo.Area;
-import zhongchiedu.inventory.pojo.Sign;
-import zhongchiedu.inventory.pojo.Stock;
-import zhongchiedu.inventory.pojo.StockStatistics;
+import zhongchiedu.inventory.pojo.*;
+import zhongchiedu.inventory.service.Impl.*;
 import zhongchiedu.inventory.service.SignService;
-import zhongchiedu.inventory.service.Impl.AreaServiceImpl;
-import zhongchiedu.inventory.service.Impl.ColumnServiceImpl;
-import zhongchiedu.inventory.service.Impl.StockServiceImpl;
-import zhongchiedu.inventory.service.Impl.StockStatisticsServiceImpl;
 import zhongchiedu.log.annotation.SystemControllerLog;
 
 /**
@@ -72,7 +66,7 @@ public class StockStatisticsController {
 
 	private @Autowired AreaServiceImpl areaService;
 
-
+	private @Autowired SystemClassificationServiceImpl ssCService;
 
 	@GetMapping("stockStatisticss")
 	@RequiresPermissions(value = "stockStatistics:list")
@@ -88,14 +82,18 @@ public class StockStatisticsController {
 			@RequestParam(value = "userId", defaultValue = "") String userId,
 			@RequestParam(value = "searchAgent", defaultValue = "") String searchAgent,
 			@RequestParam(value = "revoke", defaultValue = "2") String revoke,
-			@RequestParam(value = "confirm", defaultValue = "") String confirm
+			@RequestParam(value = "confirm", defaultValue = "") String confirm,
+			@RequestParam(value = "ssC", defaultValue = "") String ssC
 			) {
 		// 区域
 		List<Area> areas = this.areaService.findAllArea(false);
 		model.addAttribute("areas", areas);
+
+		List<SystemClassification>  ssCs=this.ssCService.findAllSystemClassification(false);
+		model.addAttribute("ssCs",ssCs);
 		revoke="2";//默认都是正常 隐藏 已撤销
 		Pagination<StockStatistics> pagination = this.stockStatisticsService.findpagination(pageNo, pageSize, search,
-				start, end, type, id, searchArea, searchAgent,userId,revoke,confirm);
+				start, end, type, id, searchArea, searchAgent,userId,revoke,confirm,ssC);
 		model.addAttribute("pageList", pagination);
 		
 //		double sum = pagination.getDatas().stream().mapToDouble(StockStatistics::getInprice).sum();
@@ -114,6 +112,7 @@ public class StockStatisticsController {
 		model.addAttribute("type", type);
 		model.addAttribute("pageSize", pageSize);
 		model.addAttribute("searchArea", searchArea);
+		model.addAttribute("ssC",ssC);
 		model.addAttribute("searchAgent", searchAgent);
 		model.addAttribute("userId", userId);
 		model.addAttribute("confirm",confirm);

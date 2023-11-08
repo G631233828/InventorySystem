@@ -1056,9 +1056,10 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 		Stock stock = this.findByAreaNameModel(areaId, name, model,entryName);
 
-		if(Common.isNotEmpty(preStock.getSystemClassification()) && Common.isEmpty(stock.getSystemClassification())
-		&& Common.isNotEmpty(stock)){
-			stock.setSystemClassification(preStock.getSystemClassification());
+		if(Common.isNotEmpty(stock)){
+			if(Common.isNotEmpty(preStock.getSystemClassification()) && Common.isEmpty(stock.getSystemClassification())){
+				stock.setSystemClassification(preStock.getSystemClassification());
+			}
 			this.saveOrUpdate(stock);
 		}//这一步是将库存管理中 分类没设置的库存  设置  为预库存的  分类。
 

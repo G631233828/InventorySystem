@@ -129,7 +129,12 @@
                                                 <td class="numeric">复核签名</td>
                                                 <td class="numeric" onclick="return selectColumn('othersign');"><input type="checkbox" th:checked="${#lists.contains(listColums,'othersign')}?'checked':'false'" id="ch_othersign"></td>
                                             </tr>
-                                           
+
+                                            <tr>
+                                                <td class="numeric">分类</td>
+                                                <td class="numeric" onclick="return selectColumn('ssC');"><input type="checkbox" th:checked="${#lists.contains(listColums,'ssC')}?'checked':'false'" id="ch_ssC"></td>
+                                            </tr>
+
                                         </tbody>
                                     </table>
 				

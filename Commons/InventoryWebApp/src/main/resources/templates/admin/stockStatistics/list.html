@@ -77,7 +77,19 @@
 												th:each="area:${areas}" th:value="${area?.id}"
 												th:text="${area?.name}"></option>
 
-										</select> <select class="filter-status form-control" id="pageSize"
+										</select>
+
+										<select class="filter-status form-control" id="searchssC"
+												onchange="return searchVal()">
+											<option value="">--选择分类--</option>
+											<option th:selected="${ssC}==${sC?.id}"
+													th:each="sC:${ssCs}" th:value="${sC?.id}"
+													th:text="${sC?.name}"></option>
+
+										</select>
+
+
+										<select class="filter-status form-control" id="pageSize"
 											onchange="return searchVal()">
 											<option value="10" th:selected="${pageSize == 10}">10
 											
@@ -265,6 +277,8 @@
 													th:style="${#lists.contains(listColums,'sign')}?'':'display:none;'">签名</th>
 												<th class="numeric othersign"
 													th:style="${#lists.contains(listColums,'othersign')}?'':'display:none;'">复核签名</th>
+												<th class="numeric ssC"
+												th:style="${#lists.contains(listColums,'ssC')}?'':'display:none;'">分类</th>
 												<th class="numeric">操作</th>
 											</tr>
 										</thead>
@@ -402,7 +416,8 @@
 															   th:style="${stockStatistics?.othersign ==null}?'color:red':'color:green'"
 															   th:text="${stockStatistics?.othersign ==null}?'未签名':'已签名'"></label>
 													</td>
-													
+													<td class="numeric ssC" id="ssC"
+														th:style="${#lists.contains(listColums,'ssC')}?'':'display:none;'">[[${stockStatistics?.stock?.systemClassification?.name}]]</td>
 													<td class="numeric">
 													<th:block th:if="|
 													${#strings.isEmpty(stockStatistics.purchaseInvoiceNo)&&
@@ -558,6 +573,8 @@
 													th:style="${#lists.contains(listColums,'sign')}?'':'display:none;'"></th>
 												<th class="numeric othersign"
 													th:style="${#lists.contains(listColums,'othersign')}?'':'display:none;'"></th>
+												<th class="numeric ssC"
+													th:style="${#lists.contains(listColums,'ssC')}?'':'display:none;'"></th>
 												<th class="numeric"></th>
 											</tr>
 										</thead>
@@ -611,7 +628,7 @@
 													<a
 													th:href="${pageList?.pageNo eq pageList?.totalPage}?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.totalPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId},revoke=${revoke},confirm=${confirm})}">尾页</a>
 												</li>
-												<li><input class="form-control" id="searchN" style="width: 60px;" type="number" placeholder="" /> <a href="javascript:void(0);" th:onclick="|return searchbyN('${pageSize}','${search}','${searchArea}','${pageList.totalPage}','${type}','${start}','${end}','${revoke}','${confirm}','${userId}')|">跳转</a></li>
+												<li><input class="form-control" id="searchN" style="width: 60px;" type="number" placeholder="" /> <a href="javascript:void(0);" th:onclick="|return searchbyN('${pageSize}','${search}','${searchArea}','${pageList.totalPage}','${type}','${start}','${end}','${revoke}','${confirm}','${userId}','${ssC}')|">跳转</a></li>
 											</ul>
 										</div>
 									</div>
