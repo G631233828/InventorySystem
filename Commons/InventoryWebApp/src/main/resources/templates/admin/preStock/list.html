@@ -206,6 +206,8 @@
                                                 for="checkall"></label>
                                         </div>
                                     </th>
+                                    <th class="numeric area"
+                                        th:style="${#lists.contains(listColums,'area')}?'':'display:none;'">区域</th>
                                     <th class="numeric name"
                                         th:style="${#lists.contains(listColums,'name')}?'':'display:none;'">设备名称</th>
                                     <th class="numeric model"
@@ -257,7 +259,8 @@
                                                     th:for="${stock?.id}"></label>
                                             </div>
                                         </td>
-
+                                        <td class="numeric area"
+                                            th:style="${#lists.contains(listColums,'area')}?'':'display:none;'">[[${stock?.area?.name}]]</td>
                                         <td class="numeric name"
                                             th:style="${#lists.contains(listColums,'name')}?'':'display:none;'">[[${stock?.name}]]</td>
                                         <td class="numeric model"
