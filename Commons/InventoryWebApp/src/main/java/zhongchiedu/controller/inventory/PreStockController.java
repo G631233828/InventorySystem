@@ -619,6 +619,54 @@ public class PreStockController {
 		return this.columnService.editColumns("prestock", column, flag,user.getId());
 	}
 
+//	@RequestMapping(value = "/prestock/batchEditpreStocks", method = RequestMethod.POST)
+//	@ResponseBody
+//	public BasicDataResult batchPaymentOrderNo(HttpSession session,
+//											   @RequestParam(value = "stockid", defaultValue = "") String stockid,
+//											   @RequestParam(value = "inprice", defaultValue = "null") String inprice,
+//											   @RequestParam(value = "purchaseInvoiceNo", defaultValue = "null") String purchaseInvoiceNo,
+//											   @RequestParam(value = "receiptNo", defaultValue = "null") String receiptNo,
+//											   @RequestParam(value = "paymentOrderNo", defaultValue = "null") String paymentOrderNo,
+//											   @RequestParam(value = "sailesInvoiceNo", defaultValue = "null") String sailesInvoiceNo,
+//											   @RequestParam(value = "sailesInvoiceDate", defaultValue = "null") String sailesInvoiceDate,
+//											   @RequestParam(value = "purchaseInvoiceDate", defaultValue = "null") String purchaseInvoiceDate,
+//											   @RequestParam(value = "sailPrice", defaultValue = "null") String sailPrice,
+//											   @RequestParam(value = "itemNo", defaultValue = "null") String itemNo,
+//											   @RequestParam(value = "description", defaultValue = "null") String description
+//	) {
+//
+//		Double dinprice=null;
+//		Double dsailPrice=null;
+//		try {
+//			if(!inprice.equals("null")) {
+//				dinprice = Double.parseDouble(inprice);
+//			}else {
+//				dinprice=null;
+//			}
+//		}catch(Exception e) {
+//			e.printStackTrace();
+//			return new BasicDataResult(400, "入库金额输入有误，请输入正确的数字", "");
+//
+//		}
+//
+//		try {
+//			if(!sailPrice.equals("null")) {
+//				dsailPrice = Double.parseDouble(sailPrice);
+//			}else {
+//				dsailPrice=null;
+//			}
+//		}catch(Exception e) {
+//			e.printStackTrace();
+//			return new BasicDataResult(400, "销售金额输入有误，请输入正确的数字", "");
+//
+//		}
+//		User user = (User) session.getAttribute(Contents.USER_SESSION);
+//		this.preStockService.updateStockStatistics(stockid, dinprice, purchaseInvoiceNo, purchaseInvoiceDate,paymentOrderNo,itemNo);
+//
+//		return new BasicDataResult(200, "修改统计数据成功", "");
+//
+//	}
+
 public static void main(String[] args) {
 	StringBuilder errorMsg = new StringBuilder();
 	System.out.println(errorMsg.length()==0);

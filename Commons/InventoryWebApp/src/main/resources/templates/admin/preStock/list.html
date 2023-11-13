@@ -112,7 +112,10 @@
                                 <button class="btn btn-success" onclick="return batchOut()">
                                     <i class="fontawesome-upload"> </i>批量出库
                                 </button>
-
+                                <button class="btn btn-primary btn-sm"
+                                        onclick="return editprestock()">
+                                    <i class="entypo-search"> </i> 批量编辑
+                                </button>
 
 
                             </div>
@@ -412,6 +415,7 @@
     <div th:replace="admin/preStock/batch::mybatch"></div>
     <div th:replace="admin/preStock/column::mycolumn"></div>
     <div th:replace="admin/preStock/batchout::mystockbatchout"></div>
+    <div th:replace="admin/preStock/batcheditprestock::editprestock"></div>
     <script type="text/javascript" th:inline="javascript"
             th:src="@{/js/admin/preStock/preStocklist.js}"></script>
     <script type="text/javascript" th:inline="javascript"
