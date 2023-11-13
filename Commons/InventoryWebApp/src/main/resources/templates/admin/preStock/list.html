@@ -361,6 +361,55 @@
 
 
                                 </tbody>
+
+                                <thead class="cf">
+                                <tr>
+                                    <th class="numeric" >
+                                        合计
+                                    </th>
+                                    <th class="numeric area"
+                                        th:style="${#lists.contains(listColums,'area')}?'':'display:none;'"></th>
+                                    <th class="numeric name"
+                                        th:style="${#lists.contains(listColums,'name')}?'':'display:none;'"></th>
+                                    <th class="numeric model"
+                                        th:style="${#lists.contains(listColums,'model')}?'':'display:none;'"></th>
+                                    <th class="numeric entryName"
+                                        th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'"></th>
+                                    <th class="numeric unit"
+                                        th:style="${#lists.contains(listColums,'unit')}?'':'display:none;'"></th>
+                                    <th class="numeric esquantity"
+                                        th:style="${#lists.contains(listColums,'esquantity')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![estimatedInventoryQuantity==null?0:estimatedInventoryQuantity])}]]</th>
+                                    <th class="numeric acquantity"
+                                        th:style="${#lists.contains(listColums,'acquantity')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![actualReceiptQuantity==null?0:actualReceiptQuantity])}]]</th>
+                                    <th class="numeric eaquantity"
+                                        th:style="${#lists.contains(listColums,'eaquantity')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![estimatedInventoryQuantity==null?0:estimatedInventoryQuantity])}-${#aggregates.sum(pageList?.datas.![actualReceiptQuantity==null?0:actualReceiptQuantity])}]]</th>
+                                    <th class="numeric inprice"
+                                        th:style="${#lists.contains(listColums,'inprice')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![inprice==null?0:inprice])}]]</th>
+                                    <th class="numeric purchaseInvoiceNo"
+                                        th:style="${#lists.contains(listColums,'purchaseInvoiceNo')}?'':'display:none;'"></th>
+                                    <th class="numeric purchaseInvoiceDate"
+                                        th:style="${#lists.contains(listColums,'purchaseInvoiceDate')}?'':'display:none;'"></th>
+                                    <th class="numeric paymentOrderNo"
+                                        th:style="${#lists.contains(listColums,'paymentOrderNo')}?'':'display:none;'"></th>
+                                    <th class="numeric itemNo"
+                                        th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'"></th>
+                                    <th class="numeric handler"
+                                        th:style="${#lists.contains(listColums,'handler')}?'':'display:none;'"></th>
+
+                                    <th class="numeric createTime"
+                                        th:style="${#lists.contains(listColums,'createTime')}?'':'display:none;'"></th>
+
+                                    <th class="numeric status"
+                                        th:style="${#lists.contains(listColums,'status')}?'':'display:none;'"></th>
+                                    <th class="numeric ssC"
+                                        th:style="${#lists.contains(listColums,'ssC')}?'':'display:none;'"></th>
+                                    <th class="numeric supplier"
+                                        th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'"></th>
+                                    <th class="numeric"></th>
+
+                                </tr>
+                                </thead>
+
                             </table>
                             </div>
                             <form method="post" id="deleteForm">
