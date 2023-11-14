@@ -35,8 +35,8 @@ public class QrCode extends GeneralBean<QrCode>{
 	
 	private String type;
 	
-	@DBRef
-	private Stock stock;
+//	@DBRef
+//	private Stock stock;
 	
 	
 }

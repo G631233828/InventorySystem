@@ -115,7 +115,8 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 
 	@Override
 	@SystemServiceLog(description = "分页查询库存信息")
-	public Pagination<PreStock> findpagination(Integer pageNo, Integer pageSize, String search, String searchArea,
+	public Pagination<PreStock>
+	findpagination(Integer pageNo, Integer pageSize, String search, String searchArea,
 			int status,String ssC) {
 		// 分页查询数据
 		Pagination<PreStock> pagination = null;
@@ -133,6 +134,7 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 
 			if (Common.isNotEmpty(search)) {
 				query = this.findbySearch(search, query);
+
 			}
 			query.addCriteria(Criteria.where("isDelete").is(false));
 			 query.with(new Sort(new Order(Direction.DESC, "createTime")));
@@ -151,25 +153,30 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 	@SystemServiceLog(description = "查询库存信息")
 	public Query findbySearch(String search, Query query) {
 		if (Common.isNotEmpty(search)) {
-			// List<Object> systemClassification = this.findSystemClassificationIds(search);
-			// List<Object> brand = this.findBrandIds(search);
-			// List<Object> goodsStorage = this.findGoodsStorageIds(search);
-			// List<Object> category = this.findCategoryIds(search);
-			// List<Object> suppliersId = this.findSuppliersId(search, systemClassification,
-			// category, brand);
+			 List<Object> systemClassification = this.findSystemClassificationIds(search);
+			 List<Object> brand = this.findBrandIds(search);
+//			 List<Object> goodsStorage = this.findGoodsStorageIds(search);
+			 List<Object> category = this.findCategoryIds(search);
+			 List<Object> suppliersId = this.findSuppliersId(search, systemClassification,
+			 category, brand);
 			Criteria ca = new Criteria();
 			query.addCriteria(ca.orOperator(/*
-											 * Criteria.where("goodsStorage.$id").in(goodsStorage),
-											 * Criteria.where("supplier.$id").in(suppliersId),
-											 */ Criteria.where("name").regex(search),
+											 * Criteria.where("goodsStorage.$id").in(goodsStorage), */
+											 Criteria.where("supplier.$id").in(suppliersId),
+											 Criteria.where("name").regex(search),
 					Criteria.where("model").regex(search),
 					Criteria.where("entryName").regex(search),
+					Criteria.where("purchaseInvoiceNo").regex(search),
+					Criteria.where("paymentOrderNo").regex(search),
+					Criteria.where("itemNo").regex(search),
 					Criteria.where("scope").regex(search)));
 		}
 
 		return query;
 
 	}
+
+
 
 	/**
 	 * 模糊匹配系统分类的Id
@@ -284,6 +291,7 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 		}
 		return list;
 	}
+
 
 	@Override
 	@SystemServiceLog(description = "启用禁用库存信息")

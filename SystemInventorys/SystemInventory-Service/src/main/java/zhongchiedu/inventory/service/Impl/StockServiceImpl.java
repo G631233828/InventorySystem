@@ -1226,7 +1226,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				MultiMedia saveQrCode = this.multiMediaService.saveQrCode(outputFile, dir, qrcodepath, "PHOTO");
 				qrcode.setQrcode(saveQrCode);
 				qrcode.setPath(urlpath);
-				qrcode.setStock(stock);
+//				qrcode.setStock(stock);
 				qrcode.setName(stock.getName());
 				qrcode.setType("STOCK");
 				this.qrCodeServce.insert(qrcode);

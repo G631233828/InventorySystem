@@ -102,6 +102,7 @@ public class PreStockController {
 				Integer.valueOf(status),ssC);
 		model.addAttribute("pageList", pagination);
 
+
 		List<SystemClassification>  ssCs=this.ssCService.findAllSystemClassification(false);
 		model.addAttribute("ssCs",ssCs);
 

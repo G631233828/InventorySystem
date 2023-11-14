@@ -285,7 +285,7 @@
                                         <td class="numeric inprice" th:id="|inprice_${stock?.id}|"
                                             th:style="${#lists.contains(listColums,'inprice')}?'':'display:none;'"
                                             th:ondblclick="|return change('${stock?.id}','inprice')|"
-                                            th:text="${stock.inprice != 0.0}?${stock?.inprice}:'0.0'">
+                                            th:text="${stock?.inprice != 0.0}?${stock?.inprice}:'0.0'">
 
                                         </td>
                                         <td class="numeric purchaseInvoiceNo" th:id="|purchaseInvoiceNo_${stock?.id}|"
@@ -294,7 +294,7 @@
                                         <td class="numeric purchaseInvoiceDate"
                                             th:id="|purchaseInvoiceDate_${stock?.id}|"
                                             th:ondblclick="|return changeDate('${stock?.id}','purchaseInvoiceDate')|"
-                                            th:text="${stock.purchaseInvoiceDate != null}?${stock?.purchaseInvoiceDate}:''"
+                                            th:text="${stock?.purchaseInvoiceDate != null}?${stock?.purchaseInvoiceDate}:''"
                                             th:style="${#lists.contains(listColums,'purchaseInvoiceDate')}?'':'display:none;'"></td>
                                         <td class="numeric paymentOrderNo"
                                             th:id="|paymentOrderNo_${stock?.id}|"
@@ -382,7 +382,7 @@
                                     <th class="numeric acquantity"
                                         th:style="${#lists.contains(listColums,'acquantity')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![actualReceiptQuantity==null?0:actualReceiptQuantity])}]]</th>
                                     <th class="numeric eaquantity"
-                                        th:style="${#lists.contains(listColums,'eaquantity')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![estimatedInventoryQuantity==null?0:estimatedInventoryQuantity])}-${#aggregates.sum(pageList?.datas.![actualReceiptQuantity==null?0:actualReceiptQuantity])}]]</th>
+                                        th:style="${#lists.contains(listColums,'eaquantity')}?'':'display:none;'"></th>
                                     <th class="numeric inprice"
                                         th:style="${#lists.contains(listColums,'inprice')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![inprice==null?0:inprice])}]]</th>
                                     <th class="numeric purchaseInvoiceNo"
@@ -429,16 +429,16 @@
                                         <ul class="pagination pagination-split pull-right"
                                             style="margin-top: 0px;">
                                             <li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
-                                                    th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/preStocks(pageNo=${pageList.upPage},pageSize=${session.pageSize},search=${session.search},searchArea=${session.searchArea},status=${session.status})}">上一页</a>
+                                                    th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/preStocks(pageNo=${pageList.upPage},pageSize=${session.prepageSize},search=${session.presearch},searchArea=${session.presearchArea},status=${session.status})}">上一页</a>
                                             </li>
                                             <li th:each="page:${pageList.navigatepageNums}"
                                                 th:class="${page  == pageList.pageNo}?active:''"><a
-                                                    th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/preStocks(pageNo=${page},pageSize=${session.pageSize},search=${session.search},searchArea=${session.searchArea},status=${session.status})}">[[${page}]]</a>
+                                                    th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/preStocks(pageNo=${page},pageSize=${session.prepageSize},search=${session.presearch},searchArea=${session.presearchArea},status=${session.status})}">[[${page}]]</a>
                                             </li>
                                             <li
                                                     th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
                                                 <a
-                                                        th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/preStocks(pageNo=${pageList.nextPage},pageSize=${session.pageSize},search=${session.search},searchArea=${session.searchArea},status=${session.status})}">下一页</a>
+                                                        th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/preStocks(pageNo=${pageList.nextPage},pageSize=${session.prepageSize},search=${session.presearch},searchArea=${session.searchArea},status=${session.status})}">下一页</a>
                                             </li>
                                         </ul>
                                     </div>
