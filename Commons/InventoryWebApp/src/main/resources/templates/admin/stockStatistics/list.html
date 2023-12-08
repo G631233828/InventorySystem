@@ -9,7 +9,9 @@
 <link rel="stylesheet" th:href="@{/plugs/datapicker/datepicker3.css}">
 <script type="text/javascript"
 	th:src="@{/plugs/datapicker/bootstrap-datepicker.js}"></script>
-<link th:href="@{/plugs/sweetalert/sweetalert.css}" rel="stylesheet">	
+<link th:href="@{/plugs/sweetalert/sweetalert.css}" rel="stylesheet">
+<link rel="stylesheet" th:href="@{/assets/css/bootstrap-select.css}">
+
 
 
 </head>
@@ -68,98 +70,193 @@
 
 							<div class="body-nest" id="tableStatic">
 
-								<div class="row" style="margin-bottom: -10px;">
-									<div class="col-sm-12 form-inline">
-										<select class="filter-status form-control" id="searchArea"
-											onchange="return searchVal()">
-											<option value="">--选择区域--</option>
-											<option th:selected="${searchArea}==${area?.id}"
-												th:each="area:${areas}" th:value="${area?.id}"
-												th:text="${area?.name}"></option>
+<!--								<div class="row" style="margin-bottom: -10px;">-->
+<!--									<div class="col-sm-12 form-inline">-->
+<!--										<select class="filter-status form-control" id="searchArea"-->
+<!--											onchange="return searchVal()">-->
+<!--											<option value="">&#45;&#45;选择区域&#45;&#45;</option>-->
+<!--											<option th:selected="${searchArea}==${area?.id}"-->
+<!--												th:each="area:${areas}" th:value="${area?.id}"-->
+<!--												th:text="${area?.name}"></option>-->
 
-										</select>
+<!--										</select>-->
 
-										<select class="filter-status form-control" id="searchssC"
-												onchange="return searchVal()">
-											<option value="">--选择分类--</option>
-											<option th:selected="${ssC}==${sC?.id}"
-													th:each="sC:${ssCs}" th:value="${sC?.id}"
-													th:text="${sC?.name}"></option>
+<!--										<select class="filter-status form-control" id="searchssC"-->
+<!--												onchange="return searchVal()">-->
+<!--											<option value="">&#45;&#45;选择分类&#45;&#45;</option>-->
+<!--											<option th:selected="${ssC}==${sC?.id}"-->
+<!--													th:each="sC:${ssCs}" th:value="${sC?.id}"-->
+<!--													th:text="${sC?.name}"></option>-->
 
-										</select>
-
-
-										<select class="filter-status form-control" id="pageSize"
-											onchange="return searchVal()">
-											<option value="10" th:selected="${pageSize == 10}">10
-											
-											<option value="20" th:selected="${pageSize == 20}">20
-											
-											<option value="50" th:selected="${pageSize == 50}">50
-											
-											<option value="100" th:selected="${pageSize == 100}">100
-											
-										</select> 
-										<input class="form-control" id="serach" placeholder="模糊匹配"
-											th:value="${search}" type="text"> 
-										<input
-											class="form-control datepicker" readonly="readonly"
-											id="start" placeholder="开始日期" th:value="${start}" type="text">
-										<input class="form-control datepicker" readonly="readonly"
-											id="end" placeholder="结束日期" th:value="${end}" type="text">
-								<input type="hidden" name="userId" th:value="${session.user_session.id}" id="userId">
-										<select class="filter-status form-control" id="type"
-											name="type">
-											<option value="all" th:selected="${type == 'all'}">所有
-											
-											<option value="in" th:selected="${type == 'in'}">入库
-											
-											<option value="out" th:selected="${type == 'out'}">出库
-											
-										</select>
-										
-										<select class="filter-status form-control" id="agent"
-											onchange="return searchVal()">
-											<option value="" selected>--选择商品类别--</option>
-											<option value="true" th:selected="${searchAgent=='true'}">代理商品</option>
-											<option value="false" th:selected="${searchAgent=='false'}">非代理商品</option>
-										</select>
-										
-										<select class="filter-status form-control" id="revoke"
-											onchange="return searchVal()">
-											<option value="0" selected>--选择状态--</option>
-											<option value="1" th:selected="${revoke=='1'}">已撤销</option>
-											<option value="2" th:selected="${revoke=='2'}">正常</option>
-										</select>
-
-										<select class="filter-status form-control" id="confirm"
-												onchange="return searchVal()">
-											<option value="" selected>--是否核对--</option>
-											<option value="true" th:selected="${confirm=='true'}">已核对</option>
-											<option value="false" th:selected="${confirm=='false'}">未核对</option>
-										</select>
+<!--										</select>-->
 
 
-										<button class="btn btn-default btn-sm"
-											onclick="return searchVal()">
-											<i class="entypo-search"> </i> 搜索
-										</button>
-										<button class="btn btn-default btn-sm"
-											onclick="return clearaa()">
-											<i class="entypo-search"> </i> 清空
-										</button>
+<!--										<select class="filter-status form-control" id="pageSize"-->
+<!--											onchange="return searchVal()">-->
+<!--											<option value="10" th:selected="${pageSize == 10}">10-->
+<!--											-->
+<!--											<option value="20" th:selected="${pageSize == 20}">20-->
+<!--											-->
+<!--											<option value="50" th:selected="${pageSize == 50}">50-->
+<!--											-->
+<!--											<option value="100" th:selected="${pageSize == 100}">100-->
+<!--											-->
+<!--										</select> -->
+<!--										<input class="form-control" id="serach" placeholder="模糊匹配"-->
+<!--											th:value="${search}" type="text"> -->
+<!--										<input-->
+<!--											class="form-control datepicker" readonly="readonly"-->
+<!--											id="start" placeholder="开始日期" th:value="${start}" type="text">-->
+<!--										<input class="form-control datepicker" readonly="readonly"-->
+<!--											id="end" placeholder="结束日期" th:value="${end}" type="text">-->
+<!--								<input type="hidden" name="userId" th:value="${session.user_session.id}" id="userId">-->
+<!--										<select class="filter-status form-control" id="type"-->
+<!--											name="type">-->
+<!--											<option value="all" th:selected="${type == 'all'}">所有-->
 
-										<button class="btn btn-default" onclick="return toExport()">
-											<i class="entypo-export"> </i>导出库存出入统计报表
-										</button>
+<!--											<option value="in" th:selected="${type == 'in'}">入库-->
+
+<!--											<option value="out" th:selected="${type == 'out'}">出库-->
+
+<!--										</select>-->
+<!--										-->
+<!--										<select class="filter-status form-control" id="agent"-->
+<!--											onchange="return searchVal()">-->
+<!--											<option value="" selected>&#45;&#45;选择商品类别&#45;&#45;</option>-->
+<!--											<option value="true" th:selected="${searchAgent=='true'}">代理商品</option>-->
+<!--											<option value="false" th:selected="${searchAgent=='false'}">非代理商品</option>-->
+<!--										</select>-->
+<!--										-->
+<!--										<select class="filter-status form-control" id="revoke"-->
+<!--											onchange="return searchVal()">-->
+<!--											<option value="0" selected>&#45;&#45;选择状态&#45;&#45;</option>-->
+<!--											<option value="1" th:selected="${revoke=='1'}">已撤销</option>-->
+<!--											<option value="2" th:selected="${revoke=='2'}">正常</option>-->
+<!--										</select>-->
+
+<!--										<select class="filter-status form-control" id="confirm"-->
+<!--												onchange="return searchVal()">-->
+<!--											<option value="" selected>&#45;&#45;是否核对&#45;&#45;</option>-->
+<!--											<option value="true" th:selected="${confirm=='true'}">已核对</option>-->
+<!--											<option value="false" th:selected="${confirm=='false'}">未核对</option>-->
+<!--										</select>-->
+
+
+<!--										<button class="btn btn-default btn-sm"-->
+<!--											onclick="return searchVal()">-->
+<!--											<i class="entypo-search"> </i> 搜索-->
+<!--										</button>-->
+<!--										<button class="btn btn-default btn-sm"-->
+<!--											onclick="return clearaa()">-->
+<!--											<i class="entypo-search"> </i> 清空-->
+<!--										</button>-->
+
+<!--										<button class="btn btn-default" onclick="return toExport()">-->
+<!--											<i class="entypo-export"> </i>导出库存出入统计报表-->
+<!--										</button>-->
 
 
 
 
-									</div>
-								</div>
+<!--									</div>-->
+<!--								</div>-->
 
 								<!-- <div class="col-sm-6"></div> -->
+								<div class="row" style="margin-bottom: 10px;">
+									<div class="col-sm-12 form-inline" style="margin-bottom: 10px;">
+<!--										<div id="ssName">-->
+										<label class="control-label text-muted">设备名称：</label>
+										<input class="form-control" name="name" placeholder=""
+											   type="text" th:value="${requestBo?.name}">
+<!--										</div>-->
+										<label class="control-label text-muted">设备型号：</label>
+										<input class="form-control" name="model" placeholder=""
+											   type="text" th:value="${requestBo?.model}">
+										<label class="control-label text-muted">供应商：</label>
+										<input class="form-control" name="supplier" placeholder=""
+											   type="text" th:value="${requestBo?.supplier}">
+										<label class="control-label text-muted">项目名称：</label>
+										<input class="form-control" name="entryName" placeholder=""
+											   type="text" th:value="${requestBo?.entryName}">
+										<label class="control-label text-muted">用于项目：</label>
+										<input class="form-control" name="projectName" placeholder=""
+											   type="text" th:value="${requestBo?.projectName}">
+									</div>
+
+									<div class="col-sm-12 form-inline" style="margin-bottom: 10px;">
+										<label class="control-label text-muted">采购付款申请单：</label>
+										<input class="form-control" name="itemNo" placeholder=""
+											   type="text" th:value="${requestBo?.itemNo}">
+										<label class="control-label text-muted">采购发票号：</label>
+										<input class="form-control" name="purchaseInvoiceNo" placeholder=""
+											   type="text" th:value="${requestBo?.purchaseInvoiceNo}">
+										<label class="control-label text-muted">采购发票到票日期：</label>
+										<input class="form-control" name="purchaseInvoiceDate" placeholder=""
+											   type="text" th:value="${requestBo?.purchaseInvoiceDate}">
+										<label class="control-label text-muted">银行付款日期：</label>
+										<input class="form-control" name="paymentOrderNo" placeholder=""
+											   type="text" th:value="${requestBo?.paymentOrderNo}">
+										<label class="control-label text-muted">客户：</label>
+										<input class="form-control" name="customer" placeholder=""
+											   type="text" th:value="${requestBo?.customer}">
+									</div>
+
+									<div class="col-sm-12 form-inline" style="margin-bottom: 10px;">
+										<select class="filter-status form-control" id="pageSize">
+											<option value="10" th:selected="${pageSize == 10}">10
+											<option value="20" th:selected="${pageSize == 20}">20
+											<option value="50" th:selected="${pageSize == 50}">50
+											<option value="100" th:selected="${pageSize == 100}">100
+										</select>
+										<select multiple class="filter-status form-control selectpicker" id="searchssC"
+												data-max-options="5" title="选择分类">
+											<option th:selected="${requestBo?.ssC}==${sC?.id}"
+													th:each="sC:${ssCs}" th:value="${sC?.id}"
+													th:text="${sC?.name}"></option>
+										</select>
+										<select multiple class="filter-status form-control selectpicker" id="searchArea"
+												data-max-options="5" title="选择区域">
+											<option th:selected="${requestBo?.searchArea}==${area?.id}"
+													th:each="area:${areas}" th:value="${area?.id}"
+													th:text="${area?.name}"></option>
+										</select>
+
+										<input type="hidden" name="userId" th:value="${session.user_session.id}" id="userId">
+										<select class="filter-status form-control" id="type"
+												name="type">
+											<option value="all" th:selected="${requestBo?.type == 'all'}">所有
+
+											<option value="in" th:selected="${requestBo?.type == 'in'}">入库
+
+											<option value="out" th:selected="${requestBo?.type == 'out'}">出库
+
+										</select>
+										<select class="filter-status form-control" id="revoke" name="revoke">
+											<option value="0" selected>--选择状态--</option>
+											<option value="1" th:selected="${requestBo?.revoke=='1'}">已撤销</option>
+											<option value="2" th:selected="${requestBo?.revoke=='2'}">正常</option>
+										</select>
+
+										<select class="filter-status form-control" id="confirm" name="confirm">
+											<option value="" selected>--是否核对--</option>
+											<option value="true" th:selected="${requestBo?.confirm=='true'}">已核对</option>
+											<option value="false" th:selected="${requestBo?.confirm=='false'}">未核对</option>
+										</select>
+										<input
+												class="form-control datepicker" readonly="readonly"
+												id="start" placeholder="开始日期" th:value="${requestBo?.start}" type="text">
+										<input class="form-control datepicker" readonly="readonly"
+											   id="end" placeholder="结束日期" th:value="${requestBo?.end}" type="text">
+
+
+										<button class="btn btn-default btn-sm"
+												onclick="return searchBo()">
+											<i class="entypo-search"> </i> 搜索
+										</button>
+									</div>
+
+								</div>
+
 
 							</div>
 							<shiro:hasPermission 	name="stockStatistics:edit">
@@ -173,10 +270,17 @@
 									<i class="fa fa-edit"> </i> 批量核对
 								</button>
 
+								<button class="btn btn-default" onclick="return toExport()">
+									<i class="entypo-export"> </i>导出库存出入统计报表
+								</button>
+
 										<button class="btn btn-default" onclick="return toExportNew()">
 											<i class="entypo-export"> </i>导出新出入统计报表
 										</button>
-										
+<!--										<button class="btn btn-default" onclick="return toExport()">-->
+<!--											<i class="entypo-export"> </i>导出库存出入统计报表-->
+<!--										</button>-->
+
 <!--										<button class="btn btn-default" onclick="return toExportNew3()">-->
 <!--											<i class="entypo-export"> </i>导出上月结余统计-->
 <!--										</button>-->
@@ -608,27 +712,63 @@
 										<div class="col-md-6">
 											<ul class="pagination pagination-split pull-right"
 												style="margin-top: 0px;">
-												<li th:class="${pageList?.pageNo } eq 1 ?disabled:''"><a
-													th:href="${pageList?.pageNo} eq 1?'javascript:void(0);':@{/stockStatisticss(pageNo=1,pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId},revoke=${revoke},confirm=${confirm})}">首页</a>
+
+<!--												<li th:class="${pageList?.pageNo } eq 1 ?disabled:''"><a-->
+<!--													th:href="${pageList?.pageNo} eq 1?'javascript:void(0);':@{/stockStatisticss(pageNo=1,pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId},revoke=${revoke},confirm=${confirm})}">首页</a>-->
+<!--												</li>-->
+<!--												<li th:class="${pageList?.pageNo } eq 1 ?disabled:''"><a-->
+<!--													th:href="${pageList?.pageNo} eq 1?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.upPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId},revoke=${revoke},confirm=${confirm})}">上一页</a>-->
+<!--												</li>-->
+<!--												<li th:each="page:${pageList?.navigatepageNums}"-->
+<!--													th:class="${page  == pageList?.pageNo}?active:''"><a-->
+<!--													th:href="${page eq pageList?.pageNo}?'javascript:void(0)':@{/stockStatisticss(pageNo=${page},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId},revoke=${revoke},confirm=${confirm})}">[[${page}]]</a>-->
+<!--												</li>-->
+<!--												<li-->
+<!--													th:class="${pageList?.pageNo eq pageList?.totalPage}?disabled:''">-->
+<!--													<a-->
+<!--													th:href="${pageList?.pageNo eq pageList?.totalPage}?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.nextPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId},revoke=${revoke},confirm=${confirm})}">下一页</a>-->
+<!--												</li>-->
+<!--												<li-->
+<!--													th:class="${pageList?.pageNo eq pageList?.totalPage}?disabled:''">-->
+<!--													<a-->
+<!--													th:href="${pageList?.pageNo eq pageList?.totalPage}?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.totalPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId},revoke=${revoke},confirm=${confirm})}">尾页</a>-->
+<!--												</li>-->
+<!--												<li><input class="form-control" id="searchN" style="width: 60px;" type="number" placeholder="" /> <a href="javascript:void(0);" th:onclick="|return searchbyN('${pageSize}','${search}','${searchArea}','${pageList.totalPage}','${type}','${start}','${end}','${revoke}','${confirm}','${userId}','${ssC}')|">跳转</a></li>-->
+<!--												-->
+												<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
+														th:href="${pageList.pageNo} eq 1?'javascript:void(0);':'#'"
+														th:onclick="|return pageS('1','${pageSize}','${pageList.totalPage}','${Bo}')|">首页</a>
 												</li>
-												<li th:class="${pageList?.pageNo } eq 1 ?disabled:''"><a
-													th:href="${pageList?.pageNo} eq 1?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.upPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId},revoke=${revoke},confirm=${confirm})}">上一页</a>
+
+
+												<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
+														th:href="${pageList.pageNo} eq 1?'javascript:void(0);':'#'"
+														th:onclick="|return pageS('${pageList.upPage}','${pageSize}','${pageList.totalPage}','${Bo}')|">上一页</a>
 												</li>
-												<li th:each="page:${pageList?.navigatepageNums}"
-													th:class="${page  == pageList?.pageNo}?active:''"><a
-													th:href="${page eq pageList?.pageNo}?'javascript:void(0)':@{/stockStatisticss(pageNo=${page},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId},revoke=${revoke},confirm=${confirm})}">[[${page}]]</a>
+
+
+												<li th:each="page:${pageList.navigatepageNums}"
+													th:class="${page  == pageList.pageNo}?active:''"><a
+														th:href="${page eq pageList.pageNo}?'javascript:void(0)':'#'"
+														th:onclick="|return pageS('${page}','${pageSize}','${pageList.totalPage}','${Bo}')|">[[${page}]]</a>
 												</li>
-												<li
-													th:class="${pageList?.pageNo eq pageList?.totalPage}?disabled:''">
-													<a
-													th:href="${pageList?.pageNo eq pageList?.totalPage}?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.nextPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId},revoke=${revoke},confirm=${confirm})}">下一页</a>
+
+
+												<li th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
+													<a th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':'#'"
+													   th:onclick="|return pageS('${pageList.nextPage}','${pageSize}','${pageList.totalPage}','${Bo}')|">下一页</a>
 												</li>
-												<li
-													th:class="${pageList?.pageNo eq pageList?.totalPage}?disabled:''">
-													<a
-													th:href="${pageList?.pageNo eq pageList?.totalPage}?'javascript:void(0);':@{/stockStatisticss(pageNo=${pageList?.totalPage},pageSize=${pageSize},search=${search},searchArea=${searchArea},type=${type},start=${start},end=${end},userId=${userId},revoke=${revoke},confirm=${confirm})}">尾页</a>
+
+
+												<li th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
+													<a th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':'#'"
+													   th:onclick="|return pageS('${pageList.totalPage}','${pageSize}','${pageList.totalPage}','${Bo}')|">尾页</a>
 												</li>
-												<li><input class="form-control" id="searchN" style="width: 60px;" type="number" placeholder="" /> <a href="javascript:void(0);" th:onclick="|return searchbyN('${pageSize}','${search}','${searchArea}','${pageList.totalPage}','${type}','${start}','${end}','${revoke}','${confirm}','${userId}','${ssC}')|">跳转</a></li>
+
+												<li><input class="form-control" id="searchN" style="width: 60px;"
+														   type="number" placeholder=""/> <a href="javascript:void(0);"
+																							 th:onclick="|return searchbyN('${pageSize}','${pageList.totalPage}','${Bo}')|">跳转</a>
+												</li>
 											</ul>
 										</div>
 									</div>
@@ -682,6 +822,54 @@
 	<!-- Sweet alert -->
 	<script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
 	<div th:replace="public/public_js::validator"></div>
+	<script th:src="@{/assets/js/select/bootstrap-select.js}"
+			type="text/javascript"></script>
+	<script type="text/javascript" th:inline="javascript">
+		function setProjectName(o) {
+			$("#projectName").val(o)
+		}
+
+		function setbatchProjectName(o) {
+			$("#batchprojectName").val(o)
+		}
+		function isEmpty(value) {
+			return value === "" || value === undefined || value === null;
+		}
+
+		$(function(){
+			var sysModuleCode=/* <![CDATA[ */ [[${requestBo?.ssC}]] /*]]>*/
+			if(!isEmpty(sysModuleCode)){
+				var moduleCodeArr = sysModuleCode.split(",");
+				if (moduleCodeArr.length > 0) {
+					// var rtype = document.getElementById("searchArea");
+					for (var j = 0; j < moduleCodeArr.length; j++) {
+						$('#searchssC').val(moduleCodeArr[j]).prop('selected', true);
+
+					}
+				}
+			}
+			$("#searchssC").selectpicker("val", moduleCodeArr);
+			$("#searchssC").selectpicker("refresh");
+
+		})
+
+		$(function(){
+			var sysModuleCode=/* <![CDATA[ */ [[${requestBo?.searchArea}]] /*]]>*/
+			if(!isEmpty(sysModuleCode)){
+				var moduleCodeArr = sysModuleCode.split(",");
+				if (moduleCodeArr.length > 0) {
+					// var rtype = document.getElementById("searchArea");
+					for (var j = 0; j < moduleCodeArr.length; j++) {
+						$('#searchArea').val(moduleCodeArr[j]).prop('selected', true);
+
+					}
+				}
+			}
+			$("#searchArea").selectpicker("val", moduleCodeArr);
+			$("#searchArea").selectpicker("refresh");
+
+		})
+	</script>
 </body>
 
 </html>

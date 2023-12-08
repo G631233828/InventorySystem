@@ -124,12 +124,6 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			if (Common.isNotEmpty(userId)) {
 				query = query.addCriteria(Criteria.where("financeUser.$id").is(new ObjectId(userId)));
 			}
-
-//			if (Common.isNotEmpty(ssC)) {
-//				query = query.addCriteria(Criteria.where("systemClassification.$id").is(new ObjectId(ssC)));
-//			}
-
-
 			if(Common.isNotEmpty(revoke)) {
 				if(revoke.equals("1")) {
 					query.addCriteria(Criteria.where("revoke").is(true));
@@ -147,6 +141,29 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			e.printStackTrace();
 		}
 		return pagination;
+	}
+
+	public Pagination<StockStatistics> findpagination(Integer pageNo, Integer pageSize, RequestBo requestBo){
+		// 分页查询数据
+		Pagination<StockStatistics> pagination = null;
+		try {
+			Query query=newQueryByRequestBo(requestBo);
+			if(Common.isNotEmpty(requestBo.getRevoke())) {
+				if(requestBo.getRevoke().equals("1")) {
+					query.addCriteria(Criteria.where("revoke").is(true));
+				}else if(requestBo.getRevoke().equals("2")) {
+					query.addCriteria(Criteria.where("revoke").is(false));
+				}
+			}
+			pagination = this.findPaginationByQuery(query, pageNo, pageSize, StockStatistics.class);
+			if (pagination == null)
+				pagination = new Pagination<StockStatistics>();
+			return pagination;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return pagination;
+
 	}
 
 	@SystemServiceLog(description = "条件查询库统计信息")
@@ -471,12 +488,19 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 	@Override
 	@SystemServiceLog(description = "导出库存统计信息")
-	public Workbook newExport(HttpServletRequest request, String search, String start, String end, String type,
-			String name, String areaId, String searchAgent) {
+	public Workbook newExport(HttpServletRequest request, RequestBo requestBo) {
 
-		List<Stock> listStock = this.findStocksBySearch(search, areaId, searchAgent);
+//		List<Stock> listStock = this.findStocksBySearch(search, areaId, searchAgent);
 		// 获取所有的库存
-		List<StockStatistics> list = this.findStockStatistics(search, start, end, type, areaId, searchAgent);
+//		List<StockStatistics> list = this.findStockStatistics(search, start, end, type, areaId, searchAgent);
+
+		Query querys = new Query();
+		querys=this.stockService.findByRequestBo(requestBo,querys);
+		List<Stock> listStock=this.stockService.find(querys,Stock.class);
+
+		//获取所有的库存统计数据
+		Query query=newQueryByRequestBo(requestBo);
+		List<StockStatistics> list=this.find(query,StockStatistics.class);
 
 		List<Map<String, Object>> inlist = new ArrayList<>();
 		List<Map<String, Object>> outlist = new ArrayList<>();
@@ -571,19 +595,64 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 	@Override
 	@SystemServiceLog(description = "导出适配金蝶的报表")
-	public Workbook toJD(HttpServletRequest request, String search, String start, String end, String type,
-							  String name, String areaId, String searchAgent) {
-
-		List<Stock> listStock = this.findStocksBySearch(search, areaId, searchAgent);
-		// 获取所有的库存
-		List<StockStatistics> list = this.findStockStatistics(search, start, end, type, areaId, searchAgent);
-		System.out.println("end"+end);
+	public Workbook toJD(HttpServletRequest request,RequestBo requestBo) {
+		Query query=new Query();
+		Criteria ca = new Criteria();
+		List<Stock> listStock=null;
+		if(!requestBo.isEmpty()){
+			Query querys = new Query();
+			querys=this.stockService.findByRequestBo(requestBo,querys);
+			listStock=this.stockService.find(querys,Stock.class);
+			List<Object> stockids=listStock.stream().map(stock -> new ObjectId(stock.getId())).collect(Collectors.toList());
+			query=query.addCriteria(Criteria.where("stock.$id").in(stockids));
+		}
+		if (Common.isNotEmpty(requestBo.getId())) {
+			ca.orOperator(Criteria.where("stock.$id").is(new ObjectId(requestBo.getId())));
+		}
+		if (Common.isNotEmpty(requestBo.getUserId())) {
+			ca.orOperator(Criteria.where("financeUser.$id").is(new ObjectId(requestBo.getUserId())));
+		}
+		if(Common.isNotEmpty(requestBo.getItemNo())){
+			query=query.addCriteria(Criteria.where("newItemNo").regex(requestBo.getItemNo(), "i"));
+		}
+		if(Common.isNotEmpty(requestBo.getPurchaseInvoiceNo())){
+			query=query.addCriteria(Criteria.where("purchaseInvoiceNo").regex(requestBo.getPurchaseInvoiceNo(), "i"));
+		}
+		if(Common.isNotEmpty(requestBo.getPaymentOrderNo())){
+			query=query.addCriteria(Criteria.where("paymentOrderNo").regex(requestBo.getPaymentOrderNo(), "i"));
+		}
+		if(Common.isNotEmpty(requestBo.getPurchaseInvoiceDate())){
+			query=query.addCriteria(Criteria.where("purchaseInvoiceDate").regex(requestBo.getPurchaseInvoiceDate(), "i"));
+		}
+		if (Common.isNotEmpty(requestBo.getConfirm())) {
+			query = query.addCriteria(Criteria.where("confirm").is(Boolean.valueOf(requestBo.getConfirm())));
+		}
+		if(Common.isNotEmpty(requestBo.getType())){
+			if (requestBo.getType().equals("in")) {
+				query.addCriteria(Criteria.where("inOrOut").is(true));
+			} else if (requestBo.getType().equals("out")) {
+				query.addCriteria(Criteria.where("inOrOut").is(false));
+			}
+		}
+		if (Common.isNotEmpty(requestBo.getStart()) && Common.isNotEmpty(requestBo.getEnd())) {
+			String end=requestBo.getEnd();
+			end=end+" 23:59:59";
+			Criteria ca1 = new Criteria();
+			ca1.orOperator(Criteria.where("storageTime").gte(requestBo.getStart()).lte(end),
+					Criteria.where("depotTime").gte(requestBo.getStart()).lte(end)
+			);
+			ca.andOperator(ca1);
+		}
+		query.addCriteria(ca);
+		query.with(new Sort(new Order(Direction.DESC, "createTime")));
+		String end=requestBo.getEnd();
+		query.addCriteria(Criteria.where("revoke").is(false));
+		List<StockStatistics> list =this.find(query,StockStatistics.class);
 		List<Map<String, Object>> inlist = new ArrayList<>();
 		List<Map<String, Object>> outlist = new ArrayList<>();
 		int inN=0;
 		int OutN=0;
 		for (Stock stock : listStock) {
-
 			// 获取所有的设备
 			for (StockStatistics st : list) {
 
@@ -1227,15 +1296,9 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	}
 
 	@Override
-	public Workbook newExport2(HttpServletRequest request, String search, String start, String end, String type,
-			String name, String areaId, String searchAgent) {
-
-		// List<Stock> listStock = this.findStocksBySearch(search, areaId, searchAgent);
-		
-		// 获取所有的库存
-		List<StockStatistics> list = this.findStockStatistics(search, start, end, type, areaId, searchAgent);
-		
-		
+	public Workbook newExport2(HttpServletRequest request, RequestBo requestBo) {
+		Query query=newQueryByRequestBo(requestBo);
+		List<StockStatistics> list=this.find(query,StockStatistics.class);
 		List<Map<String, Object>> outlist = new ArrayList<>();
 		// 获取 start时间 （第一天）库存的初始数量 出库数量+剩余库存数量 num+newNum
 		// 获取所有的设备
@@ -1380,7 +1443,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		Map<String, Object> dataMap = new HashMap<>();
 
 		dataMap.put("inlist", outlist);
-		dataMap.put("title", start + "~" + end + "库存统计");
+		dataMap.put("title", requestBo.getStart() + "~" + requestBo.getEnd() + "库存统计");
 
 		String ctxPath = request.getServletContext().getRealPath("/WEB-INF/Templates/");
 		String fileName = "新库存统计导出模板.xlsx";
@@ -1588,7 +1651,58 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	}
 	
 	
-	
+	public Query  newQueryByRequestBo(RequestBo requestBo){
+		Query query=new Query();
+		Criteria ca = new Criteria();
+
+		if(!requestBo.isEmpty()){
+			Query querys = new Query();
+			querys=this.stockService.findByRequestBo(requestBo,querys);
+			List<Stock> stocks=this.stockService.find(querys,Stock.class);
+			List<Object> stockids=stocks.stream().map(stock -> new ObjectId(stock.getId())).collect(Collectors.toList());
+			query=query.addCriteria(Criteria.where("stock.$id").in(stockids));
+		}
+		if (Common.isNotEmpty(requestBo.getId())) {
+			ca.orOperator(Criteria.where("stock.$id").is(new ObjectId(requestBo.getId())));
+		}
+		if (Common.isNotEmpty(requestBo.getUserId())) {
+			ca.orOperator(Criteria.where("financeUser.$id").is(new ObjectId(requestBo.getUserId())));
+		}
+		if(Common.isNotEmpty(requestBo.getItemNo())){
+			query=query.addCriteria(Criteria.where("newItemNo").regex(requestBo.getItemNo(), "i"));
+		}
+		if(Common.isNotEmpty(requestBo.getPurchaseInvoiceNo())){
+			query=query.addCriteria(Criteria.where("purchaseInvoiceNo").regex(requestBo.getPurchaseInvoiceNo(), "i"));
+		}
+		if(Common.isNotEmpty(requestBo.getPaymentOrderNo())){
+			query=query.addCriteria(Criteria.where("paymentOrderNo").regex(requestBo.getPaymentOrderNo(), "i"));
+		}
+		if(Common.isNotEmpty(requestBo.getPurchaseInvoiceDate())){
+			query=query.addCriteria(Criteria.where("purchaseInvoiceDate").regex(requestBo.getPurchaseInvoiceDate(), "i"));
+		}
+		if (Common.isNotEmpty(requestBo.getConfirm())) {
+			query = query.addCriteria(Criteria.where("confirm").is(Boolean.valueOf(requestBo.getConfirm())));
+		}
+		if(Common.isNotEmpty(requestBo.getType())){
+			if (requestBo.getType().equals("in")) {
+				query.addCriteria(Criteria.where("inOrOut").is(true));
+			} else if (requestBo.getType().equals("out")) {
+				query.addCriteria(Criteria.where("inOrOut").is(false));
+			}
+		}
+		if (Common.isNotEmpty(requestBo.getStart()) && Common.isNotEmpty(requestBo.getEnd())) {
+			String end=requestBo.getEnd();
+			end=end+" 23:59:59";
+			Criteria ca1 = new Criteria();
+			ca1.orOperator(Criteria.where("storageTime").gte(requestBo.getStart()).lte(end),
+					Criteria.where("depotTime").gte(requestBo.getStart()).lte(end)
+			);
+			ca.andOperator(ca1);
+		}
+		query.addCriteria(ca);
+		query.with(new Sort(new Order(Direction.DESC, "createTime")));
+		return  query;
+	}
 	
 	
 	

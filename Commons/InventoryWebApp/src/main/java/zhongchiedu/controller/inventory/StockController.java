@@ -15,6 +15,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;import org.apache.poi.util.SystemOutLogger;
@@ -83,20 +85,24 @@ public class StockController {
 			@RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize, HttpSession session,
 			@ModelAttribute("errorImport") String errorImport,
 			@RequestParam(value = "search", defaultValue = "") String search,
-			@RequestParam(value = "searchArea", defaultValue = "") String searchArea,
+//			@RequestParam(value = "searchArea", defaultValue = "") String searchArea,
 			@RequestParam(value = "searchAgent", defaultValue = "") String searchAgent,
-			@RequestParam(value = "ssC", defaultValue = "") String ssC
-			) {
-
+//			@RequestParam(value = "ssC", defaultValue = "") String ssC,
+			@ModelAttribute RequestBo requestBo
+			) throws JsonProcessingException {
 		// 区域
 		List<Area> areas = this.areaService.findAllArea(false);
 		model.addAttribute("areas", areas);
-
+		ObjectMapper objectMapper=new ObjectMapper();
+		String jsonString=objectMapper.writeValueAsString(requestBo);
+		model.addAttribute("Bo",jsonString);
+		model.addAttribute("requestBo",requestBo);
 		List<SystemClassification>  ssCs=this.ssCService.findAllSystemClassification(false);
 		model.addAttribute("ssCs",ssCs);
 
 		model.addAttribute("errorImport", errorImport);
-		Pagination<Stock> pagination = this.stockService.findpagination(pageNo, pageSize, search, searchArea,searchAgent,ssC);
+//		Pagination<Stock> pagination = this.stockService.findpagination(pageNo, pageSize, search, searchArea,searchAgent,ssC);
+		Pagination<Stock> pagination = this.stockService.findpagination(pageNo, pageSize, requestBo);
 		model.addAttribute("pageList", pagination);
 		User user = (User) session.getAttribute(Contents.USER_SESSION);
 		List<String> listColums = this.columnService.findColumns("stock",user.getId());
@@ -105,15 +111,15 @@ public class StockController {
 		session.setAttribute("pageNo", pageNo);
 		session.setAttribute("pageSize", pageSize);
 		session.setAttribute("search", search);
-		session.setAttribute("searchArea", searchArea);
+//		session.setAttribute("searchArea", searchArea);
 		session.setAttribute("searchAgent", searchAgent);
-		session.setAttribute("ssC",ssC);
+//		session.setAttribute("ssC",ssC);
 
 		model.addAttribute("pageSize", pageSize);
 		model.addAttribute("search", search);
-		model.addAttribute("searchArea", searchArea);
+//		model.addAttribute("searchArea", searchArea);
 		model.addAttribute("searchAgent", searchAgent);
-		model.addAttribute("ssC",ssC);
+//		model.addAttribute("ssC",ssC);
 		return "admin/stock/list";
 	}
 	
@@ -464,18 +470,19 @@ public class StockController {
 	/**
 	 * 导出库存报表库存量统计
 	 * @param response
-	 * @param areaId
-	 * @param searchAgent
+//	 * @param areaId
+//	 * @param searchAgent
 	 */
 	@RequestMapping(value = "/stock/exportTJ")
 	public void exportStockTJ(HttpServletResponse response,
-							@RequestParam(value = "areaId", defaultValue = "") String areaId,
-							@RequestParam(value = "searchAgent", defaultValue = "") String searchAgent) {
+//							@RequestParam(value = "areaId", defaultValue = "") String areaId,
+//							  @RequestParam(value = "searchAgent", defaultValue = "") String searchAgent,
+							  @ModelAttribute RequestBo bo) {
 		try {
 			response.setContentType("application/vnd.ms-excel");
 			String name = Common.fromDateYM() + "库存报表TJ";
 			String fileName = new String((name).getBytes("gb2312"), "ISO8859-1");
-			HSSFWorkbook wb = this.stockService.exportTJ(name, areaId,searchAgent);
+			HSSFWorkbook wb = this.stockService.exportTJ(name,bo);
 			response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xls");
 			OutputStream ouputStream = response.getOutputStream();
 			wb.write(ouputStream);

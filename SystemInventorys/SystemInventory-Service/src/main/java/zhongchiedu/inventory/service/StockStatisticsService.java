@@ -13,6 +13,7 @@ import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralService;
 import zhongchiedu.general.pojo.User;
+import zhongchiedu.inventory.pojo.RequestBo;
 import zhongchiedu.inventory.pojo.Stock;
 import zhongchiedu.inventory.pojo.StockStatistics;
 
@@ -20,7 +21,8 @@ public interface StockStatisticsService extends GeneralService<StockStatistics> 
 	
 	
 	public Pagination<StockStatistics> findpagination(Integer pageNo,Integer pageSize,String search,String start,String end,String type,String id,String searchArea,String searchAgent,String userId,String revoke,String confirm,String ssC);
-	
+
+	public Pagination<StockStatistics> findpagination(Integer pageNo, Integer pageSize, RequestBo requestBo);
 	public BasicDataResult inOrOutstockStatistics(StockStatistics stockStatistics,User user);
 		
 	public long updateStock(Stock stock,long num,boolean inOrOut);
@@ -45,11 +47,11 @@ public interface StockStatisticsService extends GeneralService<StockStatistics> 
 	
 	public Map<Object,Object> stockStatisticsPickup(StockStatistics stockStatistics,String i);
 	
-	public Workbook newExport( HttpServletRequest request,String search,String start,String end,String type,String name,String areaId,String searchAgent);
+	public Workbook newExport( HttpServletRequest request,RequestBo requestBo);
 
-	public Workbook toJD( HttpServletRequest request,String search,String start,String end,String type,String name,String areaId,String searchAgent);
+	public Workbook toJD( HttpServletRequest request,RequestBo requestBo);
 
-	public Workbook newExport2( HttpServletRequest request,String search,String start,String end,String type,String name,String areaId,String searchAgent);
+	public Workbook newExport2( HttpServletRequest request,RequestBo bo);
 
 	public Workbook newExport3( HttpServletRequest request,String search,String start,String end,String type,String name,String areaId,String searchAgent);
 	

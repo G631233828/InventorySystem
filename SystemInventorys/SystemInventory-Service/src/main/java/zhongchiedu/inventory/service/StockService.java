@@ -12,16 +12,13 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralService;
-import zhongchiedu.inventory.pojo.PickUpApplication;
-import zhongchiedu.inventory.pojo.PreStock;
-import zhongchiedu.inventory.pojo.ProcessInfo;
-import zhongchiedu.inventory.pojo.QrCode;
-import zhongchiedu.inventory.pojo.Stock;
+import zhongchiedu.inventory.pojo.*;
 
 public interface StockService extends GeneralService<Stock> {
 	
 	public Pagination<Stock> findpagination(Integer pageNo,Integer pageSize,String search,String searchArea,String searchAgent,String ssC);
-	
+
+	public Pagination<Stock> findpagination(Integer pageNo, Integer pageSize, RequestBo requestBo);
 	public void saveOrUpdate(Stock stock);
 	
 	public void copyStock(String id,HttpSession session);
@@ -50,7 +47,7 @@ public interface StockService extends GeneralService<Stock> {
 	
 	public HSSFWorkbook export(String name,String areaId,String searchAgent);
 
-	public HSSFWorkbook exportTJ(String name,String areaId,String searchAgent);
+	public HSSFWorkbook exportTJ(String name,RequestBo bo);
 	
 	public List<Stock> findLowStock(int num);
 	

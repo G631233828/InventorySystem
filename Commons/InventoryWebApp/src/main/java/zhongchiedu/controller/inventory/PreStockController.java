@@ -16,6 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -94,18 +96,21 @@ public class PreStockController {
 			@RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize, HttpSession session,
 			@RequestParam(value = "search", defaultValue = "") String search,
 			@RequestParam(value = "status", defaultValue = "1") String status,
-			@RequestParam(value = "searchArea", defaultValue = "") String searchArea,
-			@RequestParam(value = "ssC", defaultValue = "") String ssC,
-			@ModelAttribute("errorMsg") String errorMsg) {
+//			@RequestParam(value = "searchArea", defaultValue = "") String searchArea,
+//			@RequestParam(value = "ssC", defaultValue = "") String ssC,
+			@ModelAttribute RequestBo requestBo,
+			@ModelAttribute("errorMsg") String errorMsg) throws JsonProcessingException {
 
-		Pagination<PreStock> pagination = this.preStockService.findpagination(pageNo, pageSize, search, searchArea,
-				Integer.valueOf(status),ssC);
+		ObjectMapper objectMapper=new ObjectMapper();
+		String jsonString=objectMapper.writeValueAsString(requestBo);
+		model.addAttribute("Bo",jsonString);
+		model.addAttribute("requestBo",requestBo);
+//		Pagination<PreStock> pagination = this.preStockService.findpagination(pageNo, pageSize, search, searchArea,
+//				Integer.valueOf(status),ssC);
+		Pagination<PreStock> pagination = this.preStockService.findpagination(pageNo, pageSize, requestBo,Integer.valueOf(status));
 		model.addAttribute("pageList", pagination);
-
-
 		List<SystemClassification>  ssCs=this.ssCService.findAllSystemClassification(false);
 		model.addAttribute("ssCs",ssCs);
-
 		List<Area> areas = this.areaService.findAllArea(false);
 		model.addAttribute("areas", areas);
 		User user = (User) session.getAttribute(Contents.USER_SESSION);
@@ -115,15 +120,15 @@ public class PreStockController {
 		session.setAttribute("prepageNo", pageNo);
 		session.setAttribute("prepageSize", pageSize);
 		session.setAttribute("presearch", search);
-		session.setAttribute("presearchArea", searchArea);
+//		session.setAttribute("presearchArea", searchArea);
 		session.setAttribute("status", status);
-		session.setAttribute("ssC",ssC);
+//		session.setAttribute("ssC",ssC);
 		model.addAttribute("prepageSize", pageSize);
 		model.addAttribute("presearch", search);
-		model.addAttribute("presearchArea", searchArea);
+//		model.addAttribute("presearchArea", searchArea);
 		model.addAttribute("status", status);
 		model.addAttribute("errorMsg", errorMsg);
-		model.addAttribute("ssC",ssC);
+//		model.addAttribute("ssC",ssC);
 		return "admin/preStock/list";
 	}
 
@@ -229,7 +234,7 @@ public class PreStockController {
 	@PutMapping("/preStockAdd")
 	@RequiresPermissions(value = "preStock:in")
 	@SystemControllerLog(description = "预库存添加至库存")
-	public String addPreStockAdd(@ModelAttribute("preStock") PreStock preStock, HttpSession session,RedirectAttributes attr)
+	public String addPreStockAdd(@ModelAttribute("preStock") PreStock preStock, @ModelAttribute("num")Long num, HttpSession session,RedirectAttributes attr)
 			throws UnsupportedEncodingException {
 		
 		Integer pageNo = (Integer) session.getAttribute("prepageNo");
@@ -248,11 +253,19 @@ public class PreStockController {
 			return "redirect:/preStocks?pageNo=" + pageNo + "&pageSize=" + pageSize + "&search="
 					+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea+ "&status=" + status + "&ssC=" +ssC;
 		}
-		
+		if(num<=0 || Common.isEmpty(num)){
+			//入库数量有问题
+			attr.addFlashAttribute("errorMsg", "入库数量有问题");
+
+			return "redirect:/preStocks?pageNo=" + pageNo + "&pageSize=" + pageSize + "&search="
+					+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea+ "&status=" + status + "&ssC=" +ssC;
+		}
+
 		User suser = (User) session.getAttribute(Contents.USER_SESSION);
 		preStock.setHandler(suser);
+		preStock.setActualReceiptQuantity(num);
 		this.stockService.preStockToStock(preStock,getpreStock.getActualReceiptQuantity());
-		
+//		this.stockService.preStockToStock(preStock,num);
 		
 		//创建通知
 	Set<User> users = this.inventoryRoleService.findAllUserInInventoryRole();
@@ -457,13 +470,13 @@ public class PreStockController {
 
 	@RequestMapping(value = "/prestock/export")
 	public void exportpreStock(HttpServletResponse response,HttpServletRequest request,
-							@RequestParam(value = "areaId", defaultValue = "") String areaId)  throws Exception{
+							@ModelAttribute RequestBo requestBo)  throws Exception{
 		String exportName = Common.fromDateYMD() + "预库存报表";
 
 		response.setContentType("application/vnd.ms-excel");
 		String fileName = new String((exportName).getBytes("gb2312"), "ISO8859-1");
 		response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xlsx");
-		Workbook newExport = this.preStockService.newExport(request,fileName, areaId);
+		Workbook newExport = this.preStockService.newExport(request, requestBo);
 
 		OutputStream out = response.getOutputStream();
 		newExport.write(out);

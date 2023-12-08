@@ -1,3 +1,29 @@
+$(function() {
+	var inprice=$("#heji").text();
+	window.myInprice=inprice;
+	const checkboxs=document.querySelectorAll('input[name=ids]');
+	let total=0;
+	let totalele=$("#heji");
+	checkboxs.forEach(checkbox => {
+		checkbox.addEventListener('change', function() {
+			const isckeck=$('input[type="checkbox"][name="ids"]:checked').length === 0;
+			const isFirstCheck=$('input[type="checkbox"][name="ids"]:checked').length === 1;
+				const id=checkbox.id;
+				const c=$('#inprice_' + id);
+				const amount=Number(c.text());
+				if (this.checked) {
+					total= isFirstCheck?0:total;
+					total += amount;
+				} else {
+					total -= amount;
+					total = isckeck?window.myInprice:total;
+				}
+			totalele.text(total)
+		});
+	});
+})
+
+
 function showColumn() {
 	$("#mycolumn").modal('show');
 }
@@ -42,36 +68,77 @@ function searchVal() {
 function toExport() {
 
 
-	var search = $("#serach").val();
-	var start = $("#start").val();
-	var end = $("#end").val();
-	var type = $("#type").val();
-	var areaId = $("#searchArea").val();
-	var searchAgent = $("#agent").val();
+	var area = $("#searchArea").val();
+	var name=$('[name="name"]').val();
+	var model=$('[name="model"]').val();
+	var supplier=$('[name="supplier"]').val();
+	var entryName=$('[name="entryName"]').val();
+	var itemNo=$('[name="itemNo"]').val();
+	var purchaseInvoiceNo=$('[name="purchaseInvoiceNo"]').val();
+	var purchaseInvoiceDate=$('[name="purchaseInvoiceDate"]').val();
+	var paymentOrderNo=$('[name="paymentOrderNo"]').val();
+	var ssC = $("#searchssC").val();
+	var start=$("#start").val();
+	var end=$("#end").val();
+	var type=$('[name="type"]').val();
+	var revoke=$('[name="revoke"]').val();
+	var confirm=$('[name="confirm"]').val();
+	var projectName=$('[name="projectName"]').val();
+	var customer=$('[name="customer"]').val();
+	if(start==""||end==""){
+		jqueryAlert({
+			'icon'    : getRootPath() +'/plugs/alert/img/error.png',
+			'content' : "导入的时间段不能为空",
+			'closeTime' : 2000,
+		})
+		return;
+	}
 	jqueryAlert({
 		'icon': getRootPath() + '/plugs/alert/img/right.png',
 		'content': "正在导出请稍等...",
 		'closeTime': 5000,
 	})
-	window.location.href = "stockStatistics/export?search=" + search + "&start=" + start + "&end=" + end  + "&type=" + type + "&areaId=" + areaId + "&searchAgent=" + searchAgent;
+	window.location.href = "stockStatistics/export?&searchArea=" + area +"&type="
+		+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC="+ssC
+		+"&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo +
+		"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo="+paymentOrderNo
+		+"&customer=" +customer+"&projectName=" +projectName;
 
 }
 
 function toJD() {
-
-
-	var search = $("#serach").val();
-	var start = $("#start").val();
-	var end = $("#end").val();
-	var type = $("#type").val();
-	var areaId = $("#searchArea").val();
-	var searchAgent = $("#agent").val();
+	var area = $("#searchArea").val();
+	var name=$('[name="name"]').val();
+	var model=$('[name="model"]').val();
+	var supplier=$('[name="supplier"]').val();
+	var entryName=$('[name="entryName"]').val();
+	var itemNo=$('[name="itemNo"]').val();
+	var purchaseInvoiceNo=$('[name="purchaseInvoiceNo"]').val();
+	var purchaseInvoiceDate=$('[name="purchaseInvoiceDate"]').val();
+	var paymentOrderNo=$('[name="paymentOrderNo"]').val();
+	var ssC = $("#searchssC").val();
+	var start=$("#start").val();
+	var end=$("#end").val();
+	var type=$('[name="type"]').val();
+	var revoke=$('[name="revoke"]').val();
+	var confirm=$('[name="confirm"]').val();
+	if(start==""||end==""){
+		jqueryAlert({
+			'icon'    : getRootPath() +'/plugs/alert/img/error.png',
+			'content' : "导入的时间段不能为空",
+			'closeTime' : 2000,
+		})
+		return;
+	}
 	jqueryAlert({
 		'icon': getRootPath() + '/plugs/alert/img/right.png',
 		'content': "正在导出请稍等...",
 		'closeTime': 5000,
 	})
-	window.location.href = "stockStatistics/toJD?search=" + search + "&start=" + start + "&end=" + end  + "&type=" + type + "&areaId=" + areaId + "&searchAgent=" + searchAgent;
+	window.location.href = "stockStatistics/toJD?&searchArea=" + area +"&type="
+		+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC="+ssC
+		+"&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo +
+		"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo="+paymentOrderNo;
 
 }
 
@@ -98,15 +165,23 @@ var pageSize = $("#pageSize").val();
 
 //导出新库存统计
 function toExportNew() {
-
-
-	var search = $("#serach").val();
-	var start = $("#start").val();
-	var end = $("#end").val();
-	var type = $("#type").val();
-	var areaId = $("#searchArea").val();
-	var searchAgent = $("#agent").val();
-	
+	var area = $("#searchArea").val();
+	var name=$('[name="name"]').val();
+	var model=$('[name="model"]').val();
+	var supplier=$('[name="supplier"]').val();
+	var entryName=$('[name="entryName"]').val();
+	var itemNo=$('[name="itemNo"]').val();
+	var purchaseInvoiceNo=$('[name="purchaseInvoiceNo"]').val();
+	var purchaseInvoiceDate=$('[name="purchaseInvoiceDate"]').val();
+	var paymentOrderNo=$('[name="paymentOrderNo"]').val();
+	var ssC = $("#searchssC").val();
+	var start=$("#start").val();
+	var end=$("#end").val();
+	var type=$('[name="type"]').val();
+	var revoke=$('[name="revoke"]').val();
+	var confirm=$('[name="confirm"]').val();
+	var projectName=$('[name="projectName"]').val();
+	var customer=$('[name="customer"]').val();
 	if(start==""||end==""){
 	jqueryAlert({
 		    'icon'    : getRootPath() +'/plugs/alert/img/error.png',
@@ -124,7 +199,11 @@ function toExportNew() {
 		'content': "正在导出请稍等...",
 		'closeTime': 5000,
 	})
-	window.location.href = "stockStatistics/exportNew?search=" + search + "&start=" + start + "&end=" + end  + "&type=" + type + "&areaId=" + areaId + "&searchAgent=" + searchAgent;
+	window.location.href = "stockStatistics/exportNew?&searchArea=" + area +"&type="
+	+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC="+ssC
+	+"&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo +
+	"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo="+paymentOrderNo
+		+"&customer=" +customer+"&projectName=" +projectName;
 
 }
 
@@ -536,7 +615,8 @@ $("#"+o).toggle();
 
 }
 
-function searchbyN(size,search,area,totalpage,type,start,end,revoke,confirm,userId,ssC){
+function searchbyN(size,totalpage,Bo){
+	var bo = JSON.parse(Bo);
 	var N=$("#searchN").val();
 	var Tpage=parseInt(totalpage);
 	if(N <= 0 || N > Tpage){
@@ -546,12 +626,100 @@ function searchbyN(size,search,area,totalpage,type,start,end,revoke,confirm,user
 			text: "页数不对，重新填写!!",
 		});
 	}else{
-		window.location.href = "stockStatisticss?pageNo=" + N +"&pageSize=" + size + "&search=" + search + "&searchArea=" + area +"&type="
-			+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=" + userId + "&ssC="+ssC;
+		var name=returnEmpty(bo.name);
+		var ssC=returnEmpty(bo.ssC);
+		var area=returnEmpty(bo.searchArea);
+		var model=returnEmpty(bo.model);
+		var supplier=returnEmpty(bo.supplier);
+		var entryName=returnEmpty(bo.entryName);
+		var itemNo=returnEmpty(bo.itemNo);
+		var purchaseInvoiceNo=returnEmpty(bo.purchaseInvoiceNo);
+		var purchaseInvoiceDate=returnEmpty(bo.purchaseInvoiceDate);
+		var paymentOrderNo=returnEmpty(bo.paymentOrderNo);
+		var type=returnEmpty(bo.type);
+		var start=returnEmpty(bo.start);
+		var end=returnEmpty(bo.end);
+		var revoke=returnEmpty(bo.revoke);
+		var confirm=returnEmpty(bo.confirm);
+		var customer=returnEmpty(bo.customer);
+		var projectName=returnEmpty(bo.projectName);
+		// var userId=returnEmpty(bo.userId);
+		window.location.href = "stockStatisticss?pageNo=" + N +"&pageSize=" + size + "&searchArea=" + area +"&type="
+			+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC="+ssC
+		+"&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo +
+			"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo="+paymentOrderNo
+			+"&customer=" +customer+"&projectName=" +projectName;
 	}
 
 }
 
+function  returnEmpty(str){
+	if(str === null  || str === undefined ){
+		return '';
+	}
+	return str;
+}
+
+function  pageS(pageNo,size,totalpage,Bo){
+	var bo = JSON.parse(Bo);
+	var name=returnEmpty(bo.name);
+	var ssC=returnEmpty(bo.ssC);
+	var area=returnEmpty(bo.searchArea);
+	var model=returnEmpty(bo.model);
+	var supplier=returnEmpty(bo.supplier);
+	var entryName=returnEmpty(bo.entryName);
+	var itemNo=returnEmpty(bo.itemNo);
+	var purchaseInvoiceNo=returnEmpty(bo.purchaseInvoiceNo);
+	var purchaseInvoiceDate=returnEmpty(bo.purchaseInvoiceDate);
+	var paymentOrderNo=returnEmpty(bo.paymentOrderNo);
+	var type=returnEmpty(bo.type);
+	var start=returnEmpty(bo.start);
+	var end=returnEmpty(bo.end);
+	var revoke=returnEmpty(bo.revoke);
+	var confirm=returnEmpty(bo.confirm);
+	var customer=returnEmpty(bo.customer);
+	var projectName=returnEmpty(bo.projectName);
+
+	// var userId=returnEmpty(bo.userId);
+
+	window.location.href = "stockStatisticss?pageNo=" + pageNo +"&pageSize=" + size + "&searchArea=" + area +"&type="
+		+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC="+ssC
+		+"&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo +
+		"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo="+paymentOrderNo
+		+"&customer=" +customer+"&projectName=" +projectName;
+}
+
+function searchBo() {
+	var area = $("#searchArea").val();
+	var size = $("#pageSize").val();
+	var name=$('[name="name"]').val();
+	var model=$('[name="model"]').val();
+	var supplier=$('[name="supplier"]').val();
+	var entryName=$('[name="entryName"]').val();
+	var itemNo=$('[name="itemNo"]').val();
+	var purchaseInvoiceNo=$('[name="purchaseInvoiceNo"]').val();
+	var purchaseInvoiceDate=$('[name="purchaseInvoiceDate"]').val();
+	var paymentOrderNo=$('[name="paymentOrderNo"]').val();
+	var ssC = $("#searchssC").val();
+	var start=$("#start").val();
+	var end=$("#end").val();
+	var type=$('[name="type"]').val();
+	var revoke=$('[name="revoke"]').val();
+	var confirm=$('[name="confirm"]').val();
+	var projectName=$('[name="projectName"]').val();
+	var customer=$('[name="customer"]').val();
+	// var userId=$('[name="userId"]').val();
+	/*
+	 * if (search == null || search == "") { swal({ type : "warning", title : "",
+	 * text : "查询内容不能为空!!", }); return ; }
+	 */
+	window.location.href = "stockStatisticss?&pageSize=" + size + "&searchArea=" + area +"&type="
+		+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC="+ssC
+		+"&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo +
+		"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo="+paymentOrderNo
+	+"&customer=" +customer+"&projectName=" +projectName;
+
+}
 
 
 

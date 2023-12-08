@@ -6,6 +6,7 @@ import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -140,6 +141,66 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 			 query.with(new Sort(new Order(Direction.DESC, "createTime")));
 			query.with(new Sort(new Order(Direction.DESC, "inventory"))); //按照库存量排序
 
+			pagination = this.findPaginationByQuery(query, pageNo, pageSize, PreStock.class);
+			if (pagination == null)
+				pagination = new Pagination<PreStock>();
+			return pagination;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return pagination;
+	}
+
+	public Pagination<PreStock> findpagination(Integer pageNo, Integer pageSize, RequestBo requestBo,Integer status){
+		Pagination<PreStock> pagination = null;
+		try {
+			Query query = new Query();
+			Criteria ca = new Criteria();
+			if(Common.isNotEmpty(requestBo.getName())){
+				query=query.addCriteria(Criteria.where("name").regex(requestBo.getName(), "i"));
+			}
+			if(Common.isNotEmpty(requestBo.getEntryName())){
+				query=query.addCriteria(Criteria.where("entryName").regex(requestBo.getEntryName(), "i"));
+			}
+			if(Common.isNotEmpty(requestBo.getModel())){
+				query=query.addCriteria(Criteria.where("model").regex(requestBo.getModel(), "i"));
+			}
+			if (Common.isNotEmpty(requestBo.getSsC())) {
+				String[] ssCs=requestBo.getSsC().split(",");
+//				query = query.addCriteria(Criteria.where("systemClassification.$id").is(new ObjectId(ssC)));
+				query = query.addCriteria(Criteria.where("systemClassification.$id").in(Arrays.stream(ssCs).map(str->new ObjectId(str)).collect(Collectors.toList())));
+			}
+			if (Common.isNotEmpty(requestBo.getSearchArea())) {
+				String[] sas=requestBo.getSearchArea().split(",");
+//				query = query.addCriteria(Criteria.where("area.$id").is(new ObjectId(searchArea)));
+				query = query.addCriteria(Criteria.where("area.$id").in(Arrays.stream(sas).map(str->new ObjectId(str)).collect(Collectors.toList())));
+			}
+			if(Common.isNotEmpty(requestBo.getItemNo())){
+				query=query.addCriteria(Criteria.where("itemNo").regex(requestBo.getItemNo(), "i"));
+			}
+
+			if(Common.isNotEmpty(requestBo.getPurchaseInvoiceNo())){
+				query=query.addCriteria(Criteria.where("purchaseInvoiceNo").regex(requestBo.getPurchaseInvoiceNo(), "i"));
+			}
+			if(Common.isNotEmpty(requestBo.getPaymentOrderNo())){
+				query=query.addCriteria(Criteria.where("paymentOrderNo").regex(requestBo.getPaymentOrderNo(), "i"));
+			}
+			if(Common.isNotEmpty(requestBo.getPurchaseInvoiceDate())){
+				query=query.addCriteria(Criteria.where("purchaseInvoiceDate").regex(requestBo.getPurchaseInvoiceDate(), "i"));
+			}
+			if(Common.isNotEmpty(requestBo.getSupplier())){
+				Query squery=new Query();
+				squery.addCriteria(Criteria.where("name").regex(requestBo.getSupplier(),"i"));
+				List<Supplier> supplierList = this.supplierService.find(squery, Supplier.class);
+				if(!supplierList.isEmpty()){
+					ca.orOperator(Criteria.where("supplier.$id").in(supplierList.stream().map(supplier ->new ObjectId(supplier.getId())).collect(Collectors.toList())));
+					query.addCriteria(ca);
+				}
+			}
+			query.addCriteria(Criteria.where("isDelete").is(false));
+			query.addCriteria(Criteria.where("status").is(status));
+			query.with(new Sort(new Order(Direction.DESC, "createTime")));
+			query.with(new Sort(new Order(Direction.DESC, "inventory"))); //按照库存量排序
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, PreStock.class);
 			if (pagination == null)
 				pagination = new Pagination<PreStock>();
@@ -662,8 +723,56 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 
 	}
 
-	public Workbook newExport(HttpServletRequest request, String name, String areaId){
-		List<PreStock> list = this.findAllPreStock(false, areaId);
+	public Workbook newExport(HttpServletRequest request,  RequestBo requestBo){
+		Query query = new Query();
+		Criteria ca = new Criteria();
+		if(Common.isNotEmpty(requestBo.getName())){
+			query=query.addCriteria(Criteria.where("name").regex(requestBo.getName(), "i"));
+		}
+		if(Common.isNotEmpty(requestBo.getEntryName())){
+			query=query.addCriteria(Criteria.where("entryName").regex(requestBo.getEntryName(), "i"));
+		}
+		if(Common.isNotEmpty(requestBo.getModel())){
+			query=query.addCriteria(Criteria.where("model").regex(requestBo.getModel(), "i"));
+		}
+		if (Common.isNotEmpty(requestBo.getSsC())) {
+			String[] ssCs=requestBo.getSsC().split(",");
+//				query = query.addCriteria(Criteria.where("systemClassification.$id").is(new ObjectId(ssC)));
+			query = query.addCriteria(Criteria.where("systemClassification.$id").in(Arrays.stream(ssCs).map(str->new ObjectId(str)).collect(Collectors.toList())));
+		}
+		if (Common.isNotEmpty(requestBo.getSearchArea())) {
+			String[] sas=requestBo.getSearchArea().split(",");
+//				query = query.addCriteria(Criteria.where("area.$id").is(new ObjectId(searchArea)));
+			query = query.addCriteria(Criteria.where("area.$id").in(Arrays.stream(sas).map(str->new ObjectId(str)).collect(Collectors.toList())));
+		}
+		if(Common.isNotEmpty(requestBo.getItemNo())){
+			query=query.addCriteria(Criteria.where("itemNo").regex(requestBo.getItemNo(), "i"));
+		}
+
+		if(Common.isNotEmpty(requestBo.getPurchaseInvoiceNo())){
+			query=query.addCriteria(Criteria.where("purchaseInvoiceNo").regex(requestBo.getPurchaseInvoiceNo(), "i"));
+		}
+		if(Common.isNotEmpty(requestBo.getPaymentOrderNo())){
+			query=query.addCriteria(Criteria.where("paymentOrderNo").regex(requestBo.getPaymentOrderNo(), "i"));
+		}
+		if(Common.isNotEmpty(requestBo.getPurchaseInvoiceDate())){
+			query=query.addCriteria(Criteria.where("purchaseInvoiceDate").regex(requestBo.getPurchaseInvoiceDate(), "i"));
+		}
+		if(Common.isNotEmpty(requestBo.getSupplier())){
+			Query squery=new Query();
+			squery.addCriteria(Criteria.where("name").regex(requestBo.getSupplier(),"i"));
+			List<Supplier> supplierList = this.supplierService.find(squery, Supplier.class);
+			if(!supplierList.isEmpty()){
+				ca.orOperator(Criteria.where("supplier.$id").in(supplierList.stream().map(supplier ->new ObjectId(supplier.getId())).collect(Collectors.toList())));
+				query.addCriteria(ca);
+			}
+		}
+		query.addCriteria(Criteria.where("isDelete").is(false));
+		query.addCriteria(Criteria.where("status").is(1));
+		query.with(new Sort(new Order(Direction.DESC, "createTime")));
+		query.with(new Sort(new Order(Direction.DESC, "inventory"))); //按照库存量排序
+//		List<PreStock> list = this.findAllPreStock(false, areaId);
+		List<PreStock> list =find(query,PreStock.class);
 		List<Map<String, Object>> arrayList = new ArrayList<>();
 		List<Map<String, Object>> doneList = new ArrayList<>();
 		for (PreStock stock : list) {

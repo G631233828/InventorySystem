@@ -18,6 +18,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -26,6 +28,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -73,29 +76,34 @@ public class StockStatisticsController {
 	@SystemControllerLog(description = "查询库存统计")
 	public String list(@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
 			@RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize, HttpSession session,
-			@RequestParam(value = "search", defaultValue = "") String search,
-			@RequestParam(value = "start", defaultValue = "") String start,
-			@RequestParam(value = "end", defaultValue = "") String end,
-			@RequestParam(value = "type", defaultValue = "") String type,
-			@RequestParam(value = "id", defaultValue = "") String id,
-			@RequestParam(value = "searchArea", defaultValue = "") String searchArea,
-			@RequestParam(value = "userId", defaultValue = "") String userId,
-			@RequestParam(value = "searchAgent", defaultValue = "") String searchAgent,
-			@RequestParam(value = "revoke", defaultValue = "2") String revoke,
-			@RequestParam(value = "confirm", defaultValue = "") String confirm,
-			@RequestParam(value = "ssC", defaultValue = "") String ssC
-			) {
+//			@RequestParam(value = "search", defaultValue = "") String search,
+			@ModelAttribute RequestBo requestBo
+//			@RequestParam(value = "start", defaultValue = "") String start,
+//			@RequestParam(value = "end", defaultValue = "") String end,
+//			@RequestParam(value = "type", defaultValue = "") String type,
+//			@RequestParam(value = "id", defaultValue = "") String id,
+//			@RequestParam(value = "searchArea", defaultValue = "") String searchArea,
+//			@RequestParam(value = "userId", defaultValue = "") String userId,
+//			@RequestParam(value = "searchAgent", defaultValue = "") String searchAgent,
+//			@RequestParam(value = "revoke", defaultValue = "2") String revoke,
+//			@RequestParam(value = "confirm", defaultValue = "") String confirm,
+//			@RequestParam(value = "ssC", defaultValue = "") String ssC
+			)throws JsonProcessingException {
 		// 区域
+
 		List<Area> areas = this.areaService.findAllArea(false);
 		model.addAttribute("areas", areas);
-
+		ObjectMapper objectMapper=new ObjectMapper();
+		String jsonString=objectMapper.writeValueAsString(requestBo);
+		model.addAttribute("Bo",jsonString);
+		model.addAttribute("requestBo",requestBo);
 		List<SystemClassification>  ssCs=this.ssCService.findAllSystemClassification(false);
 		model.addAttribute("ssCs",ssCs);
-		revoke="2";//默认都是正常 隐藏 已撤销
-		Pagination<StockStatistics> pagination = this.stockStatisticsService.findpagination(pageNo, pageSize, search,
-				start, end, type, id, searchArea, searchAgent,userId,revoke,confirm,ssC);
+//		revoke="2";默认都是正常 隐藏 已撤销
+//		Pagination<StockStatistics> pagination = this.stockStatisticsService.findpagination(pageNo, pageSize, search,
+//				start, end, type, id, searchArea, searchAgent,userId,revoke,confirm,ssC);
+		Pagination<StockStatistics> pagination = this.stockStatisticsService.findpagination(pageNo,pageSize,requestBo);
 		model.addAttribute("pageList", pagination);
-		
 //		double sum = pagination.getDatas().stream().mapToDouble(StockStatistics::getInprice).sum();
 //		model.addAttribute("sum", sum);
 //		List<StockStatistics> datas = pagination.getDatas();
@@ -103,19 +111,22 @@ public class StockStatisticsController {
 		User user = (User) session.getAttribute(Contents.USER_SESSION);
 		List<String> listColums = this.columnService.findColumns("stockStatistics",user.getId());
 
+
 		model.addAttribute("listColums", listColums);
-		model.addAttribute("search", search);
-		model.addAttribute("revoke", revoke);
-		model.addAttribute("start", start);
-		model.addAttribute("end", end);
-		model.addAttribute("id", id);
-		model.addAttribute("type", type);
+
+//		model.addAttribute("search", search);
+//		model.addAttribute("revoke", revoke);
+//		model.addAttribute("start", start);
+//		model.addAttribute("end", end);
+//		model.addAttribute("id", id);
+//		model.addAttribute("type", type);
 		model.addAttribute("pageSize", pageSize);
-		model.addAttribute("searchArea", searchArea);
-		model.addAttribute("ssC",ssC);
-		model.addAttribute("searchAgent", searchAgent);
-		model.addAttribute("userId", userId);
-		model.addAttribute("confirm",confirm);
+//		model.addAttribute("searchArea", searchArea);
+//		model.addAttribute("ssC",ssC);
+//		model.addAttribute("searchAgent", searchAgent);
+//		model.addAttribute("userId", userId);
+//		model.addAttribute("confirm",confirm);
+
 		return "admin/stockStatistics/list";
 	}
 
@@ -233,23 +244,27 @@ public class StockStatisticsController {
 	 */
 	@RequestMapping(value = "/stockStatistics/export", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@SystemControllerLog(description = "")
-	public void exportStock (@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
-			@RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize, HttpSession session,
-			@RequestParam(value = "search", defaultValue = "") String search,
-			@RequestParam(value = "start", defaultValue = "") String start,
-			@RequestParam(value = "end", defaultValue = "") String end,
-			@RequestParam(value = "type", defaultValue = "") String type,
-			@RequestParam(value = "id", defaultValue = "") String id,
-			@RequestParam(value = "areaId", defaultValue = "") String areaId,
-			@RequestParam(value = "searchAgent", defaultValue = "") String searchAgent, HttpServletResponse response,
-			HttpServletRequest request) throws Exception{
+	public void exportStock (
+//			@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
+//			@RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize, HttpSession session,
+//			@RequestParam(value = "search", defaultValue = "") String search,
+//			@RequestParam(value = "start", defaultValue = "") String start,
+//			@RequestParam(value = "end", defaultValue = "") String end,
+//			@RequestParam(value = "type", defaultValue = "") String type,
+//			@RequestParam(value = "id", defaultValue = "") String id,
+//			@RequestParam(value = "areaId", defaultValue = "") String areaId,
+//			@RequestParam(value = "searchAgent", defaultValue = "") String searchAgent,
+			HttpServletResponse response,
+			HttpServletRequest request,
+				@ModelAttribute RequestBo bo
+	) throws Exception{
 	
 		String exportName = Common.fromDateYMD() + "库存统计";
 
 		response.setContentType("application/vnd.ms-excel");
 		String fileName = new String((exportName).getBytes("gb2312"), "ISO8859-1");
 		response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xlsx");
-		Workbook newExport = this.stockStatisticsService.newExport(request, search, start, end, type, fileName, areaId, searchAgent);
+		Workbook newExport = this.stockStatisticsService.newExport(request, bo);
 
 		OutputStream out = response.getOutputStream();
 		newExport.write(out);
@@ -265,15 +280,16 @@ public class StockStatisticsController {
 	 */
 	@RequestMapping(value = "/stockStatistics/toJD", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@SystemControllerLog(description = "")
-	public void exportJD (@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
-							 @RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize, HttpSession session,
-							 @RequestParam(value = "search", defaultValue = "") String search,
-							 @RequestParam(value = "start", defaultValue = "") String start,
-							 @RequestParam(value = "end", defaultValue = "") String end,
-							 @RequestParam(value = "type", defaultValue = "") String type,
-							 @RequestParam(value = "id", defaultValue = "") String id,
-							 @RequestParam(value = "areaId", defaultValue = "") String areaId,
-							 @RequestParam(value = "searchAgent", defaultValue = "") String searchAgent, HttpServletResponse response,
+	public void exportJD (
+//			                 @RequestParam(value = "search", defaultValue = "") String search,
+//							 @RequestParam(value = "start", defaultValue = "") String start,
+//							 @RequestParam(value = "end", defaultValue = "") String end,
+//							 @RequestParam(value = "type", defaultValue = "") String type,
+//							 @RequestParam(value = "id", defaultValue = "") String id,
+//							 @RequestParam(value = "areaId", defaultValue = "") String areaId,
+//							 @RequestParam(value = "searchAgent", defaultValue = "") String searchAgent,
+							@ModelAttribute RequestBo requestBo,
+							   HttpServletResponse response,
 							 HttpServletRequest request) throws Exception{
 
 		String exportName = Common.fromDateYMD() + "库存统计";
@@ -281,7 +297,7 @@ public class StockStatisticsController {
 		response.setContentType("application/vnd.ms-excel");
 		String fileName = new String((exportName).getBytes("gb2312"), "ISO8859-1");
 		response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xlsx");
-		Workbook newExport = this.stockStatisticsService.toJD(request, search, start, end, type, fileName, areaId, searchAgent);
+		Workbook newExport = this.stockStatisticsService.toJD(request, requestBo);
 
 		OutputStream out = response.getOutputStream();
 		newExport.write(out);
@@ -297,23 +313,24 @@ public class StockStatisticsController {
 	 */
 	@RequestMapping(value = "/stockStatistics/exportNew", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@SystemControllerLog(description = "")
-	public void exportNew (@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
-			@RequestParam(value = "pageSize", defaultValue = "10") Integer pageSize, HttpSession session,
-			@RequestParam(value = "search", defaultValue = "") String search,
-			@RequestParam(value = "start", defaultValue = "") String start,
-			@RequestParam(value = "end", defaultValue = "") String end,
-			@RequestParam(value = "type", defaultValue = "") String type,
-			@RequestParam(value = "id", defaultValue = "") String id,
-			@RequestParam(value = "areaId", defaultValue = "") String areaId,
-			@RequestParam(value = "searchAgent", defaultValue = "") String searchAgent, HttpServletResponse response,
+	public void exportNew (
+//			@RequestParam(value = "search", defaultValue = "") String search,
+//			@RequestParam(value = "start", defaultValue = "") String start,
+//			@RequestParam(value = "end", defaultValue = "") String end,
+//			@RequestParam(value = "type", defaultValue = "") String type,
+//			@RequestParam(value = "id", defaultValue = "") String id,
+//			@RequestParam(value = "areaId", defaultValue = "") String areaId,
+//			@RequestParam(value = "searchAgent", defaultValue = "") String searchAgent,
+			@ModelAttribute RequestBo bo,
+			HttpServletResponse response,
 			HttpServletRequest request) throws Exception{
 		
-		String exportName = start+"~"+end+"库存统计";
+		String exportName = bo.getStart()+"~"+bo.getEnd()+"库存统计";
 		
 		response.setContentType("application/vnd.ms-excel");
 		String fileName = new String((exportName).getBytes("gb2312"), "ISO8859-1");
 		response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xlsx");
-		Workbook newExport = this.stockStatisticsService.newExport2(request, search, start, end, type, fileName, areaId, searchAgent);
+		Workbook newExport = this.stockStatisticsService.newExport2(request,bo);
 		
 		OutputStream out = response.getOutputStream();
 		newExport.write(out);

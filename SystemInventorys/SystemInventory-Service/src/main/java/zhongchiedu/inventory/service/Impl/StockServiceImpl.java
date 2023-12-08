@@ -55,19 +55,7 @@ import zhongchiedu.framework.service.GeneralServiceImpl;
 import zhongchiedu.general.pojo.MultiMedia;
 import zhongchiedu.general.pojo.User;
 import zhongchiedu.general.service.MultiMediaService;
-import zhongchiedu.inventory.pojo.Area;
-import zhongchiedu.inventory.pojo.Brand;
-import zhongchiedu.inventory.pojo.Category;
-import zhongchiedu.inventory.pojo.GoodsStorage;
-import zhongchiedu.inventory.pojo.PickUpApplication;
-import zhongchiedu.inventory.pojo.PreStock;
-import zhongchiedu.inventory.pojo.ProcessInfo;
-import zhongchiedu.inventory.pojo.QrCode;
-import zhongchiedu.inventory.pojo.Stock;
-import zhongchiedu.inventory.pojo.StockStatistics;
-import zhongchiedu.inventory.pojo.Supplier;
-import zhongchiedu.inventory.pojo.SystemClassification;
-import zhongchiedu.inventory.pojo.Unit;
+import zhongchiedu.inventory.pojo.*;
 import zhongchiedu.inventory.service.AreaService;
 import zhongchiedu.inventory.service.InventoryRoleService;
 import zhongchiedu.inventory.service.PickUpApplicationService;
@@ -132,21 +120,21 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 	@Override
 	@SystemServiceLog(description = "获取所有非禁用库存信息")
-	public List<Stock> findAllStock(boolean isdisable, String areaId,String searchAgent) {
+	public List<Stock> findAllStock(boolean isdisable, String areaId, String searchAgent) {
 		Query query = new Query();
 		if (Common.isNotEmpty(areaId)) {
 			query.addCriteria(Criteria.where("area.$id").is(new ObjectId(areaId)));
 		}
-		
-		if(Common.isNotEmpty(searchAgent)) {
+
+		if (Common.isNotEmpty(searchAgent)) {
 			query = query.addCriteria(Criteria.where("agent").is(Boolean.valueOf(searchAgent)));
 		}
 		query.addCriteria(Criteria.where("isDisable").is(isdisable == true ? true : false));
 		query.addCriteria(Criteria.where("isDelete").is(false));
-		
+
 		List<Stock> list = this.find(query, Stock.class);
 		List<Stock> rlist = new ArrayList<Stock>();
-		list.forEach(s->{
+		list.forEach(s -> {
 			Stock stock = new Stock();
 			stock.setName(s.getName());
 			stock.setModel(s.getModel());
@@ -160,7 +148,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			stock.setAgent(s.isAgent());
 			rlist.add(stock);
 		});
-		
+
 		return rlist;
 	}
 
@@ -188,7 +176,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 	@Override
 	@SystemServiceLog(description = "分页查询库存信息")
-	public Pagination<Stock> findpagination(Integer pageNo, Integer pageSize, String search, String searchArea,String searchAgent,String ssC) {
+	public Pagination<Stock> findpagination(Integer pageNo, Integer pageSize, String search, String searchArea, String searchAgent, String ssC) {
 		// 分页查询数据
 		Pagination<Stock> pagination = null;
 		try {
@@ -202,7 +190,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				query = query.addCriteria(Criteria.where("systemClassification.$id").is(new ObjectId(ssC)));
 			}
 
-			if(Common.isNotEmpty(searchAgent)) {
+			if (Common.isNotEmpty(searchAgent)) {
 				query = query.addCriteria(Criteria.where("agent").is(Boolean.valueOf(searchAgent)));
 			}
 
@@ -210,7 +198,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				query = this.findbySearch(search, query);
 			}
 			query.addCriteria(Criteria.where("isDelete").is(false));
-			 query.with(new Sort(new Order(Direction.DESC, "createTime")));
+			query.with(new Sort(new Order(Direction.DESC, "createTime")));
 //			query.with(new Sort(new Order(Direction.DESC, "updateTime")));
 //			query.with(new Sort(new Order(Direction.DESC, "inventory"))); 按库存量排序
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, Stock.class);
@@ -222,6 +210,61 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		}
 		return pagination;
 	}
+
+	public Pagination<Stock> findpagination(Integer pageNo, Integer pageSize, RequestBo requestBo) {
+		Pagination<Stock> pagination = null;
+		try {
+			Query query = new Query();
+			if (Common.isNotEmpty(requestBo.getItemNo())) {
+				query=query.addCriteria(Criteria.where("itemNo").regex(requestBo.getItemNo(), "i"));
+			}
+			query=this.findByRequestBo(requestBo,query);
+			query.addCriteria(Criteria.where("isDelete").is(false));
+			query.with(new Sort(new Order(Direction.DESC, "createTime")));
+			pagination = this.findPaginationByQuery(query, pageNo, pageSize, Stock.class);
+			if (pagination == null)
+				pagination = new Pagination<Stock>();
+			return pagination;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return pagination;
+
+	}
+
+
+	public Query findByRequestBo(RequestBo requestBo,Query query) {
+		Criteria ca=new Criteria();
+		if (Common.isNotEmpty(requestBo.getName())) {
+			query = query.addCriteria(Criteria.where("name").regex(requestBo.getName(), "i"));
+		}
+		if (Common.isNotEmpty(requestBo.getEntryName())) {
+			query = query.addCriteria(Criteria.where("entryName").regex(requestBo.getEntryName(), "i"));
+		}
+		if (Common.isNotEmpty(requestBo.getModel())) {
+			query = query.addCriteria(Criteria.where("model").regex(requestBo.getModel(), "i"));
+		}
+		if (Common.isNotEmpty(requestBo.getSsC())) {
+			String[] ssCs = requestBo.getSsC().split(",");
+			query = query.addCriteria(Criteria.where("systemClassification.$id").in(Arrays.stream(ssCs).map(str -> new ObjectId(str)).collect(Collectors.toList())));
+		}
+		if (Common.isNotEmpty(requestBo.getSearchArea())) {
+			String[] sas = requestBo.getSearchArea().split(",");
+			query = query.addCriteria(Criteria.where("area.$id").in(Arrays.stream(sas).map(str -> new ObjectId(str)).collect(Collectors.toList())));
+		}
+		if (Common.isNotEmpty(requestBo.getSupplier())) {
+			Query squery = new Query();
+			squery.addCriteria(Criteria.where("name").regex(requestBo.getSupplier(), "i"));
+			List<Supplier> supplierList = this.supplierService.find(squery, Supplier.class);
+			if (!supplierList.isEmpty()) {
+				ca.orOperator(Criteria.where("supplier.$id").in(supplierList.stream().map(supplier -> new ObjectId(supplier.getId())).collect(Collectors.toList())));
+				query.addCriteria(ca);
+			}
+		}
+		return query;
+	}
+
+
 
 	@SystemServiceLog(description = "查询库存信息")
 	public Query findbySearch(String search, Query query) {
@@ -718,7 +761,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 	@Override
 	@SystemServiceLog(description = "导出库存量总和表")
-	public HSSFWorkbook exportTJ(String name, String areaId,String searchAgent) {
+	public HSSFWorkbook exportTJ(String name,RequestBo bo) {
 		HSSFWorkbook wb = new HSSFWorkbook();
 		// 创建sheet
 		HSSFSheet sheet = wb.createSheet(name);
@@ -726,7 +769,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		List<String> title = this.title(false);
 		this.createHead(sheet, title, style, name);
 		this.createTitle(sheet, title, style);
-		this.createStockTJ(sheet, title, style, areaId,searchAgent);
+		this.createStockTJ(sheet, title, style,bo);
 		sheet.setDefaultColumnWidth(12);
 		sheet.autoSizeColumn(1, true);
 		return wb;
@@ -880,11 +923,16 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	}
 
 
-	public void createStockTJ(HSSFSheet sheet, List<String> title, HSSFCellStyle style, String areaId,String searchAgent) {
+	public void createStockTJ(HSSFSheet sheet, List<String> title, HSSFCellStyle style, RequestBo bo) {
 
 		int j = 1;
 		// 获取所有的库存
-		List<Stock> list = this.findAllStock(false, areaId,searchAgent);
+//		List<Stock> list = this.findAllStock(false, areaId,searchAgent);
+		Query query=new Query();
+		query=this.findByRequestBo(bo,query);
+		query.addCriteria(Criteria.where("isDelete").is(false));
+		query.with(new Sort(new Order(Direction.DESC, "createTime")));
+		List<Stock> list=this.find(query,Stock.class);
 
 		Map<String, List<Stock>> stocks=list.stream().collect(Collectors.groupingBy(stock -> fetchGroupKey(stock)));
 

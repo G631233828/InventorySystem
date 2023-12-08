@@ -1,3 +1,5 @@
+
+
 function batchImput() {
 	$("#mybatchUpload").modal('show');
 
@@ -78,6 +80,16 @@ function toStatistics(o){
 }
 
 function toExport(){
+	var area = $("#searchArea").val();
+	var name=$('[name="name"]').val();
+	var model=$('[name="model"]').val();
+	var supplier=$('[name="supplier"]').val();
+	var entryName=$('[name="entryName"]').val();
+	var itemNo=$('[name="itemNo"]').val();
+	var purchaseInvoiceNo=$('[name="purchaseInvoiceNo"]').val();
+	var purchaseInvoiceDate=$('[name="purchaseInvoiceDate"]').val();
+	var paymentOrderNo=$('[name="paymentOrderNo"]').val();
+	var ssC = $("#searchssC").val();
 	jqueryAlert({
 	    'icon'    : getRootPath() +'/plugs/alert/img/right.png',
 	    'content' : "正在导出请稍等...",
@@ -86,7 +98,9 @@ function toExport(){
 	var areaId = $("#searchArea").val();
 	
 	
-	window.location.href = "prestock/export?areaId="+areaId;
+	window.location.href = "prestock/export?&searchArea=" + area  + "&userId=&ssC="+ssC
+		+"&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo +
+		"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo="+paymentOrderNo;
 	
 	
 }
@@ -487,7 +501,52 @@ $(".datepicker").datepicker({
 	autoclose: true
 });
 
+function  returnEmpty(str){
+	if(str === null  || str === undefined ){
+		return '';
+	}
+	return str;
+}
 
+function  pageS(pageNo,size,totalpage,Bo,status){
+	var bo = JSON.parse(Bo);
+	var name=returnEmpty(bo.name);
+	var model=returnEmpty(bo.model);
+	var area=returnEmpty(bo.searchArea);
+	var ssC=returnEmpty(bo.ssC);
+	var supplier=returnEmpty(bo.supplier);
+	var entryName=returnEmpty(bo.entryName);
+	var itemNo=returnEmpty(bo.itemNo);
+	var purchaseInvoiceNo=returnEmpty(bo.purchaseInvoiceNo);
+	var purchaseInvoiceDate=returnEmpty(bo.purchaseInvoiceDate);
+	var paymentOrderNo=returnEmpty(bo.paymentOrderNo);
+	window.location.href = "preStocks?pageNo=" + pageNo +"&pageSize=" + size  +  "&ssC=" + ssC
+		+"&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo + "&searchArea=" + area
+		+"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo="+paymentOrderNo + "&status=" +status;
+}
+
+function searchBo() {
+	var status=$('#prestatus').val();
+	var searchArea = $("#searchArea").val();
+	var pageSize = $("#pageSize").val();
+	var name=$('[name="name"]').val();
+	var model=$('[name="model"]').val();
+	var supplier=$('[name="supplier"]').val();
+	var entryName=$('[name="entryName"]').val();
+	var itemNo=$('[name="itemNo"]').val();
+	var purchaseInvoiceNo=$('[name="purchaseInvoiceNo"]').val();
+	var purchaseInvoiceDate=$('[name="purchaseInvoiceDate"]').val();
+	var paymentOrderNo=$('[name="paymentOrderNo"]').val();
+	var ssC = $("#searchssC").val();
+	/*
+	 * if (search == null || search == "") { swal({ type : "warning", title : "",
+	 * text : "查询内容不能为空!!", }); return ; }
+	 */
+	window.location.href = "preStocks?pageSize=" + pageSize + "&ssC=" + ssC
+		+"&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo + "&searchArea=" + searchArea
+		+"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo="+paymentOrderNo +"&status=" +status;
+
+}
 
 
 

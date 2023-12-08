@@ -10,6 +10,7 @@ import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralService;
 import zhongchiedu.inventory.pojo.Area;
 import zhongchiedu.inventory.pojo.PreStock;
+import zhongchiedu.inventory.pojo.RequestBo;
 import zhongchiedu.inventory.pojo.Stock;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,7 +19,7 @@ import javax.servlet.http.HttpSession;
 public interface PreStockService extends GeneralService<PreStock> {
 	
 	public Pagination<PreStock> findpagination(Integer pageNo,Integer pageSize,String search,String searchArea,int status,String ssC);
-	
+	public Pagination<PreStock> findpagination(Integer pageNo, Integer pageSize, RequestBo requestBo, Integer status);
 	public void saveOrUpdate(PreStock stock);
 	
 	public List<PreStock> findAllPreStock(boolean isdisable,String areaId);
@@ -36,7 +37,7 @@ public interface PreStockService extends GeneralService<PreStock> {
 	
 	public List<PreStock> findAllPreStockByStatus(boolean isdisable,int status);
 
-	public Workbook newExport(HttpServletRequest request, String name, String areaId);
+	public Workbook newExport(HttpServletRequest request, RequestBo requestBo);
 
 	public List<PreStock> findStocksByIds(List ids);
 

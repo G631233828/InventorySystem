@@ -313,20 +313,42 @@ function showSupplier(o) {
 
 
 
-function searchVal() {
+// function searchVal() {
+//
+// 	var pageSize = $("#pageSize").val();
+// 	var search = $("#serach").val();
+// 	var searchArea = $("#searchArea").val();
+// 	var searchAgent = $("#agent").val();
+// 	var ssC = $("#searchssC").val();
+// 	/*
+// 	 * if (search == null || search == "") { swal({ type : "warning", title : "",
+// 	 * text : "查询内容不能为空!!", }); return ; }
+// 	 */
+// 	window.location.href = "stocks?pageSize=" + pageSize + "&search=" + search + "&searchArea=" + searchArea + "&searchAgent=" + searchAgent + "&ssC=" + ssC;
+//
+// }
 
-	var pageSize = $("#pageSize").val();
-	var search = $("#serach").val();
+function searchBo() {
 	var searchArea = $("#searchArea").val();
-	var searchAgent = $("#agent").val();
+	var pageSize = $("#pageSize").val();
+	var name=$('[name="name"]').val();
+	var model=$('[name="model"]').val();
+	var supplier=$('[name="supplier"]').val();
+	var entryName=$('[name="entryName"]').val();
+	var itemNo=$('[name="itemNo"]').val();
+	// var purchaseInvoiceNo=$('[name="purchaseInvoiceNo"]').val();
+	// var purchaseInvoiceDate=$('[name="purchaseInvoiceDate"]').val();
+	// var paymentOrderNo=$('[name="paymentOrderNo"]').val();
 	var ssC = $("#searchssC").val();
 	/*
 	 * if (search == null || search == "") { swal({ type : "warning", title : "",
 	 * text : "查询内容不能为空!!", }); return ; }
 	 */
-	window.location.href = "stocks?pageSize=" + pageSize + "&search=" + search + "&searchArea=" + searchArea + "&searchAgent=" + searchAgent + "&ssC=" + ssC;
+	window.location.href = "stocks?pageSize=" + pageSize + "&ssC=" + ssC
+	+"&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo + "&searchArea=" + searchArea;
 
 }
+
 
 
 //function searchArea() {
@@ -359,7 +381,32 @@ function toStatistics(o) {
 
 }
 
-function toExport() {
+// function toExport() {
+// 	jqueryAlert({
+// 		'icon': getRootPath() + '/plugs/alert/img/right.png',
+// 		'content': "正在导出请稍等...",
+// 		'closeTime': 5000,
+// 	})
+// 	var areaId = $("#searchArea").val();
+// 	var searchAgent = $("#agent").val();
+//
+//
+// 	window.location.href = "stock/exportTJ?areaId=" + areaId + "&searchAgent=" + searchAgent;
+//
+//
+// }
+
+
+
+function toExportTJ(Bo) {
+	var bo = JSON.parse(Bo);
+	var name=returnEmpty(bo.name);
+	var ssC=returnEmpty(bo.ssC);
+	var area=returnEmpty(bo.searchArea);
+	var model=returnEmpty(bo.model);
+	var supplier=returnEmpty(bo.supplier);
+	var entryName=returnEmpty(bo.entryName);
+	var itemNo=returnEmpty(bo.itemNo);
 	jqueryAlert({
 		'icon': getRootPath() + '/plugs/alert/img/right.png',
 		'content': "正在导出请稍等...",
@@ -367,26 +414,8 @@ function toExport() {
 	})
 	var areaId = $("#searchArea").val();
 	var searchAgent = $("#agent").val();
-
-
-	window.location.href = "stock/exportTJ?areaId=" + areaId + "&searchAgent=" + searchAgent;
-
-
-}
-
-
-
-function toExportTJ() {
-	jqueryAlert({
-		'icon': getRootPath() + '/plugs/alert/img/right.png',
-		'content': "正在导出请稍等...",
-		'closeTime': 5000,
-	})
-	var areaId = $("#searchArea").val();
-	var searchAgent = $("#agent").val();
-
-
-	window.location.href = "stock/exportTJ?areaId=" + areaId + "&searchAgent=" + searchAgent;
+	window.location.href = "stock/exportTJ?&ssC=" + ssC
+	+"&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo + "&searchArea=" + area;
 
 
 }
@@ -571,7 +600,8 @@ function batchPaymentOrderNo() {
 
 }
 
-function searchbyN(size,search,area,totalpage,ssC){
+function searchbyN(size,totalpage,Bo){
+	var bo = JSON.parse(Bo);
 	var N=$("#searchN").val();
 	if(N <= 0 || N > totalpage){
 		swal({
@@ -580,9 +610,42 @@ function searchbyN(size,search,area,totalpage,ssC){
 			text: "页数不对，重新填写!!",
 		});
 	}else{
-		window.location.href = "stocks?pageNo=" + N +"&pageSize=" + size + "&search=" + search + "&searchArea=" + area +  "&ssC" + ssC;
+		var name=returnEmpty(bo.name);
+		var ssC=returnEmpty(bo.ssC);
+		var area=returnEmpty(bo.searchArea);
+		var model=returnEmpty(bo.model);
+		var supplier=returnEmpty(bo.supplier);
+		var entryName=returnEmpty(bo.entryName);
+		var itemNo=returnEmpty(bo.itemNo);
+		// var purchaseInvoiceNo=returnEmpty(bo.purchaseInvoiceNo);
+		// var purchaseInvoiceDate=returnEmpty(bo.purchaseInvoiceDate);
+		// var paymentOrderNo=returnEmpty(bo.paymentOrderNo);
+		window.location.href = "stocks?pageNo=" + N +"&pageSize=" + size  +  "&ssC=" + ssC
+			+"&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo + "&searchArea=" + area;
 	}
 
+}
+function  returnEmpty(str){
+	if(str === null  || str === undefined ){
+		return '';
+	}
+	return str;
+}
+
+function  pageS(pageNo,size,totalpage,Bo){
+	var bo = JSON.parse(Bo);
+	var name=returnEmpty(bo.name);
+	var ssC=returnEmpty(bo.ssC);
+	var area=returnEmpty(bo.searchArea);
+	var model=returnEmpty(bo.model);
+	var supplier=returnEmpty(bo.supplier);
+	var entryName=returnEmpty(bo.entryName);
+	var itemNo=returnEmpty(bo.itemNo);
+	// var purchaseInvoiceNo=returnEmpty(bo.purchaseInvoiceNo);
+	// var purchaseInvoiceDate=returnEmpty(bo.purchaseInvoiceDate);
+	// var paymentOrderNo=returnEmpty(bo.paymentOrderNo);
+	window.location.href = "stocks?pageNo=" + pageNo +"&pageSize=" + size  +  "&ssC=" + ssC
+		+"&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo + "&searchArea=" + area;
 }
 
 
