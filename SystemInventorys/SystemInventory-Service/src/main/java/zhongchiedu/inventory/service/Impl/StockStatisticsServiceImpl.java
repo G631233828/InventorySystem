@@ -1680,9 +1680,16 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		if(Common.isNotEmpty(requestBo.getPurchaseInvoiceDate())){
 			query=query.addCriteria(Criteria.where("purchaseInvoiceDate").regex(requestBo.getPurchaseInvoiceDate(), "i"));
 		}
+		if(Common.isNotEmpty(requestBo.getProjectName())){
+			query=query.addCriteria(Criteria.where("projectName").regex(requestBo.getProjectName(), "i"));
+		}
+		if(Common.isNotEmpty(requestBo.getCustomer())){
+			query=query.addCriteria(Criteria.where("customer").regex(requestBo.getCustomer(), "i"));
+		}
 		if (Common.isNotEmpty(requestBo.getConfirm())) {
 			query = query.addCriteria(Criteria.where("confirm").is(Boolean.valueOf(requestBo.getConfirm())));
 		}
+
 		if(Common.isNotEmpty(requestBo.getType())){
 			if (requestBo.getType().equals("in")) {
 				query.addCriteria(Criteria.where("inOrOut").is(true));

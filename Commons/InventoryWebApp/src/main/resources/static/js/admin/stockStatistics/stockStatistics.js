@@ -1,27 +1,104 @@
+
 $(function() {
+	//入库
+
+	// window.myInprice=inprice;
+	//销售
+
+	// window.sailPrice=sailprice;
 	var inprice=$("#heji").text();
-	window.myInprice=inprice;
+	var sailprice=$("#sailPrice").text();
+	var inNum=$("#inNumHJ").text();
+	var outNum=$("#outNumHJ").text();
+
 	const checkboxs=document.querySelectorAll('input[name=ids]');
-	let total=0;
-	let totalele=$("#heji");
-	checkboxs.forEach(checkbox => {
-		checkbox.addEventListener('change', function() {
-			const isckeck=$('input[type="checkbox"][name="ids"]:checked').length === 0;
-			const isFirstCheck=$('input[type="checkbox"][name="ids"]:checked').length === 1;
-				const id=checkbox.id;
-				const c=$('#inprice_' + id);
-				const amount=Number(c.text());
-				if (this.checked) {
-					total= isFirstCheck?0:total;
-					total += amount;
-				} else {
-					total -= amount;
-					total = isckeck?window.myInprice:total;
-				}
-			totalele.text(total)
-		});
+	let inpriceHJ=$("#heji");
+	let sailPriceHJ=$("#sailPrice");
+	let inNumHJ=$("#inNumHJ");
+	let outNumHJ=$("#outNumHJ");
+	function changeHeji(checkbox,total,windowparam,selector,param1) {
+		const isckeck=$('input[type="checkbox"][name="ids"]:checked').length === 0;
+		const isFirstCheck=$('input[type="checkbox"][name="ids"]:checked').length === 1;
+		const id=checkbox.id;
+		const paramId=$('#' + param1 + id);
+		// const amount=Number(paramId.text());
+		const amount=isNaN(Number(paramId.text()))?0:Number(paramId.text());
+		if (checkbox.checked) {
+			total= isFirstCheck?0:total;
+			total += amount;
+		} else {
+			total -= amount;
+			total = isckeck?windowparam:total;
+
+		}
+		selector.text(total)
+		return total
+	};
+
+	var data = {
+		inptotal: 0,
+		sailtotal: 0,
+		innumtotal:0,
+		outnumtotal:0,
+		baozhuang: function(checkbox) {
+			var self = this;
+			return () => {
+				self.inptotal =changeHeji(checkbox, self.inptotal, inprice, inpriceHJ, "inprice_");
+				self.sailtotal = changeHeji(checkbox, self.sailtotal, sailprice, sailPriceHJ, "sailPrice_");
+				self.innumtotal =changeHeji(checkbox, self.innumtotal, inNum, inNumHJ, "inNum_");
+				self.outnumtotal = changeHeji(checkbox, self.outnumtotal, outNum, outNumHJ, "outNum_");
+
+			};
+		}
+	};
+	checkboxs.forEach(function(checkbox) {
+		checkbox.addEventListener('change', data.baozhuang(checkbox));
 	});
+	// function baozhuang(checkbox){
+	// 	changeHeji(checkbox,window.total,window.myInprice,totalele,"inprice_")
+	// 	changeHeji(checkbox,total1,window.sailPrice,total1sail,"sailPrice_")
+	// }
+	// checkboxs.forEach(function(checkbox) {
+	// 	checkbox.addEventListener('change', function() {
+	// 		baozhuang(checkbox);
+	// 	});
+	// });
+
+
+
+	// checkboxs.forEach(checkbox => {
+	// 	checkbox.addEventListener('change', function() {
+	// 		const isckeck=$('input[type="checkbox"][name="ids"]:checked').length === 0;
+	// 		const isFirstCheck=$('input[type="checkbox"][name="ids"]:checked').length === 1;
+	// 			const id=checkbox.id;
+	// 			const inpriceid=$('#inprice_' + id);
+	// 			const amount=Number(inpriceid.text());
+	//
+	// 			const sailpriceid=$('#sailPrice_' + id);
+	// 			const sailamount=Number(sailpriceid.text());
+	// 			if (this.checked) {
+	// 				total= isFirstCheck?0:total;
+	// 				total += amount;
+	//
+	// 				total1= isFirstCheck?0:total1;
+	// 				total1 += sailamount;
+	// 			} else {
+	// 				total -= amount;
+	// 				total = isckeck?window.myInprice:total;
+	//
+	// 				total1 -= sailamount;
+	// 				total1 = isckeck?window.sailPrice:total1;
+	// 			}
+	// 		totalele.text(total)
+	// 		total1sail.text(total1)
+	// 	});
+	// });
+
+
 })
+
+
+
 
 
 function showColumn() {

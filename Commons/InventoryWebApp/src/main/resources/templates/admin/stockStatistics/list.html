@@ -430,13 +430,13 @@
 													<td class="numeric storageTime" id="storageTime"
 														th:style="${#lists.contains(listColums,'storageTime')}?'':'display:none;'"
 														th:text="${stockStatistics.storageTime!=null}?${stockStatistics?.storageTime}:'--------'"></td>
-													<td class="numeric inNum" id="inNum"
+													<td class="numeric inNum"  th:id="|inNum_${stockStatistics?.id}|"
 														th:style="${#lists.contains(listColums,'inNum')}?'':'display:none;'"
 														th:text="${stockStatistics.storageTime != null}?${stockStatistics?.num}:'--------'"></td>
 													<td class="numeric depotTime" id="depotTime"
 														th:style="${#lists.contains(listColums,'depotTime')}?'':'display:none;'"
 														th:text="${stockStatistics.depotTime!=null}?${stockStatistics?.depotTime}:'--------'"></td>
-													<td class="numeric outNum" id="outNum"
+													<td class="numeric outNum" th:id="|outNum_${stockStatistics?.id}|"
 														th:style="${#lists.contains(listColums,'outNum')}?'':'display:none;'"
 														th:text="${stockStatistics.depotTime != null}?${stockStatistics?.num}:'--------'"></td>
 													<td class="numeric newNum" id="newNum"
@@ -630,11 +630,11 @@
 													th:style="${#lists.contains(listColums,'brand')}?'':'display:none;'"></th>
 												<th class="numeric storageTime"
 													th:style="${#lists.contains(listColums,'storageTime')}?'':'display:none;'"></th>
-												<th class="numeric inNum"
+												<th class="numeric inNum" id="inNumHJ"
 													th:style="${#lists.contains(listColums,'inNum')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![inOrOut?num:0])}]]</th>
 												<th class="numeric depotTime"
 													th:style="${#lists.contains(listColums,'depotTime')}?'':'display:none;'"></th>
-												<th class="numeric outNum"
+												<th class="numeric outNum" id="outNumHJ"
 													th:style="${#lists.contains(listColums,'outNum')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![inOrOut?0:num])}]]</th>
 												<th class="numeric newNum"
 													th:style="${#lists.contains(listColums,'newNum')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![newNum==null?0:newNum])}]]</th>
@@ -652,7 +652,7 @@
 													th:style="${#lists.contains(listColums,'outboundOrder')}?'':'display:none;'"></th>
 												<th class="numeric inprice" id="heji"
 													th:style="${#lists.contains(listColums,'inprice')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![inprice==null?0:inprice])}]]</th>
-												<th class="numeric sailPrice"
+												<th class="numeric sailPrice" id="sailPrice"
 													th:style="${#lists.contains(listColums,'sailPrice')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![sailPrice==null?0:sailPrice])}]]</th>
 												<th class="numeric sailesInvoiceNo"
 													th:style="${#lists.contains(listColums,'sailesInvoiceNo')}?'':'display:none;'"></th>
