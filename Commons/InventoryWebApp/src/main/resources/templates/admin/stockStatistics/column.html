@@ -146,6 +146,73 @@
 
 	</div>
 
+    <div aria-labelledby="myLargeModalLabel" role="dialog" tabindex="-1"
+         class="modal fade bs-example-modal-lg" style="display: none;"
+         th:fragment="mycolumn2" id="mycolumn2">
+        <div class="modal-dialog modal-lg"
+             style="margin-top: 10%; width: 500px; height: 200px;">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                    <h4>显示隐藏列信息</h4>
+                </div>
+
+                <table class="table table-bordered table-striped">
+                    <thead class="cf">
+                    <tr>
+                        <th class="numeric">列名</th>
+                        <th class="numeric">状态</th>
+                        <th class="numeric">列名</th>
+                        <th class="numeric">状态</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td class="numeric">设备名称</td>
+                        <td class="numeric" onclick="return selectColumn('ssname');"><input type="checkbox" th:checked="${#lists.contains(listColums,'ssname')}?'checked':'false'" id="ch_ssname"></td>
+                        <td class="numeric">设备型号</td>
+                        <td class="numeric" onclick="return selectColumn('ssmodel');"><input type="checkbox" th:checked="${#lists.contains(listColums,'stockModel')}?'checked':'false'" id="ch_ssmodel"></td>
+                    </tr>
+
+
+                    <tr>
+                        <td class="numeric">用于项目</td>
+                        <td class="numeric" onclick="return selectColumn('ssprojectName');"><input type="checkbox" th:checked="${#lists.contains(listColums,'ssprojectName')}?'checked':'false'" id="ch_ssprojectName"></td>
+                        <td class="numeric">客户</td>
+                        <td class="numeric" onclick="return selectColumn('sscustomer');"><input type="checkbox" th:checked="${#lists.contains(listColums,'sscustomer')}?'checked':'false'" id="ch_sscustomer"></td>
+                    </tr>
+                    <tr>
+                        <td class="numeric">项目名称</td>
+                        <td class="numeric" onclick="return selectColumn('ssentryName');"><input type="checkbox" th:checked="${#lists.contains(listColums,'ssentryName')}?'checked':'false'" id="ch_ssentryName"></td>
+                        <td class="numeric">采购发票号</td>
+                        <td class="numeric" onclick="return selectColumn('sspurchaseInvoiceNo');"><input type="checkbox" th:checked="${#lists.contains(listColums,'sspurchaseInvoiceNo')}?'checked':'false'" id="ch_sspurchaseInvoiceNo"></td>
+                    </tr>
+
+                    <tr>
+                        <td class="numeric">银行付款单号</td>
+                        <td class="numeric" onclick="return selectColumn('sspaymentOrderNo');"><input type="checkbox" th:checked="${#lists.contains(listColums,'sspaymentOrderNo')}?'checked':'false'" id="ch_sspaymentOrderNo"></td>
+                        <td class="numeric">供应商</td>
+                        <td class="numeric" onclick="return selectColumn('sssupplier');"><input type="checkbox" th:checked="${#lists.contains(listColums,'sssupplier')}?'checked':'false'" id="ch_sssupplier"></td>
+                    </tr>
+                    <tr>
+                        <td class="numeric">采购发票到票日期</td>
+                        <td class="numeric" onclick="return selectColumn('sspurchaseInvoiceDate');"><input type="checkbox" th:checked="${#lists.contains(listColums,'sspurchaseInvoiceDate')}?'checked':'false'" id="ch_sspurchaseInvoiceDate"></td>
+                        <td class="numeric">采购付款申请单编码(新)</td>
+                        <td class="numeric" onclick="return selectColumn('ssitemNo');"><input type="checkbox" th:checked="${#lists.contains(listColums,'ssitemNo')}?'checked':'false'" id="ch_ssitemNo"></td>
+                    </tr>
+                    </tbody>
+                </table>
+
+
+
+            </div>
+
+        </div>
+
+    </div>
+
+
 </body>
 
 </html>

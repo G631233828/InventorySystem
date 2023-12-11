@@ -105,6 +105,10 @@ function showColumn() {
 	$("#mycolumn").modal('show');
 }
 
+function showColumn2() {
+	$("#mycolumn2").modal('show');
+}
+
 function clearaa() {
 	$("#start").val('');
 	$("#end").val('');
@@ -505,6 +509,7 @@ function selectColumn(o) {
 	})
 
 }
+
 
 $(".datepicker").datepicker({
 	language: "zh-CN",

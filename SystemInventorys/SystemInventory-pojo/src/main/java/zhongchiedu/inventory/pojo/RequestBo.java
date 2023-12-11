@@ -4,6 +4,7 @@ package zhongchiedu.inventory.pojo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -27,6 +28,7 @@ public class RequestBo {
     private String type;//进出
 
     private String confirm;//核对
+
 
     private String revoke;//正常 ，撤销
 

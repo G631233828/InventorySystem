@@ -91,6 +91,8 @@ public class StockStatisticsController {
 			)throws JsonProcessingException {
 		// 区域
 
+		if(Common.isEmpty(requestBo.getRevoke()))
+			requestBo.setRevoke("2");
 		List<Area> areas = this.areaService.findAllArea(false);
 		model.addAttribute("areas", areas);
 		ObjectMapper objectMapper=new ObjectMapper();

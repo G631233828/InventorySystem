@@ -11,7 +11,11 @@
 	th:src="@{/plugs/datapicker/bootstrap-datepicker.js}"></script>
 <link th:href="@{/plugs/sweetalert/sweetalert.css}" rel="stylesheet">
 <link rel="stylesheet" th:href="@{/assets/css/bootstrap-select.css}">
-
+<style>
+	.showin-b{
+		display: inline-block;
+	}
+</style>
 
 
 </head>
@@ -59,7 +63,9 @@
 										<button class="btn btn-default" onclick="return showColumn()">
 											<i class="entypo-list-add"> </i>显示列
 										</button>
-
+										<button class="btn btn-default" onclick="return showColumn2()">
+											<i class="entypo-list-add"> </i>显示搜索
+										</button>
 
 									</div>
 									<div class="col-sm-6"></div>
@@ -164,43 +170,63 @@
 								<!-- <div class="col-sm-6"></div> -->
 								<div class="row" style="margin-bottom: 10px;">
 									<div class="col-sm-12 form-inline" style="margin-bottom: 10px;">
-<!--										<div id="ssName">-->
+										<div id="ssname" class="ssname showin-b"  th:style="${#lists.contains(listColums,'ssname')}?'':'display:none;'">
 										<label class="control-label text-muted">设备名称：</label>
 										<input class="form-control" name="name" placeholder=""
 											   type="text" th:value="${requestBo?.name}">
-<!--										</div>-->
+										</div>
+										<div id="ssmodel" class="ssmodel showin-b"  th:style="${#lists.contains(listColums,'ssmodel')}?'':'display:none;'">
 										<label class="control-label text-muted">设备型号：</label>
 										<input class="form-control" name="model" placeholder=""
 											   type="text" th:value="${requestBo?.model}">
+										</div>
+										<div id="sssupplier" class="sssupplier showin-b"  th:style="${#lists.contains(listColums,'sssupplier')}?'':'display:none;'">
 										<label class="control-label text-muted">供应商：</label>
 										<input class="form-control" name="supplier" placeholder=""
 											   type="text" th:value="${requestBo?.supplier}">
+										</div>
+										<div id="ssentryName" class="ssentryName showin-b"  th:style="${#lists.contains(listColums,'ssentryName')}?'':'display:none;'">
 										<label class="control-label text-muted">项目名称：</label>
 										<input class="form-control" name="entryName" placeholder=""
 											   type="text" th:value="${requestBo?.entryName}">
-										<label class="control-label text-muted">用于项目：</label>
-										<input class="form-control" name="projectName" placeholder=""
-											   type="text" th:value="${requestBo?.projectName}">
+										</div>
 									</div>
 
 									<div class="col-sm-12 form-inline" style="margin-bottom: 10px;">
+										<div id="ssprojectName" class="ssprojectName showin-b"  th:style="${#lists.contains(listColums,'ssprojectName')}?'':'display:none;'">
+											<label class="control-label text-muted">用于项目：</label>
+											<input class="form-control" name="projectName" placeholder=""
+												   type="text" th:value="${requestBo?.projectName}">
+										</div>
+										<div id="ssitemNo" class="ssitemNo showin-b"  th:style="${#lists.contains(listColums,'ssitemNo')}?'':'display:none;'">
 										<label class="control-label text-muted">采购付款申请单：</label>
 										<input class="form-control" name="itemNo" placeholder=""
 											   type="text" th:value="${requestBo?.itemNo}">
+										</div>
+										<div id="sspurchaseInvoiceNo" class="sspurchaseInvoiceNo showin-b" th:style="${#lists.contains(listColums,'sspurchaseInvoiceNo')}?'':'display:none;'">
 										<label class="control-label text-muted">采购发票号：</label>
 										<input class="form-control" name="purchaseInvoiceNo" placeholder=""
 											   type="text" th:value="${requestBo?.purchaseInvoiceNo}">
-										<label class="control-label text-muted">采购发票到票日期：</label>
-										<input class="form-control" name="purchaseInvoiceDate" placeholder=""
-											   type="text" th:value="${requestBo?.purchaseInvoiceDate}">
-										<label class="control-label text-muted">银行付款日期：</label>
-										<input class="form-control" name="paymentOrderNo" placeholder=""
-											   type="text" th:value="${requestBo?.paymentOrderNo}">
+										</div>
+										<div id="sscustomer" class="sscustomer showin-b" th:style="${#lists.contains(listColums,'sscustomer')}?'':'display:none;'">
 										<label class="control-label text-muted">客户：</label>
 										<input class="form-control" name="customer" placeholder=""
 											   type="text" th:value="${requestBo?.customer}">
+										</div>
 									</div>
 
+									<div class="col-sm-12 form-inline" style="margin-bottom: 10px;">
+										<div id="sspurchaseInvoiceDate" class="sspurchaseInvoiceDate showin-b" th:style="${#lists.contains(listColums,'sspurchaseInvoiceDate')}?'':'display:none;'">
+											<label class="control-label text-muted">采购发票到票日期：</label>
+											<input class="form-control" name="purchaseInvoiceDate" placeholder=""
+												   type="text" th:value="${requestBo?.purchaseInvoiceDate}">
+										</div>
+										<div id="sspaymentOrderNo" class="sspaymentOrderNo showin-b"  th:style="${#lists.contains(listColums,'sspaymentOrderNo')}?'':'display:none;'">
+											<label class="control-label text-muted">银行付款日期：</label>
+											<input class="form-control" name="paymentOrderNo" placeholder=""
+												   type="text" th:value="${requestBo?.paymentOrderNo}">
+										</div>
+									</div>
 									<div class="col-sm-12 form-inline" style="margin-bottom: 10px;">
 										<select class="filter-status form-control" id="pageSize">
 											<option value="10" th:selected="${pageSize == 10}">10
@@ -790,6 +816,7 @@
 
 		<div th:replace="public/public::myModal"></div>
 		<div th:replace="admin/stockStatistics/column::mycolumn"></div>
+		<div th:replace="admin/stockStatistics/column::mycolumn2"></div>
 		<div th:replace="admin/stockStatistics/revoke::myrevoke"></div>
 		<div th:replace="admin/stockStatistics/batcheditstockstatistics::editStockStatistics"></div>
 	</div>
