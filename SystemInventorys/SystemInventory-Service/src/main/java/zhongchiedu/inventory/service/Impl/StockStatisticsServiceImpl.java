@@ -496,10 +496,12 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 		Query querys = new Query();
 		querys=this.stockService.findByRequestBo(requestBo,querys);
+//		querys.addCriteria(Criteria.where("isDelete").is(false));
 		List<Stock> listStock=this.stockService.find(querys,Stock.class);
 
 		//获取所有的库存统计数据
 		Query query=newQueryByRequestBo(requestBo);
+		query.addCriteria(Criteria.where("revoke").is(false));
 		List<StockStatistics> list=this.find(query,StockStatistics.class);
 
 		List<Map<String, Object>> inlist = new ArrayList<>();
@@ -1298,6 +1300,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	@Override
 	public Workbook newExport2(HttpServletRequest request, RequestBo requestBo) {
 		Query query=newQueryByRequestBo(requestBo);
+		query.addCriteria(Criteria.where("revoke").is(false));
 		List<StockStatistics> list=this.find(query,StockStatistics.class);
 		List<Map<String, Object>> outlist = new ArrayList<>();
 		// 获取 start时间 （第一天）库存的初始数量 出库数量+剩余库存数量 num+newNum
@@ -1658,6 +1661,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		if(!requestBo.isEmpty()){
 			Query querys = new Query();
 			querys=this.stockService.findByRequestBo(requestBo,querys);
+//			querys.addCriteria(Criteria.where("isDelete").is(false));
 			List<Stock> stocks=this.stockService.find(querys,Stock.class);
 			List<Object> stockids=stocks.stream().map(stock -> new ObjectId(stock.getId())).collect(Collectors.toList());
 			query=query.addCriteria(Criteria.where("stock.$id").in(stockids));
