@@ -219,7 +219,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				query=query.addCriteria(Criteria.where("itemNo").regex(requestBo.getItemNo(), "i"));
 			}
 			query=this.findByRequestBo(requestBo,query);
-//			query.addCriteria(Criteria.where("isDelete").is(false));
+			query.addCriteria(Criteria.where("isDelete").is(false));
 			query.with(new Sort(new Order(Direction.DESC, "createTime")));
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, Stock.class);
 			if (pagination == null)
@@ -235,7 +235,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 	public Query findByRequestBo(RequestBo requestBo,Query query) {
 		Criteria ca=new Criteria();
-		query.addCriteria(Criteria.where("isDelete").is(false));
+//		query.addCriteria(Criteria.where("isDelete").is(false));
 		if (Common.isNotEmpty(requestBo.getName())) {
 			query = query.addCriteria(Criteria.where("name").regex(requestBo.getName(), "i"));
 		}
@@ -931,7 +931,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 //		List<Stock> list = this.findAllStock(false, areaId,searchAgent);
 		Query query=new Query();
 		query=this.findByRequestBo(bo,query);
-//		query.addCriteria(Criteria.where("isDelete").is(false));
+		query.addCriteria(Criteria.where("isDelete").is(false));
 		query.with(new Sort(new Order(Direction.DESC, "createTime")));
 		List<Stock> list=this.find(query,Stock.class);
 

@@ -20,7 +20,7 @@ $(document)
 											$
 													.ajax({
 														type : 'GET',
-														url : 'newCustomer/uploadprocess',
+														url : 'pName/uploadprocess',
 														data : {},
 														dataType : 'json',
 														success : function(data) {

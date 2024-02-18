@@ -77,6 +77,13 @@ public class StockController {
 
 
 	private @Autowired SystemClassificationServiceImpl  ssCService;
+
+
+	@Autowired
+	private NewCustomerServiceImpl newCustomerService;
+
+	@Autowired
+	private PnameServiceImpl pnameService;
 	
 	@GetMapping("stocks")
 	@RequiresPermissions(value = "stock:list")
@@ -93,6 +100,10 @@ public class StockController {
 		// 区域
 		List<Area> areas = this.areaService.findAllArea(false);
 		model.addAttribute("areas", areas);
+		List<NewCustomer> customers=this.newCustomerService.findAllCustomer(false);
+		model.addAttribute("customers",customers);
+		List<Pname> pnames=this.pnameService.findAllName(false);
+		model.addAttribute("pnames",pnames);
 		ObjectMapper objectMapper=new ObjectMapper();
 		String jsonString=objectMapper.writeValueAsString(requestBo);
 		model.addAttribute("Bo",jsonString);

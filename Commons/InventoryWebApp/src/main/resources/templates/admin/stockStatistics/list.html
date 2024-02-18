@@ -226,6 +226,12 @@
 											<input class="form-control" name="paymentOrderNo" placeholder=""
 												   type="text" th:value="${requestBo?.paymentOrderNo}">
 										</div>
+										<div id="sssailesInvoiceNo" class="sssailesInvoiceNo showin-b"  th:style="${#lists.contains(listColums,'sssailesInvoiceNo')}?'':'display:none;'">
+											<label class="control-label text-muted">销售发票号：</label>
+											<input class="form-control" name="sailesInvoiceNo" placeholder=""
+												   type="text" th:value="${requestBo?.sailesInvoiceNo}">
+										</div>
+
 									</div>
 									<div class="col-sm-12 form-inline" style="margin-bottom: 10px;">
 										<select class="filter-status form-control" id="pageSize">
@@ -235,7 +241,7 @@
 											<option value="100" th:selected="${pageSize == 100}">100
 										</select>
 										<select multiple class="filter-status form-control selectpicker" id="searchssC"
-												data-max-options="5" title="选择分类">
+												data-max-options="20" title="选择分类">
 											<option th:selected="${requestBo?.ssC}==${sC?.id}"
 													th:each="sC:${ssCs}" th:value="${sC?.id}"
 													th:text="${sC?.name}"></option>
@@ -343,6 +349,8 @@
 													th:style="${#lists.contains(listColums,'area')}?'':'display:none;'">区域</th>
 												<th class="numeric entryName"
 													th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'">项目名称</th>
+												<th class="numeric pname"
+													th:style="${#lists.contains(listColums,'pname')}?'':'display:none;'">项目名称(新)</th>
 												<th class="numeric supplier"
 													th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'">供应商</th>
 												<th class="numeric itemNo"
@@ -373,6 +381,8 @@
 													th:style="${#lists.contains(listColums,'projectName')}?'':'display:none;'">用于项目</th>
 												<th class="numeric customer"
 													th:style="${#lists.contains(listColums,'customer')}?'':'display:none;'">客户</th>
+												<th class="numeric newCustomer"
+													th:style="${#lists.contains(listColums,'newCustomer')}?'':'display:none;'">客户(新)</th>
 												<th class="numeric accepter"
 													th:style="${#lists.contains(listColums,'accepter')}?'':'display:none;'">领料人</th>
 												<th class="numeric outboundOrder"
@@ -431,7 +441,11 @@
 													<td class="numeric area" id="area"
 														th:style="${#lists.contains(listColums,'area')}?'':'display:none;'">[[${stockStatistics?.area?.name}]]</td>
 													<td class="numeric entryName" id="entryName"
-														th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'">[[${stockStatistics?.stock?.entryName}]]</td>
+														th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'"
+													th:text="${stockStatistics?.stock?.entryName!=null and stockStatistics?.stock?.entryName!='' and
+													stockStatistics?.stock?.entryName.length() > 15}?${stockStatistics?.stock?.entryName.substring(0,15)}:${stockStatistics?.stock?.entryName}"></td>
+													<td class="numeric pname" id="pname"
+														th:style="${#lists.contains(listColums,'pname')}?'':'display:none;'">[[${stockStatistics?.pname?.name}]]</td>
 													<td class="numeric supplier" id="supplier"
 														th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'">
 														<a href="javascript:;"
@@ -479,7 +493,8 @@
 														th:style="${#lists.contains(listColums,'customer')}?'':'display:none;'"
 														th:title="${stockStatistics?.customer}"
 														th:text="${stockStatistics?.customer != null}?${#strings.abbreviate(stockStatistics?.customer,25)}:'--------'"></td>
-
+													<td class="numeric newCustomer" id="newCustomer"
+														th:style="${#lists.contains(listColums,'newCustomer')}?'':'display:none;'">[[${stockStatistics?.newCustomer?.name}]]</td>
 													<td class="numeric accepter" id="accepter"
 														th:style="${#lists.contains(listColums,'accepter')}?'':'display:none;'"
 														th:text="${stockStatistics.accepter != null}?${stockStatistics?.accepter}:'--------'"></td>

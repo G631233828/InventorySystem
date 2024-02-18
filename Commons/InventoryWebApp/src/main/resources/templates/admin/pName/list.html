@@ -55,28 +55,28 @@
 						<div class="nest" id="tableStaticClose">
 							<div class="title-alt">
 								<div>
-									<shiro:hasPermission name="newCustomer:add">
+									<shiro:hasPermission name="pName:add">
 										<button class="btn btn-default btn-sm"
-											th:onclick="|window.location.href='@{/newCustomer}'|">
+											th:onclick="|window.location.href='@{/pName}'|">
 											<i class="glyphicon glyphicon-plus"> </i> 添加
 										</button>
 									</shiro:hasPermission>
 
-									<shiro:hasPermission name="newCustomer:edit">
+									<shiro:hasPermission name="pName:edit">
 										<button class="btn btn-primary btn-sm"
-											onclick="return toeditPage('','newCustomer')">
+											onclick="return toeditPage('','pName')">
 											<i class="fa fa-edit"> </i>编辑
 										</button>
 									</shiro:hasPermission>
 
-									<shiro:hasPermission name="newCustomer:delete">
+									<shiro:hasPermission name="pName:delete">
 										<button class="btn btn-danger btn-sm"
-											th:onclick="|return del('','@{/newCustomer/}')|">
+											th:onclick="|return del('','@{/pName/}')|">
 											<i class="fa fa-trash-o"> </i>删除
 										</button>
 									</shiro:hasPermission>
 
-									<shiro:hasPermission name="newCustomer:batch">
+									<shiro:hasPermission name="pName:batch">
 										<button class="btn btn-success" onclick="return batchImput()">
 											<i class="fontawesome-upload"> </i>批量导入
 										</button>
@@ -145,29 +145,29 @@
 										</thead>
 										<tbody>
 											<!-- 目录 -->
-											<th:block th:each="newCustomer:${pageList.datas}">
+											<th:block th:each="pName:${pageList.datas}">
 												<tr>
 													<td class="numeric">
 														<div class="checkbox checkbox-inline"
 															style="margin-top: 0px;">
-															<input type="checkbox" name="ids" th:id="${newCustomer.id}"
-																class="numeric" th:value="${newCustomer.id}"> <label
-																th:for="${newCustomer.id}"></label>
+															<input type="checkbox" name="ids" th:id="${pName.id}"
+																class="numeric" th:value="${pName.id}"> <label
+																th:for="${pName.id}"></label>
 														</div>
 													</td>
 
-													<td class="numeric">[[${newCustomer.name}]]</td>
-													<td class="numeric" th:id="disBtn+${newCustomer.id}"
-														th:utext="${newCustomer.isDisable eq true }?|<button type='button' onclick=toDisable('${newCustomer.id}','newCustomer') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${newCustomer.id}','newCustomer') class='btn btn-success'>启用</button>|"></td>
+													<td class="numeric">[[${pName.name}]]</td>
+													<td class="numeric" th:id="disBtn+${pName.id}"
+														th:utext="${pName.isDisable eq true }?|<button type='button' onclick=toDisable('${pName.id}','pName') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${pName.id}','pName') class='btn btn-success'>启用</button>|"></td>
 													<td class="numeric"><shiro:hasPermission
-															name="newCustomer:edit">
+															name="pName:edit">
 															<button class="btn btn-primary btn-xs"
-																th:onclick="|return toeditPage('${newCustomer.id}','newCustomer')|">
+																th:onclick="|return toeditPage('${pName.id}','pName')|">
 																<i class="fa fa-edit"> </i>编辑
 															</button>
-														</shiro:hasPermission> <shiro:hasPermission name="newCustomer:delete">
+														</shiro:hasPermission> <shiro:hasPermission name="pName:delete">
 															<button class="btn btn-danger btn-xs"
-																th:onclick="|return del('@{/newCustomer/}${newCustomer.id}','')|">
+																th:onclick="|return del('@{/pName/}${pName.id}','')|">
 																<i class="fa fa-trash-o"> </i>删除
 															</button>
 														</shiro:hasPermission></td>
@@ -196,16 +196,16 @@
 												<ul class="pagination pagination-split pull-right"
 													style="margin-top: 0px;">
 													<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
-														th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/newCustomers?pageNo=}+${pageList.upPage}">上一页</a>
+														th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/pNames?pageNo=}+${pageList.upPage}">上一页</a>
 													</li>
 													<li th:each="page:${pageList.navigatepageNums}"
 														th:class="${page  == pageList.pageNo}?active:''"><a
-														th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/newCustomers?pageNo=}+${page}">[[${page}]]</a>
+														th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/pNames?pageNo=}+${page}">[[${page}]]</a>
 													</li>
 													<li
 														th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
 														<a
-														th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/newCustomers?pageNo=}+${pageList.nextPage}">下一页</a>
+														th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/pNames?pageNo=}+${pageList.nextPage}">下一页</a>
 													</li>
 												</ul>
 											</div>
@@ -227,12 +227,12 @@
 			</div>
 
 			<div th:replace="public/public::myModal"></div>
-			<div th:replace="admin/newCustomer/batch::mybatch"></div>
+			<div th:replace="admin/pName/batch::mybatch"></div>
 		</div>
 	</div>
 
 	<script type="text/javascript" th:inline="javascript"
-			th:src="@{/js/admin/newCustomer/newCustomerlist.js}"></script>
+			th:src="@{/js/admin/pName/pNamelist.js}"></script>
 	<!--  END OF PAPER WRAP -->
 	<script type="text/javascript"
 		th:src="@{/plugs/prettyfile/bootstrap-prettyfile.js}"></script>

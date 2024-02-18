@@ -12,10 +12,9 @@ import zhongchiedu.common.utils.ExcelReadUtil;
 import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralServiceImpl;
-import zhongchiedu.inventory.pojo.Brand;
-import zhongchiedu.inventory.pojo.NewCustomer;
+import zhongchiedu.inventory.pojo.Pname;
 import zhongchiedu.inventory.pojo.ProcessInfo;
-import zhongchiedu.inventory.service.NewCustomerService;
+import zhongchiedu.inventory.service.PnameService;
 import zhongchiedu.log.annotation.SystemServiceLog;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,21 +27,21 @@ import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 @Slf4j
-public class NewCustomerServiceImpl extends GeneralServiceImpl<NewCustomer> implements NewCustomerService {
+public class PnameServiceImpl extends GeneralServiceImpl<Pname> implements PnameService {
 
 	@Override
-	@SystemServiceLog(description="编辑客户信息")
-	public void saveOrUpdate(NewCustomer newCustomer) {
-		if (Common.isNotEmpty(newCustomer)) {
-			if (Common.isNotEmpty(newCustomer.getId())) {
+	@SystemServiceLog(description="编辑项目名称信息")
+	public void saveOrUpdate(Pname newName) {
+		if (Common.isNotEmpty(newName)) {
+			if (Common.isNotEmpty(newName.getId())) {
 				// update
-				NewCustomer ed = this.findOneById(newCustomer.getId(), NewCustomer.class);
-				BeanUtils.copyProperties(newCustomer, ed);
-				this.save(newCustomer);
+				Pname ed = this.findOneById(newName.getId(), Pname.class);
+				BeanUtils.copyProperties(newName, ed);
+				this.save(newName);
 				log.info("修改成功");
 			} else {
 				// insert
-				this.insert(newCustomer);
+				this.insert(newName);
 				log.info("添加成功");
 			}
 		}
@@ -50,24 +49,24 @@ public class NewCustomerServiceImpl extends GeneralServiceImpl<NewCustomer> impl
 
 
 	@Override
-	@SystemServiceLog(description="查询所有客户信息")
-	public List<NewCustomer> findAllCustomer(boolean isdisable) {
+	@SystemServiceLog(description="查询所有项目名称信息")
+	public List<Pname> findAllName(boolean isdisable) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("isDisable").is(isdisable == true ? true : false));
 		query.addCriteria(Criteria.where("isDelete").is(false));
-		return this.find(query, NewCustomer.class);
+		return this.find(query, Pname.class);
 	}
 
 	private Lock lock = new ReentrantLock();
 
 	@Override
-	@SystemServiceLog(description="删除客户信息")
+	@SystemServiceLog(description="删除项目名称信息")
 	public String delete(String id) {
 		try {
 			lock.lock();
 			List<String> ids = Arrays.asList(id.split(","));
 			for (String edid : ids) {
-				NewCustomer de = this.findOneById(edid, NewCustomer.class);
+				Pname de = this.findOneById(edid, Pname.class);
 				de.setIsDelete(true);
 				this.save(de);
 			}
@@ -81,20 +80,20 @@ public class NewCustomerServiceImpl extends GeneralServiceImpl<NewCustomer> impl
 	}
 
 	@Override
-	@SystemServiceLog(description="查询客户信息")
-	public Pagination<NewCustomer> findpagination(Integer pageNo, Integer pageSize,String search) {
+	@SystemServiceLog(description="查询项目名称信息")
+	public Pagination<Pname> findpagination(Integer pageNo, Integer pageSize,String search) {
 		// 分页查询数据
-		Pagination<NewCustomer> pagination = null;
+		Pagination<Pname> pagination = null;
 		try {
 			Query query = new Query();
 			query.addCriteria(Criteria.where("isDelete").is(false));
 			if(Common.isNotEmpty(search)) {
 				query.addCriteria(Criteria.where("name").regex(search));
 			}
-			
-			pagination = this.findPaginationByQuery(query, pageNo, pageSize, NewCustomer.class);
+
+			pagination = this.findPaginationByQuery(query, pageNo, pageSize, Pname.class);
 			if (pagination == null)
-				pagination = new Pagination<NewCustomer>();
+				pagination = new Pagination<Pname>();
 			return pagination;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -103,14 +102,14 @@ public class NewCustomerServiceImpl extends GeneralServiceImpl<NewCustomer> impl
 	}
 
 	@Override
-	@SystemServiceLog(description="查询重复客户信息")
+	@SystemServiceLog(description="查询重复项目名称信息")
 	public BasicDataResult ajaxgetRepletes(String name) {
 		if (Common.isNotEmpty(name)) {
 			Query query = new Query();
 			query.addCriteria(Criteria.where("name").is(name));
 			query.addCriteria(Criteria.where("isDelete").is(false));
-			NewCustomer brand = this.findOneByQuery(query, NewCustomer.class);
-			 return brand != null ?BasicDataResult.build(206,"当前客户信息已经存在，请检查", null): BasicDataResult.ok();
+			Pname brand = this.findOneByQuery(query, Pname.class);
+			 return brand != null ?BasicDataResult.build(206,"当前项目名称信息已经存在，请检查", null): BasicDataResult.ok();
 		}
 		return BasicDataResult.build(400,"未能获取到请求的信息", null);
 	}
@@ -118,11 +117,11 @@ public class NewCustomerServiceImpl extends GeneralServiceImpl<NewCustomer> impl
 
 	@Override
 	@SystemServiceLog(description="模糊查询名字")
-	public  BasicDataResult ajaxgetCustomer(String abs){
+	public  BasicDataResult ajaxgetName(String abs){
 		if (Common.isNotEmpty(abs)) {
 			Query query = new Query();
 			query.addCriteria(Criteria.where("name").regex(abs));
-			List<NewCustomer> cs=this.find(query,NewCustomer.class);
+			List<Pname> cs=this.find(query,Pname.class);
 			if(cs!=null){
 				String[] names=getName(cs);
 				return BasicDataResult.build(200,"有数据", names);
@@ -134,46 +133,46 @@ public class NewCustomerServiceImpl extends GeneralServiceImpl<NewCustomer> impl
 		return BasicDataResult.build(400,"未能获取到请求的信息",null);
 	}
 
-	private String[] getName(List<NewCustomer> cs){
+	private String[] getName(List<Pname> cs){
 		return 	cs.stream().map(s->s.getName()).toArray(String[]::new);
 	}
 
 	@Override
-	@SystemServiceLog(description="禁用客户信息")
+	@SystemServiceLog(description="禁用项目名称信息")
 	public BasicDataResult todisable(String id) {
-		
+
 		if(Common.isEmpty(id)){
 			return BasicDataResult.build(400, "无法禁用，请求出现问题，请刷新界面!", null);
 		}
-		NewCustomer newCustomer = this.findOneById(id, NewCustomer.class);
-		if(newCustomer == null){
-			return BasicDataResult.build(400, "无法获取到客户信息，该用户可能已经被删除", null);
+		Pname newName = this.findOneById(id, Pname.class);
+		if(newName == null){
+			return BasicDataResult.build(400, "无法获取到项目名称信息，该用户可能已经被删除", null);
 		}
-		newCustomer.setIsDisable(newCustomer.getIsDisable().equals(true)?false:true);
-		this.save(newCustomer);
-		
-		return BasicDataResult.build(200, newCustomer.getIsDisable().equals(true)?"禁用成功":"启用成功",newCustomer.getIsDisable());
-		
-	}
-	
-	
-	
+		newName.setIsDisable(newName.getIsDisable().equals(true)?false:true);
+		this.save(newName);
 
-	
-	
-	
+		return BasicDataResult.build(200, newName.getIsDisable().equals(true)?"禁用成功":"启用成功",newName.getIsDisable());
+
+	}
+
+
+
+
+
+
+
 	/**
 	 * 根据单位名称查找单位，如果没有则创建一个
 	 */
 	@Override
-	@SystemServiceLog(description="根据名称查询客户信息")
-	public NewCustomer findByName(String name) {
+	@SystemServiceLog(description="根据名称查询项目名称信息")
+	public Pname findByName(String name) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("name").is(name));
 		query.addCriteria(Criteria.where("isDelete").is(false));
-		NewCustomer brand = this.findOneByQuery(query, NewCustomer.class);
+		Pname brand = this.findOneByQuery(query, Pname.class);
 		if(Common.isEmpty(brand)){
-			NewCustomer ca = new NewCustomer();
+			Pname ca = new Pname();
 			ca.setName(name);
 			this.insert(ca);
 			return ca;
@@ -185,15 +184,15 @@ public class NewCustomerServiceImpl extends GeneralServiceImpl<NewCustomer> impl
 	public List findIdsByName(String name) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("name").regex(name));
-		query.addCriteria(Criteria.where("isDelete").is(false));		
-		query.addCriteria(Criteria.where("isDisable").is(false));		
-		
-		List<NewCustomer> newCustomers = this.find(query, NewCustomer.class);
-		
+		query.addCriteria(Criteria.where("isDelete").is(false));
+		query.addCriteria(Criteria.where("isDisable").is(false));
+
+		List<Pname> newNames = this.find(query, Pname.class);
+
 		List list = new ArrayList();
-		newCustomers.forEach(newCustomer->{
-			list.add(new ObjectId(newCustomer.getId()));
-			
+		newNames.forEach(newName->{
+			list.add(new ObjectId(newName.getId()));
+
 		});
 		return list;
 	}
@@ -213,26 +212,26 @@ public class NewCustomerServiceImpl extends GeneralServiceImpl<NewCustomer> impl
 		pri.allnum = rowLength;
 		for (int i =1; i < rowLength; i++) {
 			Query query = new Query();
-			NewCustomer newCustomer = new NewCustomer();
+			Pname newName = new Pname();
 
 			pri.nownum = i;
 			pri.lastnum = rowLength - i;
 			session.setAttribute("proInfo", pri);
 			int j = 0;
 			try {
-				newCustomer.setName(resultexcel[i][j]);
+				newName.setName(resultexcel[i][j]);
 
-				query.addCriteria(Criteria.where("name").is(newCustomer.getName()));
+				query.addCriteria(Criteria.where("name").is(newName.getName()));
 				query.addCriteria(Criteria.where("isDelete").is(false));
 				// 通过类目名称是否存在该信息
-				NewCustomer fnewCustomer = this.findOneByQuery(query, NewCustomer.class);
-				if(Common.isNotEmpty(fnewCustomer)){
+				Pname fnewName = this.findOneByQuery(query, Pname.class);
+				if(Common.isNotEmpty(fnewName)){
 					error += "<span class='entypo-attention'></span>导入文件过程中出现已经存在的单位信息，第<b>&nbsp;&nbsp;" + (i + 1)
-							+ "&nbsp&nbsp</b>行出现重复内容为<b>&nbsp&nbsp导入类目名称为:<b>&nbsp;&nbsp;" + fnewCustomer.getName()
+							+ "&nbsp&nbsp</b>行出现重复内容为<b>&nbsp&nbsp导入类目名称为:<b>&nbsp;&nbsp;" + fnewName.getName()
 							+ "&nbsp;&nbsp;请手动去修改该条信息！</b></br>";
 					continue;
 				}else{
-					this.insert(newCustomer);
+					this.insert(newName);
 				}
 				// 捕捉批量导入过程中遇到的错误，记录错误行数继续执行下去
 			} catch (Exception e) {
@@ -256,7 +255,7 @@ public class NewCustomerServiceImpl extends GeneralServiceImpl<NewCustomer> impl
 	/**
 	 * 执行上传文件，返回错误消息
 	 */
-	@SystemServiceLog(description="上传客户信息")
+	@SystemServiceLog(description="上传项目名称信息")
 	public String upload(HttpServletRequest request, HttpSession session){
 		String error = "";
 		try {

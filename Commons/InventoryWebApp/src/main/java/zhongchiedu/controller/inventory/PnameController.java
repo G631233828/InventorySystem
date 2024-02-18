@@ -11,8 +11,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.framework.pagination.Pagination;
-import zhongchiedu.inventory.pojo.NewCustomer;
-import zhongchiedu.inventory.service.Impl.NewCustomerServiceImpl;
+import zhongchiedu.inventory.pojo.Pname;
+import zhongchiedu.inventory.service.Impl.PnameServiceImpl;
 import zhongchiedu.log.annotation.SystemControllerLog;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,51 +21,51 @@ import javax.servlet.http.HttpSession;
 
 
 /**
- * newCustomer Controller  copy by Ch
+ * pName Controller  copy by Ch
  */
 @Controller
 @Slf4j
-public class NewCustomerController {
+public class PnameController {
 
 	@Autowired
-	private NewCustomerServiceImpl newCustomerService;
+	private PnameServiceImpl pnameService;
 
 
-	@GetMapping("newCustomers")
-	@RequiresPermissions(value = "newCustomer:list")
-	@SystemControllerLog(description = "查询所有客户信息")
+	@GetMapping("pNames")
+	@RequiresPermissions(value = "pName:list")
+	@SystemControllerLog(description = "查询所有项目名称信息")
 	public String list(@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
 			@RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize, HttpSession session,
 			@ModelAttribute("errorImport") String errorImport) {
 			model.addAttribute("errorImport", errorImport);
-		Pagination<NewCustomer> pagination = this.newCustomerService.findpagination(pageNo, pageSize,"");
+		Pagination<Pname> pagination = this.pnameService.findpagination(pageNo, pageSize,"");
 		model.addAttribute("pageList", pagination);
-		return "admin/newCustomer/list";
+		return "admin/pName/list";
 	}
 
 	/**
 	 * 跳转到添加页面
 	 */
-	@GetMapping("/newCustomer")
-	@RequiresPermissions(value = "newCustomer:add")
+	@GetMapping("/pName")
+	@RequiresPermissions(value = "pName:add")
 	public String addPage(Model model) {
-		return "admin/newCustomer/add";
+		return "admin/pName/add";
 	}
 
-	@PostMapping("/newCustomer")
-	@RequiresPermissions(value = "newCustomer:add")
-	@SystemControllerLog(description = "添加客户")
-	public String addnewCustomer(@ModelAttribute("newCustomer") NewCustomer newCustomer) {
-		this.newCustomerService.saveOrUpdate(newCustomer);
-		return "redirect:newCustomers";
+	@PostMapping("/pName")
+	@RequiresPermissions(value = "pName:add")
+	@SystemControllerLog(description = "添加项目名称")
+	public String addpName(@ModelAttribute("pName") Pname pName) {
+		this.pnameService.saveOrUpdate(pName);
+		return "redirect:pNames";
 	}
 
-	@PutMapping("/newCustomer")
-	@RequiresPermissions(value = "newCustomer:edit")
-	@SystemControllerLog(description = "修改客户")
-	public String edit(@ModelAttribute("newCustomer") NewCustomer newCustomer) {
-		this.newCustomerService.saveOrUpdate(newCustomer);
-		return "redirect:newCustomers";
+	@PutMapping("/pName")
+	@RequiresPermissions(value = "pName:edit")
+	@SystemControllerLog(description = "修改项目名称")
+	public String edit(@ModelAttribute("pName") Pname pName) {
+		this.pnameService.saveOrUpdate(pName);
+		return "redirect:pNames";
 	}
 
 	/**
@@ -73,51 +73,51 @@ public class NewCustomerController {
 	 * 
 	 * @return
 	 */
-	@GetMapping("/newCustomer{id}")
-	@RequiresPermissions(value = "newCustomer:edit")
-	@SystemControllerLog(description = "编辑客户")
+	@GetMapping("/pName{id}")
+	@RequiresPermissions(value = "pName:edit")
+	@SystemControllerLog(description = "编辑项目名称")
 	public String toeditPage(@PathVariable String id, Model model) {
-		NewCustomer newCustomer = this.newCustomerService.findOneById(id, NewCustomer.class);
-		model.addAttribute("newCustomer", newCustomer);
-		return "admin/newCustomer/add";
+		Pname pName = this.pnameService.findOneById(id, Pname.class);
+		model.addAttribute("pName", pName);
+		return "admin/pName/add";
 
 	}
 
-	@DeleteMapping("/newCustomer/{id}")
-	@RequiresPermissions(value = "newCustomer:delete")
-	@SystemControllerLog(description = "删除客户")
+	@DeleteMapping("/pName/{id}")
+	@RequiresPermissions(value = "pName:delete")
+	@SystemControllerLog(description = "删除项目名称")
 	public String delete(@PathVariable String id) {
-		log.info("删除客户" + id);
-		this.newCustomerService.delete(id);
-		log.info("删除客户" + id + "成功");
-		return "redirect:/newCustomers";
+		log.info("删除项目名称" + id);
+		this.pnameService.delete(id);
+		log.info("删除项目名称" + id + "成功");
+		return "redirect:/pNames";
 	}
 
 	/**
-	 * 通过ajax获取是否存在重复账号的信息
+	 * 通过ajax获取是否存在重复项目名称的信息
 	 *
 	 */
-	@RequestMapping(value = "/newCustomer/ajaxgetRepletes", method = RequestMethod.POST)
+	@RequestMapping(value = "/pName/ajaxgetRepletes", method = RequestMethod.POST)
 	@ResponseBody
 	public BasicDataResult ajaxgetRepletes(@RequestParam(value = "name", defaultValue = "") String name
 		) {
 		log.info("jinrufangfa");
-		return this.newCustomerService.ajaxgetRepletes(name);
+		return this.pnameService.ajaxgetRepletes(name);
 	}
 
 
-	@RequestMapping(value = "/newCustomer/ajaxgetCustomer", method = RequestMethod.POST)
+	@RequestMapping(value = "/pName/ajaxgetName", method = RequestMethod.POST)
 	@ResponseBody
-	public BasicDataResult ajaxgetCustomer(@RequestParam(value = "name", defaultValue = "") String name
+	public BasicDataResult ajaxgetName(@RequestParam(value = "name", defaultValue = "") String name
 	) {
 
-		return this.newCustomerService.ajaxgetCustomer(name);
+		return this.pnameService.ajaxgetName(name);
 	}
 
-	@RequestMapping(value = "/newCustomer/disable", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@RequestMapping(value = "/pName/disable", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public BasicDataResult toDisable(@RequestParam(value = "id", defaultValue = "") String id) {
-		return this.newCustomerService.todisable(id);
+		return this.pnameService.todisable(id);
 	}
 
 
@@ -131,10 +131,10 @@ public class NewCustomerController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/newCustomer/download")
-	@SystemControllerLog(description = "下载客户信息导入模版")
+	@RequestMapping(value = "/pName/download")
+	@SystemControllerLog(description = "下载项目名称信息导入模版")
 	public ModelAndView download(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		String storeName = "客户管理模版.xlsx";
+		String storeName = "项目名称模版.xlsx";
 		String contentType = "application/octet-stream";
 		String UPLOAD = "Templates/";
 		FileOperateUtil.download(request, response, storeName, contentType, UPLOAD);
@@ -148,14 +148,14 @@ public class NewCustomerController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/newCustomer/upload")
-	@SystemControllerLog(description = "批量导入品牌信息")
-	@RequiresPermissions(value = "newCustomer:batch")
+	@RequestMapping(value = "/pName/upload")
+	@SystemControllerLog(description = "批量导入项目名称")
+	@RequiresPermissions(value = "pName:batch")
 	public ModelAndView upload(HttpServletRequest request, HttpSession session, RedirectAttributes attr) {
 		log.info("开始上传文件");
 		ModelAndView modelAndView = new ModelAndView();
-		modelAndView.setViewName("redirect:/newCustomers");
-		String error = this.newCustomerService.upload(request, session);
+		modelAndView.setViewName("redirect:/pNames");
+		String error = this.pnameService.upload(request, session);
 		attr.addFlashAttribute("errorImport", error);
 		return modelAndView;
 
@@ -169,10 +169,10 @@ public class NewCustomerController {
 	 * @return
 	 * @throws Exception
 	 */
-	@RequestMapping(value = "/newCustomer/uploadprocess")
+	@RequestMapping(value = "/pName/uploadprocess")
 	@ResponseBody
 	public Object process(HttpServletRequest request, HttpServletResponse response) throws Exception {
-		return this.newCustomerService.findproInfo(request);
+		return this.pnameService.findproInfo(request);
 	}
 
 

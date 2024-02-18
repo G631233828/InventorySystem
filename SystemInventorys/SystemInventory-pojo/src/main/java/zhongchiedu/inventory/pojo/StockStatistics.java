@@ -115,6 +115,8 @@ public class StockStatistics extends GeneralBean<StockStatistics> {
 	@DBRef
 	private NewCustomer newCustomer;
 
+	@DBRef
+	private Pname pname;
 
 	private String accepter; //签收人 +
 

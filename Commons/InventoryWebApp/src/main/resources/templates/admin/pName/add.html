@@ -42,7 +42,7 @@
 
 						<div style="margin: -20px 15px;" class="nest" id="Blank_PageClose">
 							<div class="title-alt">
-								<h6>客户管理</h6>
+								<h6>项目名称管理</h6>
 								<div class="titleClose">
 									<a class="gone" href="#Blank_PageClose"> <span
 										class="entypo-cancel"></span>
@@ -62,21 +62,21 @@
 									<!-- edit form column -->
 									<div class="col-md-12 personal-info">
 										<form class="form-horizontal" enctype="multipart/form-data"
-											id="newCustomerForm" th:action="@{/newCustomer}"
+											id="pNameForm" th:action="@{/pName}"
 											method="post">
 											<input type="hidden" name="_method" value="put"
-												th:if="${newCustomer!=null}" /> <input type="hidden"
-												name="id" th:if="${newCustomer!=null}"
-												th:value="${newCustomer.id}">
+												th:if="${pName!=null}" /> <input type="hidden"
+												name="id" th:if="${pName!=null}"
+												th:value="${pName.id}">
 												
 
-											<input type="hidden" id="oldname" th:value="${newCustomer?.name}">
+											<input type="hidden" id="oldname" th:value="${pName?.name}">
 											<div class="form-group">
-												<label class="col-lg-1 control-label">客户名称：</label>
+												<label class="col-lg-1 control-label">项目名称：</label>
 												<div class="col-lg-6">
 													<input class="form-control" id="name"
-														placeholder="请输入客户名称" name="name"
-														th:value="${newCustomer?.name}" required="required">
+														placeholder="请输入项目名称" name="name"
+														th:value="${pName?.name}" required="required">
 												</div>
 											</div>
 	
@@ -88,9 +88,9 @@
 														<select name="isDisable" id="isDisable"
 															class="form-control" required>
 															<option value="false"
-																th:selected="${newCustomer?.isDisable eq false}">启用中</option>
+																th:selected="${pName?.isDisable eq false}">启用中</option>
 															<option value="true"
-																th:selected="${newCustomer?.isDisable eq true}">禁用中</option>
+																th:selected="${pName?.isDisable eq true}">禁用中</option>
 														</select>
 													</div>
 												</div>
@@ -101,8 +101,8 @@
 												<label class="col-lg-1 control-label"></label>
 												<div class="col-md-8">
 													<button type="submit" class="btn btn-success"
-														th:text="${newCustomer!=null?'修改':'添加'}"></button>
-													<span></span> <input th:if="${newCustomer} eq null"
+														th:text="${pName!=null?'修改':'添加'}"></button>
+													<span></span> <input th:if="${pName} eq null"
 														class="btn btn-default" value="重置" type="reset">
 												</div>
 											</div>
@@ -138,7 +138,7 @@
 	<script type="text/javascript"
 		th:src="@{/plugs/validate/messages_zh.min.js}"></script>
 	<script type="text/javascript" th:inline="javascript"
-		th:src="@{/js/admin/newCustomer/newCustomer.js}"></script>
+		th:src="@{/js/admin/pName/pName.js}"></script>
 	<div th:replace="public/public_js::validator"></div>
 
 

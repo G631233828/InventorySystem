@@ -44,7 +44,7 @@ public class RequestBo {
 
     private String customer;//客户
 
-
+    private String sailesInvoiceNo;//销售发票号
 
     public  boolean isNotEmpty(Object s) {
         if (null == s || "".equals(s) || "".equals(String.valueOf(s).trim())
@@ -57,7 +57,7 @@ public class RequestBo {
     public boolean isEmpty(){
         return  !(isNotEmpty(name) || isNotEmpty(model) || isNotEmpty(supplier) || isNotEmpty(entryName) || isNotEmpty(itemNo) || isNotEmpty(purchaseInvoiceNo)
                 || isNotEmpty(purchaseInvoiceDate) || isNotEmpty(paymentOrderNo) || isNotEmpty(start) || isNotEmpty(end) || isNotEmpty(projectName) || isNotEmpty(customer)
-                || isNotEmpty(confirm)  || isNotEmpty(searchArea) || isNotEmpty(ssC) || isNotEmpty(id) || isNotEmpty(userId));
+                || isNotEmpty(confirm)  || isNotEmpty(searchArea) || isNotEmpty(ssC) || isNotEmpty(id) || isNotEmpty(userId)) || isNotEmpty(sailesInvoiceNo);
     }
 
 

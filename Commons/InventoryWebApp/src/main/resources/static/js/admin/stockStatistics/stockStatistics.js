@@ -761,6 +761,7 @@ function  pageS(pageNo,size,totalpage,Bo){
 	var confirm=returnEmpty(bo.confirm);
 	var customer=returnEmpty(bo.customer);
 	var projectName=returnEmpty(bo.projectName);
+	var sailesInvoiceNo=$('[name="sailesInvoiceNo"]').val();
 
 	// var userId=returnEmpty(bo.userId);
 
@@ -768,7 +769,7 @@ function  pageS(pageNo,size,totalpage,Bo){
 		+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC="+ssC
 		+"&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo +
 		"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo="+paymentOrderNo
-		+"&customer=" +customer+"&projectName=" +projectName;
+		+"&customer=" +customer+"&projectName=" +projectName+"&sailesInvoiceNo="+sailesInvoiceNo;
 }
 
 function searchBo() {
@@ -790,6 +791,7 @@ function searchBo() {
 	var confirm=$('[name="confirm"]').val();
 	var projectName=$('[name="projectName"]').val();
 	var customer=$('[name="customer"]').val();
+	var sailesInvoiceNo=$('[name="sailesInvoiceNo"]').val();
 	// var userId=$('[name="userId"]').val();
 	/*
 	 * if (search == null || search == "") { swal({ type : "warning", title : "",
@@ -799,7 +801,7 @@ function searchBo() {
 		+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC="+ssC
 		+"&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo +
 		"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo="+paymentOrderNo
-	+"&customer=" +customer+"&projectName=" +projectName;
+	+"&customer=" +customer+"&projectName=" +projectName +"&sailesInvoiceNo="+sailesInvoiceNo;
 
 }
 

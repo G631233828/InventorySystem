@@ -1,14 +1,13 @@
 
 $().ready(function() {
-		console.log("newCustomer.js已启用")
 		$("#commentForm").validate();
 		var a = "<i class='fa fa-times-circle'></i> ";
-		$("#newCustomerForm").validate({
+		$("#pNameForm").validate({
 			rules : {
 				name : {
 					required : true,
 					remote : {
-						url : getRootPath() + "/newCustomer/ajaxgetRepletes",
+						url : getRootPath() + "/pName/ajaxgetRepletes",
 						type : "POST",
 						data : {
 							name : function() {
@@ -33,8 +32,8 @@ $().ready(function() {
 			},
 			messages : {
 				name : {
-					required : a + "请输入客户名称",
-					remote : a + "当前客户已经存在！"
+					required : a + "请输入名称",
+					remote : a + "当前名称已经存在！"
 				}
 				
 			}

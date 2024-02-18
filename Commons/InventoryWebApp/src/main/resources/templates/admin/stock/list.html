@@ -695,6 +695,74 @@
             $("#searchArea").selectpicker("refresh");
 
     })
+
+    $(function(){
+        var options = [], _options;
+        /* <![CDATA[ */
+        var data = [[${pnames}]]
+
+        for (var i = 0; i < data.length; i++) {
+            var option = '<option value="' + data[i].id + '">' + data[i].name + '</option>';
+            options.push(option);
+        }
+        _options = options.join('');
+        $('#number-multiple')[0].innerHTML = _options;
+        var a = [[${stock?.supplier?.id}]]
+        $("#number-multiple").selectpicker('val',a);
+        $("#number-multiple").selectpicker('refresh');
+        $('#number-multiple').selectpicker('render')
+
+
+
+
+        var options2 = [], _options2;
+        var data2 = [[${customers}]]
+
+        for (var i = 0; i < data2.length; i++) {
+            var option = '<option value="' + data2[i].id + '">' + data2[i].name + '</option>';
+            options2.push(option);
+        }
+        _options2 = options2.join('');
+        $('#number-multiple2')[0].innerHTML = _options2;
+        var a2 = [[${stock?.brand?.id}]]
+        $("#number-multiple2").selectpicker('val',a2);
+        $("#number-multiple2").selectpicker('refresh');
+        $('#number-multiple2').selectpicker('render')
+
+
+        var options3 = [], _options3;
+        var data3 = [[${pnames}]]
+
+        for (var i = 0; i < data3.length; i++) {
+            var option = '<option value="' + data3[i].id + '">' + data3[i].name + '</option>';
+            options3.push(option);
+        }
+        _options3 = options3.join('');
+        $('#number-multiple3')[0].innerHTML = _options3;
+        var a3 = [[${stock?.brand?.id}]]
+        $("#number-multiple3").selectpicker('val',a3);
+        $("#number-multiple3").selectpicker('refresh');
+        $('#number-multiple3').selectpicker('render')
+
+
+        var options4 = [], _options4;
+        var data3 = [[${customers}]]
+
+        for (var i = 0; i < data3.length; i++) {
+            var option = '<option value="' + data3[i].id + '">' + data3[i].name + '</option>';
+            options4.push(option);
+        }
+        _options4 = options4.join('');
+        $('#number-multiple4')[0].innerHTML = _options4;
+        var a4 = [[${stock?.brand?.id}]]
+        $("#number-multiple4").selectpicker('val',a4);
+        $("#number-multiple4").selectpicker('refresh');
+        $('#number-multiple4').selectpicker('render')
+
+    })
+
+    /*]]>*/
+
 </script>
 
 </body>

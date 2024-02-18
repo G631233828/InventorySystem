@@ -3,8 +3,8 @@ package zhongchiedu.inventory.service;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralService;
-import zhongchiedu.inventory.pojo.Area;
-import zhongchiedu.inventory.pojo.NewCustomer;
+
+import zhongchiedu.inventory.pojo.Pname;
 import zhongchiedu.inventory.pojo.ProcessInfo;
 
 import javax.servlet.http.HttpServletRequest;
@@ -13,23 +13,23 @@ import java.io.File;
 import java.util.List;
 
 
-public interface NewCustomerService extends GeneralService<NewCustomer> {
+public interface PnameService extends GeneralService<Pname> {
 	
-	public Pagination<NewCustomer> findpagination(Integer pageNo,Integer pageSize,String search);
+	public Pagination<Pname> findpagination(Integer pageNo,Integer pageSize,String search);
 	
-	public void saveOrUpdate(NewCustomer newCustomer);
+	public void saveOrUpdate(Pname pName);
 	
-	public List<NewCustomer> findAllCustomer(boolean isdisable);
+	public List<Pname> findAllName(boolean isdisable);
 	
 	public String delete(String id);
 	
 	public BasicDataResult ajaxgetRepletes(String name);
 
-	public BasicDataResult ajaxgetCustomer(String abs);
+	public BasicDataResult ajaxgetName(String abs);
 
 	public BasicDataResult todisable(String id);
 	
-	public NewCustomer findByName(String name);
+	public Pname findByName(String name);
 	
 	public List findIdsByName(String name);
 

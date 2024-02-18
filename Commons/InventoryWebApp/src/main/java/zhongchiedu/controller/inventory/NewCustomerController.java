@@ -13,6 +13,7 @@ import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.inventory.pojo.NewCustomer;
 import zhongchiedu.inventory.service.Impl.NewCustomerServiceImpl;
+import zhongchiedu.inventory.service.Impl.StockServiceImpl;
 import zhongchiedu.log.annotation.SystemControllerLog;
 
 import javax.servlet.http.HttpServletRequest;
@@ -176,8 +177,15 @@ public class NewCustomerController {
 	}
 
 
-
-
+//	@RequestMapping(value = "/newCustomer/a", method = RequestMethod.GET)
+//	@ResponseBody
+//	public BasicDataResult ajaxgetCustomer(HttpServletRequest request, HttpServletResponse response)
+//	{
+//
+//		newCustomerService.createCuster();
+//		newCustomerService.createPname();
+//		return BasicDataResult.ok("200");
+//	}
 
 
 }
