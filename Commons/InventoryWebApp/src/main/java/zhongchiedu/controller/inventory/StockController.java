@@ -21,6 +21,7 @@ import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;import org.apache.poi.util.SystemOutLogger;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.query.Query;
@@ -791,6 +792,37 @@ public class StockController {
 	
 	
 	
+	/**
+	 * 跳转到预库存添加页面
+	 */
+	@GetMapping("/topreStock{id}")
+	@RequiresPermissions(value = "preStock:in")
+	public String editEstimatePage(Model model, @PathVariable String id) {
+		// 所有供应商
+		List<Supplier> syslist = this.supplierService.findAllSupplier(false);
+		model.addAttribute("suppliers", syslist);
+		// 区域
+		List<Area> areas = this.areaService.findAllArea(false);
+		model.addAttribute("areas", areas);
+		
+		Stock stock = this.stockService.findOneById(id, Stock.class);
+		stock.setId(null);
+		PreStock pstock = new PreStock();
+		BeanUtils.copyProperties(stock, pstock);
+		model.addAttribute("stock", pstock);
+		List<SystemClassification>  ssCs=this.ssCService.findAllSystemClassification(false);
+		model.addAttribute("ssCs",ssCs);
+		if (Common.isNotEmpty(stock.getArea())) {
+			// 所有货架
+			List<GoodsStorage> list = this.goodsStorageService.findAllGoodsStorage(false, stock.getArea().getId());
+			model.addAttribute("goodsStorages", list);
+		}
+
+		// 计量单位
+		List<Unit> listUnits = this.unitService.findAllUnit(false);
+		model.addAttribute("units", listUnits);
+		return "admin/preStock/add";
+	}
 
 	
 	

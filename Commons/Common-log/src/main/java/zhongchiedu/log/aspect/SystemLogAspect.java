@@ -85,7 +85,8 @@ public class SystemLogAspect {
         }  catch (Exception e) {    
             //记录本地异常日志    
             logger.error("==前置通知异常==");    
-            logger.error("异常信息:{}", e.getMessage());    
+            logger.error("异常信息:{}", e.getMessage());  
+            e.printStackTrace();
         }    
     }    
     
@@ -139,6 +140,7 @@ public class SystemLogAspect {
             //记录本地异常日志    
             logger.error("==异常通知异常==");    
             logger.error("异常信息:{}", ex.getMessage());    
+            e.printStackTrace();
         }    
          /*==========记录本地异常日志==========*/    
         logger.error("异常方法:{}异常代码:{}异常信息:{}参数:{}", joinPoint.getTarget().getClass().getName() + joinPoint.getSignature().getName(), e.getClass().getName(), e.getMessage(), params);    

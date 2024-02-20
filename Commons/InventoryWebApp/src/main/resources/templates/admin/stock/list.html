@@ -413,7 +413,13 @@
                                                 th:utext="${stock.isDisable eq true }?|<button type='button' onclick=toDisable('${stock.id}','stock') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${stock.id}','stock') class='btn btn-success'>启用</button>|"></td>
                                             <td class="numeric">
 
-                                                <shiro:hasPermission name="stock:copy">
+                                                <shiro:hasPermission name="preStock:in">
+                                                    <button class="btn source btn-xs" title="库存预入库"
+                                                            th:onclick="|return topreStock('${stock?.id}')|">
+                                                        <i class="entypo-download"> </i>
+                                                    </button>
+                                                </shiro:hasPermission>
+                                                 <shiro:hasPermission name="stock:copy">
                                                     <button class="btn source btn-xs" title="复制"
                                                             th:onclick="|return copyStock('${stock?.name}','${stock?.id}')|">
                                                         <i class="fontawesome-paste"> </i>

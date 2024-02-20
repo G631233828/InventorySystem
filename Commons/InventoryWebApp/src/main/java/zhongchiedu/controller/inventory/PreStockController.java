@@ -331,14 +331,9 @@ public class PreStockController {
 	public String editPreStock(@ModelAttribute("preStock") PreStock preStock, HttpSession session)
 			throws UnsupportedEncodingException {
 		this.preStockService.saveOrUpdate(preStock);
-		Integer pageNo = (Integer) session.getAttribute("prepageNo");
-		Integer pageSize = (Integer) session.getAttribute("prepageSize");
-		String search = (String) session.getAttribute("presearch");
-		String searchArea = (String) session.getAttribute("presearchArea");
-		String ssC = (String) session.getAttribute("ssC");
 
-		return "redirect:/preStocks?pageNo=" + pageNo + "&pageSize=" + pageSize + "&search="
-				+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea + "&ssC=" +ssC;
+
+		return "redirect:/preStocks";
 
 	}
 

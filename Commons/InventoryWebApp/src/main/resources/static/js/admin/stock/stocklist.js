@@ -381,6 +381,11 @@ function toStatistics(o) {
 
 }
 
+//库存跳转至预库存
+function topreStock(o){
+window.location.href = "topreStock" + o;
+}
+
 // function toExport() {
 // 	jqueryAlert({
 // 		'icon': getRootPath() + '/plugs/alert/img/right.png',

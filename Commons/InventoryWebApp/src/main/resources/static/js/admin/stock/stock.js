@@ -110,9 +110,9 @@ $().ready(function() {
 			/*
 			 * "goodsStorage.id" : { required : true },
 			 */
-//			price : {
-//				number : true
-//			},
+			price : {
+				number : true
+			},
 			/*
 			 * maintenance : { required : true },
 			 */
@@ -146,9 +146,9 @@ $().ready(function() {
 			/*
 			 * "goodsStorage.id" : { required : a+ "请选择存放货架位置" },
 			 */
-//			price : {
-//				required : a + "请输入设备单价"
-//			},
+			price : {
+				required : a + "请输入设备单价"
+			},
 			/*
 			 * maintenance : { required : a+ "请输入设备维保" },
 			 */
