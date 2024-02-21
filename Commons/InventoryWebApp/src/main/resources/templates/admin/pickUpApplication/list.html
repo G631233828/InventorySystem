@@ -126,6 +126,7 @@
 											<option value="">--出库状态--</option>
 											<option th:value="1" th:selected="${session.pickstatus}==1">待出库</option>
 											<option th:value="2" th:selected="${session.pickstatus}==2">已出库</option>
+											<option th:value="3" th:selected="${session.pickstatus}==3">部分出库</option>
 
 
 										</select> <select class="filter-status form-control" id="pageSize"
@@ -200,27 +201,27 @@
 												<td class="numeric" th:if="${session.pickstatus}!=1">[[${pickupApplication?.actualIssueQuantity}]]</td>
 												<td class="numeric">[[${pickupApplication?.publisher?.userName}]]</td>
 												<td class="numeric" th:if="${session.pickstatus}!=1">[[${pickupApplication?.handler?.userName}]]</td>
-												<td class="numeric" th:if="${session.pickstatus}==1"
+												<td class="numeric" th:if="${session.pickstatus}!=2"
 													th:text="${#dates.format(pickupApplication.pickUpTime,'yyyy-MM-dd hh:mm')}"></td>
 												<td class="numeric"
-													th:text="${pickupApplication?.status == 1?'待出库':pickupApplication?.status == 2?'已出库':''}"></td>
+													th:text="${pickupApplication?.status == 1?'待出库':pickupApplication?.status == 2?'已出库':'部分出库'}"></td>
 												<td class="numeric"><shiro:hasPermission
 														name="pickUpApplication:out">
 														<button class="btn btn-primary btn-xs"
-															th:if="${pickupApplication?.status}==1"
+															th:if="${pickupApplication?.status}!=2"
 															th:onclick="|return toeditPage('${pickupApplication.id}','pickUpApplicationAdd')|">
 															<i class="fa fa-edit"> </i>取货完成
 														</button>
 													</shiro:hasPermission> 
 													<shiro:hasPermission name="pickUpApplication:wechatPush">
 														<button class="btn btn-primary btn-xs wx"
-															th:if="${pickupApplication?.status}==1"
+															th:if="${pickupApplication?.status}!=2"
 															th:onclick="|return wechatPush('${pickupApplication.id}')|">
 															<i class="iconfont">&#xe69a;</i> 通知仓库人员
 														</button>
 													</shiro:hasPermission> <shiro:hasPermission name="pickUpApplication:edit">
 														<button class="btn btn-primary btn-xs"
-															th:if="${pickupApplication?.status}==1"
+															th:if="${pickupApplication?.status}!=2"
 															th:onclick="|return toeditPage('${pickupApplication.id}','pickUpApplication')|">
 															<i class="fa fa-edit"> </i>编辑
 														</button>

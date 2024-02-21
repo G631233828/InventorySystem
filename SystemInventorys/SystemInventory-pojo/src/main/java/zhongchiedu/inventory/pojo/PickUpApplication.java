@@ -47,9 +47,10 @@ public class PickUpApplication extends GeneralBean<PickUpApplication> {
 
 	private long actualIssueQuantity;// 实际出库数量
 	
-	private String num;//出库数量
+	private long num;//出库数量
 	
-	private int status =1;//状态    1.待出库状态  2.已出库 
+	
+	private int status =1;//状态    1.待出库状态  2.已出库   3.部分出库
 	
 	@DBRef
 	private User handler;// 处理人，负责人

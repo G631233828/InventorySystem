@@ -1192,6 +1192,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 	@Override
 	public BasicDataResult pickUpApplicationToStock(PickUpApplication pickUpApplication) {
+		
 		Stock stock = this.findOneById(pickUpApplication.getStock().getId(), Stock.class);
 		if (stock==null) {
 			return new BasicDataResult().build(400, "未能找到库存商品，出库失败！", null);
@@ -1200,8 +1201,8 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		if(inventory<=0) {
 			return new BasicDataResult().build(400, "库存数量不足", null);
 		}
-		long actualIssueQuantity = pickUpApplication.getActualIssueQuantity();
-		if(actualIssueQuantity>inventory) {
+		long num = pickUpApplication.getNum();
+		if(num>inventory) {
 			return new BasicDataResult().build(400, "库存数量不足,剩余库存:"+inventory, null);
 		}
 		
@@ -1213,15 +1214,25 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		if (Common.isNotEmpty(pickUpApplication)) {
 			stockStatistics.setUser(pickUpApplication.getHandler());// 操作人
 			stockStatistics.setInOrOut(false);
-			stockStatistics.setNum(pickUpApplication.getActualIssueQuantity());// 设置实际出库数量
+			stockStatistics.setNum(pickUpApplication.getNum());// 设置实际出库数量
 			stockStatistics.setProjectName(pickUpApplication.getProjectName());
 			stockStatistics.setPersonInCharge(pickUpApplication.getPersonInCharge());
 			stockStatistics.setCustomer(pickUpApplication.getCustomer());
 			stockStatistics.setDescription(pickUpApplication.getDescription());
 			stockStatistics.setStock(stock);
 		}
-		// 出库完成修改出库状态
-		pickUpApplication.setStatus(2);
+		//总出库数量   =  实际出库数量 + num
+		long allNum = pickUpApplication.getActualIssueQuantity()+pickUpApplication.getNum();
+		//如果总出库数量等于预出库数量 设置状态为2
+		if(allNum == pickUpApplication.getEstimatedIssueQuantity()) {
+			// 出库完成修改出库状态
+			pickUpApplication.setStatus(2);
+		}else if(allNum< pickUpApplication.getEstimatedIssueQuantity()) {
+			pickUpApplication.setStatus(3);
+		}
+		
+		
+		pickUpApplication.setActualIssueQuantity(allNum);
 		this.pickUpApplicationService.saveOrUpdate(pickUpApplication);
 
 		return this.stockStatisticsService.inOrOutstockStatistics(stockStatistics, pickUpApplication.getHandler());
