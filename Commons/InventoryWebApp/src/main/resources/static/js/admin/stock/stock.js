@@ -137,6 +137,7 @@ $().ready(function() {
 				required : a + "导入文件不能为空！"
 			},
 			 model : { 
+				 required : a + "请输入设备型号",
 				 remote : a + "相同型号下设备已经存在！"
 			 },
 			 

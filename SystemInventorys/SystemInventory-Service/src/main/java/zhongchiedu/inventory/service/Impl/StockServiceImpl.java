@@ -520,6 +520,12 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				importStock.setStocknum(Long.valueOf(resultexcel[i][j + 4].trim()));
 				
 				String n = resultexcel[i][j + 5].trim();
+				if (Common.isEmpty(n)) {
+					error += "<span class='entypo-attention'></span>导入文件过程中出现价格为空，第<b>&nbsp&nbsp" + (i + 1)
+							+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
+					continue;
+				}
+				
 				boolean num = Common.isInteger(n);
 				if(num) {
 					importStock.setPrice(n);// 价格
