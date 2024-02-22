@@ -172,12 +172,23 @@
 												</div>
 											</div>
 											
+											<div class="form-group">
+												<label class="col-lg-1 control-label">已出库存数量：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="actualIssueQuantity" readonly="readonly"
+														 name="actualIssueQuantity" 
+														th:value="${pickUpApplication?.actualIssueQuantity}">
+												</div>
+											</div>
+											
+											
+											
 										<div class="form-group">
 												<label class="col-lg-1 control-label">出库存数量：</label>
 												<div class="col-lg-6">
-													<input class="form-control" id="actualIssueQuantity"
-														placeholder="请输入出库存数量" name="actualIssueQuantity" 
-														th:value="${pickUpApplication?.actualIssueQuantity}">
+													<input class="form-control" id="num"
+														placeholder="请输入出库存数量" name="num" 
+														>
 												</div>
 											</div>
 											

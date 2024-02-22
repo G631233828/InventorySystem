@@ -202,14 +202,30 @@ public class PickUpApplicationController {
 	public BasicDataResult addPickUpApplicationAdd(
 			@ModelAttribute("pickUpApplication") PickUpApplication pickUpApplication, HttpSession session)
 			throws UnsupportedEncodingException {
-		if (pickUpApplication.getActualIssueQuantity() <= 0) {
+	//优化前
+//		if (pickUpApplication.getActualIssueQuantity() <= 0) {
+//			return new BasicDataResult().build(400, "出库数量有误！", "出库数量有误！");
+//		}
+		//通过num 来判断实际出库数量
+		
+		if (pickUpApplication.getNum() <= 0) {
 			return new BasicDataResult().build(400, "出库数量有误！", "出库数量有误！");
 		}
 
 		PickUpApplication getpickUpApplication = this.pickUpApplicationService.findOneById(pickUpApplication.getId(),
 				PickUpApplication.class);
+		
+		long estimatedIssueQuantity = getpickUpApplication.getEstimatedIssueQuantity();//预计出库数量
+		long actualIssueQuantity = getpickUpApplication.getActualIssueQuantity();//实际出库数量
+		
+		long newNum = estimatedIssueQuantity - actualIssueQuantity;
+		if (pickUpApplication.getNum() > newNum) {
+			return new BasicDataResult().build(400, "出库数量不能超过剩余数量！", "出库数量不能超过剩余数量");
+		}
+		
+		
 		int status = getpickUpApplication.getStatus();
-		if (status != 1) {
+		if (status != 1 && status !=3) {
 			return new BasicDataResult().build(400, "不能重复出库", "不能重复出库");
 		}
 		User suser = (User) session.getAttribute(Contents.USER_SESSION);
