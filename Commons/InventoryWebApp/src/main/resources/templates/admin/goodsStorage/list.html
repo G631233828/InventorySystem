@@ -110,7 +110,7 @@
 												<th class="numeric">区域</th>
 												<th class="numeric">货架地址</th>
 												<th class="numeric">货架号</th>
-												<th class="numeric">货架层</th>
+<!--												<th class="numeric">货架层</th>-->
 												<th class="numeric">使用状态</th>
 												<th class="numeric">操作</th>
 											</tr>
@@ -132,7 +132,7 @@
 													<td class="numeric">[[${goodsStorage?.area?.name}]]</td>
 													<td class="numeric">[[${goodsStorage?.address}]]</td>
 													<td class="numeric">[[${goodsStorage?.shelfNumber}]]</td>
-													<td class="numeric">[[${goodsStorage?.shelflevel}]]</td>
+<!--													<td class="numeric">[[${goodsStorage?.shelflevel}]]</td>-->
 													<td class="numeric" th:id="disBtn+${goodsStorage.id}"
 														th:utext="${goodsStorage.isDisable eq true }?|<button type='button' onclick=toDisable('${goodsStorage.id}','goodsStorage') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${goodsStorage.id}','goodsStorage') class='btn btn-success'>启用</button>|"></td>
 													<td class="numeric"><shiro:hasPermission
