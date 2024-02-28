@@ -42,6 +42,8 @@ public class StockStatistics extends GeneralBean<StockStatistics> {
 	private String depotTime;//出库时间
 	private long num;//出库、入库数量
 	private long newNum;//当前库存
+	@Transient
+	private long remainingNum;//剩余库存
 	@DBRef
 	private Companys company;//绑定企业
 	@DBRef
@@ -114,6 +116,9 @@ public class StockStatistics extends GeneralBean<StockStatistics> {
 
 	@DBRef
 	private NewCustomer newCustomer;
+	
+	@Transient
+	private boolean yck = false;//预出库
 
 	@DBRef
 	private Pname pname;

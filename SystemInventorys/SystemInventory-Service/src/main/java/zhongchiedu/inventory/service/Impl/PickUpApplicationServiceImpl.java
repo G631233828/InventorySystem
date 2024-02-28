@@ -1,5 +1,6 @@
 package zhongchiedu.inventory.service.Impl;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
@@ -29,7 +30,7 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 	@Override
 	@SystemServiceLog(description = "获取所有待出库信息")
 	public Pagination<PickUpApplication> findpagination(Integer pageNo, Integer pageSize, String search,
-			String searchArea, int status) {
+			String searchArea, String status) {
 		// 分页查询数据
 		Pagination<PickUpApplication> pagination = null;
 		try {
@@ -38,7 +39,19 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 			if (Common.isNotEmpty(searchArea)) {
 				query = query.addCriteria(Criteria.where("area.$id").is(new ObjectId(searchArea)));
 			}
-			query.addCriteria(Criteria.where("status").is(status));
+			if(Common.isEmpty(status)) {
+				List<Integer> l = new ArrayList();
+				l.add(1);
+				l.add(3);
+				query.addCriteria(Criteria.where("status").in(l));
+			}else {
+				query.addCriteria(Criteria.where("status").is(Integer.valueOf(status)));
+			}
+			
+			
+		
+			
+			
 
 			query.addCriteria(Criteria.where("isDelete").is(false));
 			 query.with(new Sort(new Order(Direction.DESC, "createTime")));
@@ -145,6 +158,18 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 		query.addCriteria(Criteria.where("isDisable").is(isdisable == true ? true : false));
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		return this.find(query, PickUpApplication.class);
+	}
+
+
+	@Override
+	public List<PickUpApplication> findPickUpApplicationsByStockId(String stockId) {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("stock.$id").is(new ObjectId(stockId)))
+				.addCriteria(Criteria.where("isDelete").is(false))
+				.addCriteria(Criteria.where("isDisable").is(false))
+				.addCriteria(Criteria.where("status").ne(2));
+		return this.find(query, PickUpApplication.class);
+		
 	}
 
 }

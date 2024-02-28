@@ -86,6 +86,8 @@
                                             <tr>
                                                 <td class="numeric">分类</td>
                                                 <td class="numeric" onclick="return selectColumn('ssC');"><input type="checkbox" th:checked="${#lists.contains(listColums,'ssC')}?'checked':'false'" id="ch_ssC"></td>
+                                                <td class="numeric">剩余可出库数量</td>
+                                                <td class="numeric" onclick="return selectColumn('remainingNum');"><input type="checkbox" th:checked="${#lists.contains(listColums,'remainingNum')}?'checked':'false'" id="ch_remainingNum"></td>
                                             </tr>
                                          
                                         </tbody>

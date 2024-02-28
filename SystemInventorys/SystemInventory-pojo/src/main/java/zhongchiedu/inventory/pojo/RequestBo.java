@@ -43,8 +43,9 @@ public class RequestBo {
     private String projectName;//用于项目
 
     private String customer;//客户
-
-    private String sailesInvoiceNo;//销售发票号
+	    private String sailesInvoiceNo;//销售发票号
+    
+    private int stockType;// 1.有库存 2.无库存 3.所有
 
     public  boolean isNotEmpty(Object s) {
         if (null == s || "".equals(s) || "".equals(String.valueOf(s).trim())

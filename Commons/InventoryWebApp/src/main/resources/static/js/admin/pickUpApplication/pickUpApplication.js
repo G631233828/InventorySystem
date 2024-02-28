@@ -1,4 +1,31 @@
 $().ready(function() {
+
+
+
+	 // 假设出库数量和实际出库数量的输入框的 name 属性分别为 "stockQuantity" 和 "actualOutbound"
+    var stockQuantityElement = $("[name='estimatedIssueQuantity']");
+    var actualOutboundElement = $("[name='actualIssueQuantity']");
+
+    // 定义一个新的验证规则：lessThanRemaining
+    jQuery.validator.addMethod("lessThanRemaining", function(value, element) {
+        // 确保出库数量和实际出库数量都已经输入且为数字
+        var stockQuantity = parseFloat(stockQuantityElement.val());
+        var actualOutbound = parseFloat(actualOutboundElement.val());
+
+        if (isNaN(stockQuantity) || isNaN(actualOutbound)) {
+            return false; // 如果任何一个不是数字，验证失败
+        }
+
+        // 计算剩余数量
+        var remaining = stockQuantity - actualOutbound;
+
+        // 验证输入的数字是否小于剩余数量
+        return value <= remaining;
+    }, "输入的数字必须小于剩余数量。");
+	
+
+
+
 	$("#commentForm").validate();
 	var a = "<i class='fa fa-times-circle'></i> ";
 	$("#pickUpApplicationForm").validate({
@@ -57,7 +84,16 @@ $().ready(function() {
 		},
 		foucusCleanup: true,
 	});
+	
+	
+	
+	
+
+	
+	
+	
 	$("#pickUpApplicationAddForm").validate({
+	
 		rules: {
 			"area.id": {
 				required: true,
@@ -65,37 +101,9 @@ $().ready(function() {
 			"pickUpApplication.id": {
 				required: true,
 			},
-			actualIssueQuantity: {
+			num: {
 				required: true,
-				remote: {
-					url: getRootPath() + "/checkStockNum",
-					type: "POST",
-					data: {
-						num: function() {
-							return $("#actualIssueQuantity").val();
-						},
-						stockId: function() {
-							return $("#number-multiple").val();
-						}
-					},
-					dataType: "json",
-					dataFilter: function(data, type) {
-						var jsondata = $.parseJSON(data);
-						if (jsondata.status == 200) {
-							return true;
-						}
-						if (jsondata.status == 400) {
-							jqueryAlert({
-								'icon': getRootPath() + '/plugs/alert/img/error.png',
-								'content': jsondata.msg,
-								'closeTime': 5000,
-							})
-							return false;
-						}
-
-						return false;
-					}
-				}
+                lessThanRemaining: true // 使用自定义验证规则
 			},
 
 		},
@@ -106,13 +114,14 @@ $().ready(function() {
 			"pickUpApplication.id": {
 				required: a + "请选择预出库设备",
 			},
-			actualIssueQuantity: {
-				required: a + "请输入预计出库数量！",
-				remote: a + "当前出库数量有误，请检查库存！"
+			num: {
+				required: a + "请输入出库数量！",
+				lessThanRemaining: "输入的数字必须小于剩余数量"
 			},
 		},
 		foucusCleanup: true,
 		submitHandler: function(form) {
+		  $('#submit').prop('disabled', true);
 			$.ajax({
 				dataType: "json",
 				type: "POST",
@@ -143,11 +152,25 @@ $().ready(function() {
 
 				}
 			});
+			setTimeout(function() {
+                $('#submit').prop('disabled', false);
+            }, 13000); // 3000 毫秒后启用按钮
 		}
 
 	});
 
 });
+
+
+
+
+
+
+
+
+
+
+
 
 function toPickPage() {
 	window.location.href = getRootPath() + "/pickUpApplications";

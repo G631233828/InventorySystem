@@ -11,6 +11,7 @@ function batchFormSubmit() {
 			if (data.status == 200) {
 				$.each(data.data, function(index, item) {
 					var newInventory = item.newNum;
+					var remainingNum = item.remainingNum;
 					if (newInventory > 5) {
 						$("#inventory_" + item.id).css("color", "green");
 					} else if (newInventory == 0) {
@@ -18,7 +19,16 @@ function batchFormSubmit() {
 					} else {
 						$("#inventory_" + item.id).css("color", "blue");
 					}
+					if (remainingNum > 5) {
+						$("#remainingNum_" + item.id).css("color", "green");
+					} else if (remainingNum == 0) {
+						$("#remainingNum_" + item.id).css("color", "red");
+					} else {
+						$("#remainingNum_" + item.id).css("color", "blue");
+					}
+
 					$("#inventory_" + item.id).text(newInventory);
+					$("#remainingNum_" + item.id).text(remainingNum);
 				});
 				jqueryAlert({
 					'icon': getRootPath() + '/plugs/alert/img/right.png',

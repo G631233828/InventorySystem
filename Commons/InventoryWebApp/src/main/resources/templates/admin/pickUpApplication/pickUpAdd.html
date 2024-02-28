@@ -186,7 +186,7 @@
 										<div class="form-group">
 												<label class="col-lg-1 control-label">出库存数量：</label>
 												<div class="col-lg-6">
-													<input class="form-control" id="num"
+													<input class="form-control" id="num" required="required"
 														placeholder="请输入出库存数量" name="num" 
 														>
 												</div>
@@ -228,7 +228,7 @@
 											<div class="form-group">
 												<label class="col-lg-1 control-label"></label>
 												<div class="col-md-8">
-													<button type="submit" class="btn btn-success"
+													<button type="submit" class="btn btn-success" id="submit"
 														th:text="${pickUpApplication!=null?'修改':'添加'}"></button>
 													<span></span> <input th:if="${pickUpApplication} eq null"
 														class="btn btn-default" value="重置" type="reset">

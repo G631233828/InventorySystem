@@ -10,6 +10,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -49,6 +51,7 @@ import zhongchiedu.common.utils.ZipCompress;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.general.pojo.User;
 import zhongchiedu.inventory.pojo.*;
+import zhongchiedu.inventory.service.PickUpApplicationService;
 import zhongchiedu.inventory.service.Impl.*;
 import zhongchiedu.log.annotation.SystemControllerLog;
 
@@ -78,7 +81,9 @@ public class StockController {
 
 
 	private @Autowired SystemClassificationServiceImpl  ssCService;
-
+	
+	private @Autowired PickUpApplicationService pickUpApplicationService;
+	
 
 	@Autowired
 	private NewCustomerServiceImpl newCustomerService;
@@ -95,6 +100,7 @@ public class StockController {
 			@RequestParam(value = "search", defaultValue = "") String search,
 //			@RequestParam(value = "searchArea", defaultValue = "") String searchArea,
 			@RequestParam(value = "searchAgent", defaultValue = "") String searchAgent,
+			@RequestParam(value = "stockType", defaultValue = "1") Integer stockType,
 //			@RequestParam(value = "ssC", defaultValue = "") String ssC,
 			@ModelAttribute RequestBo requestBo
 			) throws JsonProcessingException {
@@ -115,6 +121,20 @@ public class StockController {
 		model.addAttribute("errorImport", errorImport);
 //		Pagination<Stock> pagination = this.stockService.findpagination(pageNo, pageSize, search, searchArea,searchAgent,ssC);
 		Pagination<Stock> pagination = this.stockService.findpagination(pageNo, pageSize, requestBo);
+		
+		List<Stock> datas = pagination.getDatas();
+		
+			datas.stream().map(stock->{
+			List<PickUpApplication> pickUpApplication = this.pickUpApplicationService.findPickUpApplicationsByStockId(stock.getId());
+			long num = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0,Long::sum);
+			long acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((long) 0,Long::sum);
+			stock.setRemainingNum(stock.getInventory()-(num-acnum));
+			return stock;
+		}).collect(Collectors.toList());
+		
+		
+		
+		
 		model.addAttribute("pageList", pagination);
 		User user = (User) session.getAttribute(Contents.USER_SESSION);
 		List<String> listColums = this.columnService.findColumns("stock",user.getId());
@@ -123,6 +143,7 @@ public class StockController {
 		session.setAttribute("pageNo", pageNo);
 		session.setAttribute("pageSize", pageSize);
 		session.setAttribute("search", search);
+		session.setAttribute("stockType", stockType);
 //		session.setAttribute("searchArea", searchArea);
 		session.setAttribute("searchAgent", searchAgent);
 //		session.setAttribute("ssC",ssC);
@@ -705,8 +726,21 @@ public class StockController {
 				stock.setInventory(s.getInventory());
 				stock.setModel(s.getModel());
 				stock.setId(s.getId());
+				List<PickUpApplication> pickUpApplication = this.pickUpApplicationService.findPickUpApplicationsByStockId(s.getId());
+				long num = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0,Long::sum);
+				long acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((long) 0,Long::sum);
+				stock.setRemainingNum(stock.getInventory()-(num-acnum));
 				liststock.add(stock);
 			});
+			
+//			liststock.stream().map(stock->{
+//				List<PickUpApplication> pickUpApplication = this.pickUpApplicationService.findPickUpApplicationsByStockId(stock.getId());
+//				long num = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0,Long::sum);
+//				stock.setRemainingNum(stock.getInventory()-num);
+//				return stock;
+//			}).collect(Collectors.toList());
+			
+			
 			return new BasicDataResult(200, "获取出库列表", liststock);
 		}else {
 			return new BasicDataResult(400, "获取出库列表失败，请先添加出库商品！", null);
@@ -748,7 +782,11 @@ public class StockController {
 			}
 			//根据id获取库存商品
 			Stock stock = this.stockService.findOneById(id, Stock.class);
-			if(stock.getInventory()<Long.valueOf(num)) {
+			List<PickUpApplication> pickUpApplication = this.pickUpApplicationService.findPickUpApplicationsByStockId(id);
+			long ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0,Long::sum);
+			long acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((long) 0,Long::sum);
+			
+			if((stock.getInventory()-(ycknum-acnum))<Long.valueOf(num)) {
 				return new BasicDataResult(400, "出库数量大于库存数量，请检查！", "");
 			}
 			return new BasicDataResult(200, "库存无误！", "");

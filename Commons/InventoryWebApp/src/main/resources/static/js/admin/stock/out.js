@@ -25,41 +25,28 @@ $()
 											if (data.status == 200) {
 												flag = true;
 												var newInventory = data.data.newNum;
-												var id = $(
-													"#stockIdOut")
-													.val();
+												var  remainingNum = data.data.remainingNum;
+												var id = $("#stockIdOut").val();
 												if (newInventory > 5) {
-													$(
-														"#inventory_"
-														+ id)
-														.css(
-															"color",
-															"green");
+													$("#inventory_" + id).css("color", "green");
 												} else if (newInventory == 0) {
-													$(
-														"#inventory_"
-														+ id)
-														.css(
-															"color",
-															"red");
+													$("#inventory_" + id).css("color", "red");
 												} else {
-													$(
-														"#inventory_"
-														+ id)
-														.css(
-															"color",
-															"blue");
+													$("#inventory_" + id).css("color", "blue");
+												}
+												if (remainingNum > 5) {
+													$("#remainingNum_" + id).css("color", "green");
+												} else if (remainingNum == 0) {
+													$("#remainingNum_" + id).css("color", "red");
+												} else {
+													$("#remainingNum_" + id).css("color", "blue");
 												}
 
-												$(
-													"#inventory_"
-													+ id)
-													.text(
-														newInventory);
-												$(
-													"#mystockStatistics2")
-													.modal(
-														'hide');
+												$("#inventory_" + id).text(newInventory);
+												$("#remainingNum_" + id).text(remainingNum);
+
+
+												$("#mystockStatistics2").modal('hide');
 
 												// 判断是否已存在，如果已存在则直接显示
 												jqueryAlert({

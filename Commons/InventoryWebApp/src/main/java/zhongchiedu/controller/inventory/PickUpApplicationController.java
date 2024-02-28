@@ -88,12 +88,12 @@ public class PickUpApplicationController {
 	public String prestock(@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
 			@RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize, HttpSession session,
 			@RequestParam(value = "search", defaultValue = "") String search,
-			@RequestParam(value = "status", defaultValue = "1") String status,
+			@RequestParam(value = "status", defaultValue = "") String status,
 			@RequestParam(value = "searchArea", defaultValue = "") String searchArea,
 			@ModelAttribute("errorMsg") String errorMsg) {
 
 		Pagination<PickUpApplication> pagination = this.pickUpApplicationService.findpagination(pageNo, pageSize,
-				search, searchArea, Integer.valueOf(status));
+				search, searchArea, status);
 		model.addAttribute("pageList", pagination);
 
 		List<Area> areas = this.areaService.findAllArea(false);
@@ -178,7 +178,7 @@ public class PickUpApplicationController {
 
 	@PostMapping("/pickUpApplication")
 	@RequiresPermissions(value = "pickUpApplication:add")
-	@SystemControllerLog(description = "添加预库存")
+	@SystemControllerLog(description = "添加预出库")
 	public String addPickUpApplication(@ModelAttribute("pickUpApplication") PickUpApplication pickUpApplication,
 			HttpSession session)
 
@@ -218,6 +218,8 @@ public class PickUpApplicationController {
 		long estimatedIssueQuantity = getpickUpApplication.getEstimatedIssueQuantity();//预计出库数量
 		long actualIssueQuantity = getpickUpApplication.getActualIssueQuantity();//实际出库数量
 		
+	
+		
 		long newNum = estimatedIssueQuantity - actualIssueQuantity;
 		if (pickUpApplication.getNum() > newNum) {
 			return new BasicDataResult().build(400, "出库数量不能超过剩余数量！", "出库数量不能超过剩余数量");
@@ -226,7 +228,7 @@ public class PickUpApplicationController {
 		
 		int status = getpickUpApplication.getStatus();
 		if (status != 1 && status !=3) {
-			return new BasicDataResult().build(400, "不能重复出库", "不能重复出库");
+			return new BasicDataResult().build(400, "设备可出库数量为0", "设备可出库数量为0");
 		}
 		User suser = (User) session.getAttribute(Contents.USER_SESSION);
 		pickUpApplication.setHandler(suser);
@@ -237,6 +239,9 @@ public class PickUpApplicationController {
 
 			// 创建通知
 			InventoryRole inventoryRole = this.inventoryRoleService.findByType("HANDLER");
+			if(Common.isEmpty(inventoryRole)) {
+				return new BasicDataResult().build(200, "出库成功", "未获得绑定微信人员信息");
+			}
 			List<User> users = inventoryRole.getUsers();
 //			String personInCharge = getpickUpApplication.getPersonInCharge();
 //			if(Common.isNotEmpty(personInCharge)) {
@@ -412,9 +417,14 @@ public class PickUpApplicationController {
 		}
 
 		Stock stock = this.stockService.findOneById(stockId, Stock.class);
+		
+		List<PickUpApplication> pickUpApplication = this.pickUpApplicationService.findPickUpApplicationsByStockId(stock.getId());
+		long ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0,Long::sum);
+		long acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((long) 0,Long::sum);
+		
 		Long getnum = Long.valueOf(num);
-		if (getnum > stock.getInventory()) {
-			return new BasicDataResult().build(400, "库存数量不足，当前剩余库存为:" + stock.getInventory(), "");
+		if (getnum > (stock.getInventory()-(ycknum-acnum))) {
+			return new BasicDataResult().build(400, "库存数量不足，当前剩余可出库数量为:" + (stock.getInventory()-(ycknum-acnum)), "");
 		}
 		return new BasicDataResult().build(200, "出库数量无误", "");
 

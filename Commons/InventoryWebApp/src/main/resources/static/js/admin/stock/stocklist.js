@@ -56,7 +56,7 @@ function batchOut() {
 					stocklist += ` <tr id=stock_` + item.id + `>
                                <td class="numeric">`+ item.name + `</td>
                                <td class="numeric">`+ item.model + `</td>
-                               <td class="numeric">`+ item.inventory + `</td>
+                               <td class="numeric">`+ item.remainingNum + `</td>
                                <td class="numeric">
 							   <input type="hidden" name="batchid" value="`+ item.id + `"> 
                                <input type="text" onblur="return setStockNum('`+ item.id + `')"  class="form-control stockval batchout" id=stocknum_` + item.id + `   name="batchnum" >
@@ -331,6 +331,7 @@ function showSupplier(o) {
 function searchBo() {
 	var searchArea = $("#searchArea").val();
 	var pageSize = $("#pageSize").val();
+	var stockType = $("#stockType").val();
 	var name=$('[name="name"]').val();
 	var model=$('[name="model"]').val();
 	var supplier=$('[name="supplier"]').val();
@@ -345,7 +346,7 @@ function searchBo() {
 	 * text : "查询内容不能为空!!", }); return ; }
 	 */
 	window.location.href = "stocks?pageSize=" + pageSize + "&ssC=" + ssC
-	+"&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo + "&searchArea=" + searchArea;
+	+"&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo + "&searchArea=" + searchArea+ "&stockType=" + stockType;
 
 }
 
