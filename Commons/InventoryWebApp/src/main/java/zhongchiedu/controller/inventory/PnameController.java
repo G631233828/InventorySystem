@@ -11,13 +11,16 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.framework.pagination.Pagination;
+import zhongchiedu.inventory.pojo.NewCustomer;
 import zhongchiedu.inventory.pojo.Pname;
+import zhongchiedu.inventory.service.Impl.NewCustomerServiceImpl;
 import zhongchiedu.inventory.service.Impl.PnameServiceImpl;
 import zhongchiedu.log.annotation.SystemControllerLog;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.util.List;
 
 
 /**
@@ -29,7 +32,8 @@ public class PnameController {
 
 	@Autowired
 	private PnameServiceImpl pnameService;
-
+	@Autowired
+	private NewCustomerServiceImpl newCustomerService;
 
 	@GetMapping("pNames")
 	@RequiresPermissions(value = "pName:list")
@@ -49,22 +53,24 @@ public class PnameController {
 	@GetMapping("/pName")
 	@RequiresPermissions(value = "pName:add")
 	public String addPage(Model model) {
+		List<NewCustomer> list=this.newCustomerService.findAllCustomer(false);
+		model.addAttribute("newCustomers",list);
 		return "admin/pName/add";
 	}
 
 	@PostMapping("/pName")
 	@RequiresPermissions(value = "pName:add")
 	@SystemControllerLog(description = "添加项目名称")
-	public String addpName(@ModelAttribute("pName") Pname pName) {
-		this.pnameService.saveOrUpdate(pName);
+	public String addpName(@ModelAttribute("pName") Pname pName,String types) {
+		this.pnameService.saveOrUpdate(pName,types);
 		return "redirect:pNames";
 	}
 
 	@PutMapping("/pName")
 	@RequiresPermissions(value = "pName:edit")
 	@SystemControllerLog(description = "修改项目名称")
-	public String edit(@ModelAttribute("pName") Pname pName) {
-		this.pnameService.saveOrUpdate(pName);
+	public String edit(@ModelAttribute("pName") Pname pName,String types) {
+		this.pnameService.saveOrUpdate(pName,types);
 		return "redirect:pNames";
 	}
 
@@ -79,6 +85,10 @@ public class PnameController {
 	public String toeditPage(@PathVariable String id, Model model) {
 		Pname pName = this.pnameService.findOneById(id, Pname.class);
 		model.addAttribute("pName", pName);
+		List<NewCustomer> list=this.newCustomerService.findAllCustomer(false);
+		model.addAttribute("newCustomers",list);
+		Object[] ids=this.pnameService.newcustomerids(pName);
+		model.addAttribute("ids",ids);
 		return "admin/pName/add";
 
 	}
@@ -99,11 +109,18 @@ public class PnameController {
 	 */
 	@RequestMapping(value = "/pName/ajaxgetRepletes", method = RequestMethod.POST)
 	@ResponseBody
-	public BasicDataResult ajaxgetRepletes(@RequestParam(value = "name", defaultValue = "") String name
+	public BasicDataResult ajaxgetRepletes(@RequestParam(value = "name", defaultValue = "") String name,
+		@RequestParam(value = "type", defaultValue = "") String type
 		) {
-		log.info("jinrufangfa");
-		return this.pnameService.ajaxgetRepletes(name);
+		if(type.equals("true")){
+			return this.pnameService.checkIfNameExists(name,"name");
+		}else{
+			return this.pnameService.checkIfNameExists(name,"itemid");
+		}
 	}
+
+
+
 
 
 	@RequestMapping(value = "/pName/ajaxgetName", method = RequestMethod.POST)

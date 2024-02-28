@@ -3,6 +3,7 @@ package zhongchiedu.inventory.service.Impl;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ import zhongchiedu.common.utils.ExcelReadUtil;
 import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralServiceImpl;
+import zhongchiedu.inventory.pojo.NewCustomer;
 import zhongchiedu.inventory.pojo.Pname;
 import zhongchiedu.inventory.pojo.ProcessInfo;
 import zhongchiedu.inventory.service.PnameService;
@@ -24,15 +26,26 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class PnameServiceImpl extends GeneralServiceImpl<Pname> implements PnameService {
 
+	@Autowired
+	private NewCustomerServiceImpl newCustomerService;
+
 	@Override
 	@SystemServiceLog(description="编辑项目名称信息")
-	public void saveOrUpdate(Pname newName) {
+	public void saveOrUpdate(Pname newName,String types) {
 		if (Common.isNotEmpty(newName)) {
+			if(Common.isNotEmpty(types)){
+				List<String> ids = Arrays.asList(types.split(","));
+				Query query = new Query();
+				query.addCriteria(Criteria.where("_id").in(ids));
+				List<NewCustomer> list=this.newCustomerService.find(query,NewCustomer.class);
+				newName.setCustomers(list);
+			}
 			if (Common.isNotEmpty(newName.getId())) {
 				// update
 				Pname ed = this.findOneById(newName.getId(), Pname.class);
@@ -103,13 +116,13 @@ public class PnameServiceImpl extends GeneralServiceImpl<Pname> implements Pname
 
 	@Override
 	@SystemServiceLog(description="查询重复项目名称信息")
-	public BasicDataResult ajaxgetRepletes(String name) {
+	public BasicDataResult checkIfNameExists(String name,String fieldName) {
 		if (Common.isNotEmpty(name)) {
 			Query query = new Query();
-			query.addCriteria(Criteria.where("name").is(name));
+			query.addCriteria(Criteria.where(fieldName).is(name));
 			query.addCriteria(Criteria.where("isDelete").is(false));
 			Pname brand = this.findOneByQuery(query, Pname.class);
-			 return brand != null ?BasicDataResult.build(206,"当前项目名称信息已经存在，请检查", null): BasicDataResult.ok();
+			 return brand != null ?BasicDataResult.build(206,"当前信息已经存在，请检查", null): BasicDataResult.ok();
 		}
 		return BasicDataResult.build(400,"未能获取到请求的信息", null);
 	}
@@ -292,6 +305,21 @@ public class PnameServiceImpl extends GeneralServiceImpl<Pname> implements Pname
 
 		return (ProcessInfo) request.getSession().getAttribute("proInfo");
 
+	}
+
+	@Override
+	public Object[] newcustomerids(Pname pname) {
+		Object[] ids={};
+		if(Common.isNotEmpty(pname)){
+			List<NewCustomer> list=pname.getCustomers();
+			if(Common.isNotEmpty(list)){
+				List<String> lists= list.stream()
+						.map(NewCustomer::getId) // 假设 getNewcustomerid 是获取 newcustomerid 属性的方法
+						.collect(Collectors.toList());
+				ids=lists.toArray();
+			}
+		}
+		return ids;
 	}
 
 

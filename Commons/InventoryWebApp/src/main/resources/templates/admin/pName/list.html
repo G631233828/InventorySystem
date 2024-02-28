@@ -138,7 +138,11 @@
 															for="checkall"></label>
 													</div>
 												</th>
-												<th class="numeric">名称</th>
+												<th class="numeric">项目名称</th>
+												<th class="numeric">项目编号</th>
+												<th class="numeric">项目经理</th>
+												<th class="numeric">项目助理</th>
+												<th class="numeric">客户</th>
 												<th class="numeric">使用状态</th>
 												<th class="numeric">操作</th>
 											</tr>
@@ -157,6 +161,13 @@
 													</td>
 
 													<td class="numeric">[[${pName.name}]]</td>
+													<td class="numeric">[[${pName.itemid}]]</td>
+													<td class="numeric">[[${pName?.pm}]]</td>
+													<td class="numeric">[[${pName?.assistant}]]</td>
+													<td class="numeric"><th:block
+															th:each="customer:${pName.customers}">
+														[[${customer.isDelete eq false}?${customer.name}+'&nbsp;&nbsp;':'']]
+													</th:block></td>
 													<td class="numeric" th:id="disBtn+${pName.id}"
 														th:utext="${pName.isDisable eq true }?|<button type='button' onclick=toDisable('${pName.id}','pName') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${pName.id}','pName') class='btn btn-success'>启用</button>|"></td>
 													<td class="numeric"><shiro:hasPermission

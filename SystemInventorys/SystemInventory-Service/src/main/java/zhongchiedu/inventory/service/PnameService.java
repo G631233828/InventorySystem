@@ -17,13 +17,13 @@ public interface PnameService extends GeneralService<Pname> {
 	
 	public Pagination<Pname> findpagination(Integer pageNo,Integer pageSize,String search);
 	
-	public void saveOrUpdate(Pname pName);
+	public void saveOrUpdate(Pname pName,String types);
 	
 	public List<Pname> findAllName(boolean isdisable);
 	
 	public String delete(String id);
 	
-	public BasicDataResult ajaxgetRepletes(String name);
+	public BasicDataResult checkIfNameExists(String name,String fieldName);
 
 	public BasicDataResult ajaxgetName(String abs);
 
@@ -40,7 +40,7 @@ public interface PnameService extends GeneralService<Pname> {
 
 	public ProcessInfo findproInfo(HttpServletRequest request);
 
-	
+	public Object[] newcustomerids(Pname pname);
 	
 	
 	

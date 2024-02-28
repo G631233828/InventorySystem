@@ -12,7 +12,8 @@ $().ready(function() {
 						data : {
 							name : function() {
 								return $("#name").val();
-							}
+							},
+							type:"true"
 						},
 						dataType : "json",
 						dataFilter : function(data, type) {
@@ -29,13 +30,42 @@ $().ready(function() {
 						}
 					}
 				},
+				itemid : {
+					required : true,
+					remote : {
+						url : getRootPath() + "/pName/ajaxgetRepletes",
+						type : "POST",
+						data : {
+							name : function() {
+								return $("#itemid").val();
+							},
+							type:"false"
+						},
+						dataType : "json",
+						dataFilter : function(data, type) {
+							var oldname = $("#olditemid").val();
+							var name = $("#itemid").val();
+							if(oldname == name){
+								return true;
+							}
+							var jsondata = $.parseJSON(data);
+							if (jsondata.status == 200) {
+								return true;
+							}
+							return false;
+						}
+					}
+				},
 			},
 			messages : {
 				name : {
 					required : a + "请输入名称",
 					remote : a + "当前名称已经存在！"
+				},
+				itemid : {
+					required : a + "请输入编号",
+					remote : a + "当前编号已经存在！"
 				}
-				
 			}
 		});
 	});
