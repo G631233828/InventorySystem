@@ -220,6 +220,13 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			}
 			query=this.findByRequestBo(requestBo,query);
 			query.addCriteria(Criteria.where("isDelete").is(false));
+			//默认查询库存量大于0的设备
+			if(requestBo.getStockType() == 1) {
+				query.addCriteria(Criteria.where("inventory").gt(0));
+			}else if(requestBo.getStockType() == 2) {
+				query.addCriteria(Criteria.where("inventory").is(0));
+			}
+			
 			query.with(new Sort(new Order(Direction.DESC, "createTime")));
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, Stock.class);
 			if (pagination == null)
@@ -739,12 +746,20 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 	@SystemServiceLog(description = "根据id查询库存信息")
 	public BasicDataResult findOneById(String id) {
+		
+		List<PickUpApplication> pickUpApplication = this.pickUpApplicationService.findPickUpApplicationsByStockId(id);
+		long ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0,Long::sum);
+		long acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((long) 0,Long::sum);
+		
 		Stock getstock = new Stock();
 		Stock stock = this.findOneById(id, Stock.class);
 		getstock.setName(stock.getName());
-		getstock.setInventory(stock.getInventory());
+		getstock.setInventory(stock.getInventory()-(ycknum-acnum));
 		getstock.setDescription(stock.getDescription());
 		getstock.setId(stock.getId());
+		
+		
+		
 		return Common.isNotEmpty(getstock) ? BasicDataResult.build(200, "查询成功", getstock)
 				: BasicDataResult.build(400, "查询失败", null);
 	}
@@ -1197,6 +1212,11 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		if (stock==null) {
 			return new BasicDataResult().build(400, "未能找到库存商品，出库失败！", null);
 		}
+		
+//		List<PickUpApplication> pickUpApplicationlist = this.pickUpApplicationService.findPickUpApplicationsByStockId(stock.getId());
+//		long ycknum = pickUpApplicationlist.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0,Long::sum);
+		
+		
 		long inventory = stock.getInventory();//获取库存数量
 		if(inventory<=0) {
 			return new BasicDataResult().build(400, "库存数量不足", null);
@@ -1219,6 +1239,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			stockStatistics.setPersonInCharge(pickUpApplication.getPersonInCharge());
 			stockStatistics.setCustomer(pickUpApplication.getCustomer());
 			stockStatistics.setDescription(pickUpApplication.getDescription());
+			stockStatistics.setYck(true);
 			stockStatistics.setStock(stock);
 		}
 		//总出库数量   =  实际出库数量 + num
@@ -1390,6 +1411,15 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		return list;
 		
 		
+	}
+
+	@Override
+	public List<Stock> findAllStock() {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("isDelete").is(false));
+		query.addCriteria(Criteria.where("isDisable").is(false));
+		query.addCriteria(Criteria.where("inventory").gt(0));
+		return this.find(query, Stock.class);
 	}
 
 	

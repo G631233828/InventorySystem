@@ -48,6 +48,7 @@ import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.general.pojo.User;
 import zhongchiedu.inventory.pojo.*;
 import zhongchiedu.inventory.service.Impl.*;
+import zhongchiedu.inventory.service.PickUpApplicationService;
 import zhongchiedu.inventory.service.SignService;
 import zhongchiedu.log.annotation.SystemControllerLog;
 
@@ -70,7 +71,9 @@ public class StockStatisticsController {
 	private @Autowired AreaServiceImpl areaService;
 
 	private @Autowired SystemClassificationServiceImpl ssCService;
-
+	
+	private @Autowired PickUpApplicationService pickUpApplicationService;
+	
 	@GetMapping("stockStatisticss")
 	@RequiresPermissions(value = "stockStatistics:list")
 	@SystemControllerLog(description = "查询库存统计")
@@ -188,9 +191,15 @@ public class StockStatisticsController {
 			BasicDataResult r = this.stockStatisticsService.inOrOutstockStatistics(st, user);
 			StockStatistics statics = (StockStatistics) r.getData();
 
+			List<PickUpApplication> pickUpApplication = this.pickUpApplicationService.findPickUpApplicationsByStockId(stock.getId());
+			long ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0,Long::sum);
+			long acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((long) 0,Long::sum);
+			
+			
 			StockStatistics s = new StockStatistics();
 			s.setId(statics.getStock().getId());
 			s.setNewNum(statics.getNewNum());
+			s.setRemainingNum(statics.getNewNum()-(ycknum-acnum));
 			list.add(s);
 		}
 		// 出库成功清除session

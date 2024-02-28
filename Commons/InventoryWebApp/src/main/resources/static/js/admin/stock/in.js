@@ -18,6 +18,7 @@ $().ready(function() {
 						if(data.status == 200){
 							flag = true;
 							var  newInventory = data.data.newNum;
+							var  remainingNum = data.data.remainingNum;
 							var id = $("#stockId").val();
 							if(newInventory > 5){
 								$("#inventory_"+id).css("color","green");
@@ -26,8 +27,16 @@ $().ready(function() {
 							}else{
 								$("#inventory_"+id).css("color","blue");
 							}
+							if(remainingNum > 5){
+								$("#remainingNum_"+id).css("color","green");
+							}else if(remainingNum ==0){
+								$("#remainingNum_"+id).css("color","red");
+							}else{
+								$("#remainingNum_"+id).css("color","blue");
+							}
 							
 							$("#inventory_"+id).text(newInventory);
+							$("#remainingNum_"+id).text(remainingNum);
 							$("#mystockStatistics").modal('hide');
 							
 							// 判断是否已存在，如果已存在则直接显示

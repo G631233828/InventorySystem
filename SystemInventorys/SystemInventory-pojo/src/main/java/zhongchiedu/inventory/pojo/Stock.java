@@ -45,6 +45,10 @@ public class Stock extends GeneralBean<Stock> {
 	@DBRef
 	private Supplier supplier;// 供应商
 	private long inventory = 0; // 库存量
+	
+	@Transient
+	private long remainingNum;//剩余库存
+	
 
 	private boolean receivables = false;// 项目应收款
 	@DBRef
@@ -62,6 +66,8 @@ public class Stock extends GeneralBean<Stock> {
 	
 	@DBRef
 	private Brand brand;//品牌管理
+	
+	
 	
 	
 	//new

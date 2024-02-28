@@ -11,7 +11,7 @@ import zhongchiedu.inventory.pojo.PickUpApplication;
 
 public interface PickUpApplicationService extends GeneralService<PickUpApplication> {
 	
-	public Pagination<PickUpApplication> findpagination(Integer pageNo,Integer pageSize,String search,String searchArea,int status);
+	public Pagination<PickUpApplication> findpagination(Integer pageNo,Integer pageSize,String search,String searchArea,String status);
 	
 	public void saveOrUpdate(PickUpApplication stock);
 	
@@ -24,6 +24,9 @@ public interface PickUpApplicationService extends GeneralService<PickUpApplicati
 	public BasicDataResult todisable(String id);
 	
 	public List<PickUpApplication> findAllPickUpApplicationByStatus(boolean isdisable,int status);
+	
+	public List<PickUpApplication> findPickUpApplicationsByStockId(String stockId);
+	
 	
 	
 }

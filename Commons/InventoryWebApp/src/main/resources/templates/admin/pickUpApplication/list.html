@@ -126,7 +126,7 @@
 											<option value="">--出库状态--</option>
 											<option th:value="1" th:selected="${session.pickstatus}==1">待出库</option>
 											<option th:value="2" th:selected="${session.pickstatus}==2">已出库</option>
-											<option th:value="3" th:selected="${session.pickstatus}==3">部分出库</option>
+							 			<option th:value="3" th:selected="${session.pickstatus}==3">部分出库</option> 
 
 
 										</select> <select class="filter-status form-control" id="pageSize"
@@ -173,10 +173,10 @@
 											<th class="numeric">设备名称</th>
 											<th class="numeric">设备型号</th>
 											<th class="numeric">预计出库数量</th>
-											<th class="numeric" th:if="${session.pickstatus}!=1">实际出库数量</th>
+											<th class="numeric" th:if="${session.pickstatus}!=2">实际出库数量</th>
 											<th class="numeric">发布人</th>
-											<th class="numeric" th:if="${session.pickstatus}!=1">处理人</th>
-											<th class="numeric" th:if="${session.pickstatus}==1">预计取货时间</th>
+											<th class="numeric" th:if="${session.pickstatus}!=2">处理人</th>
+											<th class="numeric" th:if="${session.pickstatus}==2">预计取货时间</th>
 											<th class="numeric">库存状态</th>
 											<th class="numeric">操作</th>
 										</tr>
@@ -198,9 +198,9 @@
 												<td class="numeric">[[${pickupApplication?.stock?.name}]]</td>
 												<td class="numeric">[[${pickupApplication?.stock?.model}]]</td>
 												<td class="numeric">[[${pickupApplication?.estimatedIssueQuantity}]]</td>
-												<td class="numeric" th:if="${session.pickstatus}!=1">[[${pickupApplication?.actualIssueQuantity}]]</td>
+												<td class="numeric" th:if="${session.pickstatus}!=2">[[${pickupApplication?.actualIssueQuantity}]]</td>
 												<td class="numeric">[[${pickupApplication?.publisher?.userName}]]</td>
-												<td class="numeric" th:if="${session.pickstatus}!=1">[[${pickupApplication?.handler?.userName}]]</td>
+												<td class="numeric" th:if="${session.pickstatus}!=2">[[${pickupApplication?.handler?.userName}]]</td>
 												<td class="numeric" th:if="${session.pickstatus}!=2"
 													th:text="${#dates.format(pickupApplication.pickUpTime,'yyyy-MM-dd hh:mm')}"></td>
 												<td class="numeric"

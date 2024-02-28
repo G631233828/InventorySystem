@@ -227,7 +227,12 @@
                                 </div>
 
                                 <div class="col-sm-7 form-inline">
-                                    <select class="filter-status form-control" id="pageSize">
+                                    <select class="filter-status form-control" id="stockType">
+                                        <option value="1" th:selected="${session.stockType == 1}">有库存
+                                        <option value="2" th:selected="${session.pageSize == 2}">无库存
+                                          <option value="3" th:selected="${session.pageSize == 3}">所有
+                                    </select>
+                                     <select class="filter-status form-control" id="pageSize">
                                         <option value="10" th:selected="${session.pageSize == 10}">10
                                         <option value="20" th:selected="${session.pageSize == 20}">20
                                         <option value="50" th:selected="${session.pageSize == 50}">50
@@ -247,6 +252,8 @@
                                                 th:each="area:${areas}" th:value="${area?.id}"
                                                 th:text="${area?.name}"></option>
                                     </select>
+                                    
+                                    
                                     <button class="btn btn-default btn-sm"
                                             onclick="return searchBo()">
                                         <i class="entypo-search"> </i> 搜索
@@ -318,6 +325,9 @@
                                         </th>
                                         <th class="numeric inventory"
                                             th:style="${#lists.contains(listColums,'inventory')}?'':'display:none;'">库存量
+                                        </th>
+                                        <th class="numeric remainingNum"
+                                            th:style="${#lists.contains(listColums,'remainingNum')}?'':'display:none;'">剩余可出库数量
                                         </th>
                                         <th class="numeric email"
                                             th:style="${#lists.contains(listColums,'email')}?'':'display:none;'">供应商邮箱
@@ -400,6 +410,12 @@
                                                 th:style="${#lists.contains(listColums,'inventory')}?'':'display:none;'">
                                                 <label
                                                         th:style="${stock?.inventory > 5}?'color:green':${stock?.inventory == 0?'color:red':'color:blue'}">[[${stock?.inventory}]]</label>
+                                            </td>
+                                              <td class="numeric remainingNum"
+                                                th:id="|remainingNum_${stock?.id}|"
+                                                th:style="${#lists.contains(listColums,'remainingNum')}?'':'display:none;'">
+                                                <label
+                                                        th:style="${stock?.remainingNum > 5}?'color:green':${stock?.remainingNum == 0?'color:red':'color:blue'}">[[${stock?.remainingNum}]]</label>
                                             </td>
                                             <td class="numeric email" id="email"
                                                 th:style="${#lists.contains(listColums,'email')}?'':'display:none;'">
@@ -517,6 +533,10 @@
                                         <th class="numeric inventory"
                                             th:style="${#lists.contains(listColums,'inventory')}?'':'display:none;'">
                                             [[${#aggregates.sum(pageList?.datas.![inventory==null?0:inventory])}]]
+                                        </th>
+                                          <th class="numeric inventory"
+                                            th:style="${#lists.contains(listColums,'remainingNum')}?'':'display:none;'">
+                                            [[${#aggregates.sum(pageList?.datas.![remainingNum==null?0:remainingNum])}]]
                                         </th>
                                         <th class="numeric email"
                                             th:style="${#lists.contains(listColums,'email')}?'':'display:none;'"></th>
