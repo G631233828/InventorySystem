@@ -789,17 +789,20 @@
 													<a th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':'#'"
 													   th:onclick="|return pageS('${pageList.nextPage}','${pageSize}','${pageList.totalPage}','${Bo}')|">下一页</a>
 												</li>
-
+	<li>
+												<input class="form-control" id="searchN" style="width: 60px; display: inline-block;"
+														   type="number" placeholder=""/> 
+												<a href="javascript:void(0);" style="float:right;"  th:onclick="|return searchbyN('${pageSize}','${pageList.totalPage}','${Bo}')|">跳转</a>
+												</li>
 
 												<li th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
+												
 													<a th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':'#'"
 													   th:onclick="|return pageS('${pageList.totalPage}','${pageSize}','${pageList.totalPage}','${Bo}')|">尾页</a>
+												
 												</li>
 
-												<li><input class="form-control" id="searchN" style="width: 60px;"
-														   type="number" placeholder=""/> <a href="javascript:void(0);"
-																							 th:onclick="|return searchbyN('${pageSize}','${pageList.totalPage}','${Bo}')|">跳转</a>
-												</li>
+											
 											</ul>
 										</div>
 									</div>
