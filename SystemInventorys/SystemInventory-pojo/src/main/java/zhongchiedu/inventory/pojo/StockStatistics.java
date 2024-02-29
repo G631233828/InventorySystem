@@ -48,7 +48,7 @@ public class StockStatistics extends GeneralBean<StockStatistics> {
 	private Companys company;//绑定企业
 	@DBRef
 	private User user;//操作人
-	private boolean revoke; //是否可撤销
+	private boolean revoke = false; //是否可撤销
 	private boolean inOrOut;//入库还是出库
 	private long revokeNum;//撤销数量，默认为全部，撤销数量不能大于入库或者出库数量
 	

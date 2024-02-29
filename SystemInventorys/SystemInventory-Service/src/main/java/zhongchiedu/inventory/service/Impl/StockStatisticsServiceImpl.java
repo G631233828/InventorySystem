@@ -301,15 +301,26 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	@Override
 	@SystemServiceLog(description = "库存出库入库")
 	public BasicDataResult inOrOutstockStatistics(StockStatistics stockStatistics, User user) {
-		long num = stockStatistics.getNum();
-		if (num <= 0) {
-			return BasicDataResult.build(400, "操作的数据有误！", null);
+	
+		long num =0;
+		if(stockStatistics.isRevoke()) {
+			num = stockStatistics.getRevokeNum();//获取到撤销数量
+		}else {
+			num = stockStatistics.getNum();
+			if (num <= 0) {
+				return BasicDataResult.build(400, "操作的数据有误！", null);
+			}
+		}
+		
+		//如果撤销数量为0 说明是撤销全部
+		if(num == 0) {
+			num = stockStatistics.getNum();
 		}
 		
 		String id = stockStatistics.getStock().getId();// 获取库存设备id
-		
-		
 		Stock stock = this.stockService.findOneById(id, Stock.class);
+	
+		
 		if (stock != null) {
 
 			long ycknum = 0;
@@ -325,23 +336,32 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			
 			stock.setDescription(stockStatistics.getDescription());
 			stockStatistics.setUser(user);
-			stockStatistics.setRevoke(false);
+//			stockStatistics.setRevoke(false);
 			stockStatistics.setArea(stock.getArea());
 			stockStatistics.setAgent(stock.isAgent());
 			if (stockStatistics.isInOrOut()) {
 				// true == 入库
 				// 更新库存中的库存
-				long newNum = this.updateStock(stock, num, true,ycknum);
-				stockStatistics.setStorageTime(Common.fromDateH());
+				long newNum = this.updateStock(stock, num, true);
+				
 				stockStatistics.setNewNum(newNum);
+				if(stockStatistics.isRevoke()) {
+					stockStatistics.setNum(stockStatistics.getNum()-num);
+					stockStatistics.setRevokeNum(num);
+					stockStatistics.setInOrOut(false);
+					stockStatistics.setRevoke((stockStatistics.getNum()-num)<=0);
+				}else {
+					stockStatistics.setStorageTime(Common.fromDateH());
+					stockStatistics.setNum(stockStatistics.getNum());
+				}
 				stockStatistics.setRemainingNum( newNum- ycknum);
-				lockInsert(stockStatistics);
+				lockUpdate(stockStatistics);
 
 				return BasicDataResult.build(200, "商品入库成功", stockStatistics);
 			} else {
 
 				// 出库
-				long newNum = this.updateStock(stock, num, false,ycknum);
+				long newNum = this.updateStock(stock, num, false);
 				if (newNum == -1) {
 					// 出货数量不够
 					return BasicDataResult.build(400, "货物库存数量不足", null);
@@ -350,7 +370,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				stockStatistics.setDepotTime(Common.fromDateH());
 				stockStatistics.setNewNum(newNum);
 				stockStatistics.setRemainingNum( newNum- ycknum);
-				lockInsert(stockStatistics);
+				lockUpdate(stockStatistics);
 				// 刷新redis中的projectName
 				this.redisTemplate.delete("projectNames");
 				return BasicDataResult.build(200, "商品出库成功", stockStatistics);
@@ -365,11 +385,15 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	Lock lockinsert = new ReentrantLock();
 
 	@SystemServiceLog(description = "库存出库入库执行insert")
-	public void lockInsert(StockStatistics stockStatistics) {
+	public void lockUpdate(StockStatistics stockStatistics) {
 
 		lockinsert.lock();
 		try {
-			this.insert(stockStatistics);
+		
+			this.save(stockStatistics);
+			
+			
+			
 		} finally {
 			lockinsert.unlock();
 		}
@@ -377,18 +401,18 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	}
 
 	@SystemServiceLog(description = "更新库存信息")
-	public long updateStock(Stock stock, long num, boolean inOrOut,long ycknum) {
+	public long updateStock(Stock stock, long num, boolean inOrOut) {
 		lock.lock();
 		
 		
-		long oldnum = stock.getInventory() - ycknum;
+		long oldnum = stock.getInventory();
 		
 		
 		long newnum = 0;
 		try {
 			if (inOrOut) {
 				// 入库
-				newnum = oldnum + num + ycknum;
+				newnum = oldnum + num;
 				stock.setInventory(newnum);
 				stock.setIsDelete(false);
 				this.stockService.save(stock);
@@ -398,7 +422,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				if ((oldnum - num) < 0) {
 					return -1;
 				}
-				newnum = oldnum - num +ycknum;
+				newnum = oldnum - num;
 				stock.setInventory(newnum);
 				stock.setIsDelete(false);
 				this.stockService.save(stock);
@@ -442,25 +466,38 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 	@Override
 	@SystemServiceLog(description = "撤销库存信息")
-	public BasicDataResult revoke(String id) {
+	public BasicDataResult revoke(String id,long num,User user) {
 		
 		
 		
 		StockStatistics st = this.findOneById(id, StockStatistics.class);
 		if (st.isRevoke()) {
-			return BasicDataResult.build(400, "该信息已经撤销，不能重复撤销", null);
+			return BasicDataResult.build(400, "该信息中的设备已经全部撤销，不能重复撤销", null);
 
 		}
 		if (st.getStock() == null) {
 			return BasicDataResult.build(400, "未能获取到设备信息", null);
 		}
+		
+		if(num>st.getNum()) {
+			return BasicDataResult.build(400, "撤销出库数量不能大于出库数量", null);
+		}
+		
+		
 		String stockId = st.getStock().getId();
-		List<PickUpApplication> pickUpApplication = this.pickUpApplicationService.findPickUpApplicationsByStockId(stockId);
-		long ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0,Long::sum);
+		
 		Stock stock = this.stockService.findOneById(stockId, Stock.class);
 		if (stock == null) {
 			return BasicDataResult.build(400, "未能获取到设备信息", null);
 		}
+		
+		
+		//根据设备id获取到预出库的信息
+		List<PickUpApplication> pickUpApplication = this.pickUpApplicationService.findPickUpApplicationsByStockId(stockId);
+		//获得预出库设备数量
+		//long ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0,Long::sum);
+		
+		
 
 		long newNum = 0L;
 		if (Common.isNotEmpty(st.getStorageTime())) {
@@ -468,19 +505,40 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			newNum = this.updatePreStock(stock, st.getNum(), false,st);
 		} else {
 			// 撤销出库
-			newNum = this.updateStock(stock, st.getNum(), true,ycknum );
-		}
-		if (newNum == -1) {
-			// 出货数量不够
-			return BasicDataResult.build(400, "货物库存数量不足,无法撤销入库", null);
-		}
-		StockStatistics stockStatistics = updateStockStatistics(st);
-		if (stockStatistics != null) {
-			StockStatistics revoke = new StockStatistics();
-			revoke.setRevokeNum(stockStatistics.getRevokeNum());
+			//如果num == 0 说明是返还全部 否则获取到num的数量
 
-			return BasicDataResult.build(200, "撤销成功", revoke);
+//			long stnum  =0;
+//			if(num>0) {
+//				stnum = num;
+//			}else {
+//				stnum = st.getNum();
+//			}
+//			
+			
+//			newNum = this.updateStock(stock, stnum, true );
+			st.setInOrOut(true);
+			st.setRevokeNum(num);
+			st.setRevoke(true);
+			//撤销出库通过统计去撤销并记录统计数据
+			 BasicDataResult inOrOutstockStatistics = this.inOrOutstockStatistics(st, user);
+			 if(inOrOutstockStatistics.getStatus()==200) {
+				 return BasicDataResult.build(200, "撤销成功", inOrOutstockStatistics.getData());
+			 }
+			
 		}
+		
+	
+//		if (newNum == -1) {
+//			// 出货数量不够
+//			return BasicDataResult.build(400, "货物库存数量不足,无法撤销入库", null);
+//		}
+//		StockStatistics stockStatistics = updateStockStatistics(st);
+//		if (stockStatistics != null) {
+//			StockStatistics revoke = new StockStatistics();
+//			revoke.setRevokeNum(stockStatistics.getRevokeNum());
+//
+//			return BasicDataResult.build(200, "撤销成功", revoke);
+//		}
 		return BasicDataResult.build(400, "撤销过程中出现未知异常", null);
 
 	}

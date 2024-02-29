@@ -467,9 +467,9 @@
 													<td class="numeric outNum" th:id="|outNum_${stockStatistics?.id}|"
 														th:style="${#lists.contains(listColums,'outNum')}?'':'display:none;'"
 														th:text="${stockStatistics.depotTime != null}?${stockStatistics?.num}:'--------'"></td>
-													<td class="numeric newNum" id="newNum"
+													<td class="numeric newNum" th:id="|newNum_${stockStatistics?.id}|"
 														th:style="${#lists.contains(listColums,'newNum')}?'':'display:none;'">[[${stockStatistics?.newNum}]]</td>
-													<td class="numeric revokeNum" id="revokeNum"
+													<td class="numeric revokeNum" th:id="|revokeNum_${stockStatistics?.id}|"
 														th:style="${#lists.contains(listColums,'revokeNum')}?'':'display:none;'">[[${stockStatistics?.revokeNum}]]</td>
 													<td class="numeric personInCharge" id="personInCharge"
 														th:style="${#lists.contains(listColums,'personInCharge')}?'':'display:none;'"
@@ -556,15 +556,15 @@
 													<!-- #strings.isEmpty(stockStatistics.receiptNo)&& -->
 													<!-- &&strings.isEmpty(stockStatistics.sailesInvoiceNo) -->
 													<th:block th:if="|
-
+													${stockStatistics?.num >0 &&
 													#strings.isEmpty(stockStatistics.paymentOrderNo)&&
 													!stockStatistics?.confirm}|
 													">
 													<shiro:hasPermission 	name="stockStatistics:revoke">
 														<button class="btn btn-primary btn-xs btcancle" id="revoke"
 																th:id="${stockStatistics?.id}" th:name="|cx_${stockStatistics?.id}|"
-																th:onclick="|return revoke('${stockStatistics?.id}')|">
-																<i class="fa fa-edit"> </i>撤销 
+																th:onclick="${stockStatistics.storageTime!=null}?|return revokein('${stockStatistics?.id}')|:|return revoke('${stockStatistics?.id}')|">
+																<i class="fa fa-edit"> </i>撤销
 															</button>
 														</shiro:hasPermission> 
 													
@@ -645,6 +645,8 @@
 													th:style="${#lists.contains(listColums,'area')}?'':'display:none;'"></th>
 												<th class="numeric entryName"
 													th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'"></th>
+												<th class="numeric pname"
+													th:style="${#lists.contains(listColums,'pname')}?'':'display:none;'"></th>
 												<th class="numeric supplier"
 													th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'"></th>
 												<th class="numeric itemNo"
@@ -853,7 +855,7 @@
 	<script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
 	<div th:replace="public/public_js::validator"></div>
 	<script th:src="@{/assets/js/select/bootstrap-select.js}"
-			type="text/javascript"></script>
+			type="text/javascript"></script>	
 	<script type="text/javascript" th:inline="javascript">
 		function setProjectName(o) {
 			$("#projectName").val(o)

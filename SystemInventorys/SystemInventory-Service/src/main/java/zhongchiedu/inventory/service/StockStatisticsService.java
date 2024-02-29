@@ -25,11 +25,11 @@ public interface StockStatisticsService extends GeneralService<StockStatistics> 
 	public Pagination<StockStatistics> findpagination(Integer pageNo, Integer pageSize, RequestBo requestBo);
 	public BasicDataResult inOrOutstockStatistics(StockStatistics stockStatistics,User user);
 		
-	public long updateStock(Stock stock,long num,boolean inOrOut,long ycknum);
+	public long updateStock(Stock stock,long num,boolean inOrOut);
 
 
 
-	public BasicDataResult revoke(String id);
+	public BasicDataResult revoke(String id,long num,User user);
 
 	public BasicDataResult confirm(String id);
 	

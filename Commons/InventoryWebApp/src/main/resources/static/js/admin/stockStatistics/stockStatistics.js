@@ -6,29 +6,29 @@ $(function() {
 	//销售
 
 	// window.sailPrice=sailprice;
-	var inprice=$("#heji").text();
-	var sailprice=$("#sailPrice").text();
-	var inNum=$("#inNumHJ").text();
-	var outNum=$("#outNumHJ").text();
+	var inprice = $("#heji").text();
+	var sailprice = $("#sailPrice").text();
+	var inNum = $("#inNumHJ").text();
+	var outNum = $("#outNumHJ").text();
 
-	const checkboxs=document.querySelectorAll('input[name=ids]');
-	let inpriceHJ=$("#heji");
-	let sailPriceHJ=$("#sailPrice");
-	let inNumHJ=$("#inNumHJ");
-	let outNumHJ=$("#outNumHJ");
-	function changeHeji(checkbox,total,windowparam,selector,param1) {
-		const isckeck=$('input[type="checkbox"][name="ids"]:checked').length === 0;
-		const isFirstCheck=$('input[type="checkbox"][name="ids"]:checked').length === 1;
-		const id=checkbox.id;
-		const paramId=$('#' + param1 + id);
+	const checkboxs = document.querySelectorAll('input[name=ids]');
+	let inpriceHJ = $("#heji");
+	let sailPriceHJ = $("#sailPrice");
+	let inNumHJ = $("#inNumHJ");
+	let outNumHJ = $("#outNumHJ");
+	function changeHeji(checkbox, total, windowparam, selector, param1) {
+		const isckeck = $('input[type="checkbox"][name="ids"]:checked').length === 0;
+		const isFirstCheck = $('input[type="checkbox"][name="ids"]:checked').length === 1;
+		const id = checkbox.id;
+		const paramId = $('#' + param1 + id);
 		// const amount=Number(paramId.text());
-		const amount=isNaN(Number(paramId.text()))?0:Number(paramId.text());
+		const amount = isNaN(Number(paramId.text())) ? 0 : Number(paramId.text());
 		if (checkbox.checked) {
-			total= isFirstCheck?0:total;
+			total = isFirstCheck ? 0 : total;
 			total += amount;
 		} else {
 			total -= amount;
-			total = isckeck?windowparam:total;
+			total = isckeck ? windowparam : total;
 
 		}
 		selector.text(total)
@@ -38,14 +38,14 @@ $(function() {
 	var data = {
 		inptotal: 0,
 		sailtotal: 0,
-		innumtotal:0,
-		outnumtotal:0,
+		innumtotal: 0,
+		outnumtotal: 0,
 		baozhuang: function(checkbox) {
 			var self = this;
 			return () => {
-				self.inptotal =changeHeji(checkbox, self.inptotal, inprice, inpriceHJ, "inprice_");
+				self.inptotal = changeHeji(checkbox, self.inptotal, inprice, inpriceHJ, "inprice_");
 				self.sailtotal = changeHeji(checkbox, self.sailtotal, sailprice, sailPriceHJ, "sailPrice_");
-				self.innumtotal =changeHeji(checkbox, self.innumtotal, inNum, inNumHJ, "inNum_");
+				self.innumtotal = changeHeji(checkbox, self.innumtotal, inNum, inNumHJ, "inNum_");
 				self.outnumtotal = changeHeji(checkbox, self.outnumtotal, outNum, outNumHJ, "outNum_");
 
 			};
@@ -132,7 +132,7 @@ function searchVal() {
 	 * "", text : "查询内容不能为空!!", }); return ; }
 	 */
 	window.location.href = "stockStatisticss?pageSize=" + pageSize + "&search="
-		+ search + "&start=" + start + "&end=" + end  + "&type=" + type + "&searchArea=" + searchArea + "&searchAgent=" + searchAgent+ "&revoke=" + revoke + "&confirm=" + confirm + "&ssC=" + ssC;
+		+ search + "&start=" + start + "&end=" + end + "&type=" + type + "&searchArea=" + searchArea + "&searchAgent=" + searchAgent + "&revoke=" + revoke + "&confirm=" + confirm + "&ssC=" + ssC;
 }
 // function searchSize() {
 //	
@@ -150,27 +150,27 @@ function toExport() {
 
 
 	var area = $("#searchArea").val();
-	var name=$('[name="name"]').val();
-	var model=$('[name="model"]').val();
-	var supplier=$('[name="supplier"]').val();
-	var entryName=$('[name="entryName"]').val();
-	var itemNo=$('[name="itemNo"]').val();
-	var purchaseInvoiceNo=$('[name="purchaseInvoiceNo"]').val();
-	var purchaseInvoiceDate=$('[name="purchaseInvoiceDate"]').val();
-	var paymentOrderNo=$('[name="paymentOrderNo"]').val();
+	var name = $('[name="name"]').val();
+	var model = $('[name="model"]').val();
+	var supplier = $('[name="supplier"]').val();
+	var entryName = $('[name="entryName"]').val();
+	var itemNo = $('[name="itemNo"]').val();
+	var purchaseInvoiceNo = $('[name="purchaseInvoiceNo"]').val();
+	var purchaseInvoiceDate = $('[name="purchaseInvoiceDate"]').val();
+	var paymentOrderNo = $('[name="paymentOrderNo"]').val();
 	var ssC = $("#searchssC").val();
-	var start=$("#start").val();
-	var end=$("#end").val();
-	var type=$('[name="type"]').val();
-	var revoke=$('[name="revoke"]').val();
-	var confirm=$('[name="confirm"]').val();
-	var projectName=$('[name="projectName"]').val();
-	var customer=$('[name="customer"]').val();
-	if(start==""||end==""){
+	var start = $("#start").val();
+	var end = $("#end").val();
+	var type = $('[name="type"]').val();
+	var revoke = $('[name="revoke"]').val();
+	var confirm = $('[name="confirm"]').val();
+	var projectName = $('[name="projectName"]').val();
+	var customer = $('[name="customer"]').val();
+	if (start == "" || end == "") {
 		jqueryAlert({
-			'icon'    : getRootPath() +'/plugs/alert/img/error.png',
-			'content' : "导入的时间段不能为空",
-			'closeTime' : 2000,
+			'icon': getRootPath() + '/plugs/alert/img/error.png',
+			'content': "导入的时间段不能为空",
+			'closeTime': 2000,
 		})
 		return;
 	}
@@ -179,35 +179,35 @@ function toExport() {
 		'content': "正在导出请稍等...",
 		'closeTime': 5000,
 	})
-	window.location.href = "stockStatistics/export?&searchArea=" + area +"&type="
-		+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC="+ssC
-		+"&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo +
-		"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo="+paymentOrderNo
-		+"&customer=" +customer+"&projectName=" +projectName;
+	window.location.href = "stockStatistics/export?&searchArea=" + area + "&type="
+		+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC=" + ssC
+		+ "&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo +
+		"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo=" + paymentOrderNo
+		+ "&customer=" + customer + "&projectName=" + projectName;
 
 }
 
 function toJD() {
 	var area = $("#searchArea").val();
-	var name=$('[name="name"]').val();
-	var model=$('[name="model"]').val();
-	var supplier=$('[name="supplier"]').val();
-	var entryName=$('[name="entryName"]').val();
-	var itemNo=$('[name="itemNo"]').val();
-	var purchaseInvoiceNo=$('[name="purchaseInvoiceNo"]').val();
-	var purchaseInvoiceDate=$('[name="purchaseInvoiceDate"]').val();
-	var paymentOrderNo=$('[name="paymentOrderNo"]').val();
+	var name = $('[name="name"]').val();
+	var model = $('[name="model"]').val();
+	var supplier = $('[name="supplier"]').val();
+	var entryName = $('[name="entryName"]').val();
+	var itemNo = $('[name="itemNo"]').val();
+	var purchaseInvoiceNo = $('[name="purchaseInvoiceNo"]').val();
+	var purchaseInvoiceDate = $('[name="purchaseInvoiceDate"]').val();
+	var paymentOrderNo = $('[name="paymentOrderNo"]').val();
 	var ssC = $("#searchssC").val();
-	var start=$("#start").val();
-	var end=$("#end").val();
-	var type=$('[name="type"]').val();
-	var revoke=$('[name="revoke"]').val();
-	var confirm=$('[name="confirm"]').val();
-	if(start==""||end==""){
+	var start = $("#start").val();
+	var end = $("#end").val();
+	var type = $('[name="type"]').val();
+	var revoke = $('[name="revoke"]').val();
+	var confirm = $('[name="confirm"]').val();
+	if (start == "" || end == "") {
 		jqueryAlert({
-			'icon'    : getRootPath() +'/plugs/alert/img/error.png',
-			'content' : "导入的时间段不能为空",
-			'closeTime' : 2000,
+			'icon': getRootPath() + '/plugs/alert/img/error.png',
+			'content': "导入的时间段不能为空",
+			'closeTime': 2000,
 		})
 		return;
 	}
@@ -216,17 +216,17 @@ function toJD() {
 		'content': "正在导出请稍等...",
 		'closeTime': 5000,
 	})
-	window.location.href = "stockStatistics/toJD?&searchArea=" + area +"&type="
-		+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC="+ssC
-		+"&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo +
-		"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo="+paymentOrderNo;
+	window.location.href = "stockStatistics/toJD?&searchArea=" + area + "&type="
+		+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC=" + ssC
+		+ "&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo +
+		"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo=" + paymentOrderNo;
 
 }
 
 
-function findMineEidt(){
-	
-var pageSize = $("#pageSize").val();
+function findMineEidt() {
+
+	var pageSize = $("#pageSize").val();
 	var search = $("#serach").val();
 	var start = $("#start").val();
 	var end = $("#end").val();
@@ -240,51 +240,51 @@ var pageSize = $("#pageSize").val();
 	 * "", text : "查询内容不能为空!!", }); return ; }
 	 */
 	window.location.href = "stockStatisticss?pageSize=" + pageSize + "&search="
-		+ search + "&start=" + start + "&end=" + end  + "&type=" + type + "&searchArea=" + searchArea + "&searchAgent=" + searchAgent+ "&userId=" + userId;
+		+ search + "&start=" + start + "&end=" + end + "&type=" + type + "&searchArea=" + searchArea + "&searchAgent=" + searchAgent + "&userId=" + userId;
 
 }
 
 //导出新库存统计
 function toExportNew() {
 	var area = $("#searchArea").val();
-	var name=$('[name="name"]').val();
-	var model=$('[name="model"]').val();
-	var supplier=$('[name="supplier"]').val();
-	var entryName=$('[name="entryName"]').val();
-	var itemNo=$('[name="itemNo"]').val();
-	var purchaseInvoiceNo=$('[name="purchaseInvoiceNo"]').val();
-	var purchaseInvoiceDate=$('[name="purchaseInvoiceDate"]').val();
-	var paymentOrderNo=$('[name="paymentOrderNo"]').val();
+	var name = $('[name="name"]').val();
+	var model = $('[name="model"]').val();
+	var supplier = $('[name="supplier"]').val();
+	var entryName = $('[name="entryName"]').val();
+	var itemNo = $('[name="itemNo"]').val();
+	var purchaseInvoiceNo = $('[name="purchaseInvoiceNo"]').val();
+	var purchaseInvoiceDate = $('[name="purchaseInvoiceDate"]').val();
+	var paymentOrderNo = $('[name="paymentOrderNo"]').val();
 	var ssC = $("#searchssC").val();
-	var start=$("#start").val();
-	var end=$("#end").val();
-	var type=$('[name="type"]').val();
-	var revoke=$('[name="revoke"]').val();
-	var confirm=$('[name="confirm"]').val();
-	var projectName=$('[name="projectName"]').val();
-	var customer=$('[name="customer"]').val();
-	if(start==""||end==""){
-	jqueryAlert({
-		    'icon'    : getRootPath() +'/plugs/alert/img/error.png',
-		    'content' : "导入的时间段不能为空",
-		    'closeTime' : 2000,
+	var start = $("#start").val();
+	var end = $("#end").val();
+	var type = $('[name="type"]').val();
+	var revoke = $('[name="revoke"]').val();
+	var confirm = $('[name="confirm"]').val();
+	var projectName = $('[name="projectName"]').val();
+	var customer = $('[name="customer"]').val();
+	if (start == "" || end == "") {
+		jqueryAlert({
+			'icon': getRootPath() + '/plugs/alert/img/error.png',
+			'content': "导入的时间段不能为空",
+			'closeTime': 2000,
 		})
 		return;
 	}
-	
-	
-	
-	
+
+
+
+
 	jqueryAlert({
 		'icon': getRootPath() + '/plugs/alert/img/right.png',
 		'content': "正在导出请稍等...",
 		'closeTime': 5000,
 	})
-	window.location.href = "stockStatistics/exportNew?&searchArea=" + area +"&type="
-	+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC="+ssC
-	+"&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo +
-	"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo="+paymentOrderNo
-		+"&customer=" +customer+"&projectName=" +projectName;
+	window.location.href = "stockStatistics/exportNew?&searchArea=" + area + "&type="
+		+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC=" + ssC
+		+ "&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo +
+		"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo=" + paymentOrderNo
+		+ "&customer=" + customer + "&projectName=" + projectName;
 
 }
 
@@ -301,25 +301,25 @@ function toExportNew3() {
 	var type = $("#type").val();
 	var areaId = $("#searchArea").val();
 	var searchAgent = $("#agent").val();
-	
-	if(start==""||end==""){
-	jqueryAlert({
-		    'icon'    : getRootPath() +'/plugs/alert/img/error.png',
-		    'content' : "导入的时间段不能为空",
-		    'closeTime' : 2000,
+
+	if (start == "" || end == "") {
+		jqueryAlert({
+			'icon': getRootPath() + '/plugs/alert/img/error.png',
+			'content': "导入的时间段不能为空",
+			'closeTime': 2000,
 		})
 		return;
 	}
-	
-	
-	
-	
+
+
+
+
 	jqueryAlert({
 		'icon': getRootPath() + '/plugs/alert/img/right.png',
 		'content': "正在导出请稍等...",
 		'closeTime': 5000,
 	})
-	window.location.href = "stockStatistics/exportNew3?search=" + search + "&start=" + start + "&end=" + end  + "&type=" + type + "&areaId=" + areaId + "&searchAgent=" + searchAgent;
+	window.location.href = "stockStatistics/exportNew3?search=" + search + "&start=" + start + "&end=" + end + "&type=" + type + "&areaId=" + areaId + "&searchAgent=" + searchAgent;
 
 }
 
@@ -381,10 +381,10 @@ function revoke(o) {
 	}
 	M.dialog3 = jqueryAlert({
 		'title': '撤销提醒',
-		'content': '您当前正在做撤销的操作',
+		'content': '您当前正在做撤销/返还的操作',
 		'modal': true,
 		'buttons': {
-			'确定': function() {
+			'撤销全部': function() {
 				$.ajax({
 					type: 'GET',
 					url: 'stockStatistics/revoke',
@@ -392,12 +392,14 @@ function revoke(o) {
 					dataType: 'json',
 					success: function(data) {
 						if (data.status == 200) {
-							//							$("#revokeNum").text(data.data.revokeNum);
+							$("#revokeNum_"+o).text(data.data.revokeNum);
+							$("#newNum_"+o).text(data.data.newNum);
+							$("#outNum_"+o).text(data.data.num);
 							$("#revoke" + o).css("color", "red");
 							$("#revoke" + o).text("已撤销");
 							$("#outbound" + o).hide();
 							$("#qrcode" + o).hide();
-							$("#confirm" + o).css("display","none");
+							$("#confirm" + o).css("display", "none");
 							M.dialog3.close();
 							jqueryAlert({
 								'content': data.msg
@@ -413,9 +415,127 @@ function revoke(o) {
 
 
 			},
+			'返还部分': function() {
+				M.dialog3.close();
+				M.dialog5 = jqueryAlert({
+					'title': '返回设备提醒',
+					'content': `返还数量：<input type='text' name='fh' id='fh'/>`,
+					'modal': true,
+					'buttons': {
+						'确定': function() {
+
+							var num = $("#fh").val();
+							var pattern = /^[1-9]\d*$/;
+							var flag = pattern.test(num);
+							if (flag) {
+
+
+								$.ajax({
+									type: 'GET',
+									url: 'stockStatistics/revoke',
+									data: "id=" + o+"&num="+num,
+									dataType: 'json',
+									success: function(data) {
+										if (data.status == 200) {
+												$("#revokeNum_"+o).text(data.data.revokeNum);
+												$("#newNum_"+o).text(data.data.newNum);
+												$("#outNum_"+o).text(data.data.num);
+												if(data.data.num<=0){
+												$("#confirm" + o).css("display", "none");
+												$("#" + o).css("display", "none");
+												}
+												
+											$("#revoke" + o).css("color", "red");
+											$("#revoke" + o).text("已撤销");
+											$("#outbound" + o).hide();
+											$("#qrcode" + o).hide();
+											//$("#confirm" + o).css("display", "none");
+											M.dialog5.close();
+											jqueryAlert({
+												'content': data.msg
+											})
+										} else {
+											M.dialog5.close();
+											jqueryAlert({
+												'content': data.msg
+											})
+										}
+									}
+								})
+
+							} else {
+								jqueryAlert({
+									'content': '输入的返还数量有误'
+								})
+							}
+
+
+
+
+						},
+						'取消': function() {
+							M.dialog5.close();
+						}
+					}
+				})
+			},
 			'取消': function() {
 				M.dialog3.close();
-			}
+			},
+		}
+	})
+
+}
+
+
+
+//撤销入库
+function revokein(o) {
+
+	var M = {
+
+	}
+	if (M.dialog3) {
+		return M.dialog3.show();
+	}
+	M.dialog3 = jqueryAlert({
+		'title': '撤销提醒',
+		'content': '您当前正在做撤销/返还的操作',
+		'modal': true,
+		'buttons': {
+			'确定': function() {
+				$.ajax({
+					type: 'GET',
+					url: 'stockStatistics/revoke',
+					data: "id=" + o,
+					dataType: 'json',
+					success: function(data) {
+						if (data.status == 200) {
+							//							$("#revokeNum").text(data.data.revokeNum);
+							$("#revoke" + o).css("color", "red");
+							$("#revoke" + o).text("已撤销");
+							$("#outbound" + o).hide();
+							$("#qrcode" + o).hide();
+							$("#confirm" + o).css("display", "none");
+							M.dialog3.close();
+							jqueryAlert({
+								'content': data.msg
+							})
+						} else {
+							M.dialog3.close();
+							jqueryAlert({
+								'content': data.msg
+							})
+						}
+					}
+				})
+
+
+			},
+			
+			'取消': function() {
+				M.dialog3.close();
+			},
 		}
 	})
 
@@ -449,10 +569,10 @@ function confirm(o) {
 							$("#outbound" + o).hide();
 							$("#qrcode" + o).hide();
 							$("#ckcode" + o).hide();
-							var a='cx_'+o;
-							var  b='cwx_'+o;
-							$("button[name="+a+"]").hide();
-							$("button[name="+b+"]").hide();
+							var a = 'cx_' + o;
+							var b = 'cwx_' + o;
+							$("button[name=" + a + "]").hide();
+							$("button[name=" + b + "]").hide();
 							$("#confirm" + o).addClass("danger")
 							M.dialog3.close();
 							jqueryAlert({
@@ -611,7 +731,7 @@ function editStockStatistics() {
 
 }
 
-function confirms(){
+function confirms() {
 	var a = $("input[name='ids']:checked").length;
 	if (a == 0) {
 		swal({
@@ -620,7 +740,7 @@ function confirms(){
 			text: "批量核对库存统计信息至少选择一项!!",
 		});
 
-	} else{
+	} else {
 
 		var batchids = "";
 		var id = $("input[name='ids']:checked");
@@ -653,16 +773,16 @@ function confirms(){
 							if (data.status == 200) {
 
 								$(id).each(function() {
-								var o=this.value;
-								$("#confirm_" + o).text("已核对");
-								$("#outbound" + o).hide();
-								$("#qrcode" + o).hide();
-								$("#ckcode" + o).hide();
-								var a='cx_'+o;
-								var  b='cwx_'+o;
-								$("button[name="+a+"]").hide();
-								$("button[name="+b+"]").hide();
-								$("#confirm" + o).addClass("danger")
+									var o = this.value;
+									$("#confirm_" + o).text("已核对");
+									$("#outbound" + o).hide();
+									$("#qrcode" + o).hide();
+									$("#ckcode" + o).hide();
+									var a = 'cx_' + o;
+									var b =  'cwx_' + o;
+									$("button[name=" + a + "]").hide();
+									$("button[name=" + b + "]").hide();
+									$("#confirm" + o).addClass("danger")
 								});
 								M.dialog3.close();
 								jqueryAlert({
@@ -670,7 +790,7 @@ function confirms(){
 								})
 							} else {
 								M.dialog3.close();
-								console.log("失败"+batchids);
+								console.log("失败" + batchids);
 								jqueryAlert({
 									'content': data.msg
 								})
@@ -692,116 +812,116 @@ function confirms(){
 
 function getitem(o) {
 
-$("#_"+o).val('')
-$("#"+o).toggle();
+	$("#_" + o).val('')
+	$("#" + o).toggle();
 
 }
 
-function searchbyN(size,totalpage,Bo){
+function searchbyN(size, totalpage, Bo) {
 	var bo = JSON.parse(Bo);
-	var N=$("#searchN").val();
-	var Tpage=parseInt(totalpage);
-	if(N <= 0 || N > Tpage){
+	var N = $("#searchN").val();
+	var Tpage = parseInt(totalpage);
+	if (N <= 0 || N > Tpage) {
 		swal({
 			type: "warning",
 			title: "",
 			text: "页数不对，重新填写!!",
 		});
-	}else{
-		var name=returnEmpty(bo.name);
-		var ssC=returnEmpty(bo.ssC);
-		var area=returnEmpty(bo.searchArea);
-		var model=returnEmpty(bo.model);
-		var supplier=returnEmpty(bo.supplier);
-		var entryName=returnEmpty(bo.entryName);
-		var itemNo=returnEmpty(bo.itemNo);
-		var purchaseInvoiceNo=returnEmpty(bo.purchaseInvoiceNo);
-		var purchaseInvoiceDate=returnEmpty(bo.purchaseInvoiceDate);
-		var paymentOrderNo=returnEmpty(bo.paymentOrderNo);
-		var type=returnEmpty(bo.type);
-		var start=returnEmpty(bo.start);
-		var end=returnEmpty(bo.end);
-		var revoke=returnEmpty(bo.revoke);
-		var confirm=returnEmpty(bo.confirm);
-		var customer=returnEmpty(bo.customer);
-		var projectName=returnEmpty(bo.projectName);
+	} else {
+		var name = returnEmpty(bo.name);
+		var ssC = returnEmpty(bo.ssC);
+		var area = returnEmpty(bo.searchArea);
+		var model = returnEmpty(bo.model);
+		var supplier = returnEmpty(bo.supplier);
+		var entryName = returnEmpty(bo.entryName);
+		var itemNo = returnEmpty(bo.itemNo);
+		var purchaseInvoiceNo = returnEmpty(bo.purchaseInvoiceNo);
+		var purchaseInvoiceDate = returnEmpty(bo.purchaseInvoiceDate);
+		var paymentOrderNo = returnEmpty(bo.paymentOrderNo);
+		var type = returnEmpty(bo.type);
+		var start = returnEmpty(bo.start);
+		var end = returnEmpty(bo.end);
+		var revoke = returnEmpty(bo.revoke);
+		var confirm = returnEmpty(bo.confirm);
+		var customer = returnEmpty(bo.customer);
+		var projectName = returnEmpty(bo.projectName);
 		// var userId=returnEmpty(bo.userId);
-		window.location.href = "stockStatisticss?pageNo=" + N +"&pageSize=" + size + "&searchArea=" + area +"&type="
-			+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC="+ssC
-		+"&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo +
-			"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo="+paymentOrderNo
-			+"&customer=" +customer+"&projectName=" +projectName;
+		window.location.href = "stockStatisticss?pageNo=" + N + "&pageSize=" + size + "&searchArea=" + area + "&type="
+			+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC=" + ssC
+			+ "&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo +
+			"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo=" + paymentOrderNo
+			+ "&customer=" + customer + "&projectName=" + projectName;
 	}
 
 }
 
-function  returnEmpty(str){
-	if(str === null  || str === undefined ){
+function returnEmpty(str) {
+	if (str === null || str === undefined) {
 		return '';
 	}
 	return str;
 }
 
-function  pageS(pageNo,size,totalpage,Bo){
+function pageS(pageNo, size, totalpage, Bo) {
 	var bo = JSON.parse(Bo);
-	var name=returnEmpty(bo.name);
-	var ssC=returnEmpty(bo.ssC);
-	var area=returnEmpty(bo.searchArea);
-	var model=returnEmpty(bo.model);
-	var supplier=returnEmpty(bo.supplier);
-	var entryName=returnEmpty(bo.entryName);
-	var itemNo=returnEmpty(bo.itemNo);
-	var purchaseInvoiceNo=returnEmpty(bo.purchaseInvoiceNo);
-	var purchaseInvoiceDate=returnEmpty(bo.purchaseInvoiceDate);
-	var paymentOrderNo=returnEmpty(bo.paymentOrderNo);
-	var type=returnEmpty(bo.type);
-	var start=returnEmpty(bo.start);
-	var end=returnEmpty(bo.end);
-	var revoke=returnEmpty(bo.revoke);
-	var confirm=returnEmpty(bo.confirm);
-	var customer=returnEmpty(bo.customer);
-	var projectName=returnEmpty(bo.projectName);
-	var sailesInvoiceNo=$('[name="sailesInvoiceNo"]').val();
+	var name = returnEmpty(bo.name);
+	var ssC = returnEmpty(bo.ssC);
+	var area = returnEmpty(bo.searchArea);
+	var model = returnEmpty(bo.model);
+	var supplier = returnEmpty(bo.supplier);
+	var entryName = returnEmpty(bo.entryName);
+	var itemNo = returnEmpty(bo.itemNo);
+	var purchaseInvoiceNo = returnEmpty(bo.purchaseInvoiceNo);
+	var purchaseInvoiceDate =  returnEmpty(bo.purchaseInvoiceDate);
+	var paymentOrderNo = returnEmpty(bo.paymentOrderNo);
+	var type = returnEmpty(bo.type);
+	var start = returnEmpty(bo.start);
+	var end = returnEmpty(bo.end);
+	var revoke = returnEmpty(bo.revoke);
+	var confirm = returnEmpty(bo.confirm);
+	var customer = returnEmpty(bo.customer);
+	var projectName = returnEmpty(bo.projectName);
+	var sailesInvoiceNo = $('[name="sailesInvoiceNo"]').val();
 
 	// var userId=returnEmpty(bo.userId);
 
-	window.location.href = "stockStatisticss?pageNo=" + pageNo +"&pageSize=" + size + "&searchArea=" + area +"&type="
-		+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC="+ssC
-		+"&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo +
-		"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo="+paymentOrderNo
-		+"&customer=" +customer+"&projectName=" +projectName+"&sailesInvoiceNo="+sailesInvoiceNo;
+	window.location.href = "stockStatisticss?pageNo=" + pageNo + "&pageSize=" + size + "&searchArea=" + area + "&type="
+		+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC=" + ssC
+		+ "&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo +
+		"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo=" + paymentOrderNo
+		+ "&customer=" + customer + "&projectName=" + projectName + "&sailesInvoiceNo=" + sailesInvoiceNo;
 }
 
 function searchBo() {
 	var area = $("#searchArea").val();
 	var size = $("#pageSize").val();
-	var name=$('[name="name"]').val();
-	var model=$('[name="model"]').val();
-	var supplier=$('[name="supplier"]').val();
-	var entryName=$('[name="entryName"]').val();
-	var itemNo=$('[name="itemNo"]').val();
-	var purchaseInvoiceNo=$('[name="purchaseInvoiceNo"]').val();
-	var purchaseInvoiceDate=$('[name="purchaseInvoiceDate"]').val();
-	var paymentOrderNo=$('[name="paymentOrderNo"]').val();
+	var name = $('[name="name"]').val();
+	var model = $('[name="model"]').val();
+	var supplier = $('[name="supplier"]').val();
+	var entryName = $('[name="entryName"]').val();
+	var itemNo = $('[name="itemNo"]').val();
+	var purchaseInvoiceNo = $('[name="purchaseInvoiceNo"]').val();
+	var purchaseInvoiceDate = $('[name="purchaseInvoiceDate"]').val();
+	var paymentOrderNo = $('[name="paymentOrderNo"]').val();
 	var ssC = $("#searchssC").val();
-	var start=$("#start").val();
-	var end=$("#end").val();
-	var type=$('[name="type"]').val();
-	var revoke=$('[name="revoke"]').val();
-	var confirm=$('[name="confirm"]').val();
-	var projectName=$('[name="projectName"]').val();
-	var customer=$('[name="customer"]').val();
-	var sailesInvoiceNo=$('[name="sailesInvoiceNo"]').val();
+	var start = $("#start").val();
+	var end = $("#end").val();
+	var type = $('[name="type"]').val();
+	var revoke = $('[name="revoke"]').val();
+	var confirm = $('[name="confirm"]').val();
+	var projectName = $('[name="projectName"]').val();
+	var customer = $('[name="customer"]').val();
+	var sailesInvoiceNo = $('[name="sailesInvoiceNo"]').val();
 	// var userId=$('[name="userId"]').val();
 	/*
 	 * if (search == null || search == "") { swal({ type : "warning", title : "",
 	 * text : "查询内容不能为空!!", }); return ; }
 	 */
-	window.location.href = "stockStatisticss?&pageSize=" + size + "&searchArea=" + area +"&type="
-		+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC="+ssC
-		+"&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo +
-		"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo="+paymentOrderNo
-	+"&customer=" +customer+"&projectName=" +projectName +"&sailesInvoiceNo="+sailesInvoiceNo;
+	window.location.href = "stockStatisticss?&pageSize=" + size + "&searchArea=" + area + "&type="
+		+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC=" + ssC
+		+ "&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo +
+		"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo=" + paymentOrderNo
+		+ "&customer=" + customer + "&projectName=" + projectName + "&sailesInvoiceNo=" + sailesInvoiceNo;
 
 }
 
