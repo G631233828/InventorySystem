@@ -419,7 +419,7 @@ function revoke(o) {
 				M.dialog3.close();
 				M.dialog5 = jqueryAlert({
 					'title': '返回设备提醒',
-					'content': `返还数量：<input type='text' name='fh' id='fh'/>`,
+					'content': `返还数量：<input type='text' style='color:red' name='fh' id='fh'/>`,
 					'modal': true,
 					'buttons': {
 						'确定': function() {
@@ -451,6 +451,8 @@ function revoke(o) {
 											$("#qrcode" + o).hide();
 											//$("#confirm" + o).css("display", "none");
 											M.dialog5.close();
+											$(".alert-content input").remove()
+											location.reload();
 											jqueryAlert({
 												'content': data.msg
 											})

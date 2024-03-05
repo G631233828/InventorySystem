@@ -40,6 +40,7 @@ import zhongchiedu.inventory.pojo.Area;
 import zhongchiedu.inventory.pojo.InventoryRole;
 import zhongchiedu.inventory.pojo.PickUpApplication;
 import zhongchiedu.inventory.pojo.Stock;
+import zhongchiedu.inventory.pojo.StockStatistics;
 import zhongchiedu.inventory.service.InventoryRoleService;
 import zhongchiedu.inventory.service.PickUpApplicationService;
 import zhongchiedu.inventory.service.StockService;
@@ -429,6 +430,73 @@ public class PickUpApplicationController {
 		return new BasicDataResult().build(200, "出库数量无误", "");
 
 	}
+	
+	@RequestMapping(value = "/pickUpApplication/batchOut", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	@RequiresPermissions(value = "pickUpApplication:out")
+	@SystemControllerLog(description = "批量预出库")
+	public BasicDataResult batchOut(String batchid, String batchnum, String batchdescription,
+			String batchpersonInCharge, String batchprojectName, String batchcustomer,String accepter, HttpSession session) {
+
+		String[] ids = batchid.split(",");
+		String[] nums = batchnum.split(",");
+		List<String> batchidList = Arrays.asList(ids);
+		List<String> batchnumList = Arrays.asList(nums);
+
+		if (batchidList.size() != batchnumList.size()) {
+			return new BasicDataResult(400, "出库商品与id不匹配", "");
+		}
+		User user = (User) session.getAttribute(Contents.USER_SESSION);
+		String orderNum = Common.getOrderNum();
+		List<Object> list = new ArrayList<>();
+		
+		
+		
+		
+
+		for (int i = 0; i < batchidList.size(); i++) {
+			Stock stock = this.stockService.findOneById(batchidList.get(i), Stock.class);
+			
+			PickUpApplication pick = new PickUpApplication();
+			
+			pick.setPublisher(user);// 发布人
+			pick.setStock(stock);
+			pick.setArea(stock.getArea());
+			pick.setPersonInCharge(batchpersonInCharge);
+			pick.setEstimatedIssueQuantity(Long.valueOf(batchnumList.get(i)));
+			pick.setCustomer(batchcustomer);
+			pick.setProjectName(batchprojectName);
+			this.pickUpApplicationService.saveOrUpdate(pick);
+//			StockStatistics st = new StockStatistics();
+//			st.setStock(stock);
+//			st.setNum(Long.valueOf(batchnumList.get(i)));
+//			st.setAccepter(accepter);
+//			st.setPersonInCharge(batchpersonInCharge);
+//			st.setProjectName(batchprojectName);
+//			st.setCustomer(batchcustomer);
+//			st.setDescription(batchdescription);
+//			st.setInOrOut(false);
+//			st.setOutboundOrder(orderNum);
+//			BasicDataResult r = this.stockStatisticsService.inOrOutstockStatistics(st, user);
+//			StockStatistics statics = (StockStatistics) r.getData();
+
+//			List<PickUpApplication> pickUpApplication = this.pickUpApplicationService.findPickUpApplicationsByStockId(stock.getId());
+//			long ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0,Long::sum);
+//			long acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((long) 0,Long::sum);
+//			
+//			
+//			StockStatistics s = new StockStatistics();
+//			s.setId(statics.getStock().getId());
+//			s.setNewNum(statics.getNewNum());
+//			s.setRemainingNum(statics.getNewNum()-(ycknum-acnum));
+//			list.add(s);
+		}
+		// 出库成功清除session
+		session.removeAttribute(Contents.STOCK_LIST);
+
+		return new BasicDataResult(200, "批量出库成功!", list);
+	}
+	
 
 	public static void main(String[] args) {
 		StringBuilder errorMsg = new StringBuilder();

@@ -103,8 +103,13 @@
                                         </button>
                                     </shiro:hasPermission>
                                     <shiro:hasPermission name="stockStatistics:out">
-                                        <button class="btn btn-success" onclick="return batchOut()">
+                                        <button class="btn btn-success" onclick="return batchOut('1')">
                                             <i class="fontawesome-upload"> </i>批量出库
+                                        </button>
+                                    </shiro:hasPermission>
+                                    <shiro:hasPermission name="stockStatistics:out">
+                                        <button class="btn btn-success" onclick="return batchOut('2')">
+                                            <i class="fontawesome-upload"> </i>批量预出库
                                         </button>
                                     </shiro:hasPermission>
 

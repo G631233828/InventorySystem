@@ -1,8 +1,10 @@
 //data : $("#BatchOutstockStatisticsForm").serialize(),
 //批量出库提交
 function batchFormSubmit() {
-
-	$.ajax({
+var tp = $("#type").val();
+alert(tp)
+if(tp == "1"){
+$.ajax({
 		dataType: "json",
 		type: "POST",
 		url: getRootPath() + "/stockStatistics/batchOut",
@@ -48,6 +50,36 @@ function batchFormSubmit() {
 
 		}
 	});
+}else if(tp =="2"){
+$.ajax({
+		dataType: "json",
+		type: "POST",
+		url: getRootPath() + "/pickUpApplication/batchOut",
+		data: $("#BatchOutstockStatisticsForm").serialize(),
+		success: function(data) {
+			if (data.status == 200) {
+			
+				jqueryAlert({
+					'icon': getRootPath() + '/plugs/alert/img/right.png',
+					'content': data.msg,
+					'closeTime': 2000,
+				})
+				window.location.href="pickUpApplications";
+			
+			} else {
+				jqueryAlert({
+					'icon': getRootPath() + '/plugs/alert/img/error.png',
+					'content': data.msg,
+					'closeTime': 2000,
+				})
+			}
+
+
+		}
+	});
+
+}
+	
 
 
 }

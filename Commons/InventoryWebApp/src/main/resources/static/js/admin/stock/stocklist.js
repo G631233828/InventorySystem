@@ -34,7 +34,14 @@ function showQRCode(o, o2) {
 *批量导出
 *
 */
-function batchOut() {
+function batchOut(o) {
+	if(o =="1"){
+	$("#bout").html("商品批量出库")
+	}else if(o=="2"){
+	$("#bout").html("商品批量预出库")
+	}
+	$("#type").val(o)
+	
 	var batchids = "";
 	var id = $("input[name='ids']:checked");
 	var str = "";
