@@ -457,7 +457,8 @@ function revoke(o) {
 												'content': data.msg
 											})
 										} else {
-											M.dialog5.close();
+										//	M.dialog5.close();
+											//$(".alert-content input").remove()
 											jqueryAlert({
 												'content': data.msg
 											})
@@ -469,6 +470,7 @@ function revoke(o) {
 								jqueryAlert({
 									'content': '输入的返还数量有误'
 								})
+								$(".alert-content input").remove()
 							}
 
 

@@ -227,7 +227,7 @@ public class StockStatisticsController {
 	@ResponseBody
 	@SystemControllerLog(description = "出入库撤销")
 	@RequiresPermissions(value = "stockStatistics:revoke")
-	public BasicDataResult revoke(@RequestParam(value = "id", defaultValue = "") String id,@RequestParam(value = "num", defaultValue = "0") String num,HttpSession session) {
+	public BasicDataResult revoke(@RequestParam(value = "", defaultValue = "") String id,@RequestParam(value = "num", defaultValue = "0") String num,HttpSession session) {
 		User user = (User) session.getAttribute(Contents.USER_SESSION);
 		return this.stockStatisticsService.revoke(id,Integer.valueOf(num),user);
 	}

@@ -458,6 +458,23 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		if (Common.isNotEmpty(st.getStorageTime())) {
 			// 撤销入库
 			newNum = this.updatePreStock(stock, st.getNum(), false,st);
+			if (newNum == -1) {
+				// 出货数量不够
+				return BasicDataResult.build(400, "货物库存数量不足,无法撤销入库", null);
+			}
+			//更新统计
+			st.setRevoke(true);
+			st.setRevokeNum(st.getRevokeNum()+num);
+			StockStatistics stockStatistics = updateStockStatistics(st);
+			
+			if (stockStatistics != null) {
+//				StockStatistics revoke = new StockStatistics();
+//				revoke.setRevokeNum(stockStatistics.getRevokeNum());
+	//
+				return BasicDataResult.build(200, "撤销成功", stockStatistics);
+			}
+			
+			
 		} else {
 			// 撤销出库
 			//newNum = this.updateStock(stock, st.getNum(), true);
@@ -484,10 +501,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				return BasicDataResult.build(200, "撤销成功", stockStatistics);
 			}
 		}
-		if (newNum == -1) {
-			// 出货数量不够
-			return BasicDataResult.build(400, "货物库存数量不足,无法撤销入库", null);
-		}
+		
 		
 	
 //		

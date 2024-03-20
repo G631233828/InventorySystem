@@ -221,7 +221,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			query=this.findByRequestBo(requestBo,query);
 			query.addCriteria(Criteria.where("isDelete").is(false));
 			//默认查询库存量大于0的设备
-			if(requestBo.getStockType() == 1) {
+			if(requestBo.getStockType() == 1||requestBo.getStockType() == 0) {
 				query.addCriteria(Criteria.where("inventory").gt(0));
 			}else if(requestBo.getStockType() == 2) {
 				query.addCriteria(Criteria.where("inventory").is(0));
