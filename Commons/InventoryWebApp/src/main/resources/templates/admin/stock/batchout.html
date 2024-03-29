@@ -13,7 +13,7 @@
 		th:fragment="mystockbatchout" id="mystockbatchout">
 
 		<div class="modal-dialog modal-lg"
-			style="margin-top: 10%; width: 850px; height: 500px; overflow-y: scroll; ">
+			style="margin-top: 10%; width: 850px; height: 500px; overflow-y: scroll;">
 			<div class="modal-content">
 
 				<div class="modal-header">
@@ -29,25 +29,27 @@
 
 								<form class="form-horizontal" enctype="multipart/form-data"
 									id="BatchOutstockStatisticsForm">
-							
-		<input type="text" id="type" name="type">
+
+									<input type="hidden" id="type" name="type">
 									<div class="form-group">
 										<div class="row">
-											<label class="col-lg-2  text-info " >负责人：</label>
+											<label class="col-lg-2  text-info ">负责人：</label>
 											<div class="col-lg-4 ">
 												<input type="text" class="form-control stockval"
 													name="batchpersonInCharge" id="batchpersonInChargeOut">
 											</div>
 											<label class="col-lg-2  text-info " style="margin-top: 3px;">项目名称：</label>
-											<div class="col-lg-4  btn-group pull-left open" style="margin-left: -13px;">
-											
-												<div class="col-lg-2" >
+											<div class="col-lg-4  btn-group pull-left open"
+												style="margin-left: -13px;">
+
+												<div class="col-lg-2">
 													<button type="button" class="btn dropdown-toggle"
 														data-toggle="dropdown" onclick="return getprojectNames2()">
 														<span class="caret"></span> <span class="sr-only">快速选择项目</span>
 													</button>
-	
-													<ul class="dropdown-menu" id="batchmenu" role="menu" style="width:200px;height:400px;overflow:auto;">
+
+													<ul class="dropdown-menu" id="batchmenu" role="menu"
+														style="width: 200px; height: 400px; overflow: auto;">
 														<!-- <li th:each="projectName:${projectNames}">
 														<a href="#" th:onclick="|setProjectName('${projectName}')|">
 														[[${projectName}]]
@@ -55,7 +57,7 @@
 													</li> -->
 													</ul>
 												</div>
-													<div class="col-lg-10 ">
+												<div class="col-lg-10 ">
 													<input type="text" class="form-control stockval "
 														name="batchprojectName" id="batchprojectName">
 												</div>
@@ -75,7 +77,7 @@
 											<label class="col-lg-2  text-info " style="margin-top: 3px;">领料人：</label>
 											<div class="col-lg-4 ">
 												<input type="text" class="form-control stockval"
-													   name="accepter"  id="accepter">
+													name="accepter" id="accepter">
 											</div>
 
 										</div>
@@ -85,21 +87,21 @@
 											<label class="col-lg-2  text-info " style="margin-top: 3px;">客户：</label>
 											<div class="col-lg-4 ">
 												<select multiple class="selectpicker form-control"
-														id="number-multiple4" data-container="body"
-														required="required"
-														name="newCustomer.id" title="客户" data-live-search="true"
-														data-hide-disabled="true" data-actions-box="false"
-														data-virtual-scroll="false" data-max-options="1"></select>
+													id="number-multiple4" data-container="body"
+													required="required" name="newCustomer.id" title="客户"
+													data-live-search="true" data-hide-disabled="true"
+													data-actions-box="false" data-virtual-scroll="false"
+													data-max-options="1"></select>
 											</div>
 
 											<label class="col-lg-2  text-info " style="margin-top: 3px;">新项目名称：</label>
 											<div class="col-lg-4 ">
 												<select multiple class="selectpicker form-control"
-														id="number-multiple3" data-container="body"
-														required="required"
-														name="pname.id" title="请选择项目名称" data-live-search="true"
-														data-hide-disabled="true" data-actions-box="false"
-														data-virtual-scroll="false" data-max-options="1"></select>
+													id="number-multiple3" data-container="body"
+													required="required" name="pname.id" title="请选择项目名称"
+													data-live-search="true" data-hide-disabled="true"
+													data-actions-box="false" data-virtual-scroll="false"
+													data-max-options="1"></select>
 											</div>
 										</div>
 									</div>
@@ -113,69 +115,70 @@
 											<div class="col-lg-8 ">
 												<textarea id="batchdescriptionOut"
 													style="height: 150px !important; margin: 20px 0; resize: none;"
-													class="form-control" placeholder="备注" name="batchdescription"></textarea>
+													class="form-control" placeholder="备注"
+													name="batchdescription"></textarea>
 											</div>
 										</div>
 
 									</div>
-									
-									
-				
-									
-									 <div class="content-wrap">
-                <div class="row">
 
 
-                    <div class="col-sm-12">
-
-                        <div class="nest" id="tableStaticClose">
-                      
-
-                            <div class="body-nest" id="tableStatic">
-
-                                <section id="flip-scroll">
-
-                                    <table class="table table-bordered table-striped cf">
-                                        <thead class="cf">
-                                            <tr>
-                                                <th class="numeric">设备名称</th>
-                                                <th class="numeric">型号</th>
-                                                <th class="numeric">库存量</th>
-                                                <th class="numeric" style="width:100px">出库数量</th>
-                                                <th class="numeric">操作</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="stocklist">
-                                       
-                                           
-                                            
-                                        </tbody>
-                                    </table>
-                                </section>
-
-                            </div>
-
-                        </div>
 
 
-                    </div>
+									<div class="content-wrap">
+										<div class="row">
 
-                </div>
-            </div>
-									
-									
-									
-									
-									
-									
-									
-									
-									
-									
-									
-									
-									
-									
+
+											<div class="col-sm-12">
+
+												<div class="nest" id="tableStaticClose">
+
+
+													<div class="body-nest" id="tableStatic">
+
+														<section id="flip-scroll">
+
+															<table class="table table-bordered table-striped cf">
+																<thead class="cf">
+																	<tr>
+																		<th class="numeric">设备名称</th>
+																		<th class="numeric">型号</th>
+																		<th class="numeric">库存量</th>
+																		<th class="numeric" style="width: 100px">出库数量</th>
+																		<th class="numeric">操作</th>
+																	</tr>
+																</thead>
+																<tbody id="stocklist">
+
+
+
+																</tbody>
+															</table>
+														</section>
+
+													</div>
+
+												</div>
+
+
+											</div>
+
+										</div>
+									</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 									<input type="hidden" name="InOrOut" value="false">
@@ -183,7 +186,8 @@
 									<div class="form-group">
 										<label class="col-lg-1 control-label"></label>
 										<div class="col-md-8">
-											<button type="button" onclick="return batchFormSubmit()" class="btn btn-success">出库</button>
+											<button type="button" onclick="return batchFormSubmit()"
+												class="btn btn-success">出库</button>
 
 										</div>
 									</div>

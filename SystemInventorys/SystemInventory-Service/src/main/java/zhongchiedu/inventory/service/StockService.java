@@ -27,7 +27,7 @@ public interface StockService extends GeneralService<Stock> {
 	
 	public String delete(String id);
 	
-	public BasicDataResult ajaxgetRepletes(String name,String areaId,String model);
+	public BasicDataResult ajaxgetRepletes(String name,String areaId,String model,String supplierId);
 	
 	public BasicDataResult todisable(String id);
 	

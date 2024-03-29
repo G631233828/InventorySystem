@@ -377,8 +377,9 @@ public class StockController {
 	@ResponseBody
 	public BasicDataResult ajaxgetRepletes(@RequestParam(value = "name", defaultValue = "") String name,
 			@RequestParam(value = "areaId", defaultValue = "") String areaId,
+			@RequestParam(value = "supplierId", defaultValue = "") String supplierId,
 			@RequestParam(value = "model", defaultValue = "") String model) {
-		return this.stockService.ajaxgetRepletes(name, areaId, model);
+		return this.stockService.ajaxgetRepletes(name, areaId, model,supplierId);
 	}
 
 	/**

@@ -2,7 +2,6 @@
 //批量出库提交
 function batchFormSubmit() {
 var tp = $("#type").val();
-alert(tp)
 if(tp == "1"){
 $.ajax({
 		dataType: "json",
@@ -51,6 +50,7 @@ $.ajax({
 		}
 	});
 }else if(tp =="2"){
+alert(111)
 $.ajax({
 		dataType: "json",
 		type: "POST",

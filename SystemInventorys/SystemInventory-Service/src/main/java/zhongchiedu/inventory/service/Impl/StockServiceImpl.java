@@ -415,18 +415,15 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 	@Override
 	@SystemServiceLog(description = "根据名称查询库存信息")
-	public BasicDataResult ajaxgetRepletes(String name, String areaId, String model) {
+	public BasicDataResult ajaxgetRepletes(String name, String areaId, String model,String supplierId) {
 		Query query = new Query();
 
-		if (Common.isNotEmpty(name)) {
+		if (Common.isNotEmpty(name)&&Common.isNotEmpty(areaId)&&Common.isNotEmpty(supplierId)&&Common.isNotEmpty(model)) {
 			query.addCriteria(Criteria.where("isDelete").is(false));
 			query.addCriteria(Criteria.where("name").is(name));
-			if (Common.isNotEmpty(areaId)) {
 				query.addCriteria(Criteria.where("area.$id").is(new ObjectId(areaId)));
-			}
-			if (Common.isNotEmpty(model)) {
+				query.addCriteria(Criteria.where("supplier.$id").is(new ObjectId(supplierId)));
 				query.addCriteria(Criteria.where("model").is(model));
-			}
 			Stock stock = this.findOneByQuery(query, Stock.class);
 			return stock != null ? BasicDataResult.build(206, "当前供应商信息已经存在，请检查", null) : BasicDataResult.ok();
 		}
@@ -554,6 +551,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				importStock.setEntryName(entryName);// 项目名称
 				importStock.setItemNo(resultexcel[i][j + 8].trim());// 项目编号
 				String supplierName = resultexcel[i][j + 9].trim();// 供应商名称
+				
 				if (Common.isNotEmpty(supplierName)) {
 					// 根据供应商名称查找，看供应商是否存在
 					supplier = this.supplierService.findByName(supplierName);
@@ -563,6 +561,11 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 								+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
 						continue;
 					}
+				}else {
+					error += "<span class='entypo-attention'></span>导入文件过程中出现供应商为空<b>&nbsp;&nbsp;" + supplierName
+							+ "&nbsp;&nbsp;</b>，请添加对应供应商，第<b>&nbsp&nbsp" + (i + 1)
+							+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
+					continue;
 				}
 				importStock.setSupplier(supplier);
 				//新添加 是否代理商品
@@ -582,8 +585,19 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 					}
 				}
 				importStock.setSystemClassification(ssC);
+				
+				//根据供应商名称判断供应商是否存在
+				Supplier getsupplier=this.supplierService.findByName(supplierName);
+				
+				if (Common.isEmpty(getsupplier)) {
+					error += "<span class='entypo-attention'></span>导入文件过程中出现不存在的供应商<b>&nbsp;&nbsp;" + ssCName
+							+ "&nbsp;&nbsp;</b>，请先添加供应商，第<b>&nbsp&nbsp" + (i + 1)
+							+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
+					continue;
+				}
+				
 
-				stock = this.findByName(areaName,name, model, entryName);
+				stock = this.findByNameSupplier(areaName,name, model,supplierName);
 				
 				 StockStatistics stockStatistics = new StockStatistics();//
 				 stockStatistics.setNum(importStock.getStocknum());//
