@@ -1363,6 +1363,20 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		// 获取 start时间 （第一天）库存的初始数量 出库数量+剩余库存数量 num+newNum
 		// 获取所有的设备
 		Map<String, List<StockStatistics>> map = new HashMap<String, List<StockStatistics>>();
+		
+		//获取到所有库存的设备信息
+		List<Stock> findAllStock = this.stockService.findAllStock();
+		
+		List<StockStatistics> list2 = findAllStock.stream().map(stock->{
+			StockStatistics st = new StockStatistics();
+			st.setNewNum(stock.getInventory());
+			st.setNum(0);
+			st.setStock(stock);
+			return st;
+		}).collect(Collectors.toList());
+		
+		list.addAll(list2);
+		
 		// 在库存统计中获取遍历所有设备
 		for (StockStatistics st : list) {
 			String stockId = st.getStock().getId();
@@ -1376,6 +1390,10 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				map.put(stockId, ls);
 			}
 		}
+		
+		
+		
+		
 		//集合的最后一条数据就是起初日期
 		//遍历map ，将map数据放到outlist中
 		
@@ -1403,7 +1421,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 					Common.isEmpty(gs.getStock().getUnit()) ? "" : gs.getStock().getUnit().getName());
 			
 			
-			BigDecimal qcnum ;//期初库存 为当前时间的前一次库存数量
+			BigDecimal qcnum ;//期初库存 为当前时间的前一次库存数量  // new 包含本期未出入库，但有期末余额的库存，数量取期末余额。
 			BigDecimal dj = new BigDecimal(0);//单价
 			BigDecimal zj = new BigDecimal(0);//总金额
 			BigDecimal newNum = new BigDecimal(gs.getNewNum());
@@ -1411,9 +1429,11 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			if(gs.isInOrOut()) {
 				//如果是入库，需要减去入库数量
 				qcnum =  newNum.subtract(num);
-			}else {
+			}else if(!gs.isInOrOut()){
 				//如果是出库 需要吧出库数量加回去
 				qcnum = newNum.add(num) ;//获得期初库存数量
+			}else {
+				qcnum = newNum;
 			}
 			if(Common.isNotEmpty(gs.getStock().getPrice())) {
 			String price = gs.getStock().getPrice();
@@ -1434,7 +1454,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 //			private Double inprice;
 
 			long in =0;//入库数量
-			long inpriceall =0;//入库总价
+			//long inpriceall =0;//入库总价
 			long out =0;//出库数量
 //			int insize =0; //获入库次数
 //			int outsize =0;//获取出库次数
@@ -1444,7 +1464,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				if(st.isInOrOut()) {
 					in+=st.getNum();//入库总数
 //					insize++;//入库量计数
-					inpriceall+=Common.isNotEmpty(st.getInprice())?st.getInprice():0;//所有入库总额
+					//inpriceall+=Common.isNotEmpty(st.getInprice())?st.getInprice():0;//所有入库总额
 				}else {
 					out+=st.getNum();//出库总数
 //					outsize++;//出库量计数
@@ -1453,24 +1473,34 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			}
 			
 			
-			BigDecimal a = new BigDecimal(inpriceall);
+//			BigDecimal a = new BigDecimal(inpriceall);
+			BigDecimal a = dj;
 			BigDecimal b = new BigDecimal(in);
 			
-			BigDecimal crkdj = new BigDecimal(0);
-			if(in>0) {
-				crkdj =  a.divide(b,2,BigDecimal.ROUND_HALF_UP);
+//			BigDecimal crkdj = new BigDecimal(0);
+//			if(in>0) {
+//				crkdj =  a.divide(b,2,BigDecimal.ROUND_HALF_UP);
+//			}
+			
+			BigDecimal e = new BigDecimal(in);
+			if(in >0) {
+				BigDecimal	inpriceall =e.multiply(dj);
+				outmap.put("inpriceall",inpriceall);//入库总额
+			}else {
+				outmap.put("inpriceall",0);//入库总额
 			}
 			
+			
 			outmap.put("in",in);//入库数量
-			outmap.put("inprice",crkdj);//入库单价=所有入库总额/入库数量
-			outmap.put("inpriceall",inpriceall);//入库总额
+			outmap.put("inprice",dj);//入库单价=所有入库总额/入库数量
+			
 			
 			
 			BigDecimal d = new BigDecimal(out);
 //			BigDecimal e = new BigDecimal(in);
-			BigDecimal outpriceall = d.multiply(crkdj).setScale(2,BigDecimal.ROUND_HALF_UP);//出库总额
+			BigDecimal outpriceall = d.multiply(dj).setScale(2,BigDecimal.ROUND_HALF_UP);//出库总额
 			outmap.put("out",out);//出库数量
-			outmap.put("outprice",crkdj);//出库单价=所有入库总额/入库数量
+			outmap.put("outprice",dj);//出库单价=所有入库总额/入库数量
 			outmap.put("outpriceall",outpriceall);//出库总额
 			
 			//期末库存数量  单价  金额
@@ -1480,16 +1510,16 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 //			long qmzj =0;//总金额
 			
 			qmnum = gsend.getNewNum();//期末库存数量
-			BigDecimal qmzj =zj.add(a).subtract(outpriceall);//期末总价
-			BigDecimal qmdj = new BigDecimal(0);
-			if(qmnum>0) {
-				 qmdj =  qmzj.divide(new BigDecimal(qmnum),2,BigDecimal.ROUND_HALF_UP);
-			}
-			outmap.put("newprice",qmdj);
+			BigDecimal qmzj =dj.multiply(qcnum).setScale(2,BigDecimal.ROUND_HALF_UP);
+//			BigDecimal qmzj =zj.add(a).subtract(outpriceall);//期末总价
+//			BigDecimal qmdj = new BigDecimal(0);
+//			if(qmnum>0) {
+//				 qmdj =  qmzj.divide(new BigDecimal(qmnum),2,BigDecimal.ROUND_HALF_UP);
+//			}
+			outmap.put("newprice",dj);
 			outmap.put("newinventory",qmnum);
 			outmap.put("newpriceall",qmzj);
-			outmap.put("purchaseInvoiceDate", Common.isEmpty(gs.getPurchaseInvoiceDate()) ? ""
-					: gs.getPurchaseInvoiceDate());
+			outmap.put("purchaseInvoiceDate", Common.isEmpty(gs.getPurchaseInvoiceDate()) ? "": gs.getPurchaseInvoiceDate());
 			outlist.add(outmap);
 		
 		}
@@ -1521,6 +1551,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		return doc;
 
 	}
+	
 	
 	
 	
