@@ -91,7 +91,8 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 	private @Autowired PickUpApplicationService pickUpApplicationService;
 
-
+	@Autowired
+	private PnameServiceImpl pnameService;
 
 	@Autowired
 	private MultiMediaService multiMediaService;
@@ -248,9 +249,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		if (Common.isNotEmpty(requestBo.getName())) {
 			query = query.addCriteria(Criteria.where("name").regex(requestBo.getName(), "i"));
 		}
-//		if (Common.isNotEmpty(requestBo.getEntryName())) {
-//			query = query.addCriteria(Criteria.where("entryName").regex(requestBo.getEntryName(), "i"));
-//		}
+
 
 		if (Common.isNotEmpty(requestBo.getModel())) {
 			query = query.addCriteria(Criteria.where("model").regex(requestBo.getModel(), "i"));
@@ -263,6 +262,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			String[] sas = requestBo.getSearchArea().split(",");
 			query = query.addCriteria(Criteria.where("area.$id").in(Arrays.stream(sas).map(str -> new ObjectId(str)).collect(Collectors.toList())));
 		}
+
 		if (Common.isNotEmpty(requestBo.getSupplier())) {
 			Query squery = new Query();
 			squery.addCriteria(Criteria.where("name").regex(requestBo.getSupplier(), "i"));

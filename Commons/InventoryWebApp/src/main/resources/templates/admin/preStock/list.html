@@ -291,12 +291,12 @@
                                         th:style="${#lists.contains(listColums,'eaquantity')}?'':'display:none;'">剩余入库数量</th>
                                     <th class="numeric inprice"
                                         th:style="${#lists.contains(listColums,'inprice')}?'':'display:none;'">入库总金额</th>
-                                    <th class="numeric purchaseInvoiceNo"
-                                        th:style="${#lists.contains(listColums,'purchaseInvoiceNo')}?'':'display:none;'">采购发票号</th>
-                                    <th class="numeric purchaseInvoiceDate"
-                                        th:style="${#lists.contains(listColums,'purchaseInvoiceDate')}?'':'display:none;'">采购发票到票日期</th>
-                                    <th class="numeric paymentOrderNo"
-                                        th:style="${#lists.contains(listColums,'paymentOrderNo')}?'':'display:none;'">银行付款日期</th>
+<!--                                    <th class="numeric purchaseInvoiceNo"-->
+<!--                                        th:style="${#lists.contains(listColums,'purchaseInvoiceNo')}?'':'display:none;'">采购发票号</th>-->
+<!--                                    <th class="numeric purchaseInvoiceDate"-->
+<!--                                        th:style="${#lists.contains(listColums,'purchaseInvoiceDate')}?'':'display:none;'">采购发票到票日期</th>-->
+<!--                                    <th class="numeric paymentOrderNo"-->
+<!--                                        th:style="${#lists.contains(listColums,'paymentOrderNo')}?'':'display:none;'">银行付款日期</th>-->
                                     <th class="numeric itemNo"
                                         th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'">采购付款单编码（新）</th>
                                     <th class="numeric handler"
@@ -352,18 +352,18 @@
                                             th:text="${stock?.inprice != 0.0}?${stock?.inprice}:'0.0'">
 
                                         </td>
-                                        <td class="numeric purchaseInvoiceNo" th:id="|purchaseInvoiceNo_${stock?.id}|"
-                                            th:ondblclick="|return change('${stock?.id}','purchaseInvoiceNo')|"
-                                            th:style="${#lists.contains(listColums,'purchaseInvoiceNo')}?'':'display:none;'">[[${stock?.purchaseInvoiceNo}]]</td>
-                                        <td class="numeric purchaseInvoiceDate"
-                                            th:id="|purchaseInvoiceDate_${stock?.id}|"
-                                            th:ondblclick="|return changeDate('${stock?.id}','purchaseInvoiceDate')|"
-                                            th:text="${stock?.purchaseInvoiceDate != null}?${stock?.purchaseInvoiceDate}:''"
-                                            th:style="${#lists.contains(listColums,'purchaseInvoiceDate')}?'':'display:none;'"></td>
-                                        <td class="numeric paymentOrderNo"
-                                            th:id="|paymentOrderNo_${stock?.id}|"
-                                            th:ondblclick="|return change('${stock?.id}','paymentOrderNo')|"
-                                            th:style="${#lists.contains(listColums,'paymentOrderNo')}?'':'display:none;'">[[${stock?.paymentOrderNo}]]</td>
+<!--                                        <td class="numeric purchaseInvoiceNo" th:id="|purchaseInvoiceNo_${stock?.id}|"-->
+<!--                                            th:ondblclick="|return change('${stock?.id}','purchaseInvoiceNo')|"-->
+<!--                                            th:style="${#lists.contains(listColums,'purchaseInvoiceNo')}?'':'display:none;'">[[${stock?.purchaseInvoiceNo}]]</td>-->
+<!--                                        <td class="numeric purchaseInvoiceDate"-->
+<!--                                            th:id="|purchaseInvoiceDate_${stock?.id}|"-->
+<!--                                            th:ondblclick="|return changeDate('${stock?.id}','purchaseInvoiceDate')|"-->
+<!--                                            th:text="${stock?.purchaseInvoiceDate != null}?${stock?.purchaseInvoiceDate}:''"-->
+<!--                                            th:style="${#lists.contains(listColums,'purchaseInvoiceDate')}?'':'display:none;'"></td>-->
+<!--                                        <td class="numeric paymentOrderNo"-->
+<!--                                            th:id="|paymentOrderNo_${stock?.id}|"-->
+<!--                                            th:ondblclick="|return change('${stock?.id}','paymentOrderNo')|"-->
+<!--                                            th:style="${#lists.contains(listColums,'paymentOrderNo')}?'':'display:none;'">[[${stock?.paymentOrderNo}]]</td>-->
                                         <td class="numeric itemNo" th:id="|itemNo_${stock?.id}|"
                                             th:ondblclick="|return change('${stock?.id}','itemNo')|"
                                             th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'">[[${stock?.itemNo}]]</td>

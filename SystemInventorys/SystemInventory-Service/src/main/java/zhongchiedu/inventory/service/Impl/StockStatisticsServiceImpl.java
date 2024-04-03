@@ -92,8 +92,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	@Autowired
 	private NewCustomerServiceImpl newCustomerService;
 
-	@Autowired
-	private PnameServiceImpl pnameService;
+
 
 	@Value("${qrcode.weburl}")
 	private String weburl;
@@ -1780,7 +1779,10 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		if(Common.isNotEmpty(requestBo.getProjectName())){
 			query=query.addCriteria(Criteria.where("projectName").regex(requestBo.getProjectName(), "i"));
 		}
-
+		if (Common.isNotEmpty(requestBo.getEntryName())) {
+			String[] sas = requestBo.getEntryName().split(",");
+			query = query.addCriteria(Criteria.where("pname.$id").in(Arrays.stream(sas).map(str -> new ObjectId(str)).collect(Collectors.toList())));
+		}
 //		if(Common.isNotEmpty(requestBo.getCustomer())){
 //			query=query.addCriteria(Criteria.where("customer").regex(requestBo.getCustomer(), "i"));
 //		}
@@ -1793,16 +1795,6 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 			}
 		}
-		if (Common.isNotEmpty(requestBo.getEntryName())) {
-			Query equery = new Query();
-			equery.addCriteria(Criteria.where("name").regex(requestBo.getEntryName(), "i"));
-			List<Pname> pnameList = this.pnameService.find(equery, Pname.class);
-			if (!pnameList.isEmpty()) {
-				ca.orOperator(Criteria.where("pname.$id").in(pnameList.stream().map(pname -> new ObjectId(pname.getId())).collect(Collectors.toList())));
-
-			}
-		}
-
 
 
 		if (Common.isNotEmpty(requestBo.getConfirm())) {

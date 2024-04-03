@@ -185,12 +185,20 @@
 										<input class="form-control" name="supplier" placeholder=""
 											   type="text" th:value="${requestBo?.supplier}">
 										</div>
+
 										<div id="ssentryName" class="ssentryName showin-b"  th:style="${#lists.contains(listColums,'ssentryName')}?'':'display:none;'">
 										<label class="control-label text-muted">项目名称：</label>
-										<input class="form-control" name="entryName" placeholder=""
-											   type="text" th:value="${requestBo?.entryName}">
+											<select multiple class="filter-status form-control selectpicker" id="pnames"
+													data-live-search="true" data-max-options="20" title="选择项目名称">
+												<option th:selected="${requestBo?.entryName}==${pname?.id}"
+														th:each="pname:${pnames}" th:value="${pname?.id}"
+														th:text="${pname?.name}"></option>
+											</select>
+<!--										<input class="form-control" name="entryName" placeholder=""-->
+<!--											   type="text" th:value="${requestBo?.entryName}">-->
 										</div>
 									</div>
+
 
 									<div class="col-sm-12 form-inline" style="margin-bottom: 10px;">
 										<div id="ssprojectName" class="ssprojectName showin-b"  th:style="${#lists.contains(listColums,'ssprojectName')}?'':'display:none;'">
@@ -229,7 +237,7 @@
 											<option value="300" th:selected="${pageSize == 300}">300
 										</select>
 										<select multiple class="filter-status form-control selectpicker" id="searchssC"
-												data-max-options="20" title="选择分类">
+												 data-max-options="20" title="选择分类">
 											<option th:selected="${requestBo?.ssC}==${sC?.id}"
 													th:each="sC:${ssCs}" th:value="${sC?.id}"
 													th:text="${sC?.name}"></option>
@@ -428,10 +436,12 @@
 												</shiro:hasPermission>
 													<td class="numeric area" id="area"
 														th:style="${#lists.contains(listColums,'area')}?'':'display:none;'">[[${stockStatistics?.area?.name}]]</td>
+
 													<td class="numeric entryName" id="entryName"
 														th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'"
 													th:text="${stockStatistics?.stock?.entryName!=null and stockStatistics?.stock?.entryName!='' and
 													stockStatistics?.stock?.entryName.length() > 15}?${stockStatistics?.stock?.entryName.substring(0,15)}:${stockStatistics?.stock?.entryName}"></td>
+
 													<td class="numeric pname" id="pname"
 														th:style="${#lists.contains(listColums,'pname')}?'':'display:none;'">[[${stockStatistics?.pname?.name}]]</td>
 													<td class="numeric supplier" id="supplier"
@@ -904,6 +914,26 @@
 			$("#searchArea").selectpicker("refresh");
 
 		})
+
+
+		$(function(){
+			var sysModuleCode=/* <![CDATA[ */ [[${requestBo?.entryName}]] /*]]>*/
+			if(!isEmpty(sysModuleCode)){
+				var moduleCodeArr = sysModuleCode.split(",");
+				if (moduleCodeArr.length > 0) {
+					// var rtype = document.getElementById("searchArea");
+					for (var j = 0; j < moduleCodeArr.length; j++) {
+						$('#pnames').val(moduleCodeArr[j]).prop('selected', true);
+
+					}
+				}
+			}
+			$("#pnames").selectpicker("val", moduleCodeArr);
+			$("#pnames").selectpicker("refresh");
+
+		})
+
+
 	</script>
 </body>
 

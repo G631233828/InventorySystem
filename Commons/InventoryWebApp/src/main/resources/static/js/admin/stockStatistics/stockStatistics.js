@@ -153,7 +153,7 @@ function toExport() {
 	var name = $('[name="name"]').val();
 	var model = $('[name="model"]').val();
 	var supplier = $('[name="supplier"]').val();
-	var entryName = $('[name="entryName"]').val();
+	var entryName = $("#pnames").val();
 	var itemNo = $('[name="itemNo"]').val();
 	var purchaseInvoiceNo = $('[name="purchaseInvoiceNo"]').val();
 	var purchaseInvoiceDate = $('[name="purchaseInvoiceDate"]').val();
@@ -192,7 +192,7 @@ function toJD() {
 	var name = $('[name="name"]').val();
 	var model = $('[name="model"]').val();
 	var supplier = $('[name="supplier"]').val();
-	var entryName = $('[name="entryName"]').val();
+	var entryName = $("#pnames").val();
 	var itemNo = $('[name="itemNo"]').val();
 	var purchaseInvoiceNo = $('[name="purchaseInvoiceNo"]').val();
 	var purchaseInvoiceDate = $('[name="purchaseInvoiceDate"]').val();
@@ -250,7 +250,7 @@ function toExportNew() {
 	var name = $('[name="name"]').val();
 	var model = $('[name="model"]').val();
 	var supplier = $('[name="supplier"]').val();
-	var entryName = $('[name="entryName"]').val();
+	var entryName = $("#pnames").val();
 	var itemNo = $('[name="itemNo"]').val();
 	var purchaseInvoiceNo = $('[name="purchaseInvoiceNo"]').val();
 	var purchaseInvoiceDate = $('[name="purchaseInvoiceDate"]').val();
@@ -902,7 +902,7 @@ function searchBo() {
 	var name = $('[name="name"]').val();
 	var model = $('[name="model"]').val();
 	var supplier = $('[name="supplier"]').val();
-	var entryName = $('[name="entryName"]').val();
+	var entryName = $("#pnames").val();
 	var itemNo = $('[name="itemNo"]').val();
 	var purchaseInvoiceNo = $('[name="purchaseInvoiceNo"]').val();
 	var purchaseInvoiceDate = $('[name="purchaseInvoiceDate"]').val();

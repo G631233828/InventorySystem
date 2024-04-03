@@ -73,7 +73,9 @@ public class StockStatisticsController {
 	private @Autowired SystemClassificationServiceImpl ssCService;
 	
 	private @Autowired PickUpApplicationService pickUpApplicationService;
-	
+
+
+	private @Autowired PnameServiceImpl pnameService;
 	@GetMapping("stockStatisticss")
 	@RequiresPermissions(value = "stockStatistics:list")
 	@SystemControllerLog(description = "查询库存统计")
@@ -98,12 +100,15 @@ public class StockStatisticsController {
 			requestBo.setRevoke("2");
 		List<Area> areas = this.areaService.findAllArea(false);
 		model.addAttribute("areas", areas);
+		List<Pname> pnames=this.pnameService.findAllName(false);
+		model.addAttribute("pnames", pnames);
 		ObjectMapper objectMapper=new ObjectMapper();
 		String jsonString=objectMapper.writeValueAsString(requestBo);
 		model.addAttribute("Bo",jsonString);
 		model.addAttribute("requestBo",requestBo);
 		List<SystemClassification>  ssCs=this.ssCService.findAllSystemClassification(false);
 		model.addAttribute("ssCs",ssCs);
+
 //		revoke="2";默认都是正常 隐藏 已撤销
 //		Pagination<StockStatistics> pagination = this.stockStatisticsService.findpagination(pageNo, pageSize, search,
 //				start, end, type, id, searchArea, searchAgent,userId,revoke,confirm,ssC);
