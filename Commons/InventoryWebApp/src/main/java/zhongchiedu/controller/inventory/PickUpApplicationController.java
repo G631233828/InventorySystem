@@ -341,6 +341,10 @@ public class PickUpApplicationController {
 	public BasicDataResult pickUpApplicationPush(String id) {
 		PickUpApplication pickUpApplication = this.pickUpApplicationService.findOneById(id, PickUpApplication.class);
 		InventoryRole inventoryRole = this.inventoryRoleService.findByType("HANDLER");
+		
+		if(Common.isEmpty(inventoryRole)) {
+			return new BasicDataResult().build(201, "消息推送失败，清先绑定人员", null);
+		}
 		List<User> users = inventoryRole.getUsers();
 		
 		//List<String> userNames = new ArrayList<>();
