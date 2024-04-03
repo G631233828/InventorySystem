@@ -983,7 +983,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			String area=ss[0];
 			String name=ss[1];
 			String model=Common.isNotEmpty(ss[2])?ss[2]:"";
-
+			String price=ss[3];
 			String unit=Common.isNotEmpty(stocks.get(key).get(0).getUnit())?stocks.get(key).get(0).getUnit().getName():"单位空";
 
 
@@ -1012,6 +1012,9 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			cell.setCellStyle(style);
 			cell.setCellValue(sums);
 
+			cell = row.createCell(5);
+			cell.setCellStyle(style);
+			cell.setCellValue(price);
 			j++;
 			}
 		}
@@ -1030,7 +1033,8 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		String areaname=Common.isNotEmpty(stock.getArea().getName())?stock.getArea().getName():"区域空";
 		String name=Common.isNotEmpty(stock.getName())?stock.getName():"设备名为空";
 		String model=Common.isNotEmpty(stock.getModel())?stock.getModel():"设备型号为空";
-		return areaname+"_"+name+"_"+model;
+		String price=Common.isNotEmpty(stock.getPrice())?stock.getPrice():"单价没填写";
+		return areaname+"_"+name+"_"+model+"_"+price;
 	}
 
 
@@ -1059,6 +1063,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			list.add("设备型号");
 			list.add("计量单位");
 			list.add("当前库存");
+			list.add("单价");
 		}
 		return list;
 	}
