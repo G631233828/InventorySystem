@@ -28,9 +28,7 @@ import java.util.stream.Collectors;
 public class NewCustomerServiceImpl extends GeneralServiceImpl<NewCustomer> implements NewCustomerService {
 
 
-	private @Autowired StockStatisticsServiceImpl stockStatisticsService;
 
-	private @Autowired StockServiceImpl stockService;
 	@Override
 	@SystemServiceLog(description="编辑客户信息")
 	public void saveOrUpdate(NewCustomer newCustomer) {
@@ -296,32 +294,5 @@ public class NewCustomerServiceImpl extends GeneralServiceImpl<NewCustomer> impl
 
 	}
 
-//	public void createCuster(){
-//		Query query=new Query();
-//		query.addCriteria(Criteria.where("revoke").is(true));
-//		String end="2024-01-16";
-//		end=end+" 23:59:59";
-//		Criteria ca1=new Criteria();
-//		ca1.orOperator(Criteria.where("storageTime").gte("2023-06-01").lte(end),
-//				Criteria.where("depotTime").gte("2023-06-01").lte(end));
-//		query.addCriteria(ca1);
-//		List<StockStatistics> ss=stockStatisticsService.find(query,StockStatistics.class);
-//		List<String> names=ss.stream().filter(stockStatistics -> Common.isNotEmpty(stockStatistics.getCustomer())).map(StockStatistics::getCustomer).distinct()
-//				.collect(Collectors.toList());
-//		names.forEach(s-> System.out.println(s));
-//		System.out.println("-------");
-//	}
-//	public void createPname(){
-//		Query query=new Query();
-//		String end="2024-01-16";
-//		end=end+" 23:59:59";
-//		Date date = new Date(1684435200000L);
-//		query.addCriteria(Criteria.where("createTime").gte(date));
-//		List<Stock> ss=stockService.find(query, Stock.class);
-//		System.out.println(ss.size());
-//		List<String> names=ss.stream().filter(Stock -> Common.isNotEmpty(Stock.getEntryName())).map(Stock::getEntryName).distinct()
-//				.collect(Collectors.toList());
-//		System.out.println(names.size());
-//		names.forEach(s-> System.out.println(s));
-//	}
+
 }
