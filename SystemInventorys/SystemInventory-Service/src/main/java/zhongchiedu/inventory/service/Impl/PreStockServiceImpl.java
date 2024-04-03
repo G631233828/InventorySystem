@@ -60,6 +60,8 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 
 	private @Autowired AreaService areaService;
 
+	private @Autowired PnameServiceImpl pnameService;
+
 	@Autowired
 	private RedisTemplate redisTemplate;
 
@@ -400,6 +402,7 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 				Supplier supplier = null;
 				Unit unit = null;
 				SystemClassification ssC=null;
+				Pname pname=null;
 				String areaName = resultexcel[i][j].trim();// 区域名称
 				// 通过区域名称查询区域是否存在
 				Area getarea = this.areaService.findByName(areaName);
@@ -448,16 +451,31 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 				if (Common.isNotEmpty(ssCName)) {
 					// 根据供应商名称查找，看供应商是否存在
 					ssC = this.systemClassificationService.findByName(ssCName);
-					if (Common.isEmpty(supplier)) {
+					if (Common.isEmpty(ssC)) {
 						error += "<span class='entypo-attention'></span>导入文件过程中出现不存在的系统分类<b>&nbsp;&nbsp;" + ssCName
 								+ "&nbsp;&nbsp;</b>，请先添加系统分类，第<b>&nbsp&nbsp" + (i + 1)
 								+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
 						continue;
 					}
 				}
+				String pname1=resultexcel[i][j + 8].trim();
+				if (Common.isNotEmpty(pname1)) {
+					// 根据项目名称
+					pname = this.pnameService.findByName(pname1);
+					if (Common.isEmpty(pname)) {
+						error += "<span class='entypo-attention'></span>导入文件过程中出现不存在的系统分类<b>&nbsp;&nbsp;" + ssCName
+								+ "&nbsp;&nbsp;</b>，请先添加项目名称，第<b>&nbsp&nbsp" + (i + 1)
+								+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
+						continue;
+					}
+				}
+
 				importPreStock.setSystemClassification(ssC);
 				importPreStock.setSupplier(supplier);
+				importPreStock.setEntryName(pname1);
 				importPreStock.setPublisher(user);// 发布人
+				String itemNo=resultexcel[i][j + 9].trim();
+				importPreStock.setItemNo(itemNo);
 				stock = this.findByName(getarea,name, model,1,entryName);//预入库查重 区域，名字，型号，项目名称
 
 				if (Common.isNotEmpty(stock)) {
