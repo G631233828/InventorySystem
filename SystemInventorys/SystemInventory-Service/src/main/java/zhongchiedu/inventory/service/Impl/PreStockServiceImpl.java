@@ -427,16 +427,14 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 				}
 				importPreStock.setModel(model);
 				importPreStock.setEstimatedInventoryQuantity(Long.valueOf(resultexcel[i][j + 3].trim()));// 预备入库的数量
-				importPreStock.setEntryName(resultexcel[i][j + 5].trim());// 项目名称
-				String entryName=resultexcel[i][j + 5].trim();
 				String unitName = resultexcel[i][j + 4].trim();//单位
 				if (Common.isNotEmpty(unitName)) {
-					// 根据供应商名称查找，看供应商是否存在
+					// 根据单位查找
 					unit = this.unitService.findByName(unitName);
+
 				}
 				importPreStock.setUnit(unit);
-//				importPreStock.setMaintenance(resultexcel[i][j + 6].trim()); 维保
-				String supplierName = resultexcel[i][j + 6].trim();// 供应商名称
+				String supplierName = resultexcel[i][j + 5].trim();// 供应商名称
 				if (Common.isNotEmpty(supplierName)) {
 					// 根据供应商名称查找，看供应商是否存在
 					supplier = this.supplierService.findByName(supplierName);
@@ -447,7 +445,7 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 						continue;
 					}
 				}
-				String ssCName = resultexcel[i][j + 7].trim();// 系统分类
+				String ssCName = resultexcel[i][j + 6].trim();// 系统分类
 				if (Common.isNotEmpty(ssCName)) {
 					// 根据供应商名称查找，看供应商是否存在
 					ssC = this.systemClassificationService.findByName(ssCName);
@@ -458,7 +456,7 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 						continue;
 					}
 				}
-				String pname1=resultexcel[i][j + 8].trim();
+				String pname1=resultexcel[i][j + 7].trim();
 				if (Common.isNotEmpty(pname1)) {
 					// 根据项目名称
 					pname = this.pnameService.findByName(pname1);
@@ -474,9 +472,9 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 				importPreStock.setSupplier(supplier);
 				importPreStock.setEntryName(pname1);
 				importPreStock.setPublisher(user);// 发布人
-				String itemNo=resultexcel[i][j + 9].trim();
+				String itemNo=resultexcel[i][j + 8].trim();
 				importPreStock.setItemNo(itemNo);
-				stock = this.findByName(getarea,name, model,1,entryName);//预入库查重 区域，名字，型号，项目名称
+				stock = this.findByName(getarea,name, model,1,pname1);//预入库查重 区域，名字，型号，项目名称
 
 				if (Common.isNotEmpty(stock)) {
 					if(Common.isNotEmpty(ssC))stock.setSystemClassification(ssC);
