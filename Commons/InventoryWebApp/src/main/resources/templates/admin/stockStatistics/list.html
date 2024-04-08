@@ -343,8 +343,8 @@
 												</shiro:hasPermission>
 												<th class="numeric area"
 													th:style="${#lists.contains(listColums,'area')}?'':'display:none;'">区域</th>
-												<th class="numeric entryName"
-													th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'">项目名称</th>
+<!--												<th class="numeric entryName"-->
+<!--													th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'">项目名称</th>-->
 												<th class="numeric pname"
 													th:style="${#lists.contains(listColums,'pname')}?'':'display:none;'">项目名称(新)</th>
 												<th class="numeric supplier"
@@ -375,8 +375,8 @@
 													th:style="${#lists.contains(listColums,'personInCharge')}?'':'display:none;'">负责人</th>
 												<th class="numeric projectName"
 													th:style="${#lists.contains(listColums,'projectName')}?'':'display:none;'">用于项目</th>
-												<th class="numeric customer"
-													th:style="${#lists.contains(listColums,'customer')}?'':'display:none;'">客户</th>
+<!--												<th class="numeric customer"-->
+<!--													th:style="${#lists.contains(listColums,'customer')}?'':'display:none;'">客户</th>-->
 												<th class="numeric newCustomer"
 													th:style="${#lists.contains(listColums,'newCustomer')}?'':'display:none;'">客户(新)</th>
 												<th class="numeric accepter"
@@ -390,8 +390,8 @@
 									<!-- 			<th class="numeric sailesInvoiceNo"
 													th:style="${#lists.contains(listColums,'sailesInvoiceNo')}?'':'display:none;'">销售发票号</th> -->
 													
-												<th class="numeric sailesInvoiceDate"
-													th:style="${#lists.contains(listColums,'sailesInvoiceDate')}?'':'display:none;'">销售发票开具日期</th>
+<!--												<th class="numeric sailesInvoiceDate"-->
+<!--													th:style="${#lists.contains(listColums,'sailesInvoiceDate')}?'':'display:none;'">销售发票开具日期</th>-->
 
 												<th class="numeric purchaseInvoiceDate"
 													th:style="${#lists.contains(listColums,'purchaseInvoiceDate')}?'':'display:none;'">采购发票到票日期</th>
@@ -400,8 +400,8 @@
 													th:style="${#lists.contains(listColums,'purchaseInvoiceNo')}?'':'display:none;'">采购发票号</th> -->
 											<!-- 	<th class="numeric receiptNo"
 													th:style="${#lists.contains(listColums,'receiptNo')}?'':'display:none;'">银行收款日期</th> -->
-												<th class="numeric paymentOrderNo"
-													th:style="${#lists.contains(listColums,'paymentOrderNo')}?'':'display:none;'">银行付款日期</th>
+<!--												<th class="numeric paymentOrderNo"-->
+<!--													th:style="${#lists.contains(listColums,'paymentOrderNo')}?'':'display:none;'">银行付款日期</th>-->
 
 												<th class="numeric user"
 													th:style="${#lists.contains(listColums,'user')}?'':'display:none;'">操作人</th>
@@ -437,10 +437,10 @@
 													<td class="numeric area" id="area"
 														th:style="${#lists.contains(listColums,'area')}?'':'display:none;'">[[${stockStatistics?.area?.name}]]</td>
 
-													<td class="numeric entryName" id="entryName"
-														th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'"
-													th:text="${stockStatistics?.stock?.entryName!=null and stockStatistics?.stock?.entryName!='' and
-													stockStatistics?.stock?.entryName.length() > 15}?${stockStatistics?.stock?.entryName.substring(0,15)}:${stockStatistics?.stock?.entryName}"></td>
+<!--													<td class="numeric entryName" id="entryName"-->
+<!--														th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'"-->
+<!--													th:text="${stockStatistics?.stock?.entryName!=null and stockStatistics?.stock?.entryName!='' and-->
+<!--													stockStatistics?.stock?.entryName.length() > 15}?${stockStatistics?.stock?.entryName.substring(0,15)}:${stockStatistics?.stock?.entryName}"></td>-->
 
 													<td class="numeric pname" id="pname"
 														th:style="${#lists.contains(listColums,'pname')}?'':'display:none;'">[[${stockStatistics?.pname?.name}]]</td>
@@ -487,10 +487,10 @@
 													<td class="numeric projectName" id="projectName"
 														th:style="${#lists.contains(listColums,'projectName')}?'':'display:none;'"
 														th:text="${stockStatistics.projectName != null}?${stockStatistics?.projectName}:'--------'"></td>
-													<td class="numeric customer" id="customer"
-														th:style="${#lists.contains(listColums,'customer')}?'':'display:none;'"
-														th:title="${stockStatistics?.customer}"
-														th:text="${stockStatistics?.customer != null}?${#strings.abbreviate(stockStatistics?.customer,25)}:'--------'"></td>
+<!--													<td class="numeric customer" id="customer"-->
+<!--														th:style="${#lists.contains(listColums,'customer')}?'':'display:none;'"-->
+<!--														th:title="${stockStatistics?.customer}"-->
+<!--														th:text="${stockStatistics?.customer != null}?${#strings.abbreviate(stockStatistics?.customer,25)}:'&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;'"></td>-->
 													<td class="numeric newCustomer" id="newCustomer"
 														th:style="${#lists.contains(listColums,'newCustomer')}?'':'display:none;'">[[${stockStatistics?.newCustomer?.name}]]</td>
 													<td class="numeric accepter" id="accepter"
@@ -516,9 +516,9 @@
 														th:style="${#lists.contains(listColums,'sailesInvoiceNo')}?'':'display:none;'"
 														th:text="${stockStatistics.sailesInvoiceNo != null}?${stockStatistics?.sailesInvoiceNo}:''"></td> -->
 
-													<td class="numeric sailesInvoiceDate" th:id="|sailesInvoiceDate_${stockStatistics?.id}|" th:ondblclick="|return changeDate('${stockStatistics?.id}','sailesInvoiceDate',${stockStatistics?.confirm})|"
-														th:style="${#lists.contains(listColums,'sailesInvoiceDate')}?'':'display:none;'"
-														th:text="${stockStatistics.sailesInvoiceDate != null}?${stockStatistics?.sailesInvoiceDate}:''"></td>
+<!--													<td class="numeric sailesInvoiceDate" th:id="|sailesInvoiceDate_${stockStatistics?.id}|" th:ondblclick="|return changeDate('${stockStatistics?.id}','sailesInvoiceDate',${stockStatistics?.confirm})|"-->
+<!--														th:style="${#lists.contains(listColums,'sailesInvoiceDate')}?'':'display:none;'"-->
+<!--														th:text="${stockStatistics.sailesInvoiceDate != null}?${stockStatistics?.sailesInvoiceDate}:''"></td>-->
 
 													<td class="numeric purchaseInvoiceDate" th:id="|purchaseInvoiceDate_${stockStatistics?.id}|" th:ondblclick="|return changeDate('${stockStatistics?.id}','purchaseInvoiceDate',${stockStatistics?.confirm})|"
 														th:style="${#lists.contains(listColums,'purchaseInvoiceDate')}?'':'display:none;'"
@@ -530,9 +530,9 @@
 													<!-- <td class="numeric receiptNo"  th:id="|receiptNo_${stockStatistics?.id}|"  th:ondblclick="|return changeyinhang('${stockStatistics?.id}','receiptNo',${stockStatistics?.confirm})|"
 														th:style="${#lists.contains(listColums,'receiptNo')}?'':'display:none;'">[[${stockStatistics?.receiptNo}]]</td>
 														 -->
-													<td class="numeric paymentOrderNo"
-														th:id="|paymentOrderNo_${stockStatistics?.id}|"  th:ondblclick="|return changeyinhang('${stockStatistics?.id}','paymentOrderNo',${stockStatistics?.confirm})|"
-														th:style="${#lists.contains(listColums,'paymentOrderNo')}?'':'display:none;'">[[${stockStatistics?.paymentOrderNo}]]</td>
+<!--													<td class="numeric paymentOrderNo"-->
+<!--														th:id="|paymentOrderNo_${stockStatistics?.id}|"  th:ondblclick="|return changeyinhang('${stockStatistics?.id}','paymentOrderNo',${stockStatistics?.confirm})|"-->
+<!--														th:style="${#lists.contains(listColums,'paymentOrderNo')}?'':'display:none;'">[[${stockStatistics?.paymentOrderNo}]]</td>-->
 
 
 													<td class="numeric user" id="user"
@@ -697,16 +697,16 @@
 													th:style="${#lists.contains(listColums,'sailPrice')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![sailPrice==null?0:sailPrice])}]]</th> -->
 												<!-- <th class="numeric sailesInvoiceNo"
 													th:style="${#lists.contains(listColums,'sailesInvoiceNo')}?'':'display:none;'"></th> -->
-												<th class="numeric sailesInvoiceDate"
-													th:style="${#lists.contains(listColums,'sailesInvoiceDate')}?'':'display:none;'"></th>
+<!--												<th class="numeric sailesInvoiceDate"-->
+<!--													th:style="${#lists.contains(listColums,'sailesInvoiceDate')}?'':'display:none;'"></th>-->
 												<th class="numeric purchaseInvoiceDate"
 													th:style="${#lists.contains(listColums,'purchaseInvoiceDate')}?'':'display:none;'"></th>
 												<!-- <th class="numeric purchaseInvoiceNo"
 													th:style="${#lists.contains(listColums,'purchaseInvoiceNo')}?'':'display:none;'"></th> -->
 											<!-- 	<th class="numeric receiptNo"
 													th:style="${#lists.contains(listColums,'receiptNo')}?'':'display:none;'"></th> -->
-												<th class="numeric paymentOrderNo"
-													th:style="${#lists.contains(listColums,'paymentOrderNo')}?'':'display:none;'"></th>
+<!--												<th class="numeric paymentOrderNo"-->
+<!--													th:style="${#lists.contains(listColums,'paymentOrderNo')}?'':'display:none;'"></th>-->
 
 												<th class="numeric user"
 													th:style="${#lists.contains(listColums,'user')}?'':'display:none;'"></th>
