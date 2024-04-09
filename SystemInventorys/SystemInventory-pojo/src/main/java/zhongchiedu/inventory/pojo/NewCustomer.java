@@ -24,4 +24,6 @@ public class NewCustomer extends GeneralBean<NewCustomer> {
 	private static final long serialVersionUID = -7036888586992963311L;
 	
 	private String name;
+
+	private String  wyid;//客户id
 }

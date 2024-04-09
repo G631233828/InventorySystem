@@ -150,7 +150,7 @@ public class NewCustomerController {
 	 * @throws Exception
 	 */
 	@RequestMapping(value = "/newCustomer/upload")
-	@SystemControllerLog(description = "批量导入品牌信息")
+	@SystemControllerLog(description = "批量导入客户信息")
 	@RequiresPermissions(value = "newCustomer:batch")
 	public ModelAndView upload(HttpServletRequest request, HttpSession session, RedirectAttributes attr) {
 		log.info("开始上传文件");
