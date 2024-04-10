@@ -212,6 +212,7 @@ public class NewCustomerServiceImpl extends GeneralServiceImpl<NewCustomer> impl
 		pri.allnum = rowLength;
 		for (int i =1; i < rowLength; i++) {
 			Query query = new Query();
+			Query query1 = new Query();
 			NewCustomer newCustomer = new NewCustomer();
 
 			pri.nownum = i;
@@ -220,12 +221,15 @@ public class NewCustomerServiceImpl extends GeneralServiceImpl<NewCustomer> impl
 			int j = 0;
 			try {
 				newCustomer.setName(resultexcel[i][j]);
-
+				newCustomer.setWyid(resultexcel[i][j+1]);
 				query.addCriteria(Criteria.where("name").is(newCustomer.getName()));
 				query.addCriteria(Criteria.where("isDelete").is(false));
+				query1.addCriteria(Criteria.where("wyid").is(newCustomer.getWyid()));
+				query1.addCriteria(Criteria.where("isDelete").is(false));
 				// 通过类目名称是否存在该信息
 				NewCustomer fnewCustomer = this.findOneByQuery(query, NewCustomer.class);
-				if(Common.isNotEmpty(fnewCustomer)){
+				NewCustomer fnewCustomer1 = this.findOneByQuery(query1, NewCustomer.class);
+				if(Common.isNotEmpty(fnewCustomer) || Common.isNotEmpty(fnewCustomer1)){
 					error += "<span class='entypo-attention'></span>导入文件过程中出现已经存在的单位信息，第<b>&nbsp;&nbsp;" + (i + 1)
 							+ "&nbsp&nbsp</b>行出现重复内容为<b>&nbsp&nbsp导入类目名称为:<b>&nbsp;&nbsp;" + fnewCustomer.getName()
 							+ "&nbsp;&nbsp;请手动去修改该条信息！</b></br>";
