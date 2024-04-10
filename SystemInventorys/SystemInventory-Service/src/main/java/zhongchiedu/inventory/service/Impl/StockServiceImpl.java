@@ -121,6 +121,20 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		}
 	}
 
+	/**
+	 * 单个添加时判断是否存在库存
+	 * @param stock
+	 */
+	@Override
+	public void saveOrExist(Stock stock) {
+		if (Common.isNotEmpty(stock)) {
+			return;
+		}else {
+			Stock stock1=this.findByNameSupplier(stock.getArea().getName(),stock.getName(),stock.getModel(),stock.getSupplier().getName());
+
+		}
+	}
+
 	@Override
 	@SystemServiceLog(description = "获取所有非禁用库存信息")
 	public List<Stock> findAllStock(boolean isdisable, String areaId, String searchAgent) {
@@ -1145,9 +1159,9 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				stockStatistics.setDescription(preStock.getDescription());//备注
 			}
 		}
-
-		Stock stock = this.findByAreaNameModel(areaId, name, model,entryName);
-
+		//根据同一名字、同一型号、同一供应商、同一区域叠加。
+//		Stock stock = this.findByAreaNameModel(areaId, name, model,entryName);
+		Stock stock = this.findByNameSupplier(preStock.getArea().getName(),preStock.getName(),preStock.getModel(),preStock.getSupplier().getName());
 		if(Common.isNotEmpty(stock)){
 			if(Common.isNotEmpty(preStock.getSystemClassification()) && Common.isEmpty(stock.getSystemClassification())){
 				stock.setSystemClassification(preStock.getSystemClassification());

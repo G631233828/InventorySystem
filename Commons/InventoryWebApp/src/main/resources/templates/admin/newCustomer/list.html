@@ -139,6 +139,7 @@
 													</div>
 												</th>
 												<th class="numeric">名称</th>
+												<th class="numeric">客户编号</th>
 												<th class="numeric">使用状态</th>
 												<th class="numeric">操作</th>
 											</tr>
@@ -157,6 +158,7 @@
 													</td>
 
 													<td class="numeric">[[${newCustomer.name}]]</td>
+													<td class="numeric">[[${newCustomer.wyid}]]</td>
 													<td class="numeric" th:id="disBtn+${newCustomer.id}"
 														th:utext="${newCustomer.isDisable eq true }?|<button type='button' onclick=toDisable('${newCustomer.id}','newCustomer') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${newCustomer.id}','newCustomer') class='btn btn-success'>启用</button>|"></td>
 													<td class="numeric"><shiro:hasPermission

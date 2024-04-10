@@ -921,4 +921,21 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 			this.save(preStock);
 		}
 	}
+
+	@Override
+	public BasicDataResult ajaxgetRepletes(String name, String areaId, String model, String supplierId, String entryName) {
+		Query query = new Query();
+
+		if (Common.isNotEmpty(name)&&Common.isNotEmpty(areaId)&&Common.isNotEmpty(supplierId)&&Common.isNotEmpty(model)&&Common.isNotEmpty(entryName)) {
+			query.addCriteria(Criteria.where("isDelete").is(false));
+			query.addCriteria(Criteria.where("name").is(name));
+			query.addCriteria(Criteria.where("area.$id").is(new ObjectId(areaId)));
+			query.addCriteria(Criteria.where("supplier.$id").is(new ObjectId(supplierId)));
+			query.addCriteria(Criteria.where("model").is(model));
+			query.addCriteria(Criteria.where("entryName").is(entryName));
+			PreStock stock = this.findOneByQuery(query, PreStock.class);
+			return stock != null ? BasicDataResult.build(206, "当前供应商信息已经存在，请检查", null) : BasicDataResult.ok();
+		}
+		return BasicDataResult.ok();
+	}
 }

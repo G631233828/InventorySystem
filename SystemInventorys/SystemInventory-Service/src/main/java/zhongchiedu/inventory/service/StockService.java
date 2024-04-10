@@ -20,7 +20,9 @@ public interface StockService extends GeneralService<Stock> {
 
 	public Pagination<Stock> findpagination(Integer pageNo, Integer pageSize, RequestBo requestBo);
 	public void saveOrUpdate(Stock stock);
-	
+
+	public void saveOrExist(Stock stock);
+
 	public void copyStock(String id,HttpSession session);
 	
 	public List<Stock> findAllStock(boolean isdisable,String areaId,String searchAgent);

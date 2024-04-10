@@ -82,6 +82,8 @@ public class PreStockController {
 	private @Autowired WxMsgPush wxMsgPush;
 
 	private @Autowired ColumnServiceImpl columnService;
+
+	private @Autowired PnameServiceImpl pnameService;
 	@Value("${templateId1}")
 	private String templateId1;
 	@Value("${templateId2}")
@@ -194,6 +196,9 @@ public class PreStockController {
 		// 区域
 		List<Area> areas = this.areaService.findAllArea(false);
 		model.addAttribute("areas", areas);
+
+		List<Pname> pnames=this.pnameService.findAllName(false);
+		model.addAttribute("pnames",pnames);
 		PreStock stock = this.preStockService.findOneById(id, PreStock.class);
 		model.addAttribute("stock", stock);
 
@@ -627,6 +632,26 @@ public class PreStockController {
 		User user = (User) session.getAttribute(Contents.USER_SESSION);
 		return this.columnService.editColumns("prestock", column, flag,user.getId());
 	}
+
+
+	/**
+	 * 通过ajax判断是否有同一个预库存数据
+	 *
+	 * @param
+	 * @param
+	 * @param
+	 */
+	@RequestMapping(value = "/prestock/ajaxgetRepletes", method = RequestMethod.POST)
+	@ResponseBody
+	public BasicDataResult ajaxgetRepletes(@RequestParam(value = "name", defaultValue = "") String name,
+										   @RequestParam(value = "areaId", defaultValue = "") String areaId,
+										   @RequestParam(value = "supplierId", defaultValue = "") String supplierId,
+										   @RequestParam(value = "model", defaultValue = "") String model,
+										   @RequestParam(value = "entryname", defaultValue = "") String entryname) {
+		return this.preStockService.ajaxgetRepletes(name, areaId, model,supplierId,entryname);
+	}
+
+
 
 //	@RequestMapping(value = "/prestock/batchEditpreStocks", method = RequestMethod.POST)
 //	@ResponseBody
