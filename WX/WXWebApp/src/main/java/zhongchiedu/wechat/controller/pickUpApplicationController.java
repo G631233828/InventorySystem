@@ -113,7 +113,7 @@ public class pickUpApplicationController {
 			@ModelAttribute("errorMsg") String errorMsg) {
 
 		Pagination<PickUpApplication> pagination = this.pickUpApplicationService.findpagination(pageNo, pageSize,
-				search, "", Integer.valueOf(status));
+				search, "", status);
 		model.addAttribute("pageList", pagination);
 
 		model.addAttribute("pageSize", pageSize);

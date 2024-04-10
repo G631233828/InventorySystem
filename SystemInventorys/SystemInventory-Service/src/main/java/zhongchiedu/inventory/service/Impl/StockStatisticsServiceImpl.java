@@ -91,6 +91,9 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 	@Autowired
 	private NewCustomerServiceImpl newCustomerService;
+	
+	@Autowired
+	private PickUpApplicationService pickUpApplicationService;
 
 
 
@@ -320,7 +323,30 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		
 		String id = stockStatistics.getStock().getId();// 获取库存设备id
 		Stock stock = this.stockService.findOneById(id, Stock.class);
+	
+		
+		
 		if (stock != null) {
+			
+			long ycknum = 0;
+			long acnum = 0;
+			if(!stockStatistics.isYck()) {
+				List<PickUpApplication> pickUpApplication = this.pickUpApplicationService.findPickUpApplicationsByStockId(stock.getId());
+				 ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0,Long::sum);
+				 
+				 acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((long) 0,Long::sum);
+				
+				 ycknum = ycknum - acnum;
+			}	
+	
+			if (stock.getInventory() -ycknum -num <0 ) {
+				// 出货数量不够
+				return BasicDataResult.build(400, "货物库存数量不足", null);
+			}
+			
+			
+			
+			
 
 			stock.setDescription(stockStatistics.getDescription());
 			stockStatistics.setUser(user);
@@ -333,6 +359,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				long newNum = this.updateStock(stock, num, true);
 				stockStatistics.setStorageTime(Common.fromDateH());
 				stockStatistics.setNewNum(newNum);
+				stockStatistics.setRemainingNum( newNum- ycknum);
 				lockInsert(stockStatistics);
 
 				return BasicDataResult.build(200, "商品入库成功", stockStatistics);
@@ -344,7 +371,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 					// 出货数量不够
 					return BasicDataResult.build(400, "货物库存数量不足", null);
 				}
-
+				stockStatistics.setRemainingNum( newNum- ycknum);
 				stockStatistics.setDepotTime(Common.fromDateH());
 				stockStatistics.setNewNum(newNum);
 				lockInsert(stockStatistics);
