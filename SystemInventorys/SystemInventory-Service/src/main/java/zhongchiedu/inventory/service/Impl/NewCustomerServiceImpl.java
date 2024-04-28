@@ -171,12 +171,12 @@ public class NewCustomerServiceImpl extends GeneralServiceImpl<NewCustomer> impl
 		query.addCriteria(Criteria.where("name").is(name));
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		NewCustomer brand = this.findOneByQuery(query, NewCustomer.class);
-		if(Common.isEmpty(brand)){
-			NewCustomer ca = new NewCustomer();
-			ca.setName(name);
-			this.insert(ca);
-			return ca;
-		}
+//		if(Common.isEmpty(brand)){
+//			NewCustomer ca = new NewCustomer();
+//			ca.setName(name);
+//			this.insert(ca);
+//			return ca;
+//		}
 		return brand;
 	}
 

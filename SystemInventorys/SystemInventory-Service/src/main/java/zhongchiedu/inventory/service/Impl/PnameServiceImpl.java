@@ -233,16 +233,88 @@ public class PnameServiceImpl extends GeneralServiceImpl<Pname> implements Pname
 			int j = 0;
 			try {
 				newName.setName(resultexcel[i][j]);
-
 				query.addCriteria(Criteria.where("name").is(newName.getName()));
 				query.addCriteria(Criteria.where("isDelete").is(false));
+
 				// 通过类目名称是否存在该信息
 				Pname fnewName = this.findOneByQuery(query, Pname.class);
-				if(Common.isNotEmpty(fnewName)){
-					error += "<span class='entypo-attention'></span>导入文件过程中出现已经存在的单位信息，第<b>&nbsp;&nbsp;" + (i + 1)
-							+ "&nbsp&nbsp</b>行出现重复内容为<b>&nbsp&nbsp导入类目名称为:<b>&nbsp;&nbsp;" + fnewName.getName()
+				if(Common.isNotEmpty(resultexcel[i][j+1])){
+					newName.setItemid(resultexcel[i][j+1]);
+					Query query1=new Query();
+					query1.addCriteria(Criteria.where("itemid").is(newName.getItemid()));
+					query1.addCriteria(Criteria.where("isDelete").is(false));
+					Pname query1name=this.findOneByQuery(query1, Pname.class);
+					if(Common.isNotEmpty(query1name)){
+						error += "<span class='entypo-attention'></span>导入文件过程中出现错误，第<b>&nbsp;&nbsp;" + (i + 1)
+								+ "&nbsp&nbsp</b>行编号已存在<b>&nbsp&nbsp为:<b>&nbsp;&nbsp;" + newName.getItemid()
+								+ "&nbsp;&nbsp;请手动去修改该条信息！</b></br>";
+						return error;
+					}
+				}else {
+					error += "<span class='entypo-attention'></span>导入文件过程中出现错误，第<b>&nbsp;&nbsp;" + (i + 1)
+							+ "&nbsp&nbsp</b>行出现编号为空<b>&nbsp&nbsp名称为:<b>&nbsp;&nbsp;" + fnewName.getName()
 							+ "&nbsp;&nbsp;请手动去修改该条信息！</b></br>";
 					continue;
+				}
+				newName.setPm(resultexcel[i][j+2]);
+				newName.setAssistant(resultexcel[i][j+3]);
+				String customer=resultexcel[i][j+4];
+//				if(Common.isNotEmpty(customer)){
+//					if(customer.contains(",")){
+//						String[] customers=customer.split(",");
+//						for (String cs:customers) {
+//							NewCustomer newCustomer=this.newCustomerService.findByName(cs);
+//							if(Common.isNotEmpty(newCustomer)){
+//								newCustomerList.add(newCustomer);
+//							}else{
+//								error += "<span class='entypo-attention'></span>导入文件过程中出现错误，第<b>&nbsp;&nbsp;" + (i + 1)
+//										+ "&nbsp&nbsp</b>行不存在该客户<b>&nbsp&nbsp为:<b>&nbsp;&nbsp;" + cs
+//										+ "&nbsp;&nbsp;请手动去修改该条信息！</b></br>";
+//								return error;
+//							}
+//						}
+//					}else{
+//						NewCustomer newCustomer=this.newCustomerService.findByName(customer);
+//						if(Common.isNotEmpty(newCustomer)){
+//							newCustomerList.add(newCustomer);
+//						}else{
+//							error += "<span class='entypo-attention'></span>导入文件过程中出现错误，第<b>&nbsp;&nbsp;" + (i + 1)
+//									+ "&nbsp&nbsp</b>行不存在该客户<b>&nbsp&nbsp为:<b>&nbsp;&nbsp;" + cs
+//									+ "&nbsp;&nbsp;请手动去修改该条信息！</b></br>";
+//							return error;
+//						}
+//					}
+//				}
+				if (customer != null && !customer.isEmpty()) {
+					List<NewCustomer> foundCustomers = new ArrayList<>();
+					boolean hasError = false;
+					String[] customerNames = customer.split(",");
+					for (String customerName : customerNames) {
+						NewCustomer newCustomer = this.newCustomerService.findByName(customerName.trim());
+						if (newCustomer != null) {
+							foundCustomers.add(newCustomer);
+						} else {
+							if (!hasError) {
+								error = "<span class='entypo-attention'></span>导入文件过程中出现错误：</br>";
+								hasError = true;
+							}
+							error += "第<b>&nbsp;&nbsp;" + (i + 1) + "&nbsp;&nbsp;</b>行不存在该客户<b>&nbsp;&nbsp;" + customerName.trim() + "&nbsp;&nbsp;请手动去修改该条信息！</br>";
+						}
+					}
+					if (!hasError) {
+						newName.setCustomers(foundCustomers);
+
+					}
+					if (hasError) {
+						return error;
+					}
+				}
+
+
+				if(Common.isNotEmpty(fnewName)){
+					error += "<span class='entypo-attention'></span>导入文件过程中出现已经存在的单位信息，第<b>&nbsp;&nbsp;" + (i + 1)
+							+ "&nbsp&nbsp</b>行出现重复内容为<b>&nbsp&nbsp名称为:<b>&nbsp;&nbsp;" + fnewName.getName()
+							+ "&nbsp;&nbsp;请手动去修改该条信息！</b></br>";
 				}else{
 					this.insert(newName);
 				}
