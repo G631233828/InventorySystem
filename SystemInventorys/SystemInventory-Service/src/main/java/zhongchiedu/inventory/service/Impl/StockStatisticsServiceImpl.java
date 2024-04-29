@@ -330,20 +330,21 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			
 			long ycknum = 0;
 			long acnum = 0;
-			if(!stockStatistics.isYck()) {
-				List<PickUpApplication> pickUpApplication = this.pickUpApplicationService.findPickUpApplicationsByStockId(stock.getId());
-				 ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0,Long::sum);
-				 
-				 acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((long) 0,Long::sum);
-				
-				 ycknum = ycknum - acnum;
-			}	
-	
-			if (stock.getInventory() -ycknum -num <0 ) {
-				// 出货数量不够
-				return BasicDataResult.build(400, "货物库存数量不足", null);
+			if(!stockStatistics.isPreStock()) {
+				if (!stockStatistics.isYck()) {
+					List<PickUpApplication> pickUpApplication = this.pickUpApplicationService.findPickUpApplicationsByStockId(stock.getId());
+					ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0, Long::sum);
+
+					acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((long) 0, Long::sum);
+
+					ycknum = ycknum - acnum;
+				}
+
+				if (stock.getInventory() - ycknum - num < 0) {
+					// 出货数量不够
+					return BasicDataResult.build(400, "货物库存数量不足", null);
+				}
 			}
-			
 			
 			
 			

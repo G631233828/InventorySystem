@@ -74,8 +74,9 @@ $().ready(function() {
 
 		},
 		submitHandler:function(form){
-
-
+			var idValue = $('#preStockForm input[name="id"]').first().val();
+			if(typeof idValue === 'undefined'){
+				//添加时判断预库存中是否有同样的预库存
 			//进行ajax传值
 			$.ajax({
 				url: getRootPath() + "/prestock/ajaxgetRepletes",
@@ -122,8 +123,9 @@ $().ready(function() {
 
 				}
 			});
-
-
+			}else{
+				form.submit();
+			}
 
 
 

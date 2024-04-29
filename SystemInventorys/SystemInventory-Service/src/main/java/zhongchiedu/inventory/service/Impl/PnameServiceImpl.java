@@ -248,7 +248,7 @@ public class PnameServiceImpl extends GeneralServiceImpl<Pname> implements Pname
 						error += "<span class='entypo-attention'></span>导入文件过程中出现错误，第<b>&nbsp;&nbsp;" + (i + 1)
 								+ "&nbsp&nbsp</b>行编号已存在<b>&nbsp&nbsp为:<b>&nbsp;&nbsp;" + newName.getItemid()
 								+ "&nbsp;&nbsp;请手动去修改该条信息！</b></br>";
-						return error;
+						continue;
 					}
 				}else {
 					error += "<span class='entypo-attention'></span>导入文件过程中出现错误，第<b>&nbsp;&nbsp;" + (i + 1)
@@ -306,7 +306,7 @@ public class PnameServiceImpl extends GeneralServiceImpl<Pname> implements Pname
 
 					}
 					if (hasError) {
-						return error;
+						continue;
 					}
 				}
 

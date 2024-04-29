@@ -59,7 +59,7 @@ public interface StockService extends GeneralService<Stock> {
 	
 	public BasicDataResult pickUpApplicationToStock(PickUpApplication pickUpApplication);
 	
-	public Stock findByAreaNameModel(String areaId,String name,String model,String entryName);
+	public Stock findByAreaNameModel(String areaId,String name,String model,String supplieId);
 	
 	public QrCode createStockQrCode(String stockId);
 	

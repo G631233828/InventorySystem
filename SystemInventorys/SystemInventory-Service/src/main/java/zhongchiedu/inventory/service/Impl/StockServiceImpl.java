@@ -1128,7 +1128,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		String areaId = preStock.getArea().getId();
 		String name = preStock.getName();
 		String model = preStock.getModel();
-		String entryName= preStock.getEntryName();
+		String supperId= preStock.getSupplier().getId();
 		// 1.通过区域、设备名称、设备型号,和项目名称 判断设备是否在库存中已经存在
 		StockStatistics stockStatistics = new StockStatistics();
 		// 字段绑定
@@ -1160,8 +1160,8 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			}
 		}
 		//根据同一名字、同一型号、同一供应商、同一区域叠加。
-//		Stock stock = this.findByAreaNameModel(areaId, name, model,entryName);
-		Stock stock = this.findByNameSupplier(preStock.getArea().getName(),preStock.getName(),preStock.getModel(),preStock.getSupplier().getName());
+		Stock stock = this.findByAreaNameModel(areaId, name, model,supperId);
+//		Stock stock = this.findByNameSupplier(preStock.getArea().getName(),preStock.getName(),preStock.getModel(),preStock.getSupplier().getName());
 		if(Common.isNotEmpty(stock)){
 			if(Common.isNotEmpty(preStock.getSystemClassification()) && Common.isEmpty(stock.getSystemClassification())){
 				stock.setSystemClassification(preStock.getSystemClassification());
@@ -1220,7 +1220,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	}
 
 	@Override
-	public Stock findByAreaNameModel(String areaId, String name, String model,String entryName) {
+	public Stock findByAreaNameModel(String areaId, String name, String model,String supplieId) {
 		Query query = new Query();
 
 		if (Common.isNotEmpty(name)) {
@@ -1232,8 +1232,8 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			if (Common.isNotEmpty(model)) {
 				query.addCriteria(Criteria.where("model").is(model));
 			}
-			if(Common.isNotEmpty(entryName)) {
-				query.addCriteria(Criteria.where("entryName").is(entryName));
+			if(Common.isNotEmpty(supplieId)) {
+				query.addCriteria(Criteria.where("supplier.$id").is(new ObjectId(supplieId)));
 			}
 			return this.findOneByQuery(query, Stock.class);
 		}
