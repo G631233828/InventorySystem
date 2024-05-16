@@ -403,26 +403,35 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 				Unit unit = null;
 				SystemClassification ssC=null;
 				Pname pname=null;
+				Area getarea=null;
 				String areaName = resultexcel[i][j].trim();// 区域名称
 				// 通过区域名称查询区域是否存在
-				Area getarea = this.areaService.findByName(areaName);
+				if (Common.isEmpty(areaName)) {
+					error += "<span class='entypo-attention'></span>导入文件过程中，第<b>&nbsp&nbsp" + (i + 1)
+							+ "行</b>出现名字为空的区域，请添加！&nbsp&nbsp</br>";
+					continue;
+				}
+
+// 根据区域名称查询区域是否存在
+				getarea = this.areaService.findByName(areaName);
 				if (Common.isEmpty(getarea)) {
 					error += "<span class='entypo-attention'></span>导入文件过程中，第<b>&nbsp&nbsp" + (i + 1)
-							+ "行出现未添加的区域，请手动去修改该条信息或创建区域！&nbsp&nbsp</b></br>";
-					return error;
+							+ "行</b>出现未添加的区域，请手动去修改该条信息或创建区域！&nbsp&nbsp</br>";
+					continue;
 				}
+
 				importPreStock.setArea(getarea);
 				String name = resultexcel[i][j + 1].trim();// 设备名称
 				if (Common.isEmpty(name)) {
-					error += "<span class='entypo-attention'></span>导入文件过程中出现设备名称为空，第<b>&nbsp&nbsp" + (i + 1)
-							+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
+					error += "<span class='entypo-attention'></span>导入文件过程中，第<b>&nbsp&nbsp" + (i + 1)
+							+ "行</b>出现设备名称为空，请添加！&nbsp&nbsp</br>";
 					continue;
 				}
 				importPreStock.setName(name);
 				String model = resultexcel[i][j + 2].trim();// 设备型号
 				if (Common.isEmpty(name)) {
-					error += "<span class='entypo-attention'></span>导入文件过程中出现设备型号为空，第<b>&nbsp&nbsp" + (i + 1)
-							+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
+					error += "<span class='entypo-attention'></span>导入文件过程中，第<b>&nbsp&nbsp" + (i + 1)
+							+ "行</b>出现设备型号为空，请添加！&nbsp&nbsp</br>";
 					continue;
 				}
 				importPreStock.setModel(model);
@@ -435,7 +444,12 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 				}
 				importPreStock.setUnit(unit);
 				String supplierName = resultexcel[i][j + 5].trim();// 供应商名称
-				if (Common.isNotEmpty(supplierName)) {
+
+				if(Common.isEmpty(supplierName)){
+					error += "<span class='entypo-attention'></span>导入文件过程中，第<b>&nbsp&nbsp" + (i + 1)
+							+ "行</b>出现供应商名称为空，请添加！&nbsp&nbsp</br>";
+					continue;
+				}
 					// 根据供应商名称查找，看供应商是否存在
 					supplier = this.supplierService.findByName(supplierName);
 					if (Common.isEmpty(supplier)) {
@@ -444,10 +458,14 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 								+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
 						continue;
 					}
-				}
+
 				String ssCName = resultexcel[i][j + 6].trim();// 系统分类
-				if (Common.isNotEmpty(ssCName)) {
-					// 根据供应商名称查找，看供应商是否存在
+				if(Common.isEmpty(ssCName)){
+					error += "<span class='entypo-attention'></span>导入文件过程中，第<b>&nbsp&nbsp" + (i + 1)
+							+ "行</b>出现系统分类名称为空，请添加！&nbsp&nbsp</br>";
+					continue;
+				}
+					// 系统分类
 					ssC = this.systemClassificationService.findByName(ssCName);
 					if (Common.isEmpty(ssC)) {
 						error += "<span class='entypo-attention'></span>导入文件过程中出现不存在的系统分类<b>&nbsp;&nbsp;" + ssCName
@@ -455,9 +473,13 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 								+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
 						continue;
 					}
-				}
+
 				String pname1=resultexcel[i][j + 7].trim();
-				if (Common.isNotEmpty(pname1)) {
+				if(Common.isEmpty(pname1)){
+					error += "<span class='entypo-attention'></span>导入文件过程中，第<b>&nbsp&nbsp" + (i + 1)
+							+ "行</b>出现项目名称为空，请添加！&nbsp&nbsp</br>";
+					continue;
+				}
 					// 根据项目名称
 					pname = this.pnameService.findByName(pname1);
 					if (Common.isEmpty(pname)) {
@@ -466,7 +488,7 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 								+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
 						continue;
 					}
-				}
+
 
 				importPreStock.setSystemClassification(ssC);
 				importPreStock.setSupplier(supplier);

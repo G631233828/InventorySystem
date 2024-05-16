@@ -946,7 +946,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			msg = "出库:";
 		}
 		for (Stock stock : listStock) {
-			// 获取所有的设备
+			// 获取所有的设备 
 			HSSFRow row = sheet.createRow(j + 1);
 
 			HSSFCell cell = row.createCell(0);

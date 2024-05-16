@@ -184,12 +184,12 @@ public class PnameServiceImpl extends GeneralServiceImpl<Pname> implements Pname
 		query.addCriteria(Criteria.where("name").is(name));
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		Pname brand = this.findOneByQuery(query, Pname.class);
-		if(Common.isEmpty(brand)){
-			Pname ca = new Pname();
-			ca.setName(name);
-			this.insert(ca);
-			return ca;
-		}
+//		if(Common.isEmpty(brand)){
+//			Pname ca = new Pname();
+//			ca.setName(name);
+//			this.insert(ca);
+//			return ca;
+//		}
 		return brand;
 	}
 
