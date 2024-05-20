@@ -8,10 +8,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralService;
-import zhongchiedu.inventory.pojo.Area;
-import zhongchiedu.inventory.pojo.PreStock;
-import zhongchiedu.inventory.pojo.RequestBo;
-import zhongchiedu.inventory.pojo.Stock;
+import zhongchiedu.inventory.pojo.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -29,7 +26,7 @@ public interface PreStockService extends GeneralService<PreStock> {
 	
 	public BasicDataResult todisable(String id);
 	
-	public PreStock findByName(Area area, String name, String model, Integer status,String entryName);
+	public PreStock findByName(Area area, String name, String model, Integer status, String entryName, Supplier supplier);
 	
 	public BasicDataResult findOneById(String id);
 	
@@ -41,7 +38,7 @@ public interface PreStockService extends GeneralService<PreStock> {
 
 	public List<PreStock> findStocksByIds(List ids);
 
-	public void updateStockStatistics(String ids,Double inprice,String purchaseInvoiceNo,String purchaseInvoiceDate,String paymentOrderNo,String itemNo);
+	public void updateStockStatistics(String ids,String itemNo,String pnameId,String supplierId);
 
 	public BasicDataResult ajaxgetRepletes(String name,String areaId,String model,String supplierId,String entryName);
 }

@@ -107,6 +107,10 @@ public class PreStockController {
 		String jsonString=objectMapper.writeValueAsString(requestBo);
 		model.addAttribute("Bo",jsonString);
 		model.addAttribute("requestBo",requestBo);
+		List<Pname> pnames=this.pnameService.findAllName(false);
+		model.addAttribute("pnames",pnames);
+		List<Supplier> syslist = this.supplierService.findAllSupplier(false);
+		model.addAttribute("suppliers", syslist);
 //		Pagination<PreStock> pagination = this.preStockService.findpagination(pageNo, pageSize, search, searchArea,
 //				Integer.valueOf(status),ssC);
 		Pagination<PreStock> pagination = this.preStockService.findpagination(pageNo, pageSize, requestBo,Integer.valueOf(status));
@@ -602,11 +606,15 @@ public class PreStockController {
 											   @RequestParam(value = "purchaseInvoiceNo", defaultValue = "null") String purchaseInvoiceNo,
 											   @RequestParam(value = "paymentOrderNo", defaultValue = "null") String paymentOrderNo,
 											   @RequestParam(value = "purchaseInvoiceDate", defaultValue = "null") String purchaseInvoiceDate,
-											   @RequestParam(value = "itemNo", defaultValue = "null") String itemNo
+											   @RequestParam(value = "itemNo", defaultValue = "null") String itemNo,
+											   @RequestParam(value = "pname.id",required = false,defaultValue = "null")String pnameId,
+											   @RequestParam(value = "supplier.id",required = false,defaultValue = "null")String supplierId
+
 	) {
 
 		Double dinprice=null;
 		Double dsailPrice=null;
+
 		try {
 			if(!inprice.equals("null")) {
 				dinprice = Double.parseDouble(inprice);
@@ -620,7 +628,7 @@ public class PreStockController {
 		}
 
 		User user = (User) session.getAttribute(Contents.USER_SESSION);
-		this.preStockService.updateStockStatistics(stockid, dinprice, purchaseInvoiceNo,purchaseInvoiceDate,paymentOrderNo,itemNo);
+		this.preStockService.updateStockStatistics(stockid,itemNo,pnameId,supplierId);
 		return new BasicDataResult(200, "修改统计数据成功", "");
 
 	}

@@ -496,7 +496,7 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 				importPreStock.setPublisher(user);// 发布人
 				String itemNo=resultexcel[i][j + 8].trim();
 				importPreStock.setItemNo(itemNo);
-				stock = this.findByName(getarea,name, model,1,pname1);//预入库查重 区域，名字，型号，项目名称
+				stock = this.findByName(getarea,name, model,1,pname1,supplier);//预入库查重 区域，名字，型号，项目名称,供应商
 
 				if (Common.isNotEmpty(stock)) {
 					if(Common.isNotEmpty(ssC))stock.setSystemClassification(ssC);
@@ -584,10 +584,13 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 	 * 根据单位名称查找单位，如果没有则创建一个
 	 */
 	@Override
-	public PreStock findByName(Area area,String name, String model,Integer status,String entryName) {
+	public PreStock findByName(Area area,String name, String model,Integer status,String entryName,Supplier supplier) {
 		Query query = new Query();
 		if (Common.isNotEmpty(area.getId())) {
 			query.addCriteria(Criteria.where("area.$id").is(new ObjectId(area.getId())));
+		}
+		if(Common.isNotEmpty(supplier.getId())){
+			query.addCriteria(Criteria.where("supplier.$id").is(new ObjectId(supplier.getId())));
 		}
 		query.addCriteria(Criteria.where("name").is(name));
 		query.addCriteria(Criteria.where("model").is(model));
@@ -823,6 +826,8 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 				in.put("arq", Common.isEmpty(stock.getActualReceiptQuantity()) ? "" : stock.getActualReceiptQuantity());
 				in.put("sy",stock.getEstimatedInventoryQuantity()-stock.getActualReceiptQuantity());
 				in.put("unit", Common.isEmpty(stock.getUnit()) ? "" : stock.getUnit().getName());
+				in.put("entryname",Common.isEmpty(stock.getEntryName())?"":stock.getEntryName());
+				in.put("suppler",Common.isEmpty(stock.getSupplier())?"":stock.getSupplier().getName());
 				arrayList.add(in);
 			} else if (stock.getStatus() == 2) {
 				Map<String, Object> done = new HashMap<>();
@@ -833,6 +838,8 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 				done.put("arq", Common.isEmpty(stock.getActualReceiptQuantity()) ? "" : stock.getActualReceiptQuantity());
 				done.put("sy",stock.getEstimatedInventoryQuantity()-stock.getActualReceiptQuantity());
 				done.put("unit", Common.isEmpty(stock.getUnit()) ? "" : stock.getUnit().getName());
+				done.put("entryname",Common.isEmpty(stock.getEntryName())?"":stock.getEntryName());
+				done.put("suppler",Common.isEmpty(stock.getSupplier())?"":stock.getSupplier().getName());
 //				上次修改时间
 //				String lastTime="";
 //				try {
@@ -907,36 +914,28 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 	}
 
 	@Override
-	public void updateStockStatistics(String ids,Double inprice,String purchaseInvoiceNo,String purchaseInvoiceDate,String paymentOrderNo,String itemNo){
+	public void updateStockStatistics(String ids,String itemNo,String pnameId,String supplierId){
 		List<String> array = Arrays.asList(ids.split(","));
+		String pname=null;
+		Supplier supplier=null;
+		if(Common.isNotEmpty(pnameId)){
+			Pname pname1=this.pnameService.findOneById(pnameId,Pname.class);
+			pname=pname1.getName();
+		}
+		if(Common.isNotEmpty(supplierId)){
+			 supplier=this.supplierService.findOneById(supplierId,Supplier.class);
+		}
 		for (String id : array) {
 			PreStock preStock = this.findOneById(id, PreStock.class);
-			if (inprice != null) {
-				preStock.setInprice(inprice);
-			}
-			if (!purchaseInvoiceNo.equals("null")) {
-				preStock.setPurchaseInvoiceNo(purchaseInvoiceNo);
-			}
-//			if (!receiptNo.equals("null")) {
-//				stockStatistics.setReceiptNo(receiptNo);
-//			}
-			if (!paymentOrderNo.equals("null")) {
-				preStock.setPaymentOrderNo(paymentOrderNo);
-			}
-//			if (!sailesInvoiceNo.equals("null")) {
-//				stockStatistics.setSailesInvoiceNo(sailesInvoiceNo);
-//			}
-//			if (!sailesInvoiceDate.equals("null")) {
-//				stockStatistics.setSailesInvoiceDate(sailesInvoiceDate);
-//			}
-			if (!purchaseInvoiceDate.equals("null")) {
-				preStock.setPurchaseInvoiceDate(purchaseInvoiceDate);
-			}
-//			if (sailPrice != null) {
-//				stockStatistics.setSailPrice(sailPrice);
-//			}
+
 			if(!itemNo.equals("null")){
 				preStock.setItemNo(itemNo);
+			}
+			if(Common.isNotEmpty(pname)){
+				preStock.setEntryName(pname);
+			}
+			if(Common.isNotEmpty(supplier)){
+				preStock.setSupplier(supplier);
 			}
 //			stockStatistics.setEditFinanceTime(Common.fromDateH());
 //			stockStatistics.setFinanceUser(user);

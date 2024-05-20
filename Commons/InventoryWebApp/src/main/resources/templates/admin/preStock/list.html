@@ -332,7 +332,7 @@
                                             th:style="${#lists.contains(listColums,'name')}?'':'display:none;'">[[${stock?.name}]]</td>
                                         <td class="numeric model"
                                             th:style="${#lists.contains(listColums,'model')}?'':'display:none;'">[[${stock?.model}]]</td>
-                                        <td class="numeric entryName"
+                                        <td class="numeric entryName" th:id="|entryName_${stock?.id}|"
                                             th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'">[[${stock?.entryName}]]</td>
                                         <td class="numeric unit"
                                             th:style="${#lists.contains(listColums,'unit')}?'':'display:none;'">[[${stock?.unit?.name}]]</td>
@@ -385,7 +385,7 @@
                                             th:style="${#lists.contains(listColums,'status')}?'':'display:none;'"></td>
                                         <td class="numeric ssC" id="ssC"
                                             th:style="${#lists.contains(listColums,'ssC')}?'':'display:none;'">[[${stock?.systemClassification?.name}]]</td>
-                                        <td class="numeric supplier" id="supplier"
+                                        <td class="numeric supplier"  th:id="|supplier_${stock?.id}|"
                                             th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'">[[${stock?.supplier?.name}]]</td>
                                         <td class="numeric">
                                             <shiro:hasPermission name="preStock:in">
@@ -629,6 +629,42 @@
         $("#searchArea").selectpicker("refresh");
 
     })
+
+    $(function(){
+        var options = [], _options;
+        /* <![CDATA[ */
+        var data = [[${pnames}]]
+
+        for (var i = 0; i < data.length; i++) {
+            var option = '<option value="' + data[i].id + '">' + data[i].name + '</option>';
+            options.push(option);
+        }
+        _options = options.join('');
+        $('#number-multiple')[0].innerHTML = _options;
+        // var a = [[${stock?.supplier?.id}]]
+        // $("#number-multiple").selectpicker('val',a);
+        $("#number-multiple").selectpicker('refresh');
+        $('#number-multiple').selectpicker('render')
+
+
+
+
+        var options2 = [], _options2;
+        var data2 = [[${suppliers}]]
+
+        for (var i = 0; i < data2.length; i++) {
+            var option = '<option value="' + data2[i].id + '">' + data2[i].name + '</option>';
+            options2.push(option);
+        }
+        _options2 = options2.join('');
+        $('#number-multiple2')[0].innerHTML = _options2;
+        // var a2 = [[${stock?.brand?.id}]]
+        // $("#number-multiple2").selectpicker('val',a2);
+        $("#number-multiple2").selectpicker('refresh');
+        $('#number-multiple2').selectpicker('render');
+    })
+
+    /*]]>*/
 </script>
 
 
