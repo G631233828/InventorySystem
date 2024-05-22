@@ -1,26 +1,37 @@
 package zhongchiedu.controller.inventory;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import lombok.extern.slf4j.Slf4j;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.inventory.pojo.NewCustomer;
 import zhongchiedu.inventory.pojo.Pname;
+import zhongchiedu.inventory.service.PnameService;
 import zhongchiedu.inventory.service.Impl.NewCustomerServiceImpl;
-import zhongchiedu.inventory.service.Impl.PnameServiceImpl;
 import zhongchiedu.log.annotation.SystemControllerLog;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import java.util.List;
 
 
 /**
@@ -31,7 +42,7 @@ import java.util.List;
 public class PnameController {
 
 	@Autowired
-	private PnameServiceImpl pnameService;
+	private PnameService pnameService;
 	@Autowired
 	private NewCustomerServiceImpl newCustomerService;
 
@@ -117,6 +128,17 @@ public class PnameController {
 		}else{
 			return this.pnameService.checkIfNameExists(name,"itemid");
 		}
+	}
+	/**
+	 * 通过ajax获取项目经理 项目助理相关信息
+	 *
+	 */
+	@RequestMapping(value = "/pName/ajaxgetPname", method = RequestMethod.POST)
+	@ResponseBody
+	public BasicDataResult ajaxgetPname(@RequestParam(value = "id", defaultValue = "") String id) {
+		Pname pname = this.pnameService.findPnameById(id);
+		return pname !=null ?new BasicDataResult(200, "获取成功", pname):new BasicDataResult(400, "获取失败", null);
+		
 	}
 
 

@@ -145,14 +145,6 @@ $(document).ready( function() {
 					}
 
 					
-					
-					
-					
-
-					
-					
-					
-					
 				});
 
 
@@ -200,6 +192,99 @@ function wechatPush(o){
 		}
 	});
 }
+
+
+function batchImput() {
+	$("#mybatchUpload").modal('show');
+
+}
+
+
+
+
+
+/**
+*批量导出
+*
+*/
+function batchAdd() {
+
+	var batchids = "";
+	var id = $("input[name='ids']:checked");
+	var str = "";
+	$(id).each(function() {
+		str += this.value + ",";
+	});
+	if (str != "") {
+		batchids = str.substring(0, str.length - 1);
+	}
+	$.ajax({
+		type: 'POST',
+		url: 'pickUpApplication/getbatch',
+		data: "id=" + batchids,
+		dataType: 'json',
+		success: function(data) {
+			if (data.status == 200) {
+				var stocklist = "";
+				$.each(data.data, function(index, item) {
+					stocklist += ` <tr id=stock_` + item.id + `>
+                               <td class="numeric">`+ item.stock.name + `</td>
+                               <td class="numeric">`+ item.stock.model + `</td>
+                               <td class="numeric">`+ item.accepter + `</td>
+                               <td class="numeric">`+ item.estimatedIssueQuantity + `</td>
+                               <td class="numeric">
+							   <input type="hidden" name="batchid" value="`+ item.id + `"> 
+                               <input type="text" onblur="return setpickUpNum('`+ item.id,+ `','`+item.estimatedIssueQuantity+`')"  class="form-control stockval batchout" id=pickupnum_` + item.id + `   name="batchnum" >
+                               </td>
+                               <td class="numeric">
+                               <button class="btn " type="button" onclick="return deleteStock('`+ item.id + `')" > <i  class="fa fa-trash-o">移除 </i>
+							  </button>
+                                </td>  </tr>`
+				});
+				$("#pickuplist").html(stocklist)
+				$("#mybatchAdd").modal('show');
+			} else {
+				jqueryAlert({
+					'icon': getRootPath() + '/plugs/alert/img/error.png',
+					'content': data.msg,
+					'closeTime': 2000,
+				})
+			}
+		}
+	})
+}
+
+
+
+//批量取货完成 删除
+function deleteStock(o) {
+	$("#stock_" + o).html('');
+}
+
+
+
+
+
+//校验库存
+function setpickUpNum(o,o2) {
+
+alert(o2)
+
+	var val = $("#stocknum_" + o).val();
+
+jqueryAlert({
+					'icon': getRootPath() + '/plugs/alert/img/error.png',
+					'content': data.msg,
+					'closeTime': 2000,
+				})
+				$("#stocknum_" + o).val('')
+
+
+}
+
+
+
+
 
 
 

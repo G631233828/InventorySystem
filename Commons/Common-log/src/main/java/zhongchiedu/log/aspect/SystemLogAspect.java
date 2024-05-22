@@ -60,6 +60,9 @@ public class SystemLogAspect {
         HttpSession session = request.getSession();    
         //读取session中的用户    
         User user = (User) session.getAttribute(Contents.USER_SESSION);    
+        if(user == null) {
+        	return;
+        }
         //请求的IP    
         String ip = request.getRemoteAddr();    
          try {    
@@ -67,7 +70,6 @@ public class SystemLogAspect {
             System.out.println("=====前置通知开始=====");    
             System.out.println("请求方法:" + (joinPoint.getTarget().getClass().getName() + "." + joinPoint.getSignature().getName() + "()"));    
             System.out.println("方法描述:" + getControllerMethodDescription(joinPoint));    
-            System.out.println("请求人:" + user.getAccountName());    
             System.out.println("请求IP:" + ip);    
             //*========数据库日志=========*//    
             Log log = new Log();

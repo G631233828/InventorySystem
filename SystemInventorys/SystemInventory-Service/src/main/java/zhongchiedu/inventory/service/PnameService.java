@@ -42,6 +42,10 @@ public interface PnameService extends GeneralService<Pname> {
 
 	public Object[] newcustomerids(Pname pname);
 	
+	public Pname findByNameAndItemid(String name,String itemid);
+
+	public Pname findPnameById(String id);
+	
 	
 	
 	

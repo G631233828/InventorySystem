@@ -708,15 +708,9 @@ public class StockController {
 							getstockSession.add(o);
 							session.setAttribute(Contents.STOCK_LIST, getstockSession);
 						}
-						
 					}
 			 });
-			
-			 
-			 
 		}
-
-		
 		if(Common.isNotEmpty(list)&&list.size()>0) {
 			List<Stock> stocks = this.stockService.findStocksByIds(list);
 			List<Stock> liststock = new ArrayList<>();

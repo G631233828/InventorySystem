@@ -36,13 +36,19 @@ public class PickUpApplication extends GeneralBean<PickUpApplication> {
 	private String pickUpPerson;//取件人
 	private String pickUpPhone;//取件人联系电话
 	
-	
+	//弃用
 	private String personInCharge;//负责人
-	
+	//弃用
 	private String projectName;//项目名称
-	
+	//弃用
 	private String customer;//客户
 	
+	@DBRef
+	private NewCustomer newCustomer; //客户
+	
+	@DBRef
+	private Pname pname;			//项目名称
+		
 	private long estimatedIssueQuantity;// 预计出库数量
 
 	private long actualIssueQuantity;// 实际出库数量
@@ -56,6 +62,8 @@ public class PickUpApplication extends GeneralBean<PickUpApplication> {
 	private User handler;// 处理人，负责人
 	@DBRef
 	private User publisher;//发布人
+	
+	private String accepter;//领料人
 	
 	
 	

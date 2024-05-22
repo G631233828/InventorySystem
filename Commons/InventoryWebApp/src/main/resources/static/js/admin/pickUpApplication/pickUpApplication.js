@@ -36,6 +36,9 @@ $().ready(function() {
 			"pickUpApplication.id": {
 				required: true,
 			},
+			accepter: {
+				required: true,
+			},
 			estimatedIssueQuantity: {
 				required: true,
 				remote: {
@@ -76,6 +79,9 @@ $().ready(function() {
 			},
 			"pickUpApplication.id": {
 				required: a + "请选择预出库设备",
+			},
+			accepter: {
+				required: a + "领料人不能为空",
 			},
 			estimatedIssueQuantity: {
 				required: a + "请输入预计出库数量！",
@@ -218,6 +224,34 @@ function getModel() {
 
 }
 
+
+
+
+//根据选择的项目来获取项目经理 项目助理
+function getpname() {
+	$.ajax({
+		dataType: "json",
+		type: "POST",
+		url: getRootPath() + "/pName/ajaxgetPname",
+		data: "id=" + $("#number-multiple1").val(),
+		success: function(data) {
+
+			if (data.status == 200) {
+				var pname = data.data;
+				$("#projectManager").val(pname.pm);
+				$("#projectAssistant").val(pname.assistant);
+			} else {
+				jqueryAlert({
+					'icon': getRootPath() + '/plugs/alert/img/error.png',
+					'content': data.msg,
+					'closeTime': 2000,
+				})
+			}
+		}
+	});
+
+
+}
 
 
 

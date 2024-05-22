@@ -395,4 +395,33 @@ public class PnameServiceImpl extends GeneralServiceImpl<Pname> implements Pname
 	}
 
 
+	@Override
+	public Pname findByNameAndItemid(String name, String itemid) {
+		Query query = new Query();
+
+		query.addCriteria(Criteria.where("isDelete").is(false));
+		query.addCriteria(Criteria.where("isDisable").is(false));
+		if(Common.isNotEmpty(name)&&Common.isNotEmpty(itemid)||Common.isEmpty(name)&&Common.isNotEmpty(itemid)) {
+			//项目编号跟项目名称都填写了 那么就使用项目编号
+			query.addCriteria(Criteria.where("itemid").is(itemid));
+		}else if(Common.isNotEmpty(name)&&Common.isEmpty(itemid)) {
+			//使用项目名称
+			query.addCriteria(Criteria.where("name").is(name));
+			
+		}
+		return this.findOneByQuery(query, Pname.class);
+	}
+
+
+	@Override
+	public Pname findPnameById(String id) {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("_id").is(new ObjectId(id)));
+		query.addCriteria(Criteria.where("isDisable").is(false));
+		query.addCriteria(Criteria.where("isDelete").is(false));
+		return this.findOneByQuery(query, Pname.class);
+		
+	}
+
+
 }

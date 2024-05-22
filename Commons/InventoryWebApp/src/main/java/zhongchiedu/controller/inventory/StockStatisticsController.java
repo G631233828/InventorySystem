@@ -167,12 +167,23 @@ public class StockStatisticsController {
 	@RequiresPermissions(value = "stockStatistics:out")
 	@SystemControllerLog(description = "设备出库")
 	public BasicDataResult batchOut(String batchid, String batchnum, String batchdescription,
-			String batchpersonInCharge, String batchprojectName, String batchcustomer,String accepter, HttpSession session) {
+			String pname, String newCustomer, String accepter, HttpSession session) {
 
 		String[] ids = batchid.split(",");
 		String[] nums = batchnum.split(",");
 		List<String> batchidList = Arrays.asList(ids);
 		List<String> batchnumList = Arrays.asList(nums);
+		
+		
+		if(Common.isEmpty(pname)) {
+			return new BasicDataResult(400, "项目名称不能为空", "");
+		}
+		if(Common.isEmpty(newCustomer)) {
+			return new BasicDataResult(400, "客户不能为空", "");
+		}
+		if(Common.isEmpty(accepter)) {
+			return new BasicDataResult(400, "领料人不能为空", "");
+		}
 
 		if (batchidList.size() != batchnumList.size()) {
 			return new BasicDataResult(400, "出库商品与id不匹配", "");
@@ -187,9 +198,15 @@ public class StockStatisticsController {
 			st.setStock(stock);
 			st.setNum(Long.valueOf(batchnumList.get(i)));
 			st.setAccepter(accepter);
-			st.setPersonInCharge(batchpersonInCharge);
-			st.setProjectName(batchprojectName);
-			st.setCustomer(batchcustomer);
+//			st.setPersonInCharge(batchpersonInCharge);
+//			st.setProjectName(batchprojectName);
+//			st.setCustomer(batchcustomer);
+			Pname p = new Pname();
+			p.setId(pname);
+			st.setPname(p);
+			NewCustomer c = new NewCustomer();
+			c.setId(newCustomer);
+			st.setNewCustomer(c);
 			st.setDescription(batchdescription);
 			st.setInOrOut(false);
 			st.setOutboundOrder(orderNum);

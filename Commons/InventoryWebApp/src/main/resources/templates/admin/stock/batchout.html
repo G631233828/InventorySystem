@@ -31,48 +31,48 @@
 									id="BatchOutstockStatisticsForm">
 
 									<input type="hidden" id="type" name="type">
+
+
 									<div class="form-group">
 										<div class="row">
-											<label class="col-lg-2  text-info ">负责人：</label>
-											<div class="col-lg-4 ">
-												<input type="text" class="form-control stockval"
-													name="batchpersonInCharge" id="batchpersonInChargeOut">
-											</div>
+
 											<label class="col-lg-2  text-info " style="margin-top: 3px;">项目名称：</label>
-											<div class="col-lg-4  btn-group pull-left open"
-												style="margin-left: -13px;">
-
-												<div class="col-lg-2">
-													<button type="button" class="btn dropdown-toggle"
-														data-toggle="dropdown" onclick="return getprojectNames2()">
-														<span class="caret"></span> <span class="sr-only">快速选择项目</span>
-													</button>
-
-													<ul class="dropdown-menu" id="batchmenu" role="menu"
-														style="width: 200px; height: 400px; overflow: auto;">
-														<!-- <li th:each="projectName:${projectNames}">
-														<a href="#" th:onclick="|setProjectName('${projectName}')|">
-														[[${projectName}]]
-														</a>
-													</li> -->
-													</ul>
-												</div>
-												<div class="col-lg-10 ">
-													<input type="text" class="form-control stockval "
-														name="batchprojectName" id="batchprojectName">
-												</div>
+											<div class="col-lg-4 ">
+												<select multiple class="selectpicker form-control" onchange="getpname()"
+													id="number-multiple3" data-container="body"
+													required="required" name="pname" title="请选择项目名称"
+													data-live-search="true" data-hide-disabled="true"
+													data-actions-box="false" data-virtual-scroll="false"
+													data-max-options="1"></select>
 											</div>
-
+											<label class="col-lg-2  text-info " style="margin-top: 3px;">客户：</label>
+											<div class="col-lg-4 ">
+												<select multiple class="selectpicker form-control"
+													id="number-multiple4" data-container="body"
+													required="required" name="newCustomer" title="客户"
+													data-live-search="true" data-hide-disabled="true"
+													data-actions-box="false" data-virtual-scroll="false"
+													data-max-options="1"></select>
+											</div>
 										</div>
 									</div>
 
 									<div class="form-group">
 										<div class="row">
-											<label class="col-lg-2  text-info " style="margin-top: 3px;">客户：</label>
+											<label class="col-lg-2  text-info " style="margin-top: 3px;">项目经理：</label>
 											<div class="col-lg-4 ">
-												<input type="text" class="form-control stockval"
-													name="batchcustomer" id="batchcustomerOut">
+												<input type="text" class="form-control stockval"  id="projectManager" readonly="readonly">
 											</div>
+
+											<label class="col-lg-2  text-info " style="margin-top: 3px;">项目助理：</label>
+											<div class="col-lg-4 ">
+												<input type="text" class="form-control stockval" id="projectAssistant" readonly="readonly">
+											</div>
+
+										</div>
+									</div>
+									<div class="form-group">
+										<div class="row">
 
 											<label class="col-lg-2  text-info " style="margin-top: 3px;">领料人：</label>
 											<div class="col-lg-4 ">
@@ -82,30 +82,6 @@
 
 										</div>
 									</div>
-									<div class="form-group">
-										<div class="row">
-											<label class="col-lg-2  text-info " style="margin-top: 3px;">客户：</label>
-											<div class="col-lg-4 ">
-												<select multiple class="selectpicker form-control"
-													id="number-multiple4" data-container="body"
-													required="required" name="newCustomer.id" title="客户"
-													data-live-search="true" data-hide-disabled="true"
-													data-actions-box="false" data-virtual-scroll="false"
-													data-max-options="1"></select>
-											</div>
-
-											<label class="col-lg-2  text-info " style="margin-top: 3px;">新项目名称：</label>
-											<div class="col-lg-4 ">
-												<select multiple class="selectpicker form-control"
-													id="number-multiple3" data-container="body"
-													required="required" name="pname.id" title="请选择项目名称"
-													data-live-search="true" data-hide-disabled="true"
-													data-actions-box="false" data-virtual-scroll="false"
-													data-max-options="1"></select>
-											</div>
-										</div>
-									</div>
-
 
 
 

@@ -128,22 +128,22 @@
 														th:value="${pickUpApplication?.personInCharge}">
 												</div>
 										</div>		 -->
-											<div class="form-group">
+											<!-- <div class="form-group">
 												<label class="col-lg-1 control-label">负责人：</label>
 												<div class="col-lg-6">
 												<input class="form-control" id="personInCharge"
 														placeholder="请输入负责人" name="personInCharge"
-														th:value="${pickUpApplication?.personInCharge}">
+														th:value="${pickUpApplication?.personInCharge}"> -->
 													<!-- <select multiple class="selectpicker form-control"
 														id="number-multiple2" data-container="body"
 														name="personInCharge" title="请选择项目负责人"
 														data-live-search="true" data-hide-disabled="true"
 														data-actions-box="false" data-virtual-scroll="false"
-														data-max-options="10"></select> -->
+														data-max-options="10"></select>
 												</div>
 											</div>
-									
-										<div class="form-group">
+									 -->
+					<!-- 					<div class="form-group">
 												<label class="col-lg-1 control-label">项目名称：</label>
 												<div class="col-lg-6">
 													<input class="form-control" id="projectName"
@@ -159,9 +159,32 @@
 														th:value="${pickUpApplication?.customer}">
 												</div>
 										</div>	
-											
+											 -->
 
-										
+											<div class="form-group">
+												<label class="col-lg-1 control-label">项目名称：</label>
+												<div class="col-lg-6">
+													<select multiple class="selectpicker form-control"
+														id="number-multiple1" data-container="body"
+														 name="pname.id"
+														title="请选择项目" data-live-search="true"
+														data-hide-disabled="true" data-actions-box="false"
+														data-virtual-scroll="false" data-max-options="1"></select>
+												</div>
+											</div>
+											<div class="form-group">
+												<label class="col-lg-1 control-label">客户：</label>
+												<div class="col-lg-6">
+													
+													<select multiple class="selectpicker form-control"
+														id="number-multiple2" data-container="body"
+														 name="newCustomer.id"
+														title="请选择客户" data-live-search="true"
+														data-hide-disabled="true" data-actions-box="false"
+														data-virtual-scroll="false" data-max-options="1"></select>
+													
+												</div>
+											</div>
 											
 										<div class="form-group">
 												<label class="col-lg-1 control-label">预出库存数量：</label>
@@ -305,8 +328,44 @@ var options = [], _options;
 	//	$("#number-multiple2").selectpicker('val',a2.split(','));
 	//	$("#number-multiple2").selectpicker('refresh');
 	//	$('#number-multiple2').selectpicker('render');  */ 
+	
+	
+	
+		var options1 = [], _options1;
+
+		var pnamedata = [[${pnames}]]
+	
+				$.each(pnamedata, function(index, item) {
+					
+					var option = '<option value="' + item.id + '">' + item.name+ '</option>'; 
+					options1.push(option);
+				});
+				_options1= options1.join('');
+				$('#number-multiple1')[0].innerHTML = _options1;
+				var a1 = /*[[${pickUpApplication?.pname?.id}]]*/
+				$("#number-multiple1").selectpicker('val', a1);
+				$("#number-multiple1").selectpicker('refresh');
+				$('#number-multiple1').selectpicker('render');
+
 		
-})	  
+		var options2 = [], _options2;
+		var customerdata = /*[[${customers}]]*/
+			if(customerdata!=null){
+				$.each(customerdata, function(index, item) {
+					var option = '<option value="' + item.id + '">' + item.name+ '</option>'; 
+					options2.push(option);
+				});
+				_options2 = options2.join('');
+				$('#number-multiple2')[0].innerHTML = _options2;
+				var a2 = /*[[${pickUpApplication?.newCustomer?.id}]]*/
+				$("#number-multiple2").selectpicker('val', a2);
+				$("#number-multiple2").selectpicker('refresh');
+				$('#number-multiple2').selectpicker('render');
+			}
+		
+	})		
+	
+		
 	  
  /*]]>*/
 </script>

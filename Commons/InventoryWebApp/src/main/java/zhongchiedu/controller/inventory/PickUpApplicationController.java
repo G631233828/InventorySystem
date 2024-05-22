@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -28,21 +30,28 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import lombok.extern.slf4j.Slf4j;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.Common;
 import zhongchiedu.common.utils.Contents;
+import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.general.pojo.User;
 import zhongchiedu.general.service.UserService;
 import zhongchiedu.inventory.pojo.Area;
 import zhongchiedu.inventory.pojo.InventoryRole;
+import zhongchiedu.inventory.pojo.NewCustomer;
 import zhongchiedu.inventory.pojo.PickUpApplication;
+import zhongchiedu.inventory.pojo.Pname;
 import zhongchiedu.inventory.pojo.Stock;
 import zhongchiedu.inventory.pojo.StockStatistics;
 import zhongchiedu.inventory.service.InventoryRoleService;
+import zhongchiedu.inventory.service.NewCustomerService;
 import zhongchiedu.inventory.service.PickUpApplicationService;
+import zhongchiedu.inventory.service.PnameService;
 import zhongchiedu.inventory.service.StockService;
 import zhongchiedu.inventory.service.Impl.AreaServiceImpl;
 import zhongchiedu.inventory.service.Impl.GoodsStorageServiceImpl;
@@ -78,6 +87,11 @@ public class PickUpApplicationController {
 	private @Autowired UserService userService;
 
 	private @Autowired WxMsgPush wxMsgPush;
+	
+	private @Autowired PnameService pnameService;
+	
+	private @Autowired NewCustomerService newCustomerService;
+	
 	@Value("${templateId3}")
 	private String templateId3;
 	@Value("${templateId1}")
@@ -89,7 +103,8 @@ public class PickUpApplicationController {
 	public String prestock(@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
 			@RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize, HttpSession session,
 			@RequestParam(value = "search", defaultValue = "") String search,
-			@RequestParam(value = "status", defaultValue = "") String status,
+			@RequestParam(value = "status", defaultValue = "1") String status,
+			@ModelAttribute("errorImport") String errorImport,
 			@RequestParam(value = "searchArea", defaultValue = "") String searchArea,
 			@ModelAttribute("errorMsg") String errorMsg) {
 
@@ -99,7 +114,7 @@ public class PickUpApplicationController {
 
 		List<Area> areas = this.areaService.findAllArea(false);
 		model.addAttribute("areas", areas);
-
+		model.addAttribute("errorImport", errorImport);
 		session.setAttribute("pickpageNo", pageNo);
 		session.setAttribute("pickpageSize", pageSize);
 		session.setAttribute("picksearch", search);
@@ -127,8 +142,15 @@ public class PickUpApplicationController {
 		List<Area> areas = this.areaService.findAllArea(false);
 		model.addAttribute("areas", areas);
 		// 获取所有用户信息
-		List<User> users = this.userService.findAllUser();
-		model.addAttribute("users", users);
+//		List<User> users = this.userService.findAllUser();
+//		model.addAttribute("users", users);
+		//获取到所有项目名称
+		List<Pname> findAllName = this.pnameService.findAllName(false);
+		model.addAttribute("pnames", findAllName);
+		//获取到所有客户
+		List<NewCustomer> findAllCustomer = this.newCustomerService.findAllCustomer(false);
+		model.addAttribute("customers", findAllCustomer);
+		
 
 		return "admin/pickUpApplication/add";
 	}
@@ -150,8 +172,14 @@ public class PickUpApplicationController {
 		List<Stock> stocks = this.stockService.findAllStock(false, stock.getArea().getId(),"");
 		model.addAttribute("stocks", stocks);
 		// 获取所有用户信息
-		List<User> users = this.userService.findAllUser();
-		model.addAttribute("users", users);
+//		List<User> users = this.userService.findAllUser();
+//		model.addAttribute("users", users);
+		//获取到所有项目名称
+		List<Pname> findAllName = this.pnameService.findAllName(false);
+		model.addAttribute("pnames", findAllName);
+		//获取到所有客户
+		List<NewCustomer> findAllCustomer = this.newCustomerService.findAllCustomer(false);
+		model.addAttribute("customers", findAllCustomer);
 
 		return "admin/pickUpApplication/add";
 	}
@@ -171,8 +199,14 @@ public class PickUpApplicationController {
 		List<Stock> stocks = this.stockService.findAllStock(false, stock.getArea().getId(),"");
 		model.addAttribute("stocks", stocks);
 		// 获取所有用户信息
-		List<User> users = this.userService.findAllUser();
-		model.addAttribute("users", users);
+//		List<User> users = this.userService.findAllUser();
+//		model.addAttribute("users", users);
+		List<Pname> findAllName = this.pnameService.findAllName(false);
+		model.addAttribute("pnames", findAllName);
+		//获取到所有客户
+		List<NewCustomer> findAllCustomer = this.newCustomerService.findAllCustomer(false);
+		model.addAttribute("customers", findAllCustomer);
+
 
 		return "admin/pickUpApplication/pickUpAdd";
 	}
@@ -393,7 +427,6 @@ public class PickUpApplicationController {
 	@RequestMapping(value = "getStocks", method = RequestMethod.POST)
 	@ResponseBody
 	public BasicDataResult getStocks(String areaId) {
-		System.out.println(areaId);
 		if (Common.isEmpty(areaId)) {
 			return new BasicDataResult().build(400, "未能获取到设备信息", "");
 		}
@@ -440,7 +473,7 @@ public class PickUpApplicationController {
 	@RequiresPermissions(value = "pickUpApplication:out")
 	@SystemControllerLog(description = "批量预出库")
 	public BasicDataResult batchOut(String batchid, String batchnum, String batchdescription,
-			String batchpersonInCharge, String batchprojectName, String batchcustomer,String accepter, HttpSession session) {
+			String pname, String newCustomer, String accepter, HttpSession session) {
 
 		String[] ids = batchid.split(",");
 		String[] nums = batchnum.split(",");
@@ -450,14 +483,20 @@ public class PickUpApplicationController {
 		if (batchidList.size() != batchnumList.size()) {
 			return new BasicDataResult(400, "出库商品与id不匹配", "");
 		}
+		if(Common.isEmpty(pname)) {
+			return new BasicDataResult(400, "项目名称不能为空", "");
+		}
+		if(Common.isEmpty(newCustomer)) {
+			return new BasicDataResult(400, "客户不能为空", "");
+		}
+		if(Common.isEmpty(accepter)) {
+			return new BasicDataResult(400, "领料人不能为空", "");
+		}
+		
+		
 		User user = (User) session.getAttribute(Contents.USER_SESSION);
 		String orderNum = Common.getOrderNum();
 		List<Object> list = new ArrayList<>();
-		
-		
-		
-		
-
 		for (int i = 0; i < batchidList.size(); i++) {
 			Stock stock = this.stockService.findOneById(batchidList.get(i), Stock.class);
 			
@@ -466,10 +505,18 @@ public class PickUpApplicationController {
 			pick.setPublisher(user);// 发布人
 			pick.setStock(stock);
 			pick.setArea(stock.getArea());
-			pick.setPersonInCharge(batchpersonInCharge);
+			Pname p = new Pname();
+			p.setId(pname);
+			pick.setPname(p);
+			NewCustomer c = new NewCustomer();
+			c.setId(newCustomer);
+			pick.setNewCustomer(c);
+//			pick.setPersonInCharge(batchpersonInCharge);
 			pick.setEstimatedIssueQuantity(Long.valueOf(batchnumList.get(i)));
-			pick.setCustomer(batchcustomer);
-			pick.setProjectName(batchprojectName);
+//			pick.setCustomer(batchcustomer);
+//			pick.setProjectName(batchprojectName);
+			pick.setDescription(batchdescription);
+			pick.setAccepter(accepter);
 			this.pickUpApplicationService.saveOrUpdate(pick);
 //			StockStatistics st = new StockStatistics();
 //			st.setStock(stock);
@@ -502,9 +549,77 @@ public class PickUpApplicationController {
 	}
 	
 
-	public static void main(String[] args) {
-		StringBuilder errorMsg = new StringBuilder();
-		System.out.println(errorMsg.length() == 0);
+	/**
+	 * 模版下载
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/pickUpApplication/download")
+	@SystemControllerLog(description = "下载预出库导入模版")
+	public ModelAndView download(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		String storeName = "批量预出库导入模版.xlsx";
+		String contentType = "application/octet-stream";
+		String UPLOAD = "Templates/";
+		FileOperateUtil.download(request, response, storeName, contentType, UPLOAD);
+		return null;
 	}
+
+	
+	/***
+	 * 文件上传
+	 * 
+	 * @param request
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value = "/pickUpApplication/upload")
+	@SystemControllerLog(description = "批量导入预出库")
+	@RequiresPermissions(value = "pickUpApplication:batch")
+	public ModelAndView upload(HttpServletRequest request, HttpSession session, RedirectAttributes attr) {
+		log.info("开始上传文件");
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.setViewName("redirect:/pickUpApplications");
+		String error = this.pickUpApplicationService.upload(request, session);
+		attr.addFlashAttribute("errorImport", error);
+		return modelAndView;
+
+	}
+	
+	
+	
+	
+
+	@RequestMapping(value = "/pickUpApplication/getbatch", method = RequestMethod.POST)
+	@ResponseBody
+	public BasicDataResult getbatch(HttpSession session,String id) {
+		
+		if(Common.isNotEmpty(id)) {
+			List ids = Arrays.asList(id.split(","));
+			
+			List<PickUpApplication> list =  this.pickUpApplicationService.getbatchByids(ids);
+
+			return new BasicDataResult(200, "获取预出库列表", list);
+		}else {
+			return new BasicDataResult(400, "获取预出库列表失败，请先选择预出库设备！", null);
+		}
+		
+		
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 }
