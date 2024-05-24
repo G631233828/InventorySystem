@@ -2,14 +2,18 @@
 function searchVal() {
 
 	var pageSize = $("#pageSize").val();
-	var search = $("#serach").val();
 	var searchArea = $("#searchArea").val();
 	var status = $("#pickstatus").val();
-/*
- * if (search == null || search == "") { swal({ type : "warning", title : "",
- * text : "查询内容不能为空!!", }); return ; }
- */
-	window.location.href="pickUpApplications?pageSize="+pageSize+"&search="+search+"&searchArea="+searchArea+"&status="+status;
+	var pnameid = $("#pnameid").val();
+	var customerid = $("#customerid").val();
+	var stockid = $("#stockid").val();
+	var modelid = $("#modelid").val();
+	
+	/*
+	 * if (search == null || search == "") { swal({ type : "warning", title : "",
+	 * text : "查询内容不能为空!!", }); return ; }
+	 */
+	window.location.href = "pickUpApplications?pageSize=" + pageSize + "&searchArea=" + searchArea + "&pnameid=" + pnameid + "&status=" + status+ "&customerid=" + customerid+ "&stockid=" + stockid+ "&modelid=" + modelid;
 
 }
 
@@ -39,23 +43,23 @@ function searchVal() {
 
 
 
-function toStatistics(o){
+function toStatistics(o) {
 	window.location.href = "stockStatisticss?id=" + o;
-	
+
 }
 
-function toExport(){
+function toExport() {
 	jqueryAlert({
-	    'icon'    : getRootPath() +'/plugs/alert/img/right.png',
-	    'content' : "正在导出请稍等...",
-	    'closeTime' : 5000,
+		'icon': getRootPath() + '/plugs/alert/img/right.png',
+		'content': "正在导出请稍等...",
+		'closeTime': 5000,
 	})
 	var areaId = $("#searchArea").val();
-	
-	
-	window.location.href = "stock/export?areaId="+areaId;
-	
-	
+
+
+	window.location.href = "stock/export?areaId=" + areaId;
+
+
 }
 
 
@@ -73,11 +77,11 @@ function selectColumn(o) {
 	$(td).prop("checked", flag);
 
 	$.ajax({
-		type : 'GET',
-		url : 'stock/columns',
-		data : "column=" + o + "&flag=" + flag,
-		dataType : 'json',
-		success : function(data) {
+		type: 'GET',
+		url: 'stock/columns',
+		data: "column=" + o + "&flag=" + flag,
+		dataType: 'json',
+		success: function(data) {
 			if (data.status == 200) {
 				// $(td).attr("checked":flag);
 				if (flag) {
@@ -91,67 +95,67 @@ function selectColumn(o) {
 
 }
 
-$(document).ready( function() {
-					if ($("#upload").val() != "") {
+$(document).ready(function() {
+	if ($("#upload").val() != "") {
 
-						$('#submit')
-								.bind(
-										'click',
-										function() {
-											var eventFun = function() {
-												$
-														.ajax({
-															type : 'GET',
-															url : 'stock/uploadprocess',
-															data : {},
-															dataType : 'json',
-															success : function(
-																	data) {
-																$("#proBar")
-																		.attr(
-																				"style",
-																				"width:"
-																						+ (data.nownum / data.allnum)
-																						* 100
-																						+ '%');
-																$('#proBar')
-																		.css(
-																				'aria-valuenow',
-																				data.nownum
-																						+ '%');
-																$('#proBar')
-																		.css(
-																				'aria-valuemax',
-																				data.allnum
-																						+ '%');
-																$('#proBartext')
-																		.text(
-																				"正在导入第"
-																						+ data.nownum
-																						+ "条记录，总共"
-																						+ data.allnum
-																						+ "条记录");
-																if (data.nownum == data.allnum) {
-																	window
-																			.clearInterval(intId);
-																}
-															}
-														});
-											};
-											var intId = window.setInterval(
-													eventFun, 100);
-										});
-
-					}
-
-					
+		$('#submit')
+			.bind(
+				'click',
+				function() {
+					var eventFun = function() {
+						$
+							.ajax({
+								type: 'GET',
+								url: 'stock/uploadprocess',
+								data: {},
+								dataType: 'json',
+								success: function(
+									data) {
+									$("#proBar")
+										.attr(
+											"style",
+											"width:"
+											+ (data.nownum / data.allnum)
+											* 100
+											+ '%');
+									$('#proBar')
+										.css(
+											'aria-valuenow',
+											data.nownum
+											+ '%');
+									$('#proBar')
+										.css(
+											'aria-valuemax',
+											data.allnum
+											+ '%');
+									$('#proBartext')
+										.text(
+											"正在导入第"
+											+ data.nownum
+											+ "条记录，总共"
+											+ data.allnum
+											+ "条记录");
+									if (data.nownum == data.allnum) {
+										window
+											.clearInterval(intId);
+									}
+								}
+							});
+					};
+					var intId = window.setInterval(
+						eventFun, 100);
 				});
 
+	}
+
+
+});
 
 
 
 
-function cleanSearch(){
+
+function cleanSearch() {
 	window.location.href = "pickUpApplication/clearSearch";
 }
 
@@ -160,35 +164,35 @@ function cleanSearch(){
 
 
 
-function wechatPush(o){
+function wechatPush(o) {
 	$.ajax({
-		type : 'POST',
-		url : "pickUpApplication/pickUpApplicationPush",
-		dataType : "json",
-		data: "id="+o,
-		success : function(data) {
-			if(data.status==200){
+		type: 'POST',
+		url: "pickUpApplication/pickUpApplicationPush",
+		dataType: "json",
+		data: "id=" + o,
+		success: function(data) {
+			if (data.status == 200) {
 				jqueryAlert({
-				    'icon'    : getRootPath() +'/plugs/alert/img/right.png',
-				    'content' : data.data,
-				    'closeTime' : 5000,
+					'icon': getRootPath() + '/plugs/alert/img/right.png',
+					'content': data.data,
+					'closeTime': 5000,
 				})
-			}else if(data.status==201){
+			} else if (data.status == 201) {
 				jqueryAlert({
-				    'icon'    : getRootPath() +'/plugs/alert/img/warning.png',
-				    'content' : data.data,
-				    'closeTime' : 10000,
+					'icon': getRootPath() + '/plugs/alert/img/warning.png',
+					'content': data.data,
+					'closeTime': 10000,
 				})
-			}else{
+			} else {
 				jqueryAlert({
-				    'icon'    : getRootPath() +'/plugs/alert/img/error.png',
-				    'content' : data.data,
-				    'closeTime' : 5000,
+					'icon': getRootPath() + '/plugs/alert/img/error.png',
+					'content': data.data,
+					'closeTime': 5000,
 				})
 			}
-			
-			
-			
+
+
+
 		}
 	});
 }
@@ -232,9 +236,10 @@ function batchAdd() {
                                <td class="numeric">`+ item.stock.model + `</td>
                                <td class="numeric">`+ item.accepter + `</td>
                                <td class="numeric">`+ item.estimatedIssueQuantity + `</td>
+                               <td class="numeric">`+ item.actualIssueQuantity + `</td>
                                <td class="numeric">
 							   <input type="hidden" name="batchid" value="`+ item.id + `"> 
-                               <input type="text" onblur="return setpickUpNum('`+ item.id,+ `','`+item.estimatedIssueQuantity+`')"  class="form-control stockval batchout" id=pickupnum_` + item.id + `   name="batchnum" >
+                               <input type="text" onblur="return setpickUpNum('`+ item.id + `','` + item.estimatedIssueQuantity + `','` + item.actualIssueQuantity + `')"  class="form-control stockval batchout" id=pickupnum_` + item.id + `   name="batchnum" >
                                </td>
                                <td class="numeric">
                                <button class="btn " type="button" onclick="return deleteStock('`+ item.id + `')" > <i  class="fa fa-trash-o">移除 </i>
@@ -266,21 +271,87 @@ function deleteStock(o) {
 
 
 //校验库存
-function setpickUpNum(o,o2) {
+function setpickUpNum(o, o2,o3) {
 
-alert(o2)
+	//获取到输入的值
+	var val = Number($("#pickupnum_" + o).val());
+	 o2 = Number(o2);
+	o3 = Number(o3)
+	var pattern = /^\d+$/;
+	if (pattern.test(val)) {
+	} else {
+		jqueryAlert({
+			'icon': getRootPath() + '/plugs/alert/img/error.png',
+			'content': '输入的值有误',
+			'closeTime': 2000,
+		})
+		$("#pickupnum_" + o).val('')
+		return;
+	}
 
-	var val = $("#stocknum_" + o).val();
 
-jqueryAlert({
-					'icon': getRootPath() + '/plugs/alert/img/error.png',
-					'content': data.msg,
-					'closeTime': 2000,
-				})
-				$("#stocknum_" + o).val('')
+
+	if (val <= 0) {
+		jqueryAlert({
+			'icon': getRootPath() + '/plugs/alert/img/error.png',
+			'content': '输入的值有误',
+			'closeTime': 2000,
+		})
+		$("#pickupnum_" + o).val('')
+		return;
+	}
+	if (val > (o2-o3)) {
+		jqueryAlert({
+			'icon': getRootPath() + '/plugs/alert/img/error.png',
+			'content': '实际出库值不能大于预出库值',
+			'closeTime': 2000,
+		})
+		$("#pickupnum_" + o).val('')
+		return;
+	}
+
+
+
 
 
 }
+
+
+
+
+
+
+
+function  batchFormSubmit() {
+$.ajax({
+		type: 'POST',
+		url: "pickUpApplication/batchAdd",
+		dataType: "json",
+		data: $("#batchAddForm").serialize(),
+		success: function(data) {
+			if (data.status == 200) {
+			
+				jqueryAlert({
+					'icon': getRootPath() + '/plugs/alert/img/right.png',
+					'content': data.data,
+					'closeTime': 5000,
+				})
+				  location.reload();
+			} 
+
+
+
+		}
+	});
+
+}
+
+
+
+
+
+
+
 
 
 

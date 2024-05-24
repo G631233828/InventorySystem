@@ -88,7 +88,7 @@
 												<label class="col-lg-1 control-label">区域：</label>
 												<div class="col-lg-6">
 
-													<select id="area" name="area.id" class="form-control"
+													<select id="area" name="area.id" class="form-control" th:disabled="${pickUpApplication!=null}"
 														required="required" onchange="return getStocks()">
 														<option value="">---请选择区域---</option>
 														<option
@@ -96,6 +96,9 @@
 															th:each="area:${areas}" th:value="${area?.id}"
 															th:text="${area?.name}"></option>
 													</select>
+													<div th:if="${pickUpApplication != null}">
+													<input  type="hidden" name="area.id" th:value="${pickUpApplication?.area?.id}">
+													</div>
 												</div>
 											</div>
 
@@ -104,12 +107,15 @@
 											<div class="form-group">
 												<label class="col-lg-1 control-label">设备名称：</label>
 												<div class="col-lg-6">
-													<select multiple class="selectpicker form-control"
+													<select multiple class="selectpicker form-control" th:disabled="${pickUpApplication!=null}"
 														id="number-multiple" data-container="body"
 														onchange="return getModel()" name="stock.id"
 														title="请选择出库设备" data-live-search="true"
 														data-hide-disabled="true" data-actions-box="false"
 														data-virtual-scroll="false" data-max-options="1"></select>
+														<div th:if="${pickUpApplication != null}">
+														<input type="hidden" name="stock.id" th:value="${pickUpApplication?.stock?.id}">
+														</div>
 												</div>
 											</div>
 

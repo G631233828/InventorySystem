@@ -1,7 +1,4 @@
 $().ready(function() {
-
-
-
 	 // 假设出库数量和实际出库数量的输入框的 name 属性分别为 "stockQuantity" 和 "actualOutbound"
     var stockQuantityElement = $("[name='estimatedIssueQuantity']");
     var actualOutboundElement = $("[name='actualIssueQuantity']");
@@ -50,6 +47,9 @@ $().ready(function() {
 						},
 						stockId: function() {
 							return $("#number-multiple").val();
+						},
+						pickId: function(){
+							return  $('input[name="id"]').val();
 						}
 					},
 					dataType: "json",

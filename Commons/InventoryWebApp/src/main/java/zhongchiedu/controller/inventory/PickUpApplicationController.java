@@ -4,10 +4,14 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -87,11 +91,11 @@ public class PickUpApplicationController {
 	private @Autowired UserService userService;
 
 	private @Autowired WxMsgPush wxMsgPush;
-	
+
 	private @Autowired PnameService pnameService;
-	
+
 	private @Autowired NewCustomerService newCustomerService;
-	
+
 	@Value("${templateId3}")
 	private String templateId3;
 	@Value("${templateId1}")
@@ -103,13 +107,41 @@ public class PickUpApplicationController {
 	public String prestock(@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
 			@RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize, HttpSession session,
 			@RequestParam(value = "search", defaultValue = "") String search,
-			@RequestParam(value = "status", defaultValue = "1") String status,
+			@RequestParam(value = "status", defaultValue = "") String status,
+			@RequestParam(value = "pnameid", defaultValue = "") String pnameid,
+			@RequestParam(value = "customerid", defaultValue = "") String customerid,
+			@RequestParam(value = "stockid", defaultValue = "") String stockid,
+			@RequestParam(value = "modelid", defaultValue = "") String modelid,
 			@ModelAttribute("errorImport") String errorImport,
 			@RequestParam(value = "searchArea", defaultValue = "") String searchArea,
 			@ModelAttribute("errorMsg") String errorMsg) {
 
 		Pagination<PickUpApplication> pagination = this.pickUpApplicationService.findpagination(pageNo, pageSize,
-				search, searchArea, status);
+				 searchArea, status,pnameid,customerid,stockid,modelid);
+		
+		List<Pname> findAllName = this.pnameService.findAllName(false);
+		model.addAttribute("pnames", findAllName);
+		session.setAttribute("selectpname", pnameid);
+		// 获取到所有客户
+		List<NewCustomer> findAllCustomer = this.newCustomerService.findAllCustomer(false);
+		model.addAttribute("customers", findAllCustomer);
+		session.setAttribute("selectcustomer", customerid);
+		
+		
+		List<PickUpApplication> findAllPickUpApplication = this.pickUpApplicationService.findAllPickUpApplication(false, null);
+		
+		Set<Stock> stocklists = findAllPickUpApplication.stream().map(PickUpApplication::getStock).collect(Collectors.toCollection(LinkedHashSet::new));
+		model.addAttribute("stocklists", stocklists);
+		
+//		Collection<Stock> stocks = findAllPickUpApplication.stream()
+//	                .map(PickUpApplication::getStock) // 获取每个PickUpApplication中的Stock对象
+//	                .collect(Collectors.toMap(
+//	                        Stock::getId, // 作为Map的键
+//	                        Function.identity(), // 作为Map的值，直接返回Stock对象
+//	                        (existing, replacement) -> existing, // 合并函数，这里我们保留现有的对象
+//	                        LinkedHashMap::new // 使用LinkedHashMap来保持插入顺序
+//	                )).values(); // 获取Map的值，即不重复的Stock集合
+		
 		model.addAttribute("pageList", pagination);
 
 		List<Area> areas = this.areaService.findAllArea(false);
@@ -144,13 +176,12 @@ public class PickUpApplicationController {
 		// 获取所有用户信息
 //		List<User> users = this.userService.findAllUser();
 //		model.addAttribute("users", users);
-		//获取到所有项目名称
+		// 获取到所有项目名称
 		List<Pname> findAllName = this.pnameService.findAllName(false);
 		model.addAttribute("pnames", findAllName);
-		//获取到所有客户
+		// 获取到所有客户
 		List<NewCustomer> findAllCustomer = this.newCustomerService.findAllCustomer(false);
 		model.addAttribute("customers", findAllCustomer);
-		
 
 		return "admin/pickUpApplication/add";
 	}
@@ -169,15 +200,15 @@ public class PickUpApplicationController {
 		model.addAttribute("areas", areas);
 		PickUpApplication stock = this.pickUpApplicationService.findOneById(id, PickUpApplication.class);
 		model.addAttribute("pickUpApplication", stock);
-		List<Stock> stocks = this.stockService.findAllStock(false, stock.getArea().getId(),"");
+		List<Stock> stocks = this.stockService.findAllStock(false, stock.getArea().getId(), "");
 		model.addAttribute("stocks", stocks);
 		// 获取所有用户信息
 //		List<User> users = this.userService.findAllUser();
 //		model.addAttribute("users", users);
-		//获取到所有项目名称
+		// 获取到所有项目名称
 		List<Pname> findAllName = this.pnameService.findAllName(false);
 		model.addAttribute("pnames", findAllName);
-		//获取到所有客户
+		// 获取到所有客户
 		List<NewCustomer> findAllCustomer = this.newCustomerService.findAllCustomer(false);
 		model.addAttribute("customers", findAllCustomer);
 
@@ -196,17 +227,16 @@ public class PickUpApplicationController {
 		model.addAttribute("areas", areas);
 		PickUpApplication stock = this.pickUpApplicationService.findOneById(id, PickUpApplication.class);
 		model.addAttribute("pickUpApplication", stock);
-		List<Stock> stocks = this.stockService.findAllStock(false, stock.getArea().getId(),"");
+		List<Stock> stocks = this.stockService.findAllStock(false, stock.getArea().getId(), "");
 		model.addAttribute("stocks", stocks);
 		// 获取所有用户信息
 //		List<User> users = this.userService.findAllUser();
 //		model.addAttribute("users", users);
 		List<Pname> findAllName = this.pnameService.findAllName(false);
 		model.addAttribute("pnames", findAllName);
-		//获取到所有客户
+		// 获取到所有客户
 		List<NewCustomer> findAllCustomer = this.newCustomerService.findAllCustomer(false);
 		model.addAttribute("customers", findAllCustomer);
-
 
 		return "admin/pickUpApplication/pickUpAdd";
 	}
@@ -237,32 +267,29 @@ public class PickUpApplicationController {
 	public BasicDataResult addPickUpApplicationAdd(
 			@ModelAttribute("pickUpApplication") PickUpApplication pickUpApplication, HttpSession session)
 			throws UnsupportedEncodingException {
-	//优化前
+		// 优化前
 //		if (pickUpApplication.getActualIssueQuantity() <= 0) {
 //			return new BasicDataResult().build(400, "出库数量有误！", "出库数量有误！");
 //		}
-		//通过num 来判断实际出库数量
-		
+		// 通过num 来判断实际出库数量
+
 		if (pickUpApplication.getNum() <= 0) {
 			return new BasicDataResult().build(400, "出库数量有误！", "出库数量有误！");
 		}
 
 		PickUpApplication getpickUpApplication = this.pickUpApplicationService.findOneById(pickUpApplication.getId(),
 				PickUpApplication.class);
-		
-		long estimatedIssueQuantity = getpickUpApplication.getEstimatedIssueQuantity();//预计出库数量
-		long actualIssueQuantity = getpickUpApplication.getActualIssueQuantity();//实际出库数量
-		
-	
-		
+
+		long estimatedIssueQuantity = getpickUpApplication.getEstimatedIssueQuantity();// 预计出库数量
+		long actualIssueQuantity = getpickUpApplication.getActualIssueQuantity();// 实际出库数量
+
 		long newNum = estimatedIssueQuantity - actualIssueQuantity;
 		if (pickUpApplication.getNum() > newNum) {
 			return new BasicDataResult().build(400, "出库数量不能超过剩余数量！", "出库数量不能超过剩余数量");
 		}
-		
-		
+
 		int status = getpickUpApplication.getStatus();
-		if (status != 1 && status !=3) {
+		if (status != 1 && status != 3) {
 			return new BasicDataResult().build(400, "设备可出库数量为0", "设备可出库数量为0");
 		}
 		User suser = (User) session.getAttribute(Contents.USER_SESSION);
@@ -274,7 +301,7 @@ public class PickUpApplicationController {
 
 			// 创建通知
 			InventoryRole inventoryRole = this.inventoryRoleService.findByType("HANDLER");
-			if(Common.isEmpty(inventoryRole)) {
+			if (Common.isEmpty(inventoryRole)) {
 				return new BasicDataResult().build(200, "出库成功", "未获得绑定微信人员信息");
 			}
 			List<User> users = inventoryRole.getUsers();
@@ -285,30 +312,29 @@ public class PickUpApplicationController {
 //				List<User> users = this.userService.findUserInIds(ids);
 //				String person= users.stream().map(x->x.getUserName()).collect(Collectors.joining(", "));
 
-				StringBuilder errorMsg = new StringBuilder("");
-				Map<String, String> map = new HashMap<>();
-				map.put("first", "设备出库提醒！");
-				map.put("keyword1", getpickUpApplication.getStock().getName());
-				map.put("keyword2", String.valueOf(pickUpApplication.getActualIssueQuantity()));
-				map.put("keyword3", getpickUpApplication.getCustomer());
-				map.put("keyword4", getpickUpApplication.getPersonInCharge());
-				map.put("remark", "设备出库已完成");
-				users.stream().filter(user -> Common.isEmpty(user.getOpenId())).forEach(user -> {
-					errorMsg.append("用户：" + user.getUserName() + "尚未绑定微信<BR/>");
-				});
-				users.stream().filter(user -> Common.isNotEmpty(user.getOpenId())).forEach(user -> {
-					String sendWxMessage = this.wxMsgPush.sendWxMessage(templateId3, user.getOpenId(), "", map);
-					if (sendWxMessage == "-1") {
-						errorMsg.append("用户：" + user.getUserName() + "消息发送失败！<BR/>");
-					}
-					// this.wxMsgPush.sendWxMessage(templateId1, "ooiMKv7cqR-2EgkeC9LdATpr-mbY",
-					// "www.baidu.com", map);
-				});
-				return new BasicDataResult().build(200, "出库成功", errorMsg);
+			StringBuilder errorMsg = new StringBuilder("");
+			Map<String, String> map = new HashMap<>();
+			map.put("first", "设备出库提醒！");
+			map.put("keyword1", getpickUpApplication.getStock().getName());
+			map.put("keyword2", String.valueOf(pickUpApplication.getActualIssueQuantity()));
+			map.put("keyword3", getpickUpApplication.getNewCustomer().getName());
+			map.put("keyword4", getpickUpApplication.getPname().getPm());
+			map.put("remark", "设备出库已完成");
+			users.stream().filter(user -> Common.isEmpty(user.getOpenId())).forEach(user -> {
+				errorMsg.append("用户：" + user.getUserName() + "尚未绑定微信<BR/>");
+			});
+			users.stream().filter(user -> Common.isNotEmpty(user.getOpenId())).forEach(user -> {
+				String sendWxMessage = this.wxMsgPush.sendWxMessage(templateId3, user.getOpenId(), "", map);
+				if (sendWxMessage == "-1") {
+					errorMsg.append("用户：" + user.getUserName() + "消息发送失败！<BR/>");
+				}
+				// this.wxMsgPush.sendWxMessage(templateId1, "ooiMKv7cqR-2EgkeC9LdATpr-mbY",
+				// "www.baidu.com", map);
+			});
+			return new BasicDataResult().build(200, "出库成功", errorMsg);
 
-				
 //			}
-			
+
 		}
 		return pickUpApplicationToStock;
 
@@ -375,19 +401,19 @@ public class PickUpApplicationController {
 	public BasicDataResult pickUpApplicationPush(String id) {
 		PickUpApplication pickUpApplication = this.pickUpApplicationService.findOneById(id, PickUpApplication.class);
 		InventoryRole inventoryRole = this.inventoryRoleService.findByType("HANDLER");
-		
-		if(Common.isEmpty(inventoryRole)) {
+
+		if (Common.isEmpty(inventoryRole)) {
 			return new BasicDataResult().build(201, "消息推送失败，清先绑定人员", null);
 		}
 		List<User> users = inventoryRole.getUsers();
-		
-		//List<String> userNames = new ArrayList<>();
+
+		// List<String> userNames = new ArrayList<>();
 //		if(Common.isNotEmpty(pickUpApplication.getPersonInCharge())) {
 //			
 //			List<User> personIncharge = this.userService.getUsersByIds(pickUpApplication.getPersonInCharge());
 //			 userNames = personIncharge.stream().map(x ->x.getUserName()).collect(Collectors.toList());
 //		}
-		
+
 		StringBuilder errorMsg = new StringBuilder("");
 		Map<String, String> map = new HashMap<>();
 		map.put("first", "预出库通知，有设备即将出库！");
@@ -395,7 +421,8 @@ public class PickUpApplicationController {
 		map.put("keyword2", pickUpApplication.getId());
 
 		String person = Common.isNotEmpty(pickUpApplication.getPersonInCharge())
-				? "\n负责人：" + pickUpApplication.getPersonInCharge() : "";
+				? "\n负责人：" + pickUpApplication.getPersonInCharge()
+				: "";
 		map.put("keyword3", "预计出库数量为：" + pickUpApplication.getEstimatedIssueQuantity() + person);
 		map.put("remark", "点击此条信息可以通过手机进行出库操作！");
 		users.stream().filter(user -> Common.isEmpty(user.getOpenId())).forEach(user -> {
@@ -431,7 +458,7 @@ public class PickUpApplicationController {
 			return new BasicDataResult().build(400, "未能获取到设备信息", "");
 		}
 		// 通过areaid获取库存
-		List<Stock> stocks = this.stockService.findAllStock(false, areaId,"");
+		List<Stock> stocks = this.stockService.findAllStock(false, areaId, "");
 		if (stocks.size() > 0) {
 			return new BasicDataResult().build(200, "获取设备信息成功", stocks);
 		}
@@ -446,34 +473,51 @@ public class PickUpApplicationController {
 	 */
 	@RequestMapping(value = "checkStockNum", method = RequestMethod.POST)
 	@ResponseBody
-	public BasicDataResult checkStockNum(String stockId, String num) {
+	public BasicDataResult checkStockNum(String stockId, String num,String pickId) {
+		
+		long self= 0L;
 		if (Common.isEmpty(stockId)) {
 			return new BasicDataResult().build(400, "未能获取出库设备信息", "");
 		}
 		if (Common.isEmpty(num)) {
 			return new BasicDataResult().build(400, "未能获取到出库数量", "");
 		}
+		long getnum = Long.valueOf(num);
+		
+		if(Common.isNotEmpty(pickId)) {
+			PickUpApplication self_ = this.pickUpApplicationService.findOneById(pickId, PickUpApplication.class);
+			self = self_.getEstimatedIssueQuantity();
+			if(getnum <= self) {
+				return new BasicDataResult().build(200, "出库数量无误", "");
+			}
+			
+		}
+		
 
 		Stock stock = this.stockService.findOneById(stockId, Stock.class);
+
+		List<PickUpApplication> pickUpApplication = this.pickUpApplicationService
+				.findPickUpApplicationsByStockId(stock.getId());
+		long ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0,
+				Long::sum);
+		long acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((long) 0,
+				Long::sum);
+
 		
-		List<PickUpApplication> pickUpApplication = this.pickUpApplicationService.findPickUpApplicationsByStockId(stock.getId());
-		long ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0,Long::sum);
-		long acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((long) 0,Long::sum);
-		
-		Long getnum = Long.valueOf(num);
-		if (getnum > (stock.getInventory()-(ycknum-acnum))) {
-			return new BasicDataResult().build(400, "库存数量不足，当前剩余可出库数量为:" + (stock.getInventory()-(ycknum-acnum)), "");
+		if (getnum > (stock.getInventory() - (ycknum- self - acnum))) {
+			return new BasicDataResult().build(400, "库存数量不足，当前剩余可出库数量为:" + (stock.getInventory() - (ycknum - self - acnum)),
+					"");
 		}
 		return new BasicDataResult().build(200, "出库数量无误", "");
 
 	}
-	
+
 	@RequestMapping(value = "/pickUpApplication/batchOut", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	@RequiresPermissions(value = "pickUpApplication:out")
 	@SystemControllerLog(description = "批量预出库")
-	public BasicDataResult batchOut(String batchid, String batchnum, String batchdescription,
-			String pname, String newCustomer, String accepter, HttpSession session) {
+	public BasicDataResult batchOut(String batchid, String batchnum, String batchdescription, String pname,
+			String newCustomer, String accepter, HttpSession session) {
 
 		String[] ids = batchid.split(",");
 		String[] nums = batchnum.split(",");
@@ -483,25 +527,24 @@ public class PickUpApplicationController {
 		if (batchidList.size() != batchnumList.size()) {
 			return new BasicDataResult(400, "出库商品与id不匹配", "");
 		}
-		if(Common.isEmpty(pname)) {
+		if (Common.isEmpty(pname)) {
 			return new BasicDataResult(400, "项目名称不能为空", "");
 		}
-		if(Common.isEmpty(newCustomer)) {
+		if (Common.isEmpty(newCustomer)) {
 			return new BasicDataResult(400, "客户不能为空", "");
 		}
-		if(Common.isEmpty(accepter)) {
+		if (Common.isEmpty(accepter)) {
 			return new BasicDataResult(400, "领料人不能为空", "");
 		}
-		
-		
+
 		User user = (User) session.getAttribute(Contents.USER_SESSION);
 		String orderNum = Common.getOrderNum();
 		List<Object> list = new ArrayList<>();
 		for (int i = 0; i < batchidList.size(); i++) {
 			Stock stock = this.stockService.findOneById(batchidList.get(i), Stock.class);
-			
+
 			PickUpApplication pick = new PickUpApplication();
-			
+
 			pick.setPublisher(user);// 发布人
 			pick.setStock(stock);
 			pick.setArea(stock.getArea());
@@ -547,7 +590,6 @@ public class PickUpApplicationController {
 
 		return new BasicDataResult(200, "批量出库成功!", list);
 	}
-	
 
 	/**
 	 * 模版下载
@@ -567,7 +609,6 @@ public class PickUpApplicationController {
 		return null;
 	}
 
-	
 	/***
 	 * 文件上传
 	 * 
@@ -587,26 +628,105 @@ public class PickUpApplicationController {
 		return modelAndView;
 
 	}
-	
-	
-	
-	
 
 	@RequestMapping(value = "/pickUpApplication/getbatch", method = RequestMethod.POST)
 	@ResponseBody
-	public BasicDataResult getbatch(HttpSession session,String id) {
-		
-		if(Common.isNotEmpty(id)) {
+	public BasicDataResult getbatch(HttpSession session, String id) {
+
+		if (Common.isNotEmpty(id)) {
 			List ids = Arrays.asList(id.split(","));
-			
-			List<PickUpApplication> list =  this.pickUpApplicationService.getbatchByids(ids);
+
+			List<PickUpApplication> list = this.pickUpApplicationService.getbatchByids(ids);
 
 			return new BasicDataResult(200, "获取预出库列表", list);
-		}else {
+		} else {
 			return new BasicDataResult(400, "获取预出库列表失败，请先选择预出库设备！", null);
 		}
-		
-		
+
+	}
+
+	/**
+	 * 跳转到预库存添加页面
+	 */
+	@RequestMapping(value = "/pickUpApplication/batchAdd", method = RequestMethod.POST)
+	@RequiresPermissions(value = "pickUpApplication:batch")
+	@ResponseBody
+	public BasicDataResult batchAdd(Model model, String batchid, String batchnum, HttpSession session) {
+
+		String[] ids = batchid.split(",");
+		String[] nums = batchnum.split(",");
+		List<String> batchidList = Arrays.asList(ids);
+		List<String> batchnumList = Arrays.asList(nums);
+
+		if (batchidList.size() != batchnumList.size()) {
+			return null;
+		}
+		StringBuilder errorMsg = new StringBuilder("");
+		for (int i = 0; i < batchidList.size(); i++) {
+			Integer num = Integer.valueOf(batchnumList.get(i));
+
+			PickUpApplication getpickUpApplication = this.pickUpApplicationService.findOneById(batchidList.get(i),
+					PickUpApplication.class);
+			if (num <= 0) {
+				 errorMsg.append("批量出库：" + getpickUpApplication.getStock().getName() + "出库数量有误<BR/>");
+				 continue;
+//				return new BasicDataResult().build(400, "出库数量有误！", "出库数量有误！");
+			}
+
+			long estimatedIssueQuantity = getpickUpApplication.getEstimatedIssueQuantity();// 预计出库数量
+			long actualIssueQuantity = getpickUpApplication.getActualIssueQuantity();// 实际出库数量
+
+			long newNum = estimatedIssueQuantity - actualIssueQuantity;
+			if (num > newNum) {
+				errorMsg.append("批量出库：" + getpickUpApplication.getStock().getName() + "出库数量不能超过剩余数量<BR/>");
+				 continue;
+				//return new BasicDataResult().build(400, "出库数量不能超过剩余数量！", "出库数量不能超过剩余数量");
+			}
+
+			int status = getpickUpApplication.getStatus();
+			if (status != 1 && status != 3) {
+				errorMsg.append("批量出库：" + getpickUpApplication.getStock().getName() + "设备可出库数量为0<BR/>");
+				 continue;
+				//return new BasicDataResult().build(400, "设备可出库数量为0", "设备可出库数量为0");
+			}
+			User suser = (User) session.getAttribute(Contents.USER_SESSION);
+			getpickUpApplication.setHandler(suser);
+			getpickUpApplication.setNum(num);
+			BasicDataResult pickUpApplicationToStock = this.stockService.pickUpApplicationToStock(getpickUpApplication);
+
+			if (pickUpApplicationToStock.getStatus() == 200) {
+				// 出库成功 推送消息
+
+				// 创建通知
+				InventoryRole inventoryRole = this.inventoryRoleService.findByType("HANDLER");
+				if (Common.isEmpty(inventoryRole)) {
+					errorMsg.append("批量出库成功，未获得绑定微信人员信息<BR/>");
+					//return new BasicDataResult().build(200, "出库成功", "未获得绑定微信人员信息");
+				}
+				List<User> users = inventoryRole.getUsers();
+
+				
+				Map<String, String> map = new HashMap<>();
+				map.put("first", "设备出库提醒！");
+				map.put("keyword1", getpickUpApplication.getStock().getName());
+				map.put("keyword2", String.valueOf(num));
+				map.put("keyword3", getpickUpApplication.getNewCustomer().getName());
+				map.put("keyword4", getpickUpApplication.getPname().getPm());
+				map.put("remark", "设备出库已完成");
+				users.stream().filter(user -> Common.isEmpty(user.getOpenId())).forEach(user -> {
+					errorMsg.append("用户：" + user.getUserName() + "尚未绑定微信<BR/>");
+				});
+				users.stream().filter(user -> Common.isNotEmpty(user.getOpenId())).forEach(user -> {
+					String sendWxMessage = this.wxMsgPush.sendWxMessage(templateId3, user.getOpenId(), "", map);
+					if (sendWxMessage == "-1") {
+						errorMsg.append("用户：" + user.getUserName() + "消息发送失败！<BR/>");
+					}
+					// this.wxMsgPush.sendWxMessage(templateId1, "ooiMKv7cqR-2EgkeC9LdATpr-mbY",
+					// "www.baidu.com", map);
+				});
+			}
+		}
+		return new BasicDataResult().build(200, "出库成功", errorMsg);
 	}
 	
 	

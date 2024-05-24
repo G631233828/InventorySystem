@@ -68,8 +68,8 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 
 	@Override
 	@SystemServiceLog(description = "获取所有待出库信息")
-	public Pagination<PickUpApplication> findpagination(Integer pageNo, Integer pageSize, String search,
-			String searchArea, String status) {
+	public Pagination<PickUpApplication> findpagination(Integer pageNo, Integer pageSize,
+			String searchArea, String status,String pnameid,String customerid,String stockid,String modelid) {
 		// 分页查询数据
 		Pagination<PickUpApplication> pagination = null;
 		try {
@@ -78,7 +78,7 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 			if (Common.isNotEmpty(searchArea)) {
 				query = query.addCriteria(Criteria.where("area.$id").is(new ObjectId(searchArea)));
 			}
-			if (Common.isEmpty(status)) {
+			if (Common.isEmpty(status)||status.equals("0")) {
 				List<Integer> l = new ArrayList();
 				l.add(1);
 				l.add(3);
@@ -86,6 +86,25 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 			} else {
 				query.addCriteria(Criteria.where("status").is(Integer.valueOf(status)));
 			}
+			Criteria ca = new Criteria();
+			Criteria ca2 = new Criteria();
+			//查询 项目名称跟客户 
+			if(Common.isNotEmpty(pnameid)) {
+				query.addCriteria(Criteria.where("pname.$id").is(new ObjectId(pnameid)));
+			}
+			if(Common.isNotEmpty(customerid)) {
+				query.addCriteria(Criteria.where("newCustomer.$id").is(new ObjectId(customerid)));
+			}
+			
+			if(Common.isNotEmpty(stockid)) {
+				ca2.andOperator(Criteria.where("stock.$id").is(new ObjectId(pnameid)));
+			}
+			if(Common.isNotEmpty(modelid)) {
+				ca2.andOperator(Criteria.where("stock.$id").is(new ObjectId(customerid)));
+			}
+			
+			
+			query.addCriteria(ca.orOperator(ca2));
 
 			query.addCriteria(Criteria.where("isDelete").is(false));
 			query.with(new Sort(new Order(Direction.DESC, "createTime")));
@@ -340,12 +359,29 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 
 				boolean num = Common.isInteger(n);
 				if (num) {
-					importPickup.setEstimatedIssueQuantity(Long.valueOf(n));// 价格
+					importPickup.setEstimatedIssueQuantity(Long.valueOf(n));
 				} else {
 					error += "<span class='entypo-attention'></span>导入文件过程中出现不合法的预出库数量<b>&nbsp;&nbsp;" + n
 							+ "&nbsp;&nbsp;</b>，第<b>&nbsp&nbsp" + (i + 1) + "请手动去修改该条信息！&nbsp&nbsp</b></br>";
 					continue;
 				}
+				//检查库存数量 以及预出库中的数量 做比较
+				List<PickUpApplication> checkpickUpApplication = this.findPickUpApplicationsByStockId(stock.getId());
+				long ycknum = checkpickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0,
+						Long::sum);
+				long acnum = checkpickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((long) 0,
+						Long::sum);
+
+				if (Long.valueOf(n) > (stock.getInventory() - (ycknum - acnum))) {
+					error += "<span class='entypo-attention'></span>导入文件过程中第<b>&nbsp&nbsp"+ (i + 1)  +"出现不合法的库存数量不足<b>&nbsp;&nbsp;当前剩余可出库数量" + String.valueOf(stock.getInventory() - (ycknum - acnum))
+							+ "&nbsp;&nbsp;</b>，请手动去修改该条信息！&nbsp&nbsp</b></br>";
+					continue;
+				}
+				
+				
+				
+				
+				
 
 				String projname = resultexcel[i][j + 6].trim();// 项目名称
 

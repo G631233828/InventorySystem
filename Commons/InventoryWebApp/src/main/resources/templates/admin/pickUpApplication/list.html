@@ -62,6 +62,15 @@
 
 
 					<div class="col-sm-12">
+
+						<div class="body-nest" id="alert" th:if="${errorImport!=''}">
+							<div class="alert alert-danger">
+								<button data-dismiss="alert" class="close" type="button">×</button>
+								<th:block th:utext="${errorImport}">
+								</th:block>
+							</div>
+
+						</div>
 						<div class="body-nest" id="alert" th:if="${errorMsg!=''}">
 							<div class="alert alert-danger">
 								<button data-dismiss="alert" class="close" type="button">×</button>
@@ -98,13 +107,15 @@
 											<i class="fontawesome-upload"> </i>批量导入
 										</button>
 									</shiro:hasPermission>
-										
-										 <shiro:hasPermission name="pickUpApplication:batch">
-                                        <button class="btn btn-success" onclick="return batchAdd()">
-                                            <i class="fontawesome-upload"> </i>批量预出库
-                                        </button>
-                                    </shiro:hasPermission>
-										
+									<th:block th:if="${session.pickstatus}!=2">
+										<shiro:hasPermission name="pickUpApplication:batch">
+											<button class="btn btn-success" onclick="return batchAdd()">
+												<i class="fontawesome-upload"> </i>批量预出库
+											</button>
+										</shiro:hasPermission>
+									</th:block>
+
+
 
 
 								</div>
@@ -126,7 +137,7 @@
 							<div class="body-nest" id="tableStatic">
 
 								<div class="row" style="margin-bottom: 10px;">
-									<div class="col-sm-8 form-inline">
+									<div class="col-sm-12 form-inline">
 
 										<select class="filter-status form-control" id="searchArea"
 											onchange="return searchVal()">
@@ -143,18 +154,52 @@
 											<option th:value="3" th:selected="${session.pickstatus}==3">部分出库</option>
 
 
-										</select> <select class="filter-status form-control" id="pageSize"
+										</select>
+										
+										<select multiple style="width:300px;"
+											class="filter-status form-control selectpicker" id="pnameid"
+											data-live-search="true" data-max-options="1" title="选择项目名称">
+											<option th:selected="${session.selectpname}==${pname?.id}"
+												th:each="pname:${pnames}" th:value="${pname?.id}"
+												th:text="${pname?.name}"></option>
+										</select> 
+										
+										<select multiple
+											class="filter-status form-control selectpicker" id="customerid"
+											data-live-search="true" data-max-options="1" title="选择客户">
+											<option th:selected="${session.selectcustomer}==${customer.id}"
+												th:each="customer:${customers}" th:value="${customer?.id}"
+												th:text="${customer?.name}"></option>
+										</select> 
+										
+										<select multiple
+											class="filter-status form-control selectpicker" id="stockid"
+											data-live-search="true" data-max-options="1" title="选择设备名称">
+											<option th:selected="${session.stockid}==${stock?.id}"
+												th:each="stock:${stocklists}" th:value="${stock?.id}"
+												th:text="|${stock?.name}(${stock?.supplier?.name})|"></option>
+										</select> 
+										
+										<select multiple
+											class="filter-status form-control selectpicker" id="modelid"
+											data-live-search="true" data-max-options="1" title="选择设备型号">
+											<option th:selected="${session.stockid}==${stock?.id}" th:if="${stock.model!=''}"
+												th:each="stock:${stocklists}" th:value="${stock?.id}"
+												th:text="|${stock?.model}(${stock?.supplier?.name})|"></option>
+										</select> 
+
+										
+										<select class="filter-status form-control" id="pageSize"
 											onchange="return searchVal()">
 											<option value="10" th:selected="${session.prepageSize == 10}">10
-											
 											<option value="20" th:selected="${session.prepageSize == 20}">20
-											
 											<option value="50" th:selected="${session.prepageSize == 50}">50
-											
 											<option value="100"
 												th:selected="${session.prepageSize == 100}">100
-										</select> <input class="form-control" id="serach" placeholder="模糊匹配"
-											th:value="${session.presearch}" type="text">
+												
+										</select> 
+										
+										
 										<button class="btn btn-default btn-sm"
 											onclick="return searchVal()">
 											<i class="entypo-search"> </i> 搜索
@@ -187,12 +232,14 @@
 														for="checkall"></label>
 												</div>
 											</th>
+											<th class="numeric">项目名称</th>
+											<th class="numeric">客户</th>
 											<th class="numeric">区域</th>
 											<th class="numeric">设备名称</th>
 											<th class="numeric">设备型号</th>
 											<th class="numeric">领料人</th>
 											<th class="numeric">预计出库数量</th>
-											<th class="numeric" th:if="${session.pickstatus}!=2">实际出库数量</th>
+											<th class="numeric">实际出库数量</th>
 											<th class="numeric">发布人</th>
 											<th class="numeric" th:if="${session.pickstatus}!=2">处理人</th>
 											<th class="numeric" th:if="${session.pickstatus}==1">预计取货时间</th>
@@ -214,15 +261,17 @@
 													</div>
 												</td>
 
+												<td class="numeric">[[${pickupApplication?.pname?.name}]]</td>
+												<td class="numeric">[[${pickupApplication?.newCustomer?.name}]]</td>
 												<td class="numeric">[[${pickupApplication?.area?.name}]]</td>
 												<td class="numeric">[[${pickupApplication?.stock?.name}]]</td>
 												<td class="numeric">[[${pickupApplication?.stock?.model}]]</td>
 												<td class="numeric">[[${pickupApplication?.accepter}]]</td>
 												<td class="numeric">[[${pickupApplication?.estimatedIssueQuantity}]]</td>
-												<td class="numeric" th:if="${session.pickstatus}!=2">[[${pickupApplication?.actualIssueQuantity}]]</td>
+												<td class="numeric">[[${pickupApplication?.actualIssueQuantity}]]</td>
 												<td class="numeric">[[${pickupApplication?.publisher?.userName}]]</td>
 												<td class="numeric" th:if="${session.pickstatus}!=2">[[${pickupApplication?.handler?.userName}]]</td>
-												<td class="numeric" th:if="${session.pickstatus}!=2"
+												<td class="numeric" th:if="${session.pickstatus}==1"
 													th:text="${#dates.format(pickupApplication.pickUpTime,'yyyy-MM-dd hh:mm')}"></td>
 												<td class="numeric"
 													th:text="${pickupApplication?.status == 1?'待出库':pickupApplication?.status == 2?'已出库':'部分出库'}"></td>
@@ -308,9 +357,9 @@
 			</div>
 		</div>
 
-	<div th:replace="public/public::myModal"></div>
-	<div th:replace="admin/pickUpApplication/batch::mybatch"></div>
-	    <div th:replace="admin/pickUpApplication/batchAdd::mybatchAdd"></div>
+		<div th:replace="public/public::myModal"></div>
+		<div th:replace="admin/pickUpApplication/batch::mybatch"></div>
+		<div th:replace="admin/pickUpApplication/batchAdd::mybatchAdd"></div>
 
 	</div>
 	<!--  END OF PAPER WRAP -->
@@ -328,9 +377,10 @@
 		th:src="@{/js/admin/pickUpApplication/pickUpApplicationlist.js}"></script>
 	<script th:src="@{/assets/js/select/bootstrap-select.js}"
 		type="text/javascript"></script>
-<script type="text/javascript"
-        th:src="@{/plugs/prettyfile/bootstrap-prettyfile.js}"></script>
-
+	<script type="text/javascript"
+		th:src="@{/plugs/prettyfile/bootstrap-prettyfile.js}"></script>
+<script th:src="@{/assets/js/select/bootstrap-select.js}"
+        type="text/javascript"></script>
 
 </body>
 
