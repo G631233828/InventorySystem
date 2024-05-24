@@ -1,26 +1,18 @@
 package zhongchiedu.controller.inventory;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import java.io.File;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +20,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,19 +28,33 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.extern.slf4j.Slf4j;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.Common;
 import zhongchiedu.common.utils.Contents;
 import zhongchiedu.common.utils.FileOperateUtil;
-import zhongchiedu.common.utils.WordUtil;
-import zhongchiedu.common.utils.ZipCompress;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.general.pojo.User;
-import zhongchiedu.inventory.pojo.*;
-import zhongchiedu.inventory.service.Impl.*;
+import zhongchiedu.inventory.pojo.Area;
+import zhongchiedu.inventory.pojo.NewCustomer;
+import zhongchiedu.inventory.pojo.PickUpApplication;
+import zhongchiedu.inventory.pojo.Pname;
+import zhongchiedu.inventory.pojo.RequestBo;
+import zhongchiedu.inventory.pojo.Sign;
+import zhongchiedu.inventory.pojo.Stock;
+import zhongchiedu.inventory.pojo.StockStatistics;
+import zhongchiedu.inventory.pojo.SystemClassification;
 import zhongchiedu.inventory.service.PickUpApplicationService;
 import zhongchiedu.inventory.service.SignService;
+import zhongchiedu.inventory.service.Impl.AreaServiceImpl;
+import zhongchiedu.inventory.service.Impl.ColumnServiceImpl;
+import zhongchiedu.inventory.service.Impl.PnameServiceImpl;
+import zhongchiedu.inventory.service.Impl.StockServiceImpl;
+import zhongchiedu.inventory.service.Impl.StockStatisticsServiceImpl;
+import zhongchiedu.inventory.service.Impl.SystemClassificationServiceImpl;
 import zhongchiedu.log.annotation.SystemControllerLog;
 
 /**

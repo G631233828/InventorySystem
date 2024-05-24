@@ -338,12 +338,14 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 					acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((long) 0, Long::sum);
 
 					ycknum = ycknum - acnum;
+					
+					if (stock.getInventory() - ycknum - num < 0) {
+						// 出货数量不够
+						return BasicDataResult.build(400, "货物库存数量不足", null);
+					}
 				}
 
-				if (stock.getInventory() - ycknum - num < 0) {
-					// 出货数量不够
-					return BasicDataResult.build(400, "货物库存数量不足", null);
-				}
+				
 			}
 			
 			
@@ -517,6 +519,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			getst.setRevoke(true);
 			getst.setNum(num);
 			getst.setStock(st.getStock());
+			getst.setYck(true);
 			BasicDataResult inOrOutstockStatistics = this.inOrOutstockStatistics(getst, user);
 			StockStatistics newst = (StockStatistics) inOrOutstockStatistics.getData();
 			//更新统计

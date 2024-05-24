@@ -142,7 +142,7 @@
 										<select class="filter-status form-control" id="searchArea"
 											onchange="return searchVal()">
 											<option value="">--选择区域--</option>
-											<option th:selected="${session.presearchArea}==${area?.id}"
+											<option th:selected="${session.searchArea}==${area?.id}"
 												th:each="area:${areas}" th:value="${area?.id}"
 												th:text="${area?.name}"></option>
 
@@ -183,7 +183,7 @@
 										<select multiple
 											class="filter-status form-control selectpicker" id="modelid"
 											data-live-search="true" data-max-options="1" title="选择设备型号">
-											<option th:selected="${session.stockid}==${stock?.id}" th:if="${stock.model!=''}"
+											<option th:selected="${session.modelid}==${stock?.id}" th:if="${stock.model!=''}"
 												th:each="stock:${stocklists}" th:value="${stock?.id}"
 												th:text="|${stock?.model}(${stock?.supplier?.name})|"></option>
 										</select> 
@@ -326,16 +326,16 @@
 											<ul class="pagination pagination-split pull-right"
 												style="margin-top: 0px;">
 												<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
-													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/pickUpApplication?pageNo=}+${pageList.upPage}">上一页</a>
+													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/pickUpApplications(pageNo=${pageList.upPage},pageSize=${session.pickpageNo},stockid=${session.stockid},modelid=${session.modelid},customerid=${session.selectcustomer},pnameid=${session.selectpname},status=${session.pickstatus},searchArea=${session.picksearchArea})}">上一页</a>
 												</li>
 												<li th:each="page:${pageList.navigatepageNums}"
 													th:class="${page  == pageList.pageNo}?active:''"><a
-													th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/pickUpApplication?pageNo=}+${page}">[[${page}]]</a>
+													th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/pickUpApplications(pageNo=${page},pageSize=${session.pickpageNo},stockid=${session.stockid},modelid=${session.modelid},customerid=${session.selectcustomer},pnameid=${session.selectpname},status=${session.pickstatus},searchArea=${session.picksearchArea})}">[[${page}]]</a>
 												</li>
 												<li
 													th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
 													<a
-													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/pickUpApplication?pageNo=}+${pageList.nextPage}">下一页</a>
+													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/pickUpApplications(pageNo=${pageList.nextPage},pageSize=${session.pickpageNo},stockid=${session.stockid},modelid=${session.modelid},customerid=${session.selectcustomer},pnameid=${session.selectpname},status=${session.pickstatus},searchArea=${session.picksearchArea})}">下一页</a>
 												</li>
 											</ul>
 										</div>

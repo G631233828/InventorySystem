@@ -86,26 +86,29 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 			} else {
 				query.addCriteria(Criteria.where("status").is(Integer.valueOf(status)));
 			}
-			Criteria ca = new Criteria();
-			Criteria ca2 = new Criteria();
+			
+			List<Criteria> orCriteriaList = new ArrayList<>();
+			
 			//查询 项目名称跟客户 
 			if(Common.isNotEmpty(pnameid)) {
-				query.addCriteria(Criteria.where("pname.$id").is(new ObjectId(pnameid)));
+				orCriteriaList.add(Criteria.where("pname.$id").is(new ObjectId(pnameid)));
 			}
 			if(Common.isNotEmpty(customerid)) {
-				query.addCriteria(Criteria.where("newCustomer.$id").is(new ObjectId(customerid)));
+				orCriteriaList.add(Criteria.where("newCustomer.$id").is(new ObjectId(customerid)));
 			}
-			
+
 			if(Common.isNotEmpty(stockid)) {
-				ca2.andOperator(Criteria.where("stock.$id").is(new ObjectId(pnameid)));
+				orCriteriaList.add(Criteria.where("stock.$id").is(new ObjectId(stockid)));
 			}
 			if(Common.isNotEmpty(modelid)) {
-				ca2.andOperator(Criteria.where("stock.$id").is(new ObjectId(customerid)));
+				orCriteriaList.add(Criteria.where("stock.$id").is(new ObjectId(modelid)));
 			}
 			
-			
-			query.addCriteria(ca.orOperator(ca2));
-
+			if (!orCriteriaList.isEmpty()) {
+			    Criteria orCriteria = new Criteria().orOperator(orCriteriaList.toArray(new Criteria[0]));
+			    query.addCriteria(orCriteria);
+			}
+			query.addCriteria(Criteria.where("isDisable").is(false));
 			query.addCriteria(Criteria.where("isDelete").is(false));
 			query.with(new Sort(new Order(Direction.DESC, "createTime")));
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, PickUpApplication.class);

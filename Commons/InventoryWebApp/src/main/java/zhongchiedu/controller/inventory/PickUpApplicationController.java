@@ -106,7 +106,6 @@ public class PickUpApplicationController {
 	@SystemControllerLog(description = "查询所有待出库管理")
 	public String prestock(@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
 			@RequestParam(value = "pageSize", defaultValue = "20") Integer pageSize, HttpSession session,
-			@RequestParam(value = "search", defaultValue = "") String search,
 			@RequestParam(value = "status", defaultValue = "") String status,
 			@RequestParam(value = "pnameid", defaultValue = "") String pnameid,
 			@RequestParam(value = "customerid", defaultValue = "") String customerid,
@@ -121,11 +120,11 @@ public class PickUpApplicationController {
 		
 		List<Pname> findAllName = this.pnameService.findAllName(false);
 		model.addAttribute("pnames", findAllName);
-		session.setAttribute("selectpname", pnameid);
+	
 		// 获取到所有客户
 		List<NewCustomer> findAllCustomer = this.newCustomerService.findAllCustomer(false);
 		model.addAttribute("customers", findAllCustomer);
-		session.setAttribute("selectcustomer", customerid);
+	
 		
 		
 		List<PickUpApplication> findAllPickUpApplication = this.pickUpApplicationService.findAllPickUpApplication(false, null);
@@ -147,16 +146,20 @@ public class PickUpApplicationController {
 		List<Area> areas = this.areaService.findAllArea(false);
 		model.addAttribute("areas", areas);
 		model.addAttribute("errorImport", errorImport);
-		session.setAttribute("pickpageNo", pageNo);
-		session.setAttribute("pickpageSize", pageSize);
-		session.setAttribute("picksearch", search);
-		session.setAttribute("picksearchArea", searchArea);
-		session.setAttribute("pickstatus", status);
 		model.addAttribute("pickpageSize", pageSize);
-		model.addAttribute("picksearch", search);
 		model.addAttribute("picksearchArea", searchArea);
 		model.addAttribute("pickstatus", status);
 		model.addAttribute("errorMsg", errorMsg);
+		session.setAttribute("selectcustomer", customerid);
+		session.setAttribute("selectpname", pnameid);
+		session.setAttribute("stockid", stockid);
+		session.setAttribute("modelid", modelid);
+		session.setAttribute("searchArea", searchArea);
+		session.setAttribute("pickpageNo", pageNo);
+		session.setAttribute("pickpageSize", pageSize);
+		session.setAttribute("picksearchArea", searchArea);
+		session.setAttribute("pickstatus", status);
+
 
 		return "admin/pickUpApplication/list";
 	}
