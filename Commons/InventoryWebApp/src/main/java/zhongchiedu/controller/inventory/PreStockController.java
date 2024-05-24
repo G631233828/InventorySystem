@@ -593,7 +593,7 @@ public class PreStockController {
 		}
 
 
-		return new BasicDataResult(200, "批量出库成功!", list);
+		return new BasicDataResult(200, "批量入库成功!", list);
 	}
 
 
