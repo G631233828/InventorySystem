@@ -100,10 +100,14 @@ public class NewCustomerController {
 	 */
 	@RequestMapping(value = "/newCustomer/ajaxgetRepletes", method = RequestMethod.POST)
 	@ResponseBody
-	public BasicDataResult ajaxgetRepletes(@RequestParam(value = "name", defaultValue = "") String name
+	public BasicDataResult ajaxgetRepletes(@RequestParam(value = "name", defaultValue = "") String name,
+										   @RequestParam(value = "type", defaultValue = "") String type
 		) {
-		log.info("jinrufangfa");
-		return this.newCustomerService.ajaxgetRepletes(name);
+		if(type.equals("true")){
+			return this.newCustomerService.ajaxgetRepletes(name,"name");
+		}else{
+			return this.newCustomerService.ajaxgetRepletes(name,"wyid");
+		}
 	}
 
 

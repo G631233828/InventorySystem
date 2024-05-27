@@ -23,7 +23,7 @@ public interface NewCustomerService extends GeneralService<NewCustomer> {
 	
 	public String delete(String id);
 	
-	public BasicDataResult ajaxgetRepletes(String name);
+	public BasicDataResult ajaxgetRepletes(String name,String fieldName);
 
 	public BasicDataResult ajaxgetCustomer(String abs);
 

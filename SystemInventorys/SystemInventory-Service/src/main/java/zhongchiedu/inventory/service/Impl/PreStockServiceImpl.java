@@ -437,6 +437,11 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 				importPreStock.setModel(model);
 				importPreStock.setEstimatedInventoryQuantity(Long.valueOf(resultexcel[i][j + 3].trim()));// 预备入库的数量
 				String unitName = resultexcel[i][j + 4].trim();//单位
+				if (Common.isEmpty(unitName)) {
+					error += "<span class='entypo-attention'></span>导入文件过程中，第<b>&nbsp&nbsp" + (i + 1)
+							+ "行</b>出现单位为空，请添加！&nbsp&nbsp</br>";
+					continue;
+				}
 				if (Common.isNotEmpty(unitName)) {
 					// 根据单位查找
 					unit = this.unitService.findByName(unitName);
@@ -497,7 +502,13 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 				String itemNo=resultexcel[i][j + 8].trim();
 				importPreStock.setItemNo(itemNo);
 				stock = this.findByName(getarea,name, model,1,pname1,supplier);//预入库查重 区域，名字，型号，项目名称,供应商
-
+				if(Common.isNotEmpty(stock.getUnit())){
+					if(!stock.getUnit().getName().equals(unitName)){
+						error += "<span class='entypo-attention'></span>导入文件过程中，第<b>&nbsp&nbsp" + (i + 1)
+								+ "行</b>单位和已有的预库存产品单位不一致，请修改确认！&nbsp&nbsp</br>";
+						continue;
+					}
+				}
 				if (Common.isNotEmpty(stock)) {
 					if(Common.isNotEmpty(ssC))stock.setSystemClassification(ssC);
 					long newnum=this.updatePreStock(stock,importPreStock.getEstimatedInventoryQuantity());

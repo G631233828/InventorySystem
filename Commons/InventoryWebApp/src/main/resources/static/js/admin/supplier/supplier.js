@@ -12,12 +12,39 @@ $().ready(function() {
 						data : {
 							name : function() {
 								return $("#name").val();
-							}
+							},
+							type:"true"
 						},
 						dataType : "json",
 						dataFilter : function(data, type) {
 							var oldname = $("#oldname").val();
 							var name = $("#name").val();
+							if(oldname == name){
+								return true;
+							}
+							var jsondata = $.parseJSON(data);
+							if (jsondata.status == 200) {
+								return true;
+							}
+							return false;
+						}
+					}
+				},
+				wyid : {
+					required : true,
+					remote : {
+						url : getRootPath() + "/supplier/ajaxgetRepletes",
+						type : "POST",
+						data : {
+							name : function() {
+								return $("#wyid").val();
+							},
+							type:"false"
+						},
+						dataType : "json",
+						dataFilter : function(data, type) {
+							var oldname = $("#olditemid").val();
+							var name = $("#wyid").val();
 							if(oldname == name){
 								return true;
 							}
@@ -40,6 +67,10 @@ $().ready(function() {
 				name : {
 					required : a + "请输入供应商名称",
 					remote : a + "当前供应商已经存在！"
+				},
+				wyid : {
+					required : a + "请输入编号",
+					remote : a + "当前编号已经存在！"
 				},
 				upload : {
 					required : a+ "导入文件不能为空！"
