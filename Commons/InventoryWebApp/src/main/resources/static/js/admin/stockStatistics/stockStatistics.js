@@ -372,7 +372,6 @@ function outboundOrder(o) {
 
 
 function revoke(o) {
-alert(o)
 	var M = {
 
 	}
