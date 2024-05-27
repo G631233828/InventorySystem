@@ -159,15 +159,17 @@ public class SupplierController {
 
 	/**
 	 * 通过ajax获取是否存在重复账号的信息
-	 * 
-	 * @param printWriter
-	 * @param session
-	 * @param response
+	 *
 	 */
 	@RequestMapping(value = "/supplier/ajaxgetRepletes", method = RequestMethod.POST)
 	@ResponseBody
-	public BasicDataResult ajaxgetRepletes(@RequestParam(value = "name", defaultValue = "") String name) {
-		return this.supplierService.ajaxgetRepletes(name);
+	public BasicDataResult ajaxgetRepletes(@RequestParam(value = "name", defaultValue = "") String name,
+										   @RequestParam(value = "type", defaultValue = "") String type) {
+		if(type.equals("true")){
+			return this.supplierService.ajaxgetRepletes(name,"name");
+		}else{
+			return this.supplierService.ajaxgetRepletes(name,"wyid");
+		}
 	}
 
 	@RequestMapping(value = "/supplier/disable", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")

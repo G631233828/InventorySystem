@@ -25,7 +25,7 @@ public interface SupplierService extends GeneralService<Supplier> {
 	
 	public String delete(String id);
 	
-	public BasicDataResult ajaxgetRepletes(String name);
+	public BasicDataResult ajaxgetRepletes(String name,String fieldName);
 	
 	public BasicDataResult todisable(String id);
 	
@@ -36,7 +36,9 @@ public interface SupplierService extends GeneralService<Supplier> {
 	public String upload( HttpServletRequest request, HttpSession session);
 	
 	public Supplier findByName(String name);
-	
+
+
+	public Supplier findByNameAndiFNotCreate(String name);
 	public List<Supplier> findByRegxName(String name);
 	
 	public Object[] categorys(Supplier supplier);

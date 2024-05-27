@@ -152,6 +152,8 @@
 														th:style="${#lists.contains(listColums,'name')}?'':'display:none;'">供应商名称</th>
 													<th class="numeric systemClassification"
 														th:style="${#lists.contains(listColums,'systemClassification')}?'':'display:none;'">系统分类</th>
+													<th class="numeric wyid"
+														th:style="${#lists.contains(listColums,'wyid')}?'':'display:none;'">编号</th>
 													<th class="numeric categorys"
 														th:style="${#lists.contains(listColums,'categorys')}?'':'display:none;'">系统类目</th>
 													<th class="numeric brand"
@@ -202,6 +204,8 @@
 														<td class="numeric systemClassification"
 															id="systemClassification"
 															th:style="${#lists.contains(listColums,'systemClassification')}?'':'display:none;'">[[${supplier?.systemClassification?.name}]]</td>
+														<td class="numeric wyid" id="wyid"
+															th:style="${#lists.contains(listColums,'wyid')}?'':'display:none;'">[[${supplier?.wyid}]]</td>
 														<td class="numeric categorys" id="categorys"
 															th:style="${#lists.contains(listColums,'categorys')}?'':'display:none;' "><th:block
 																th:each="category,categoryStat:${supplier.categorys}" th:if="${category.isDelete eq false && category.isDisable eq false}" th:utext="${categoryStat.index+1 }% 7==0?'<br/>'+${category.name}+'&nbsp;&nbsp;':${category.name}+'&nbsp;&nbsp;'"> </th:block></td>

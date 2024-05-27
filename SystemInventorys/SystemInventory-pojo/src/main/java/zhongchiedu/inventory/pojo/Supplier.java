@@ -50,7 +50,7 @@ public class Supplier extends GeneralBean<Supplier> {
 	private String payMent;//付款条件
 	private String afterSaleService;//售后服务
 	
-	
+	private String wyid;//唯一编码
 	
 	
 	

@@ -103,10 +103,10 @@ public class NewCustomerServiceImpl extends GeneralServiceImpl<NewCustomer> impl
 
 	@Override
 	@SystemServiceLog(description="查询重复客户信息")
-	public BasicDataResult ajaxgetRepletes(String name) {
+	public BasicDataResult ajaxgetRepletes(String name,String fieldName) {
 		if (Common.isNotEmpty(name)) {
 			Query query = new Query();
-			query.addCriteria(Criteria.where("name").is(name));
+			query.addCriteria(Criteria.where(fieldName).is(name));
 			query.addCriteria(Criteria.where("isDelete").is(false));
 			NewCustomer brand = this.findOneByQuery(query, NewCustomer.class);
 			 return brand != null ?BasicDataResult.build(206,"当前客户信息已经存在，请检查", null): BasicDataResult.ok();
@@ -229,12 +229,19 @@ public class NewCustomerServiceImpl extends GeneralServiceImpl<NewCustomer> impl
 				// 通过类目名称是否存在该信息
 				NewCustomer fnewCustomer = this.findOneByQuery(query, NewCustomer.class);
 				NewCustomer fnewCustomer1 = this.findOneByQuery(query1, NewCustomer.class);
-				if(Common.isNotEmpty(fnewCustomer) || Common.isNotEmpty(fnewCustomer1)){
+				if( Common.isNotEmpty(fnewCustomer)){
 					error += "<span class='entypo-attention'></span>导入文件过程中出现已经存在的单位信息，第<b>&nbsp;&nbsp;" + (i + 1)
 							+ "&nbsp&nbsp</b>行出现重复内容为<b>&nbsp&nbsp导入类目名称为:<b>&nbsp;&nbsp;" + fnewCustomer.getName()
 							+ "&nbsp;&nbsp;请手动去修改该条信息！</b></br>";
 					continue;
-				}else{
+				}
+				if(Common.isNotEmpty(fnewCustomer1)){
+					error += "<span class='entypo-attention'></span>导入文件过程中出现错误，第<b>&nbsp;&nbsp;" + (i + 1)
+							+ "&nbsp&nbsp</b>行编号已存在<b>&nbsp&nbsp为:<b>&nbsp;&nbsp;" + fnewCustomer1.getWyid()
+							+ "&nbsp;&nbsp;请手动去修改该条信息！</b></br>";
+					continue;
+				}
+				else{
 					this.insert(newCustomer);
 				}
 				// 捕捉批量导入过程中遇到的错误，记录错误行数继续执行下去

@@ -13,7 +13,8 @@ $().ready(function() {
 						data : {
 							name : function() {
 								return $("#name").val();
-							}
+							},
+							type:"true"
 						},
 						dataType : "json",
 						dataFilter : function(data, type) {
@@ -30,13 +31,42 @@ $().ready(function() {
 						}
 					}
 				},
+				wyid : {
+					required : true,
+					remote : {
+						url : getRootPath() + "/newCustomer/ajaxgetRepletes",
+						type : "POST",
+						data : {
+							name : function() {
+								return $("#wyid").val();
+							},
+							type:"false"
+						},
+						dataType : "json",
+						dataFilter : function(data, type) {
+							var oldname = $("#olditemid").val();
+							var name = $("#wyid").val();
+							if(oldname == name){
+								return true;
+							}
+							var jsondata = $.parseJSON(data);
+							if (jsondata.status == 200) {
+								return true;
+							}
+							return false;
+						}
+					}
+				},
 			},
 			messages : {
 				name : {
 					required : a + "请输入客户名称",
 					remote : a + "当前客户已经存在！"
+				},
+				wyid : {
+					required : a + "请输入编号",
+					remote : a + "当前编号已经存在！"
 				}
-				
 			}
 		});
 	});

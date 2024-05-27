@@ -27,11 +27,7 @@ import zhongchiedu.common.utils.ExcelReadUtil;
 import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralServiceImpl;
-import zhongchiedu.inventory.pojo.Brand;
-import zhongchiedu.inventory.pojo.Category;
-import zhongchiedu.inventory.pojo.ProcessInfo;
-import zhongchiedu.inventory.pojo.Supplier;
-import zhongchiedu.inventory.pojo.SystemClassification;
+import zhongchiedu.inventory.pojo.*;
 import zhongchiedu.inventory.service.SupplierService;
 import zhongchiedu.log.annotation.SystemServiceLog;
 
@@ -172,13 +168,13 @@ public class SupplierServiceImpl extends GeneralServiceImpl<Supplier> implements
 
 	@Override
 	@SystemServiceLog(description="查询重复供应商信息")
-	public BasicDataResult ajaxgetRepletes(String name) {
+	public BasicDataResult ajaxgetRepletes(String name,String fieldName) {
 		if (Common.isNotEmpty(name)) {
 			Query query = new Query();
-			query.addCriteria(Criteria.where("name").is(name));
+			query.addCriteria(Criteria.where(fieldName).is(name));
 			query.addCriteria(Criteria.where("isDelete").is(false));
 			Supplier supplier = this.findOneByQuery(query, Supplier.class);
-			 return supplier != null ?BasicDataResult.build(206,"当前供应商信息已经存在，请检查", null): BasicDataResult.ok();
+			 return supplier != null ?BasicDataResult.build(206,"当前信息已经存在，请检查", null): BasicDataResult.ok();
 		}
 		return BasicDataResult.build(400,"未能获取到请求的信息", null);
 	}
@@ -231,7 +227,27 @@ public class SupplierServiceImpl extends GeneralServiceImpl<Supplier> implements
 				}
 				importSupplier.setName(name); //供应商名称
 				//根据供应商名称查看是否存在，如果不存在则创建一个
-				Supplier supplier = this.findByName(importSupplier.getName());
+				Supplier supplier = this.findByNameAndiFNotCreate(importSupplier.getName());
+
+				if(Common.isNotEmpty(resultexcel[i][j+15])){
+					importSupplier.setWyid(resultexcel[i][j+15]);
+					Query query1=new Query();
+					query1.addCriteria(Criteria.where("wyid").is(importSupplier.getWyid()));
+					query1.addCriteria(Criteria.where("isDelete").is(false));
+					Supplier query1name=this.findOneByQuery(query1, Supplier.class);
+					if(Common.isNotEmpty(query1name)){
+						error += "<span class='entypo-attention'></span>导入文件过程中出现错误，第<b>&nbsp;&nbsp;" + (i + 1)
+								+ "&nbsp&nbsp</b>行编号已存在<b>&nbsp&nbsp为:<b>&nbsp;&nbsp;" + importSupplier.getWyid()
+								+ "&nbsp;&nbsp;请手动去修改该条信息！</b></br>";
+						continue;
+					}
+				}else {
+					error += "<span class='entypo-attention'></span>导入文件过程中出现错误，第<b>&nbsp;&nbsp;" + (i + 1)
+							+ "&nbsp&nbsp</b>行出现编号为空<b>&nbsp&nbsp名称为:<b>&nbsp;&nbsp;" + supplier.getName()
+							+ "&nbsp;&nbsp;请手动去修改该条信息！</b></br>";
+					continue;
+				}
+				importSupplier.setWyid(resultexcel[i][j+15]);
 				//系统分类
 				String systemClassificationName = resultexcel[i][j+1];
 				if(Common.isNotEmpty(systemClassificationName)){
@@ -258,7 +274,7 @@ public class SupplierServiceImpl extends GeneralServiceImpl<Supplier> implements
 				importSupplier.setSupplyPeriod(resultexcel[i][j+12]);
 				importSupplier.setPayMent(resultexcel[i][j+13]);
 				importSupplier.setAfterSaleService(resultexcel[i][j+14]);
-				
+
 				if(Common.isNotEmpty(supplier)){
 					//供应商已存在
 					List<Category> list = supplier.getCategorys();
@@ -389,6 +405,28 @@ public String upload( HttpServletRequest request, HttpSession session){
 		}*/
 		return supplier;
 	}
+
+	/**根据名称查询供应商信息,不存在则创建
+	 *
+	 * @param name
+	 * @return
+	 */
+	@Override
+	@SystemServiceLog(description="根据名称查询供应商信息,不存在则创建")
+	public Supplier findByNameAndiFNotCreate(String name){
+		Query query = new Query();
+		query.addCriteria(Criteria.where("name").is(name));
+		query.addCriteria(Criteria.where("isDelete").is(false));
+		Supplier supplier = this.findOneByQuery(query, Supplier.class);
+		if(Common.isEmpty(supplier)){
+			Supplier ca = new Supplier();
+			ca.setName(name);
+			this.insert(ca);
+			return ca;
+		}
+		return supplier;
+	}
+
 	/**
 	 * 根据单位名称查找单位
 	 */
