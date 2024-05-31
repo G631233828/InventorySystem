@@ -86,9 +86,6 @@ function toExport(){
 	var supplier=$('[name="supplier"]').val();
 	var entryName=$('[name="entryName"]').val();
 	var itemNo=$('[name="itemNo"]').val();
-	var purchaseInvoiceNo=$('[name="purchaseInvoiceNo"]').val();
-	var purchaseInvoiceDate=$('[name="purchaseInvoiceDate"]').val();
-	var paymentOrderNo=$('[name="paymentOrderNo"]').val();
 	var ssC = $("#searchssC").val();
 	jqueryAlert({
 	    'icon'    : getRootPath() +'/plugs/alert/img/right.png',
@@ -99,8 +96,7 @@ function toExport(){
 	
 	
 	window.location.href = "prestock/export?&searchArea=" + area  + "&userId=&ssC="+ssC
-		+"&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo +
-		"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo="+paymentOrderNo;
+		+"&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo;
 	
 	
 }
@@ -500,12 +496,9 @@ function  pageS(pageNo,size,totalpage,Bo,status){
 	var supplier=returnEmpty(bo.supplier);
 	var entryName=returnEmpty(bo.entryName);
 	var itemNo=returnEmpty(bo.itemNo);
-	var purchaseInvoiceNo=returnEmpty(bo.purchaseInvoiceNo);
-	var purchaseInvoiceDate=returnEmpty(bo.purchaseInvoiceDate);
-	var paymentOrderNo=returnEmpty(bo.paymentOrderNo);
 	window.location.href = "preStocks?pageNo=" + pageNo +"&pageSize=" + size  +  "&ssC=" + ssC
 		+"&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo + "&searchArea=" + area
-		+"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo="+paymentOrderNo + "&status=" +status;
+	    + "&status=" +status;
 }
 
 function searchBo() {
@@ -517,9 +510,6 @@ function searchBo() {
 	var supplier=$('[name="supplier"]').val();
 	var entryName=$('[name="entryName"]').val();
 	var itemNo=$('[name="itemNo"]').val();
-	var purchaseInvoiceNo=$('[name="purchaseInvoiceNo"]').val();
-	var purchaseInvoiceDate=$('[name="purchaseInvoiceDate"]').val();
-	var paymentOrderNo=$('[name="paymentOrderNo"]').val();
 	var ssC = $("#searchssC").val();
 	/*
 	 * if (search == null || search == "") { swal({ type : "warning", title : "",
@@ -527,7 +517,7 @@ function searchBo() {
 	 */
 	window.location.href = "preStocks?pageSize=" + pageSize + "&ssC=" + ssC
 		+"&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo + "&searchArea=" + searchArea
-		+"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo="+paymentOrderNo +"&status=" +status;
+		+"&status=" +status;
 
 }
 

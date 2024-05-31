@@ -181,15 +181,15 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 				query=query.addCriteria(Criteria.where("itemNo").regex(requestBo.getItemNo(), "i"));
 			}
 
-			if(Common.isNotEmpty(requestBo.getPurchaseInvoiceNo())){
-				query=query.addCriteria(Criteria.where("purchaseInvoiceNo").regex(requestBo.getPurchaseInvoiceNo(), "i"));
-			}
-			if(Common.isNotEmpty(requestBo.getPaymentOrderNo())){
-				query=query.addCriteria(Criteria.where("paymentOrderNo").regex(requestBo.getPaymentOrderNo(), "i"));
-			}
-			if(Common.isNotEmpty(requestBo.getPurchaseInvoiceDate())){
-				query=query.addCriteria(Criteria.where("purchaseInvoiceDate").regex(requestBo.getPurchaseInvoiceDate(), "i"));
-			}
+//			if(Common.isNotEmpty(requestBo.getPurchaseInvoiceNo())){
+//				query=query.addCriteria(Criteria.where("purchaseInvoiceNo").regex(requestBo.getPurchaseInvoiceNo(), "i"));
+//			}
+//			if(Common.isNotEmpty(requestBo.getPaymentOrderNo())){
+//				query=query.addCriteria(Criteria.where("paymentOrderNo").regex(requestBo.getPaymentOrderNo(), "i"));
+//			}
+//			if(Common.isNotEmpty(requestBo.getPurchaseInvoiceDate())){
+//				query=query.addCriteria(Criteria.where("purchaseInvoiceDate").regex(requestBo.getPurchaseInvoiceDate(), "i"));
+//			}
 			if(Common.isNotEmpty(requestBo.getSupplier())){
 				Query squery=new Query();
 				squery.addCriteria(Criteria.where("name").regex(requestBo.getSupplier(),"i"));
@@ -803,15 +803,15 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 			query=query.addCriteria(Criteria.where("itemNo").regex(requestBo.getItemNo(), "i"));
 		}
 
-		if(Common.isNotEmpty(requestBo.getPurchaseInvoiceNo())){
-			query=query.addCriteria(Criteria.where("purchaseInvoiceNo").regex(requestBo.getPurchaseInvoiceNo(), "i"));
-		}
-		if(Common.isNotEmpty(requestBo.getPaymentOrderNo())){
-			query=query.addCriteria(Criteria.where("paymentOrderNo").regex(requestBo.getPaymentOrderNo(), "i"));
-		}
-		if(Common.isNotEmpty(requestBo.getPurchaseInvoiceDate())){
-			query=query.addCriteria(Criteria.where("purchaseInvoiceDate").regex(requestBo.getPurchaseInvoiceDate(), "i"));
-		}
+//		if(Common.isNotEmpty(requestBo.getPurchaseInvoiceNo())){
+//			query=query.addCriteria(Criteria.where("purchaseInvoiceNo").regex(requestBo.getPurchaseInvoiceNo(), "i"));
+//		}
+//		if(Common.isNotEmpty(requestBo.getPaymentOrderNo())){
+//			query=query.addCriteria(Criteria.where("paymentOrderNo").regex(requestBo.getPaymentOrderNo(), "i"));
+//		}
+//		if(Common.isNotEmpty(requestBo.getPurchaseInvoiceDate())){
+//			query=query.addCriteria(Criteria.where("purchaseInvoiceDate").regex(requestBo.getPurchaseInvoiceDate(), "i"));
+//		}
 		if(Common.isNotEmpty(requestBo.getSupplier())){
 			Query squery=new Query();
 			squery.addCriteria(Criteria.where("name").regex(requestBo.getSupplier(),"i"));
