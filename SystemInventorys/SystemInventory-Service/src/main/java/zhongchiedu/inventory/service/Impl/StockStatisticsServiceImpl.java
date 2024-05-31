@@ -1408,7 +1408,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 		List<StockStatistics> list2 = findAllStock.stream().map(stock->{
 			StockStatistics st = new StockStatistics();
-			st.setNewNum(stock.getInventory());
+			st.setNewNum(0);
 			st.setNum(0);
 			st.setStock(stock);
 			return st;
