@@ -330,7 +330,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			
 			long ycknum = 0;
 			long acnum = 0;
-			if(!stockStatistics.isPreStock()) {
+			if(!stockStatistics.isPreStock()&&!stockStatistics.isInOrOut()) {
 				if (!stockStatistics.isYck()) {
 					List<PickUpApplication> pickUpApplication = this.pickUpApplicationService.findPickUpApplicationsByStockId(stock.getId());
 					ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0, Long::sum);
@@ -473,6 +473,9 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		}
 		if (st.getStock() == null) {
 			return BasicDataResult.build(400, "未能获取到设备信息", null);
+		}
+		if(num == 0) {
+			num = st.getNum();
 		}
 		
 		if(num>st.getNum()) {
