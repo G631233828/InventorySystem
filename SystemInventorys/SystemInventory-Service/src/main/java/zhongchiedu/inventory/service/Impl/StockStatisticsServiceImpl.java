@@ -529,7 +529,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			st.setRevoke((st.getNum()-num)<=0);
 			st.setNum(st.getNum()-num);
 			st.setRevokeNum(st.getRevokeNum()+num);
-			st.setDepotTime(Common.fromDateH());
+//			st.setDepotTime(Common.fromDateH());
 			st.setNewNum(newst.getNewNum());
 			StockStatistics stockStatistics = updateStockStatistics(st);
 			
