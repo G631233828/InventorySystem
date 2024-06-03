@@ -98,33 +98,38 @@
 
 							</div>
 
-							<!-- 搜索  下拉  start-->
-							<!-- 	<div class="mail_header">
-								<div class="col-sm-6">
-									<div class="row" style="margin-bottom: 10px;">
-									
-										<div class="col-sm-2">
-										<select class="filter-status form-control">
-												<option value="10">10
-												<option value="25">25
-												<option value="50">50
-												<option value="100">100
-											</select>
-										</div>
-										<div class="col-sm-3">
-											<input class="form-control" id="filter"
-												placeholder="查找类目..." type="text">
-										
-											
-										</div>
-									</div>
-								</div>
-							</div> -->
-							<!-- 搜索  下拉  end-->
+
 
 
 
 							<div class="body-nest" id="tableStatic">
+
+								<div class="row" style="margin-bottom: 10px;">
+									<div class="col-sm-3 form-inline">
+										<select class="filter-status form-control" id="pageSize"
+												onchange="return searchSize()">
+											<option value="10" th:selected="${pageSize == 10}">10
+
+
+											<option value="20" th:selected="${pageSize == 20}">20
+
+
+											<option value="50" th:selected="${pageSize == 50}">50
+
+
+											<option value="100" th:selected="${pageSize == 100}">100
+
+
+										</select> <input class="form-control" id="serach" placeholder="模糊匹配"
+														 th:value="${search}" type="text">
+										<button class="btn btn-default btn-sm"
+												onclick="return searchVal()">
+											<i class="entypo-search"> </i> 搜索
+										</button>
+									</div>
+								</div>
+
+								<div class="col-sm-6"></div>
 
 								<section id="flip-scroll">
 

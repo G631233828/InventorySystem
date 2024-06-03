@@ -51,9 +51,9 @@ public class PnameController {
 	@SystemControllerLog(description = "查询所有项目名称信息")
 	public String list(@RequestParam(value = "pageNo", defaultValue = "1") Integer pageNo, Model model,
 			@RequestParam(value = "pageSize", defaultValue = "100") Integer pageSize, HttpSession session,
-			@ModelAttribute("errorImport") String errorImport) {
+			@ModelAttribute("errorImport") String errorImport,@RequestParam(value = "search", defaultValue = "") String search) {
 			model.addAttribute("errorImport", errorImport);
-		Pagination<Pname> pagination = this.pnameService.findpagination(pageNo, pageSize,"");
+		Pagination<Pname> pagination = this.pnameService.findpagination(pageNo, pageSize,search);
 		model.addAttribute("pageList", pagination);
 		return "admin/pName/list";
 	}

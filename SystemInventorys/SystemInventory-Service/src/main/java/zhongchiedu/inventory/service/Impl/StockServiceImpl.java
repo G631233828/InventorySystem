@@ -1143,6 +1143,12 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			if(Common.isNotEmpty(preStock.getInprice())){
 				stockStatistics.setInprice(preStock.getInprice());//入库总金额
 			}
+			if(Common.isNotEmpty(preStock.getEntryName())){ //库存统计添加项目名称（新）
+				Pname pname=this.pnameService.findByName(preStock.getEntryName());
+				if(Common.isNotEmpty(pname)){
+					stockStatistics.setPname(pname);
+				}
+			}
 			if(Common.isNotEmpty(preStock.getPurchaseInvoiceNo())){
 				stockStatistics.setPurchaseInvoiceNo(preStock.getPurchaseInvoiceNo());//采购发票号
 			}
@@ -1275,6 +1281,8 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			stockStatistics.setProjectName(pickUpApplication.getProjectName());
 			stockStatistics.setPersonInCharge(pickUpApplication.getPersonInCharge());
 			stockStatistics.setCustomer(pickUpApplication.getCustomer());
+			stockStatistics.setNewCustomer(pickUpApplication.getNewCustomer());//客户
+			stockStatistics.setPname(pickUpApplication.getPname());//项目
 			stockStatistics.setDescription(pickUpApplication.getDescription());
 			stockStatistics.setYck(true);
 			stockStatistics.setStock(stock);

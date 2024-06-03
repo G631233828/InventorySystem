@@ -7,6 +7,18 @@ function batchImput() {
 	$("#mybatchUpload").modal('show');
 
 }
+function searchVal() {
+	var pageSize = $("#pageSize").val();
+	var search = $("#serach").val();
+	window.location.href="pNames?pageSize="+pageSize+"&search="+search;
+
+}
+function searchSize() {
+	var pageSize = $("#pageSize").val();
+	var search = $("#serach").val();
+	window.location.href="pNames?pageSize="+pageSize+"&search="+search;
+
+}
 
 
 $(document)
