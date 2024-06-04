@@ -30,6 +30,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -1235,7 +1236,24 @@ public class Common {
 		
 	}
 	
-	
+	 public static String getLastDayOfPreviousMonthAsString(String inputDateString) {
+		 
+		 	String dateFormat = "yyyy-MM-dd";
+	        // 定义日期格式器
+	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(dateFormat);
+	        
+	        // 解析输入的日期字符串为LocalDate对象
+	        LocalDate inputDate = LocalDate.parse(inputDateString, formatter);
+	        
+	        // 获取上个月的YearMonth对象
+	        LocalDate firstDayOfPreviousMonth = inputDate.minusMonths(1).withDayOfMonth(1);
+	        
+	        // 使用TemporalAdjusters获取上个月的最后一天
+	        LocalDate lastDayOfPreviousMonth = firstDayOfPreviousMonth.with(TemporalAdjusters.lastDayOfMonth());
+	        
+	        // 将LocalDate对象格式化为字符串
+	        return lastDayOfPreviousMonth.format(formatter);
+	    }
 	
 	
 	
@@ -1260,26 +1278,33 @@ public class Common {
 //		String replace = n.replace("\\", "").replace("/", "");
 //		System.out.println(replace);
 //		
-		Map<String, String> findDateByInputDate = findDateByInputDate("2023-02-02");
-		System.out.println(findDateByInputDate);
-		
-		
-	List list1 = new ArrayList();
-	list1.add("1");
-	list1.add("6");
-	list1.add("2");
-	list1.add("3");
-	list1.add("4");
-	list1.add("5");
-	
-	List list2 = new ArrayList();
-	list2.add("1");
-	list2.add("7");
-	list2.add("4");
-	list2.add("11");
-	list2.add("224");
-	list2.add("3");
-	
+//		Map<String, String> findDateByInputDate = findDateByInputDate("2023-02-02");
+//		System.out.println(findDateByInputDate);
+//		
+//		
+//	List list1 = new ArrayList();
+//	list1.add("1");
+//	list1.add("6");
+//	list1.add("2");
+//	list1.add("3");
+//	list1.add("4");
+//	list1.add("5");
+//	
+//	List list2 = new ArrayList();
+//	list2.add("1");
+//	list2.add("7");
+//	list2.add("4");
+//	list2.add("11");
+//	list2.add("224");
+//	list2.add("3");
+//	
+		 // 输入的日期字符串
+        String inputDateString = "2024-06-04";
+        // 日期格式
+        // 获取上个月最后一天的日期字符串
+        String lastDayOfPreviousMonthString = getLastDayOfPreviousMonthAsString(inputDateString);
+        // 输出结果
+        System.out.println("上个月最后一天的日期字符串: " + lastDayOfPreviousMonthString);
 
 		
 	}

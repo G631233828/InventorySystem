@@ -539,7 +539,7 @@
 														th:style="${#lists.contains(listColums,'user')}?'':'display:none;'">[[${stockStatistics?.user?.userName}]]</td>
 													<td class="numeric description" th:id="|description_${stockStatistics?.id}|"
 														th:title="${stockStatistics.description}"
-														th:style="${#lists.contains(listColums,'description')}?'':'display:none;'">[[${#strings.abbreviate(stockStatistics?.description,30)}]]</td>
+														th:style="${#lists.contains(listColums,'description')}?'':'display:none;'" th:utext="${stockStatistics?.description}"><!-- [[${#strings.abbreviate(stockStatistics?.description,30)}]] --></td>
 
 													<td class="numeric revoke" id="revoke"
 														th:style="${#lists.contains(listColums,'revoke')}?'':'display:none;'">

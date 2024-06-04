@@ -94,6 +94,10 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	
 	@Autowired
 	private PickUpApplicationService pickUpApplicationService;
+	
+	@Autowired
+	@Lazy
+	private MonthEndStatisticsService monthEndStatisticsService;
 
 
 
@@ -351,7 +355,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			
 			
 
-			stock.setDescription(stockStatistics.getDescription());
+//			stock.setDescription(stockStatistics.getDescription());
 			stockStatistics.setUser(user);
 			stockStatistics.setRevoke(false);
 			stockStatistics.setArea(stock.getArea());
@@ -495,6 +499,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		long newNum = 0L;
 		if (Common.isNotEmpty(st.getStorageTime())) {
 			// 撤销入库
+			st.setDescription("<label style=\"color:red\">来源：撤销入库</label>");
 			newNum = this.updatePreStock(stock, st.getNum(), false,st);
 			if (newNum == -1) {
 				// 出货数量不够
@@ -503,6 +508,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			//更新统计
 			st.setRevoke(true);
 			st.setRevokeNum(st.getRevokeNum()+num);
+			
 			StockStatistics stockStatistics = updateStockStatistics(st);
 			
 			if (stockStatistics != null) {
@@ -523,6 +529,8 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			getst.setNum(num);
 			getst.setStock(st.getStock());
 			getst.setYck(true);
+		
+			getst.setDescription("<label style=\"color:red\">来源：撤销出库</label>");
 			BasicDataResult inOrOutstockStatistics = this.inOrOutstockStatistics(getst, user);
 			StockStatistics newst = (StockStatistics) inOrOutstockStatistics.getData();
 			//更新统计
@@ -531,6 +539,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			st.setRevokeNum(st.getRevokeNum()+num);
 //			st.setDepotTime(Common.fromDateH());
 			st.setNewNum(newst.getNewNum());
+			
 			StockStatistics stockStatistics = updateStockStatistics(st);
 			
 			if (stockStatistics != null) {
@@ -1399,6 +1408,16 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		query.addCriteria(Criteria.where("revoke").is(false));
 		List<StockStatistics> list=this.find(query,StockStatistics.class);
 		List<Map<String, Object>> outlist = new ArrayList<>();
+		
+		//根据当前查询的开始日期 获取上月的最后一天年月日
+		String lastDayOfPreviousMonthAsString = Common.getLastDayOfPreviousMonthAsString(requestBo.getStart());
+		
+		List<MonthEndStatistics> findMonthEndStatisticsByDate = this.monthEndStatisticsService.findMonthEndStatisticsByDate(lastDayOfPreviousMonthAsString);
+		
+		Map<String, MonthEndStatistics> listMonthEndStatisticsToMap = listMonthEndStatisticsToMap(findMonthEndStatisticsByDate);
+		
+		
+		
 		// 获取 start时间 （第一天）库存的初始数量 出库数量+剩余库存数量 num+newNum
 		// 获取所有的设备
 		Map<String, List<StockStatistics>> map = new HashMap<String, List<StockStatistics>>();
@@ -1460,20 +1479,27 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 					Common.isEmpty(gs.getStock().getUnit()) ? "" : gs.getStock().getUnit().getName());
 
 
-			BigDecimal qcnum ;//期初库存 为当前时间的前一次库存数量  // new 包含本期未出入库，但有期末余额的库存，数量取期末余额。
+//			BigDecimal qcnum ;//期初库存 为当前时间的前一次库存数量  // new 包含本期未出入库，但有期末余额的库存，数量取期末余额。
 			BigDecimal dj = new BigDecimal(0);//单价
 			BigDecimal zj = new BigDecimal(0);//总金额
 			BigDecimal newNum = new BigDecimal(gs.getNewNum());
 			BigDecimal num =new BigDecimal( gs.getNum());
-			if(gs.isInOrOut()) {
-				//如果是入库，需要减去入库数量
-				qcnum =  newNum.subtract(num);
-			}else if(!gs.isInOrOut()){
-				//如果是出库 需要吧出库数量加回去
-				qcnum = newNum.add(num) ;//获得期初库存数量
-			}else {
-				qcnum = newNum;
+//			if(gs.isInOrOut()) {
+//				//如果是入库，需要减去入库数量
+//				qcnum =  newNum.subtract(num);
+//			}else if(!gs.isInOrOut()){
+//				//如果是出库 需要吧出库数量加回去
+//				qcnum = newNum.add(num) ;//获得期初库存数量
+//			}else {
+//				qcnum = newNum;
+//			}
+			BigDecimal qcnum =new BigDecimal(0);
+			//从定时任务统计的数据中拿到期初库存数据
+			MonthEndStatistics monthEndStatistics = listMonthEndStatisticsToMap.get(gs.getStock().getId());
+			if(Common.isNotEmpty(monthEndStatistics)) {
+				qcnum =new BigDecimal(monthEndStatistics.getMonthEndStockNum());
 			}
+			
 			if(Common.isNotEmpty(gs.getStock().getPrice())) {
 				String price = gs.getStock().getPrice();
 				boolean numeric = StringUtils.isNumeric(price);
@@ -1858,8 +1884,20 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		return  query;
 	}
 	
-	
-	
+	/**
+	 * 将数据转换成 k v形式  取值的时候通过使用key直接获取
+	 * @param list
+	 * @return
+	 */
+	public Map<String,MonthEndStatistics> listMonthEndStatisticsToMap(List<MonthEndStatistics> list){
+		
+		Map<String,MonthEndStatistics>  map = new HashMap<String, MonthEndStatistics>();
+		list.forEach(m->{
+			map.put(m.getStock().getId(), m);
+		});
+		return map;
+		
+	}
 	
 	
 	

@@ -55,7 +55,6 @@ import zhongchiedu.log.annotation.SystemServiceLog;
 
 @Service
 @Slf4j
-
 public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpApplication>
 		implements PickUpApplicationService {
 
