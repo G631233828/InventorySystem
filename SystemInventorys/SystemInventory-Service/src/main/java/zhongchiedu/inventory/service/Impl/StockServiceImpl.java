@@ -1284,6 +1284,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			stockStatistics.setNewCustomer(pickUpApplication.getNewCustomer());//客户
 			stockStatistics.setPname(pickUpApplication.getPname());//项目
 			stockStatistics.setDescription(pickUpApplication.getDescription());
+			stockStatistics.setAccepter(pickUpApplication.getAccepter());//领料人
 			stockStatistics.setYck(true);
 			stockStatistics.setStock(stock);
 		}

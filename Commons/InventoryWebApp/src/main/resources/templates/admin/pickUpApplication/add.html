@@ -76,12 +76,11 @@
 								<div class="row">
 									<!-- edit form column -->
 									<div class="col-md-12 personal-info">
-										<form class="form-horizontal" enctype="multipart/form-data"
+										<form class="form-horizontal" 
 											id="pickUpApplicationForm" th:action="@{/pickUpApplication}"
 											method="post">
-											<input type="hidden" name="_method" value="put"
-												th:if="${pickUpApplication!=null}" /> <input type="hidden"
-												name="id" th:if="${pickUpApplication!=null}"
+											<input type="hidden" name="_method" value="put" th:if="${pickUpApplication!=null}" /> 
+											<input type="hidden" 	name="id" th:if="${pickUpApplication!=null}"
 												th:value="${pickUpApplication.id}">
 
 											<div class="form-group" id="areaform">

@@ -126,5 +126,7 @@ public class StockStatistics extends GeneralBean<StockStatistics> {
 	private String accepter; //签收人 +
 
 	private Boolean confirm = false; //是否确认
+	
+	private boolean byRevoke = false;//通过撤销来出入库
 
 }

@@ -500,6 +500,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		if (Common.isNotEmpty(st.getStorageTime())) {
 			// 撤销入库
 			st.setDescription("<label style=\"color:red\">来源：撤销入库</label>");
+			st.setByRevoke(true);
 			newNum = this.updatePreStock(stock, st.getNum(), false,st);
 			if (newNum == -1) {
 				// 出货数量不够
@@ -529,7 +530,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			getst.setNum(num);
 			getst.setStock(st.getStock());
 			getst.setYck(true);
-		
+			getst.setByRevoke(true);
 			getst.setDescription("<label style=\"color:red\">来源：撤销出库</label>");
 			BasicDataResult inOrOutstockStatistics = this.inOrOutstockStatistics(getst, user);
 			StockStatistics newst = (StockStatistics) inOrOutstockStatistics.getData();
@@ -1406,6 +1407,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	public Workbook newExport2(HttpServletRequest request, RequestBo requestBo) {
 		Query query=newQueryByRequestBo(requestBo);
 		query.addCriteria(Criteria.where("revoke").is(false));
+		query.addCriteria(Criteria.where("byRevoke").is(false));
 		List<StockStatistics> list=this.find(query,StockStatistics.class);
 		List<Map<String, Object>> outlist = new ArrayList<>();
 		
@@ -1562,7 +1564,6 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 
 			BigDecimal d = new BigDecimal(out);
-//			BigDecimal e = new BigDecimal(in);
 			BigDecimal outpriceall = d.multiply(dj).setScale(2,BigDecimal.ROUND_HALF_UP);//出库总额
 			outmap.put("out",out);//出库数量
 			outmap.put("outprice",dj);//出库单价=所有入库总额/入库数量
@@ -1570,11 +1571,14 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 			//期末库存数量  单价  金额
 			StockStatistics gsend = entry.getValue().get(0);
-			long qmnum =0;//期初库存
+//			long qmnum =0;//期初库存
 //			long qmdj =0;//单价
 //			long qmzj =0;//总金额
 
-			qmnum = gsend.getNewNum();//期末库存数量
+			//qmnum = gsend.getNewNum();//期末库存数量
+			//期初库存+入库-出库
+			BigDecimal qmnum = qcnum.add(e).subtract(d);
+			
 			BigDecimal qmzj =dj.multiply(qcnum).setScale(2,BigDecimal.ROUND_HALF_UP);
 //			BigDecimal qmzj =zj.add(a).subtract(outpriceall);//期末总价
 //			BigDecimal qmdj = new BigDecimal(0);

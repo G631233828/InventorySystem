@@ -258,8 +258,7 @@ public class PickUpApplicationController {
 		Integer pageSize = (Integer) session.getAttribute("pickpageSize");
 		String search = (String) session.getAttribute("picksearch");
 		String searchArea = (String) session.getAttribute("picksearchArea");
-		return "redirect:/pickUpApplications?pageNo=" + pageNo + "&pageSize=" + pageSize + "&search="
-				+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea;
+		return "redirect:pickUpApplications";
 
 	}
 
@@ -363,8 +362,7 @@ public class PickUpApplicationController {
 		String search = (String) session.getAttribute("picksearch");
 		String searchArea = (String) session.getAttribute("picksearchArea");
 
-		return "redirect:/pickUpApplications?pageNo=" + pageNo + "&pageSize=" + pageSize + "&search="
-				+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea;
+		return "redirect:pickUpApplications";
 
 	}
 
@@ -489,11 +487,12 @@ public class PickUpApplicationController {
 		
 		if(Common.isNotEmpty(pickId)) {
 			PickUpApplication self_ = this.pickUpApplicationService.findOneById(pickId, PickUpApplication.class);
-			self = self_.getEstimatedIssueQuantity();
-			if(getnum <= self) {
-				return new BasicDataResult().build(200, "出库数量无误", "");
+			if(Common.isNotEmpty(self_)) {
+				self = self_.getEstimatedIssueQuantity();
+				if(getnum <= self) {
+					return new BasicDataResult().build(200, "出库数量无误", "");
+				}
 			}
-			
 		}
 		
 

@@ -66,7 +66,7 @@ function batchOut(o) {
                                <td class="numeric">`+ item.remainingNum + `</td>
                                <td class="numeric">
 							   <input type="hidden" name="batchid" value="`+ item.id + `"> 
-                               <input type="text" onblur="return setStockNum('`+ item.id + `')"  class="form-control stockval batchout" id=stocknum_` + item.id + `   name="batchnum" >
+                               <input type="text" onblur="return setStockNum('`+ item.id + `')"  value="`+ item.remainingNum + `" class="form-control stockval batchout" id=stocknum_` + item.id + `   name="batchnum" >
                                </td>
                                <td class="numeric">
                                <button class="btn " type="button" onclick="return deleteStock('`+ item.id + `')" > <i  class="fa fa-trash-o">移除 </i>

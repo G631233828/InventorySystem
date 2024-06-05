@@ -76,17 +76,19 @@
 								<div class="row">
 									<!-- edit form column -->
 									<div class="col-md-12 personal-info">
-										<form class="form-horizontal" enctype="multipart/form-data"
-											id="pickUpApplicationAddForm" th:action="@{/pickUpApplicationAdd}" method="post">
+										<form class="form-horizontal" id="pickUpApplicationAddForm"
+											th:action="@{/pickUpApplicationAdd}" method="post">
 											<input type="hidden" name="_method" value="put"
-												th:if="${pickUpApplication!=null}" /> <input type="hidden" name="id"
-												th:if="${pickUpApplication!=null}" th:value="${pickUpApplication.id}">
-												
+												th:if="${pickUpApplication!=null}" /> <input type="hidden"
+												name="id" th:if="${pickUpApplication!=null}"
+												th:value="${pickUpApplication.id}">
+
 											<div class="form-group" id="areaform">
 												<label class="col-lg-1 control-label">区域：</label>
 												<div class="col-lg-6">
 
-													<select id="area" name="area.id" class="form-control" th:disabled="${pickUpApplication!=null}"
+													<select id="area" name="area.id" class="form-control"
+														th:disabled="${pickUpApplication!=null}"
 														required="required" onchange="return getStocks()">
 														<option value="">---请选择区域---</option>
 														<option
@@ -95,37 +97,49 @@
 															th:text="${area?.name}"></option>
 													</select>
 													<div th:if="${pickUpApplication != null}">
-													<input  type="hidden" name="area.id" th:value="${pickUpApplication?.area?.id}">
+														<input type="hidden" name="area.id"
+															th:value="${pickUpApplication?.area?.id}">
 													</div>
 												</div>
 											</div>
 
 
-									
+
 											<div class="form-group">
 												<label class="col-lg-1 control-label">设备名称：</label>
 												<div class="col-lg-6">
-													<select multiple class="selectpicker form-control" th:disabled="${pickUpApplication!=null}"
-														id="number-multiple" data-container="body" onchange="return getModel()"
-														name="stock.id" title="请选择出库设备" data-live-search="true"
+													<select multiple class="selectpicker form-control"
+														th:disabled="${pickUpApplication!=null}"
+														id="number-multiple" data-container="body"
+														onchange="return getModel()" name="stock.id"
+														title="请选择出库设备" data-live-search="true"
 														data-hide-disabled="true" data-actions-box="false"
 														data-virtual-scroll="false" data-max-options="1"></select>
-														<div th:if="${pickUpApplication != null}">
-														<input type="hidden" name="stock.id" th:value="${pickUpApplication?.stock?.id}">
-														</div>
+													<div th:if="${pickUpApplication != null}">
+														<input type="hidden" name="stock.id"
+															th:value="${pickUpApplication?.stock?.id}">
+													</div>
 												</div>
 											</div>
-											
-											
+
+
 											<div class="form-group" id="modelform">
 												<label class="col-lg-1 control-label">设备型号：</label>
 												<div class="col-lg-6">
-													<input class="form-control" id="model" readonly="readonly" 
+													<input class="form-control" id="model" readonly="readonly"
 														th:value="${pickUpApplication?.stock?.model}">
 												</div>
 											</div>
-											
-									<!-- 			
+
+											<div class="form-group" id="modelform">
+												<label class="col-lg-1 control-label">领料人：</label>
+												<div class="col-lg-6">
+													<input class="form-control" id="accepter" name="accepter"
+														required="required"
+														th:value="${pickUpApplication?.accepter}">
+												</div>
+											</div>
+											<!-- 			
 									<div class="form-group">
 												<label class="col-lg-1 control-label">负责人：</label>
 												<div class="col-lg-6">
@@ -140,7 +154,7 @@
 												<input class="form-control" id="personInCharge"
 														placeholder="请输入负责人" name="personInCharge"
 														th:value="${pickUpApplication?.personInCharge}"> -->
-													<!-- <select multiple class="selectpicker form-control"
+											<!-- <select multiple class="selectpicker form-control"
 														id="number-multiple2" data-container="body"
 														name="personInCharge" title="请选择项目负责人"
 														data-live-search="true" data-hide-disabled="true"
@@ -149,7 +163,7 @@
 												</div>
 											</div>
 									 -->
-					<!-- 					<div class="form-group">
+											<!-- 					<div class="form-group">
 												<label class="col-lg-1 control-label">项目名称：</label>
 												<div class="col-lg-6">
 													<input class="form-control" id="projectName"
@@ -172,8 +186,7 @@
 												<div class="col-lg-6">
 													<select multiple class="selectpicker form-control"
 														id="number-multiple1" data-container="body"
-														 name="pname.id"
-														title="请选择项目" data-live-search="true"
+														name="pname.id" title="请选择项目" data-live-search="true"
 														data-hide-disabled="true" data-actions-box="false"
 														data-virtual-scroll="false" data-max-options="1"></select>
 												</div>
@@ -181,51 +194,52 @@
 											<div class="form-group">
 												<label class="col-lg-1 control-label">客户：</label>
 												<div class="col-lg-6">
-													
+
 													<select multiple class="selectpicker form-control"
 														id="number-multiple2" data-container="body"
-														 name="newCustomer.id"
-														title="请选择客户" data-live-search="true"
-														data-hide-disabled="true" data-actions-box="false"
-														data-virtual-scroll="false" data-max-options="1"></select>
-													
+														name="newCustomer.id" title="请选择客户"
+														data-live-search="true" data-hide-disabled="true"
+														data-actions-box="false" data-virtual-scroll="false"
+														data-max-options="1"></select>
+
 												</div>
 											</div>
-											
-										<div class="form-group">
+
+											<div class="form-group">
 												<label class="col-lg-1 control-label">预出库存数量：</label>
 												<div class="col-lg-6">
 													<input class="form-control" id="estimatedIssueQuantity"
-														placeholder="请输入预出库存数量" name="estimatedIssueQuantity" readonly="readonly"
+														placeholder="请输入预出库存数量" name="estimatedIssueQuantity"
+														readonly="readonly"
 														th:value="${pickUpApplication?.estimatedIssueQuantity}">
 												</div>
 											</div>
-											
+
 											<div class="form-group">
 												<label class="col-lg-1 control-label">已出库存数量：</label>
 												<div class="col-lg-6">
-													<input class="form-control" id="actualIssueQuantity" readonly="readonly"
-														 name="actualIssueQuantity" 
+													<input class="form-control" id="actualIssueQuantity"
+														readonly="readonly" name="actualIssueQuantity"
 														th:value="${pickUpApplication?.actualIssueQuantity}">
 												</div>
 											</div>
-											
-											
-											
-										<div class="form-group">
+
+
+
+											<div class="form-group">
 												<label class="col-lg-1 control-label">出库存数量：</label>
 												<div class="col-lg-6">
 													<input class="form-control" id="num" required="required"
-														placeholder="请输入出库存数量" name="num" 
-														>
+														placeholder="请输入出库存数量" name="num">
 												</div>
 											</div>
-											
-							
 
-											<input type="hidden" name="publisher.id" th:value="${pickUpApplication?.publisher?.id}"> 
 
-											
+
+											<input type="hidden" name="publisher.id"
+												th:value="${pickUpApplication?.publisher?.id}">
+
+
 
 											<div class="form-group">
 												<label class="col-lg-1 control-label">状态：</label>
@@ -248,8 +262,8 @@
 												<div class="col-lg-6">
 													<textarea id="description"
 														style="height: 150px !important; margin: 20px 0; resize: none;"
-														th:text="${pickUpApplication?.description}" class="form-control"
-														placeholder="备注" name="description"></textarea>
+														th:text="${pickUpApplication?.description}"
+														class="form-control" placeholder="备注" name="description"></textarea>
 												</div>
 											</div>
 
@@ -300,7 +314,7 @@
 		th:src="@{/js/admin/pickUpApplication/pickUpApplication.js}"></script>
 
 	<div th:replace="public/public_js::validator"></div>
-	
+
 	<script type="text/javascript" th:inline="javascript">
 
 $(function(){
