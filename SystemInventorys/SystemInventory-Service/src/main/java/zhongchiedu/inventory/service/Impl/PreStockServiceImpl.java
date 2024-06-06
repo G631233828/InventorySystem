@@ -464,20 +464,20 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 						continue;
 					}
 
-				String ssCName = resultexcel[i][j + 6].trim();// 系统分类
-				if(Common.isEmpty(ssCName)){
-					error += "<span class='entypo-attention'></span>导入文件过程中，第<b>&nbsp&nbsp" + (i + 1)
-							+ "行</b>出现系统分类名称为空，请添加！&nbsp&nbsp</br>";
-					continue;
-				}
-					// 系统分类
-					ssC = this.systemClassificationService.findByName(ssCName);
-					if (Common.isEmpty(ssC)) {
-						error += "<span class='entypo-attention'></span>导入文件过程中出现不存在的系统分类<b>&nbsp;&nbsp;" + ssCName
-								+ "&nbsp;&nbsp;</b>，请先添加系统分类，第<b>&nbsp&nbsp" + (i + 1)
-								+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
-						continue;
-					}
+//				String ssCName = resultexcel[i][j + 6].trim();// 系统分类
+//				if(Common.isEmpty(ssCName)){
+//					error += "<span class='entypo-attention'></span>导入文件过程中，第<b>&nbsp&nbsp" + (i + 1)
+//							+ "行</b>出现系统分类名称为空，请添加！&nbsp&nbsp</br>";
+//					continue;
+//				}
+//					// 系统分类
+//					ssC = this.systemClassificationService.findByName(ssCName);
+//					if (Common.isEmpty(ssC)) {
+//						error += "<span class='entypo-attention'></span>导入文件过程中出现不存在的系统分类<b>&nbsp;&nbsp;" + ssCName
+//								+ "&nbsp;&nbsp;</b>，请先添加系统分类，第<b>&nbsp&nbsp" + (i + 1)
+//								+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
+//						continue;
+//					}
 
 				String pname1=resultexcel[i][j + 7].trim();
 				if(Common.isEmpty(pname1)){
@@ -488,7 +488,7 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 					// 根据项目名称
 					pname = this.pnameService.findByName(pname1);
 					if (Common.isEmpty(pname)) {
-						error += "<span class='entypo-attention'></span>导入文件过程中出现不存在的系统分类<b>&nbsp;&nbsp;" + ssCName
+						error += "<span class='entypo-attention'></span>导入文件过程中出现不存在的系统分类<b>&nbsp;&nbsp;" + pname
 								+ "&nbsp;&nbsp;</b>，请先添加项目名称，第<b>&nbsp&nbsp" + (i + 1)
 								+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
 						continue;
