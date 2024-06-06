@@ -193,9 +193,9 @@
 											th:style="${#lists.contains(listColums,'ssentryName')}?'':'display:none;'">
 											<label class="control-label text-muted">项目名称：</label> <select
 												multiple class="filter-status form-control selectpicker"
-												id="pnames" data-live-search="true" data-max-options="20"
+												id="pnames" data-live-search="true" data-max-options="1"
 												title="选择项目名称">
-												<option th:selected="${requestBo?.entryName}==${pname?.id}"
+												<option th:selected="${requestBo?.pname}==${pname?.id}"
 													th:each="pname:${pnames}" th:value="${pname?.id}"
 													th:text="${pname?.name}"></option>
 											</select>
@@ -206,12 +206,12 @@
 
 
 									<div class="col-sm-12 form-inline" style="margin-bottom: 10px;">
-										<div id="ssprojectName" class="ssprojectName showin-b"
+									<!-- 	<div id="ssprojectName" class="ssprojectName showin-b"
 											th:style="${#lists.contains(listColums,'ssprojectName')}?'':'display:none;'">
 											<label class="control-label text-muted">用于项目：</label> <input
 												class="form-control" name="projectName" placeholder=""
 												type="text" th:value="${requestBo?.projectName}">
-										</div>
+										</div> -->
 										<div id="ssitemNo" class="ssitemNo showin-b"
 											th:style="${#lists.contains(listColums,'ssitemNo')}?'':'display:none;'">
 											<label class="control-label text-muted">采购付款申请单：</label> <input

@@ -488,7 +488,7 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 					// 根据项目名称
 					pname = this.pnameService.findByName(pname1);
 					if (Common.isEmpty(pname)) {
-						error += "<span class='entypo-attention'></span>导入文件过程中出现不存在的系统分类<b>&nbsp;&nbsp;" + pname
+						error += "<span class='entypo-attention'></span>导入文件过程中出现不存在的项目名称<b>&nbsp;&nbsp;" + pname1
 								+ "&nbsp;&nbsp;</b>，请先添加项目名称，第<b>&nbsp&nbsp" + (i + 1)
 								+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
 						continue;

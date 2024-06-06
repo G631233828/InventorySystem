@@ -1814,7 +1814,10 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		Query query=new Query();
 		Criteria ca = new Criteria();
 
-		if(!requestBo.isEmpty()){
+		if(Common.isNotEmpty(requestBo.getName())
+				||Common.isNotEmpty(requestBo.getSupplier())
+				||Common.isNotEmpty(requestBo.getPaymentOrderNo())
+				||Common.isNotEmpty(requestBo.getSearchArea())){
 			Query querys = new Query();
 			querys=this.stockService.findByRequestBo(requestBo,querys);
 //			querys.addCriteria(Criteria.where("isDelete").is(false));
@@ -1827,6 +1830,9 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		}
 		if (Common.isNotEmpty(requestBo.getUserId())) {
 			ca.orOperator(Criteria.where("financeUser.$id").is(new ObjectId(requestBo.getUserId())));
+		}
+		if (Common.isNotEmpty(requestBo.getPname())) {
+			ca.orOperator(Criteria.where("pname.$id").is(new ObjectId(requestBo.getPname())));
 		}
 		if(Common.isNotEmpty(requestBo.getItemNo())){
 			query=query.addCriteria(Criteria.where("newItemNo").regex(requestBo.getItemNo(), "i"));

@@ -591,24 +591,24 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				importStock.setAgent(agent=="是");
 
 				//添加系统分类
-				String ssCName = resultexcel[i][j + 11].trim();// 系统分类
-				if (Common.isNotEmpty(ssCName)) {
-					// 根据供应商名称查找，看供应商是否存在
-					ssC = this.systemClassificationService.findByName(ssCName);
-					if (Common.isEmpty(supplier)) {
-						error += "<span class='entypo-attention'></span>导入文件过程中出现不存在的系统分类<b>&nbsp;&nbsp;" + ssCName
-								+ "&nbsp;&nbsp;</b>，请先添加系统分类，第<b>&nbsp&nbsp" + (i + 1)
-								+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
-						continue;
-					}
-				}
-				importStock.setSystemClassification(ssC);
+//				String ssCName = resultexcel[i][j + 11].trim();// 系统分类
+//				if (Common.isNotEmpty(ssCName)) {
+//					// 根据供应商名称查找，看供应商是否存在
+//					ssC = this.systemClassificationService.findByName(ssCName);
+//					if (Common.isEmpty(supplier)) {
+//						error += "<span class='entypo-attention'></span>导入文件过程中出现不存在的系统分类<b>&nbsp;&nbsp;" + ssCName
+//								+ "&nbsp;&nbsp;</b>，请先添加系统分类，第<b>&nbsp&nbsp" + (i + 1)
+//								+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
+//						continue;
+//					}
+//				}
+//				importStock.setSystemClassification(ssC);
 				
 				//根据供应商名称判断供应商是否存在
 				Supplier getsupplier=this.supplierService.findByName(supplierName);
 				
 				if (Common.isEmpty(getsupplier)) {
-					error += "<span class='entypo-attention'></span>导入文件过程中出现不存在的供应商<b>&nbsp;&nbsp;" + ssCName
+					error += "<span class='entypo-attention'></span>导入文件过程中出现不存在的供应商<b>&nbsp;&nbsp;" + supplierName
 							+ "&nbsp;&nbsp;</b>，请先添加供应商，第<b>&nbsp&nbsp" + (i + 1)
 							+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
 					continue;

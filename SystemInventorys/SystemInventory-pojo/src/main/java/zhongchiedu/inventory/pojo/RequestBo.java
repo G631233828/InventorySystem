@@ -41,6 +41,8 @@ public class RequestBo {
     private String userId;
 
     private String projectName;//用于项目
+    
+    private String pname;//根据项目id查询
 
     private String customer;//客户
 	    private String sailesInvoiceNo;//销售发票号

@@ -216,9 +216,37 @@ $().ready(function() {
 
 		},
 		submitHandler:function(form){
-			
-			
-			//进行ajax传值
+		
+		var flag = true;
+		var stockId = $("#stockId").val();
+		if(stockId !=""||stockId!=null){
+			flag = false;
+		}
+	
+		var oldarea = $("#oldarea").val();
+		var area = $("#area").val();
+		if(area != oldarea){
+			flag = true;
+		}
+		var oldmodel = $("#oldmodel").val();
+		var model = $("#model").val();
+		if(model != oldmodel){
+			flag = true;
+		}
+		
+		var oldsupplier = $("#oldsupplier").val();
+		var supplier = $("#number-multiple").val();
+		if(supplier != oldsupplier){
+			flag = true;
+		}
+		var oldname = $("#oldname").val();
+		var name = $("#name").val();
+		if(name != oldname){
+			flag = true;
+		}
+		
+		if(flag){
+		//进行ajax传值
 			$.ajax({
 				url: getRootPath() + "/stock/ajaxgetRepletes",
 				type: "post",
@@ -260,10 +288,12 @@ $().ready(function() {
 
 				}
 			});
-
-			
-			
-			
+		
+		}
+		
+				if(flag == false){
+				form.submit();
+				}
 			
 		}
 

@@ -127,12 +127,13 @@ function searchVal() {
 	var revoke = $("#revoke").val();
 	var confirm = $("#confirm").val();
 	var ssC = $("#searchssC").val();
+	var pnames = $("#pnames").val();
 	/*
 	 * if (search == null || search == "") { swal({ type : "warning", title :
 	 * "", text : "查询内容不能为空!!", }); return ; }
 	 */
 	window.location.href = "stockStatisticss?pageSize=" + pageSize + "&search="
-		+ search + "&start=" + start + "&end=" + end + "&type=" + type + "&searchArea=" + searchArea + "&searchAgent=" + searchAgent + "&revoke=" + revoke + "&confirm=" + confirm + "&ssC=" + ssC;
+		+ search + "&start=" + start + "&end=" + end + "&type=" + type + "&searchArea=" + searchArea + "&searchAgent=" + searchAgent + "&revoke=" + revoke + "&confirm=" + confirm + "&ssC=" + ssC+ "&pname=" + pnames;
 }
 // function searchSize() {
 //	
@@ -153,7 +154,8 @@ function toExport() {
 	var name = $('[name="name"]').val();
 	var model = $('[name="model"]').val();
 	var supplier = $('[name="supplier"]').val();
-	var entryName = $("#pnames").val();
+	//var entryName = $("#pnames").val();
+	var pnames = $("#pnames").val();
 	var itemNo = $('[name="itemNo"]').val();
 	var purchaseInvoiceNo = $('[name="purchaseInvoiceNo"]').val();
 	var purchaseInvoiceDate = $('[name="purchaseInvoiceDate"]').val();
@@ -181,9 +183,9 @@ function toExport() {
 	})
 	window.location.href = "stockStatistics/export?&searchArea=" + area + "&type="
 		+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC=" + ssC
-		+ "&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo +
+		+ "&name=" + name + "&model=" + model + "&supplier=" + supplier +  + "&itemNo=" + itemNo +
 		"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo=" + paymentOrderNo
-		+ "&customer=" + customer + "&projectName=" + projectName;
+		+ "&customer=" + customer + "&projectName=" + projectName+ "&pname=" + pnames;
 
 }
 
@@ -192,7 +194,8 @@ function toJD() {
 	var name = $('[name="name"]').val();
 	var model = $('[name="model"]').val();
 	var supplier = $('[name="supplier"]').val();
-	var entryName = $("#pnames").val();
+	//var entryName = $("#pnames").val();
+	var pnames = $("#pnames").val();
 	var itemNo = $('[name="itemNo"]').val();
 	var purchaseInvoiceNo = $('[name="purchaseInvoiceNo"]').val();
 	var purchaseInvoiceDate = $('[name="purchaseInvoiceDate"]').val();
@@ -218,8 +221,8 @@ function toJD() {
 	})
 	window.location.href = "stockStatistics/toJD?&searchArea=" + area + "&type="
 		+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC=" + ssC
-		+ "&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo +
-		"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo=" + paymentOrderNo;
+		+ "&name=" + name + "&model=" + model + "&supplier=" + supplier +  + "&itemNo=" + itemNo +
+		"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo=" + paymentOrderNo+ "&pname=" + pnames;
 
 }
 
@@ -250,7 +253,8 @@ function toExportNew() {
 	var name = $('[name="name"]').val();
 	var model = $('[name="model"]').val();
 	var supplier = $('[name="supplier"]').val();
-	var entryName = $("#pnames").val();
+	//var entryName = $("#pnames").val();
+	var pnames = $("#pnames").val();
 	var itemNo = $('[name="itemNo"]').val();
 	var purchaseInvoiceNo = $('[name="purchaseInvoiceNo"]').val();
 	var purchaseInvoiceDate = $('[name="purchaseInvoiceDate"]').val();
@@ -282,9 +286,9 @@ function toExportNew() {
 	})
 	window.location.href = "stockStatistics/exportNew?&searchArea=" + area + "&type="
 		+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC=" + ssC
-		+ "&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo +
+		+ "&name=" + name + "&model=" + model + "&supplier=" + supplier +  + "&itemNo=" + itemNo +
 		"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo=" + paymentOrderNo
-		+ "&customer=" + customer + "&projectName=" + projectName;
+		+ "&customer=" + customer + "&projectName=" + projectName+ "&pname=" + pnames;
 
 }
 
@@ -836,7 +840,8 @@ function searchbyN(size, totalpage, Bo) {
 		var area = returnEmpty(bo.searchArea);
 		var model = returnEmpty(bo.model);
 		var supplier = returnEmpty(bo.supplier);
-		var entryName = returnEmpty(bo.entryName);
+		//var entryName = returnEmpty(bo.entryName);
+		var pnames = returnEmpty(bo.pname);
 		var itemNo = returnEmpty(bo.itemNo);
 		var purchaseInvoiceNo = returnEmpty(bo.purchaseInvoiceNo);
 		var purchaseInvoiceDate = returnEmpty(bo.purchaseInvoiceDate);
@@ -851,9 +856,9 @@ function searchbyN(size, totalpage, Bo) {
 		// var userId=returnEmpty(bo.userId);
 		window.location.href = "stockStatisticss?pageNo=" + N + "&pageSize=" + size + "&searchArea=" + area + "&type="
 			+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC=" + ssC
-			+ "&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo +
+			+ "&name=" + name + "&model=" + model + "&supplier=" + supplier +  + "&itemNo=" + itemNo +
 			"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo=" + paymentOrderNo
-			+ "&customer=" + customer + "&projectName=" + projectName;
+			+ "&customer=" + customer + "&projectName=" + projectName+ "&pname=" + pnames;
 	}
 
 }
@@ -872,7 +877,7 @@ function pageS(pageNo, size, totalpage, Bo) {
 	var area = returnEmpty(bo.searchArea);
 	var model = returnEmpty(bo.model);
 	var supplier = returnEmpty(bo.supplier);
-	var entryName = returnEmpty(bo.entryName);
+	//var entryName = returnEmpty(bo.entryName);
 	var itemNo = returnEmpty(bo.itemNo);
 	var purchaseInvoiceNo = returnEmpty(bo.purchaseInvoiceNo);
 	var purchaseInvoiceDate =  returnEmpty(bo.purchaseInvoiceDate);
@@ -884,15 +889,16 @@ function pageS(pageNo, size, totalpage, Bo) {
 	var confirm = returnEmpty(bo.confirm);
 	var customer = returnEmpty(bo.customer);
 	var projectName = returnEmpty(bo.projectName);
+	var pname = returnEmpty(bo.pname);
 	var sailesInvoiceNo = $('[name="sailesInvoiceNo"]').val();
 
 	// var userId=returnEmpty(bo.userId);
 
 	window.location.href = "stockStatisticss?pageNo=" + pageNo + "&pageSize=" + size + "&searchArea=" + area + "&type="
 		+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC=" + ssC
-		+ "&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo +
+		+ "&name=" + name + "&model=" + model + "&supplier=" + supplier +  + "&itemNo=" + itemNo +
 		"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo=" + paymentOrderNo
-		+ "&customer=" + customer + "&projectName=" + projectName + "&sailesInvoiceNo=" + sailesInvoiceNo;
+		+ "&customer=" + customer + "&projectName=" + projectName + "&sailesInvoiceNo=" + sailesInvoiceNo+ "&pname=" + pname;
 }
 
 function searchBo() {
@@ -901,7 +907,7 @@ function searchBo() {
 	var name = $('[name="name"]').val();
 	var model = $('[name="model"]').val();
 	var supplier = $('[name="supplier"]').val();
-	var entryName = $("#pnames").val();
+	//var entryName = $("#pnames").val();
 	var itemNo = $('[name="itemNo"]').val();
 	var purchaseInvoiceNo = $('[name="purchaseInvoiceNo"]').val();
 	var purchaseInvoiceDate = $('[name="purchaseInvoiceDate"]').val();
@@ -912,9 +918,10 @@ function searchBo() {
 	var type = $('[name="type"]').val();
 	var revoke = $('[name="revoke"]').val();
 	var confirm = $('[name="confirm"]').val();
-	var projectName = $('[name="projectName"]').val();
+	//var projectName = $('[name="projectName"]').val();
 	var customer = $('[name="customer"]').val();
 	var sailesInvoiceNo = $('[name="sailesInvoiceNo"]').val();
+	var pnames = $("#pnames").val();
 	// var userId=$('[name="userId"]').val();
 	/*
 	 * if (search == null || search == "") { swal({ type : "warning", title : "",
@@ -922,10 +929,10 @@ function searchBo() {
 	 */
 	window.location.href = "stockStatisticss?&pageSize=" + size + "&searchArea=" + area + "&type="
 		+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC=" + ssC
-		+ "&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo +
+		+ "&name=" + name + "&model=" + model + "&supplier=" + supplier + "&itemNo=" + itemNo +
 		"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo=" + paymentOrderNo
-		+ "&customer=" + customer + "&projectName=" + projectName + "&sailesInvoiceNo=" + sailesInvoiceNo;
-
+		+ "&customer=" + customer  + "&sailesInvoiceNo=" + sailesInvoiceNo+ "&pname=" + pnames;
+//  ++ "&projectName=" + projectName
 }
 
 
