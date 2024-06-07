@@ -181,11 +181,13 @@ function toExport() {
 		'content': "正在导出请稍等...",
 		'closeTime': 5000,
 	})
-	window.location.href = "stockStatistics/export?&searchArea=" + area + "&type="
-		+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC=" + ssC
-		+ "&name=" + name + "&model=" + model + "&supplier=" + supplier +  + "&itemNo=" + itemNo +
-		"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo=" + paymentOrderNo
-		+ "&customer=" + customer + "&projectName=" + projectName+ "&pname=" + pnames;
+	// window.location.href = "stockStatistics/export?&searchArea=" + area + "&type="
+	// 	+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC=" + ssC
+	// 	+ "&name=" + name + "&model=" + model + "&supplier=" + supplier +  + "&itemNo=" + itemNo +
+	// 	"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo=" + paymentOrderNo
+	// 	+ "&customer=" + customer + "&projectName=" + projectName+ "&pname=" + pnames;
+	var url = `stockStatistics/export?searchArea=${encodeURIComponent(area)}&type=${encodeURIComponent(type)}&start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}&revoke=${encodeURIComponent(revoke)}&confirm=${encodeURIComponent(confirm)}&userId=&ssC=${encodeURIComponent(ssC)}&name=${encodeURIComponent(name)}&model=${encodeURIComponent(model)}&supplier=${encodeURIComponent(supplier)}&itemNo=${encodeURIComponent(itemNo)}&purchaseInvoiceNo=${encodeURIComponent(purchaseInvoiceNo)}&purchaseInvoiceDate=${encodeURIComponent(purchaseInvoiceDate)}&paymentOrderNo=${encodeURIComponent(paymentOrderNo)}&customer=${encodeURIComponent(customer)}&projectName=${encodeURIComponent(projectName)}&pname=${encodeURIComponent(pnames)}`;
+	window.location.href = url;
 
 }
 
@@ -859,6 +861,7 @@ function searchbyN(size, totalpage, Bo) {
 			+ "&name=" + name + "&model=" + model + "&supplier=" + supplier +  + "&itemNo=" + itemNo +
 			"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo=" + paymentOrderNo
 			+ "&customer=" + customer + "&projectName=" + projectName+ "&pname=" + pnames;
+
 	}
 
 }
@@ -894,11 +897,13 @@ function pageS(pageNo, size, totalpage, Bo) {
 
 	// var userId=returnEmpty(bo.userId);
 
-	window.location.href = "stockStatisticss?pageNo=" + pageNo + "&pageSize=" + size + "&searchArea=" + area + "&type="
-		+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC=" + ssC
-		+ "&name=" + name + "&model=" + model + "&supplier=" + supplier +  + "&itemNo=" + itemNo +
-		"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo=" + paymentOrderNo
-		+ "&customer=" + customer + "&projectName=" + projectName + "&sailesInvoiceNo=" + sailesInvoiceNo+ "&pname=" + pname;
+	// window.location.href = "stockStatisticss?pageNo=" + pageNo + "&pageSize=" + size + "&searchArea=" + area + "&type="
+	// 	+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC=" + ssC
+	// 	+ "&name=" + name + "&model=" + model + "&supplier=" + supplier +  + "&itemNo=" + itemNo +
+	// 	"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo=" + paymentOrderNo
+	// 	+ "&customer=" + customer + "&projectName=" + projectName + "&sailesInvoiceNo=" + sailesInvoiceNo+ "&pname=" + pname;
+	var url = `stockStatisticss?pageNo=${encodeURIComponent(pageNo)}&pageSize=${encodeURIComponent(size)}&searchArea=${encodeURIComponent(area)}&type=${encodeURIComponent(type)}&start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}&revoke=${encodeURIComponent(revoke)}&confirm=${encodeURIComponent(confirm)}&userId=&ssC=${encodeURIComponent(ssC)}&name=${encodeURIComponent(name)}&model=${encodeURIComponent(model)}&supplier=${encodeURIComponent(supplier)}&itemNo=${encodeURIComponent(itemNo)}&purchaseInvoiceNo=${encodeURIComponent(purchaseInvoiceNo)}&purchaseInvoiceDate=${encodeURIComponent(purchaseInvoiceDate)}&paymentOrderNo=${encodeURIComponent(paymentOrderNo)}&customer=${encodeURIComponent(customer)}&projectName=${encodeURIComponent(projectName)}&sailesInvoiceNo=${encodeURIComponent(sailesInvoiceNo)}&pname=${encodeURIComponent(pname)}`;
+	window.location.href = url ;
 }
 
 function searchBo() {

@@ -1,5 +1,6 @@
 package zhongchiedu.controller.inventory;
 
+import java.beans.PropertyEditorSupport;
 import java.io.File;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -16,16 +17,13 @@ import javax.servlet.http.HttpSession;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.propertyeditors.CustomDateEditor;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -100,7 +98,6 @@ public class StockStatisticsController {
 //			@RequestParam(value = "ssC", defaultValue = "") String ssC
 			)throws JsonProcessingException {
 		// 区域
-
 		if(Common.isEmpty(requestBo.getRevoke()))
 			requestBo.setRevoke("2");
 		List<Area> areas = this.areaService.findAllArea(false);
@@ -681,24 +678,27 @@ public class StockStatisticsController {
 			return new BasicDataResult(200, "修改统计数据成功", "");
 		
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
+
+
+
+
 }
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
