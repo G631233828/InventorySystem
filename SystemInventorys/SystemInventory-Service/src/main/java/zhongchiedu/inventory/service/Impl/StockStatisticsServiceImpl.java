@@ -612,6 +612,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 									Common.isEmpty(st.getStock().getModel()) ? "" : st.getStock().getModel());
 							in.put("price", Common.isEmpty(st.getStock().getPrice()) ? "" : st.getStock().getPrice());
 							in.put("inprice", Common.isEmpty(st.getInprice()) ? "" : st.getInprice());
+							in.put("description",Common.isEmpty(st.getDescription())?"":st.getDescription());
 							in.put("unit",
 									Common.isEmpty(st.getStock().getUnit()) ? "" : st.getStock().getUnit().getName());
 							in.put("depotTime", st.getStorageTime());
@@ -650,6 +651,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 							out.put("customer", Common.isEmpty(st.getCustomer()) ? "" : st.getCustomer());
 							out.put("purchaseInvoiceDate",
 									Common.isEmpty(st.getPurchaseInvoiceDate()) ? "" : st.getPurchaseInvoiceDate());
+							out.put("description",Common.isEmpty(st.getDescription())?"":st.getDescription());
 							outlist.add(out);
 
 						}

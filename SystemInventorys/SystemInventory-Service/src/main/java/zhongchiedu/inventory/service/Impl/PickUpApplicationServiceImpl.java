@@ -104,7 +104,7 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 			}
 			
 			if (!orCriteriaList.isEmpty()) {
-			    Criteria orCriteria = new Criteria().orOperator(orCriteriaList.toArray(new Criteria[0]));
+			    Criteria orCriteria = new Criteria().andOperator(orCriteriaList.toArray(new Criteria[0]));
 			    query.addCriteria(orCriteria);
 			}
 			query.addCriteria(Criteria.where("isDisable").is(false));
