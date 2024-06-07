@@ -109,9 +109,10 @@ public class Common {
 	 */
 	public static boolean isNotEmpty(Object s) {
 		if (null == s || "".equals(s) || "".equals(String.valueOf(s).trim())
-				|| "null".equalsIgnoreCase(String.valueOf(s))) {
+				|| "null".equalsIgnoreCase(String.valueOf(s)) || "NaN".equalsIgnoreCase(String.valueOf(s)) || "undefined".equalsIgnoreCase(String.valueOf(s))) {
 			return false;
-		} else {
+		}
+		else {
 			return true;
 		}
 	}
