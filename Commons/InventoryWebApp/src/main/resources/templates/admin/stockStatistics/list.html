@@ -409,8 +409,8 @@
 													th:style="${#lists.contains(listColums,'revokeNum')}?'':'display:none;'">撤销数量</th>
 												<th class="numeric personInCharge"
 													th:style="${#lists.contains(listColums,'personInCharge')}?'':'display:none;'">负责人</th>
-												<th class="numeric projectName"
-													th:style="${#lists.contains(listColums,'projectName')}?'':'display:none;'">用于项目</th>
+											<!-- 	<th class="numeric projectName"
+													th:style="${#lists.contains(listColums,'projectName')}?'':'display:none;'">用于项目</th> -->
 												<!--												<th class="numeric customer"-->
 												<!--													th:style="${#lists.contains(listColums,'customer')}?'':'display:none;'">客户</th>-->
 												<th class="numeric newCustomer"
@@ -530,9 +530,9 @@
 													<td class="numeric personInCharge" id="personInCharge"
 														th:style="${#lists.contains(listColums,'personInCharge')}?'':'display:none;'"
 														th:text="${stockStatistics?.pname?.pm != null}?${stockStatistics?.pname?.pm}:'--------'"></td>
-													<td class="numeric projectName" id="projectName"
+													<!-- <td class="numeric projectName" id="projectName"
 														th:style="${#lists.contains(listColums,'projectName')}?'':'display:none;'"
-														th:text="${stockStatistics.projectName != null}?${stockStatistics?.projectName}:'--------'"></td>
+														th:text="${stockStatistics.projectName != null}?${stockStatistics?.projectName}:'--------'"></td> -->
 													<!--													<td class="numeric customer" id="customer"-->
 													<!--														th:style="${#lists.contains(listColums,'customer')}?'':'display:none;'"-->
 													<!--														th:title="${stockStatistics?.customer}"-->
@@ -732,8 +732,8 @@
 														th:style="${#lists.contains(listColums,'revokeNum')}?'':'display:none;'"></th>
 													<th class="numeric personInCharge"
 														th:style="${#lists.contains(listColums,'personInCharge')}?'':'display:none;'"></th>
-													<th class="numeric projectName"
-														th:style="${#lists.contains(listColums,'projectName')}?'':'display:none;'"></th>
+													<!-- <th class="numeric projectName"
+														th:style="${#lists.contains(listColums,'projectName')}?'':'display:none;'"></th> -->
 													<th class="numeric customer"
 														th:style="${#lists.contains(listColums,'customer')}?'':'display:none;'"></th>
 													<th class="numeric accepter"

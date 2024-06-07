@@ -317,8 +317,8 @@
                                         </th>
                                         <!-- <th class="numeric receivables"
                                             th:style="${#lists.contains(listColums,'receivables')}?'':'display:none;'">应收款</th> -->
-                                        <th class="numeric agent"
-                                            th:style="${#lists.contains(listColums,'agent')}?'':'display:none;'">代理商品
+                                  <!--       <th class="numeric agent"
+                                            th:style="${#lists.contains(listColums,'agent')}?'':'display:none;'">代理商品 -->
                                         </th>
                                         <th class="numeric unit"
                                             th:style="${#lists.contains(listColums,'unit')}?'':'display:none;'">计量单位
@@ -334,14 +334,14 @@
                                         <th class="numeric remainingNum"
                                             th:style="${#lists.contains(listColums,'remainingNum')}?'':'display:none;'">剩余可出库数量
                                         </th>
-                                        <th class="numeric email"
-                                            th:style="${#lists.contains(listColums,'email')}?'':'display:none;'">供应商邮箱
+                                      <!--   <th class="numeric email"
+                                            th:style="${#lists.contains(listColums,'email')}?'':'display:none;'">供应商邮箱 -->
                                         </th>
                                         <th class="numeric ssC"
                                             th:style="${#lists.contains(listColums,'ssC')}?'':'display:none;'">分类
                                         </th>
 
-                                        <th class="numeric">使用状态</th>
+                                      <!--   <th class="numeric">使用状态</th> -->
                                         <th class="numeric">操作</th>
                                     </tr>
                                     </thead>
@@ -393,12 +393,12 @@
                                                 th:style="${#lists.contains(listColums,'price')}?'':'display:none;'">
                                                 [[${stock?.price}]]
                                             </td>
-                                            <td class="numeric agent" id="agent"
+                                     <!--        <td class="numeric agent" id="agent"
                                                 th:style="${#lists.contains(listColums,'agent')}?'':'display:none;'">
                                                 <label
                                                         th:style="${stock?.agent }?'color:green':'color:red'">[[${stock?.agent
                                                     }?'是':'否']] </label>
-                                            </td>
+                                            </td> -->
                                             <td class="numeric unit" id="unit"
                                                 th:style="${#lists.contains(listColums,'unit')}?'':'display:none;'">
                                                 [[${stock?.unit?.name}]]
@@ -422,31 +422,42 @@
                                                 <label
                                                         th:style="${stock?.remainingNum > 5}?'color:green':${stock?.remainingNum == 0?'color:red':'color:blue'}">[[${stock?.remainingNum}]]</label>
                                             </td>
-                                            <td class="numeric email" id="email"
+                                       <!--      <td class="numeric email" id="email"
                                                 th:style="${#lists.contains(listColums,'email')}?'':'display:none;'">
                                                 [[${stock?.supplier?.email}]]
-                                            </td>
+                                            </td> -->
 
                                             <td class="numeric ssC" id="ssC"
                                                 th:style="${#lists.contains(listColums,'ssC')}?'':'display:none;'">
                                                 [[${stock?.systemClassification?.name}]]
                                             </td>
 
-                                            <td class="numeric" th:id="disBtn+${stock.id}"
-                                                th:utext="${stock.isDisable eq true }?|<button type='button' onclick=toDisable('${stock.id}','stock') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${stock.id}','stock') class='btn btn-success'>启用</button>|"></td>
+                                            <!-- <td class="numeric" th:id="disBtn+${stock.id}"
+                                                th:utext="${stock.isDisable eq true }?|<button type='button' onclick=toDisable('${stock.id}','stock') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${stock.id}','stock') class='btn btn-success'>启用</button>|"></td> -->
                                             <td class="numeric">
 
                                                 <shiro:hasPermission name="preStock:in">
-                                                    <button class="btn source btn-xs" title="库存预入库"
+                                                   
+                                                </shiro:hasPermission>
+                                                 <shiro:hasPermission name="stock:copy">
+                                                  <button class="btn source btn-xs" title="库存预入库"
                                                             th:onclick="|return topreStock('${stock?.id}')|">
                                                         <i class="entypo-download"> </i>
                                                     </button>
-                                                </shiro:hasPermission>
-                                                 <shiro:hasPermission name="stock:copy">
                                                     <button class="btn source btn-xs" title="复制"
                                                             th:onclick="|return copyStock('${stock?.name}','${stock?.id}')|">
                                                         <i class="fontawesome-paste"> </i>
                                                     </button>
+                                                         <button class="btn btn-default btn-sm" title="下载出库二维码"
+                                                        th:onclick="|return toDownloadQRcode('${stock?.id}')|">
+                                                    <i class="fontawesome-cloud-download"> </i>
+
+                                                </button>
+                                                <button class="btn btn-default btn-sm" title="出库二维码"
+                                                        th:onclick="|return showQRCode('${stock?.id}','${stock?.name}')|">
+                                                    <i class="icon icon-view-thumb"> </i>
+
+                                                </button>
                                                 </shiro:hasPermission>
                                                 <shiro:hasPermission
                                                         name="stockStatistics:in">
@@ -467,18 +478,10 @@
                                                         <i class="fontawesome-share"> </i>
                                                     </button>
                                                 </shiro:hasPermission>
+                                                
 
 
-                                                <button class="btn btn-default btn-sm" title="下载出库二维码"
-                                                        th:onclick="|return toDownloadQRcode('${stock?.id}')|">
-                                                    <i class="fontawesome-cloud-download"> </i>
-
-                                                </button>
-                                                <button class="btn btn-default btn-sm" title="出库二维码"
-                                                        th:onclick="|return showQRCode('${stock?.id}','${stock?.name}')|">
-                                                    <i class="icon icon-view-thumb"> </i>
-
-                                                </button>
+                                           
 
 
                                                 <shiro:hasPermission name="stock:edit">
@@ -527,8 +530,8 @@
                                             th:style="${#lists.contains(listColums,'price')}?'':'display:none;'"></th>
                                         <!-- <th class="numeric receivables"
                                             th:style="${#lists.contains(listColums,'receivables')}?'':'display:none;'">应收款</th> -->
-                                        <th class="numeric agent"
-                                            th:style="${#lists.contains(listColums,'agent')}?'':'display:none;'"></th>
+                                  <!--       <th class="numeric agent"
+                                            th:style="${#lists.contains(listColums,'agent')}?'':'display:none;'"></th> -->
                                         <th class="numeric unit"
                                             th:style="${#lists.contains(listColums,'unit')}?'':'display:none;'"></th>
                                         <!-- 	<th class="numeric maintenance"
@@ -543,11 +546,11 @@
                                             th:style="${#lists.contains(listColums,'remainingNum')}?'':'display:none;'">
                                             [[${#aggregates.sum(pageList?.datas.![remainingNum==null?0:remainingNum])}]]
                                         </th>
-                                        <th class="numeric email"
-                                            th:style="${#lists.contains(listColums,'email')}?'':'display:none;'"></th>
+                                      <!--   <th class="numeric email"
+                                            th:style="${#lists.contains(listColums,'email')}?'':'display:none;'"></th> -->
                                         <th class="numeric ssC"
                                             th:style="${#lists.contains(listColums,'ssC')}?'':'display:none;'"></th>
-                                        <th class="numeric"></th>
+                                       <!--  <th class="numeric"></th> -->
                                         <th class="numeric"></th>
                                     </tr>
                                     </thead>

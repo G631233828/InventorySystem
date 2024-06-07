@@ -289,8 +289,8 @@
                                         th:style="${#lists.contains(listColums,'acquantity')}?'':'display:none;'">实际入库数量</th>
                                     <th class="numeric eaquantity"
                                         th:style="${#lists.contains(listColums,'eaquantity')}?'':'display:none;'">剩余入库数量</th>
-                                    <th class="numeric inprice"
-                                        th:style="${#lists.contains(listColums,'inprice')}?'':'display:none;'">入库总金额</th>
+                                  <!--   <th class="numeric inprice"
+                                        th:style="${#lists.contains(listColums,'inprice')}?'':'display:none;'">入库总金额</th> -->
 <!--                                    <th class="numeric purchaseInvoiceNo"-->
 <!--                                        th:style="${#lists.contains(listColums,'purchaseInvoiceNo')}?'':'display:none;'">采购发票号</th>-->
 <!--                                    <th class="numeric purchaseInvoiceDate"-->
@@ -346,12 +346,12 @@
                                             th:style="${#lists.contains(listColums,'eaquantity')}?'':'display:none;'">
                                             [[${stock?.estimatedInventoryQuantity}-${stock?.actualReceiptQuantity}]]
                                         </td>
-                                        <td class="numeric inprice" th:id="|inprice_${stock?.id}|"
+                                        <!-- <td class="numeric inprice" th:id="|inprice_${stock?.id}|"
                                             th:style="${#lists.contains(listColums,'inprice')}?'':'display:none;'"
                                             th:ondblclick="|return change('${stock?.id}','inprice')|"
                                             th:text="${stock?.inprice != 0.0}?${stock?.inprice}:'0.0'">
 
-                                        </td>
+                                        </td> -->
 <!--                                        <td class="numeric purchaseInvoiceNo" th:id="|purchaseInvoiceNo_${stock?.id}|"-->
 <!--                                            th:ondblclick="|return change('${stock?.id}','purchaseInvoiceNo')|"-->
 <!--                                            th:style="${#lists.contains(listColums,'purchaseInvoiceNo')}?'':'display:none;'">[[${stock?.purchaseInvoiceNo}]]</td>-->
@@ -447,9 +447,9 @@
                                         th:style="${#lists.contains(listColums,'acquantity')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![actualReceiptQuantity==null?0:actualReceiptQuantity])}]]</th>
                                     <th class="numeric eaquantity"
                                         th:style="${#lists.contains(listColums,'eaquantity')}?'':'display:none;'"></th>
-                                    <th class="numeric inprice"
+                                   <!--  <th class="numeric inprice"
                                         th:style="${#lists.contains(listColums,'inprice')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![inprice==null?0:inprice])}]]</th>
-                                    <th class="numeric purchaseInvoiceNo"
+                                    --> <th class="numeric purchaseInvoiceNo"
                                         th:style="${#lists.contains(listColums,'purchaseInvoiceNo')}?'':'display:none;'"></th>
                                     <th class="numeric purchaseInvoiceDate"
                                         th:style="${#lists.contains(listColums,'purchaseInvoiceDate')}?'':'display:none;'"></th>

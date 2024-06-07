@@ -590,7 +590,7 @@ public class PickUpApplicationController {
 		// 出库成功清除session
 		session.removeAttribute(Contents.STOCK_LIST);
 
-		return new BasicDataResult(200, "批量出库成功!", list);
+		return new BasicDataResult(200, "批量预出库成功!", list);
 	}
 
 	/**
@@ -702,7 +702,7 @@ public class PickUpApplicationController {
 				// 创建通知
 				InventoryRole inventoryRole = this.inventoryRoleService.findByType("HANDLER");
 				if (Common.isEmpty(inventoryRole)) {
-					errorMsg.append("批量出库成功，未获得绑定微信人员信息<BR/>");
+					errorMsg.append("批量预出库成功，未获得绑定微信人员信息<BR/>");
 					//return new BasicDataResult().build(200, "出库成功", "未获得绑定微信人员信息");
 				}
 				List<User> users = inventoryRole.getUsers();

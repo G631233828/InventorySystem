@@ -82,7 +82,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 	@Autowired
 	private SignService signService;
-	
+
 	@Autowired
 	private SupplierService supplierService;
 
@@ -91,15 +91,13 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 	@Autowired
 	private NewCustomerServiceImpl newCustomerService;
-	
+
 	@Autowired
 	private PickUpApplicationService pickUpApplicationService;
-	
+
 	@Autowired
 	@Lazy
 	private MonthEndStatisticsService monthEndStatisticsService;
-
-
 
 	@Value("${qrcode.weburl}")
 	private String weburl;
@@ -117,7 +115,8 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	@Override
 	@SystemServiceLog(description = "分页查询库存统计信息")
 	public Pagination<StockStatistics> findpagination(Integer pageNo, Integer pageSize, String search, String start,
-			String end, String type, String id, String searchArea, String searchAgent,String userId,String revoke,String confirm,String ssC) {
+			String end, String type, String id, String searchArea, String searchAgent, String userId, String revoke,
+			String confirm, String ssC) {
 
 		// 分页查询数据
 		Pagination<StockStatistics> pagination = null;
@@ -136,14 +135,14 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			if (Common.isNotEmpty(userId)) {
 				query = query.addCriteria(Criteria.where("financeUser.$id").is(new ObjectId(userId)));
 			}
-			if(Common.isNotEmpty(revoke)) {
-				if(revoke.equals("1")) {
+			if (Common.isNotEmpty(revoke)) {
+				if (revoke.equals("1")) {
 					query.addCriteria(Criteria.where("revoke").is(true));
-				}else if(revoke.equals("2")) {
+				} else if (revoke.equals("2")) {
 					query.addCriteria(Criteria.where("revoke").is(false));
 				}
 			}
-			query = this.findbySearch(search, start, end, type, query, searchArea,ssC);
+			query = this.findbySearch(search, start, end, type, query, searchArea, ssC);
 			query.with(new Sort(new Order(Direction.DESC, "createTime")));
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, StockStatistics.class);
 			if (pagination == null)
@@ -155,15 +154,15 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		return pagination;
 	}
 
-	public Pagination<StockStatistics> findpagination(Integer pageNo, Integer pageSize, RequestBo requestBo){
+	public Pagination<StockStatistics> findpagination(Integer pageNo, Integer pageSize, RequestBo requestBo) {
 		// 分页查询数据
 		Pagination<StockStatistics> pagination = null;
 		try {
-			Query query=newQueryByRequestBo(requestBo);
-			if(Common.isNotEmpty(requestBo.getRevoke())) {
-				if(requestBo.getRevoke().equals("1")) {
+			Query query = newQueryByRequestBo(requestBo);
+			if (Common.isNotEmpty(requestBo.getRevoke())) {
+				if (requestBo.getRevoke().equals("1")) {
 					query.addCriteria(Criteria.where("revoke").is(true));
-				}else if(requestBo.getRevoke().equals("2")) {
+				} else if (requestBo.getRevoke().equals("2")) {
 					query.addCriteria(Criteria.where("revoke").is(false));
 				}
 			}
@@ -179,12 +178,13 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	}
 
 	@SystemServiceLog(description = "条件查询库统计信息")
-	public Query findbySearch(String search, String start, String end, String type, Query query, String areaId,String ssC) {
+	public Query findbySearch(String search, String start, String end, String type, Query query, String areaId,
+			String ssC) {
 		Criteria ca = new Criteria();
 		Criteria ca1 = new Criteria();
 		Criteria ca2 = new Criteria();
 		Criteria ca3 = new Criteria();
-		end=end+" 23:59:59";
+		end = end + " 23:59:59";
 		if (type.equals("in")) {
 			query.addCriteria(Criteria.where("inOrOut").is(true));
 		} else if (type.equals("out")) {
@@ -194,9 +194,9 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		if (Common.isNotEmpty(areaId)) {
 			query = query.addCriteria(Criteria.where("area.$id").is(new ObjectId(areaId)));
 		}
-		List<Object> stockIdByssC=null;
-		if(Common.isNotEmpty(ssC)){
-			stockIdByssC=findStocksByssCId(ssC);
+		List<Object> stockIdByssC = null;
+		if (Common.isNotEmpty(ssC)) {
+			stockIdByssC = findStocksByssCId(ssC);
 			ca3.orOperator(Criteria.where("stock.$id").in(stockIdByssC));
 		}
 		if (Common.isNotEmpty(search)) {
@@ -207,12 +207,9 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 					Criteria.where("projectName").regex(search), Criteria.where("customer").regex(search),
 					Criteria.where("sailesInvoiceNo").regex(search), Criteria.where("inprice").regex(search),
 					Criteria.where("purchaseInvoiceNo").regex(search), Criteria.where("receiptNo").regex(search),
-					Criteria.where("newItemNo").regex(search),
-					Criteria.where("outboundOrder").regex(search),
-					Criteria.where("accepter").regex(search),
-					Criteria.where("paymentOrderNo").regex(search));
+					Criteria.where("newItemNo").regex(search), Criteria.where("outboundOrder").regex(search),
+					Criteria.where("accepter").regex(search), Criteria.where("paymentOrderNo").regex(search));
 		}
-
 
 		if (Common.isNotEmpty(start) && Common.isNotEmpty(end)) {
 			ca2.orOperator(Criteria.where("storageTime").gte(start).lte(end),
@@ -220,9 +217,9 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 //					,
 //					Criteria.where("editFinanceTime").gte(start).lte(end),
 //					Criteria.where("sailesInvoiceDate").gte(start).lte(end)
-					);
+			);
 		}
-		query.addCriteria(ca.andOperator(ca1, ca2,ca3));
+		query.addCriteria(ca.andOperator(ca1, ca2, ca3));
 
 		query.addCriteria(Criteria.where("isDelete").is(false));
 
@@ -242,12 +239,9 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		Query query = new Query();
 		List<Object> findSupplierIds = this.supplierService.findSupplierIds(search);
 		Criteria ca = new Criteria();
-		ca.orOperator(
-				Criteria.where("entryName").regex(search), Criteria.where("itemNo").regex(search),
-				Criteria.where("name").regex(search,"i"),
-				Criteria.where("supplier.$id").in(findSupplierIds),
-				Criteria.where("projectLeader").regex(search),
-				Criteria.where("model").regex(search,"i"));
+		ca.orOperator(Criteria.where("entryName").regex(search), Criteria.where("itemNo").regex(search),
+				Criteria.where("name").regex(search, "i"), Criteria.where("supplier.$id").in(findSupplierIds),
+				Criteria.where("projectLeader").regex(search), Criteria.where("model").regex(search, "i"));
 //				Criteria.where("model").regex("^" +search.replace("*",".*") + "$", "i"));
 		query.addCriteria(ca);
 //		query.addCriteria(Criteria.where("isDelete").is(false));  添加此条件，则被删除的库存无法在库存统计中显示
@@ -260,11 +254,11 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	}
 
 	@SystemServiceLog(description = "根据分类的id查询stock")
-	public List<Object> findStocksByssCId(String ssC){
+	public List<Object> findStocksByssCId(String ssC) {
 		List<Object> list = new ArrayList<>();
 		Query query = new Query();
 		query = query.addCriteria(Criteria.where("systemClassification.$id").is(new ObjectId(ssC)));
-		List<Stock> lists=this.stockService.find(query,Stock.class);
+		List<Stock> lists = this.stockService.find(query, Stock.class);
 		for (Stock li : lists) {
 //			System.out.println(li.getId()+":"+li.getName());
 			list.add(new ObjectId(li.getId()));
@@ -311,49 +305,46 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	@Override
 	@SystemServiceLog(description = "库存出库入库")
 	public BasicDataResult inOrOutstockStatistics(StockStatistics stockStatistics, User user) {
-		long num =0;
-		if(stockStatistics.isRevoke()) {
-			num = stockStatistics.getNum();//获取到撤销数量
-			//如果撤销数量为0 说明是撤销全部
-			if(num == 0) {
+		long num = 0;
+		if (stockStatistics.isRevoke()) {
+			num = stockStatistics.getNum();// 获取到撤销数量
+			// 如果撤销数量为0 说明是撤销全部
+			if (num == 0) {
 				num = stockStatistics.getNum();
 			}
-		}else {
+		} else {
 			num = stockStatistics.getNum();
 			if (num <= 0) {
 				return BasicDataResult.build(400, "操作的数据有误！", null);
 			}
 		}
-		
+
 		String id = stockStatistics.getStock().getId();// 获取库存设备id
 		Stock stock = this.stockService.findOneById(id, Stock.class);
-	
-		
-		
+
 		if (stock != null) {
-			
+
 			long ycknum = 0;
 			long acnum = 0;
-			if(!stockStatistics.isPreStock()&&!stockStatistics.isInOrOut()) {
+			if (!stockStatistics.isPreStock() && !stockStatistics.isInOrOut()) {
 				if (!stockStatistics.isYck()) {
-					List<PickUpApplication> pickUpApplication = this.pickUpApplicationService.findPickUpApplicationsByStockId(stock.getId());
-					ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0, Long::sum);
+					List<PickUpApplication> pickUpApplication = this.pickUpApplicationService
+							.findPickUpApplicationsByStockId(stock.getId());
+					ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity)
+							.reduce((long) 0, Long::sum);
 
-					acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((long) 0, Long::sum);
+					acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((long) 0,
+							Long::sum);
 
 					ycknum = ycknum - acnum;
-					
+
 					if (stock.getInventory() - ycknum - num < 0) {
 						// 出货数量不够
 						return BasicDataResult.build(400, "货物库存数量不足", null);
 					}
 				}
 
-				
 			}
-			
-			
-			
 
 //			stock.setDescription(stockStatistics.getDescription());
 			stockStatistics.setUser(user);
@@ -366,7 +357,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				long newNum = this.updateStock(stock, num, true);
 				stockStatistics.setStorageTime(Common.fromDateH());
 				stockStatistics.setNewNum(newNum);
-				stockStatistics.setRemainingNum( newNum- ycknum);
+				stockStatistics.setRemainingNum(newNum - ycknum);
 				lockInsert(stockStatistics);
 
 				return BasicDataResult.build(200, "商品入库成功", stockStatistics);
@@ -378,7 +369,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 					// 出货数量不够
 					return BasicDataResult.build(400, "货物库存数量不足", null);
 				}
-				stockStatistics.setRemainingNum( newNum- ycknum);
+				stockStatistics.setRemainingNum(newNum - ycknum);
 				stockStatistics.setDepotTime(Common.fromDateH());
 				stockStatistics.setNewNum(newNum);
 				lockInsert(stockStatistics);
@@ -438,27 +429,27 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	}
 
 	@SystemServiceLog(description = "撤销预入库信息")
-	public long updatePreStock(Stock stock, long num, boolean inOrOut,StockStatistics st) {
+	public long updatePreStock(Stock stock, long num, boolean inOrOut, StockStatistics st) {
 		lock.lock();
 		long oldnum = stock.getInventory();
 		long newnum = 0;
 		try {
-				// 撤销入库
-				if ((oldnum - num) < 0) {
-					return -1;
-				}
-				if(st.isPreStock()){
-				PreStock preStock=preStockService.findOneById(st.getPreStockId(),PreStock.class);
-				long renum=preStock.getActualReceiptQuantity()-num;
+			// 撤销入库
+			if ((oldnum - num) < 0) {
+				return -1;
+			}
+			if (st.isPreStock()) {
+				PreStock preStock = preStockService.findOneById(st.getPreStockId(), PreStock.class);
+				long renum = preStock.getActualReceiptQuantity() - num;
 				preStock.setActualReceiptQuantity(renum);
 				preStock.setStatus(1);
 				this.preStockService.save(preStock);
-				}
-				newnum = oldnum - num;
-				stock.setInventory(newnum);
-				stock.setIsDelete(false);
-				this.stockService.save(stock);
-				return newnum;
+			}
+			newnum = oldnum - num;
+			stock.setInventory(newnum);
+			stock.setIsDelete(false);
+			this.stockService.save(stock);
+			return newnum;
 
 		} finally {
 			lock.unlock();
@@ -466,10 +457,9 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 	}
 
-
 	@Override
 	@SystemServiceLog(description = "撤销库存信息")
-	public BasicDataResult revoke(String id,long num,User user) {
+	public BasicDataResult revoke(String id, long num, User user) {
 		StockStatistics st = this.findOneById(id, StockStatistics.class);
 		if (st.isRevoke()) {
 			return BasicDataResult.build(400, "该信息已经撤销，不能重复撤销", null);
@@ -478,52 +468,47 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		if (st.getStock() == null) {
 			return BasicDataResult.build(400, "未能获取到设备信息", null);
 		}
-		if(num == 0) {
+		if (num == 0) {
 			num = st.getNum();
 		}
-		
-		if(num>st.getNum()) {
+
+		if (num > st.getNum()) {
 			return BasicDataResult.build(400, "撤销出库数量不能大于出库数量", null);
 		}
-		
-		
+
 		String stockId = st.getStock().getId();
 		Stock stock = this.stockService.findOneById(stockId, Stock.class);
 		if (stock == null) {
 			return BasicDataResult.build(400, "未能获取到设备信息", null);
 		}
 
-		
-		
-		
 		long newNum = 0L;
 		if (Common.isNotEmpty(st.getStorageTime())) {
 			// 撤销入库
 			st.setDescription("<label style=\"color:red\">来源：撤销入库</label>");
 			st.setByRevoke(true);
-			newNum = this.updatePreStock(stock, st.getNum(), false,st);
+			newNum = this.updatePreStock(stock, st.getNum(), false, st);
 			if (newNum == -1) {
 				// 出货数量不够
 				return BasicDataResult.build(400, "货物库存数量不足,无法撤销入库", null);
 			}
-			//更新统计
+			// 更新统计
 			st.setRevoke(true);
-			st.setRevokeNum(st.getRevokeNum()+num);
-			
+			st.setRevokeNum(st.getRevokeNum() + num);
+
 			StockStatistics stockStatistics = updateStockStatistics(st);
-			
+
 			if (stockStatistics != null) {
 //				StockStatistics revoke = new StockStatistics();
 //				revoke.setRevokeNum(stockStatistics.getRevokeNum());
-	//
+				//
 				return BasicDataResult.build(200, "撤销成功", stockStatistics);
 			}
-			
-			
+
 		} else {
 			// 撤销出库
-			//newNum = this.updateStock(stock, st.getNum(), true);
-			//执行入库统计记录
+			// newNum = this.updateStock(stock, st.getNum(), true);
+			// 执行入库统计记录
 			StockStatistics getst = new StockStatistics();
 			getst.setInOrOut(true);
 			getst.setRevoke(true);
@@ -534,25 +519,23 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			getst.setDescription("<label style=\"color:red\">来源：撤销出库</label>");
 			BasicDataResult inOrOutstockStatistics = this.inOrOutstockStatistics(getst, user);
 			StockStatistics newst = (StockStatistics) inOrOutstockStatistics.getData();
-			//更新统计
-			st.setRevoke((st.getNum()-num)<=0);
-			st.setNum(st.getNum()-num);
-			st.setRevokeNum(st.getRevokeNum()+num);
+			// 更新统计
+			st.setRevoke((st.getNum() - num) <= 0);
+			st.setNum(st.getNum() - num);
+			st.setRevokeNum(st.getRevokeNum() + num);
 //			st.setDepotTime(Common.fromDateH());
 			st.setNewNum(newst.getNewNum());
-			
+
 			StockStatistics stockStatistics = updateStockStatistics(st);
-			
+
 			if (stockStatistics != null) {
 //				StockStatistics revoke = new StockStatistics();
 //				revoke.setRevokeNum(stockStatistics.getRevokeNum());
-	//
+				//
 				return BasicDataResult.build(200, "撤销成功", stockStatistics);
 			}
 		}
-		
-		
-	
+
 //		
 //		if (stockStatistics != null) {
 //			StockStatistics revoke = new StockStatistics();
@@ -563,7 +546,6 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		return BasicDataResult.build(400, "撤销过程中出现未知异常", null);
 
 	}
-
 
 	@Override
 	@SystemServiceLog(description = "核对信息")
@@ -601,14 +583,14 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 //		List<StockStatistics> list = this.findStockStatistics(search, start, end, type, areaId, searchAgent);
 
 		Query querys = new Query();
-		querys=this.stockService.findByRequestBo(requestBo,querys);
+		querys = this.stockService.findByRequestBo(requestBo, querys);
 //		querys.addCriteria(Criteria.where("isDelete").is(false));
-		List<Stock> listStock=this.stockService.find(querys,Stock.class);
+		List<Stock> listStock = this.stockService.find(querys, Stock.class);
 
-		//获取所有的库存统计数据
-		Query query=newQueryByRequestBo(requestBo);
+		// 获取所有的库存统计数据
+		Query query = newQueryByRequestBo(requestBo);
 		query.addCriteria(Criteria.where("revoke").is(false));
-		List<StockStatistics> list=this.find(query,StockStatistics.class);
+		List<StockStatistics> list = this.find(query, StockStatistics.class);
 
 		List<Map<String, Object>> inlist = new ArrayList<>();
 		List<Map<String, Object>> outlist = new ArrayList<>();
@@ -634,16 +616,16 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 									Common.isEmpty(st.getStock().getUnit()) ? "" : st.getStock().getUnit().getName());
 							in.put("depotTime", st.getStorageTime());
 							in.put("num", st.getNum());
-							in.put("purchaseInvoiceNo", Common.isEmpty(st.getPurchaseInvoiceNo()) ? ""
-									: st.getPurchaseInvoiceNo());
+							in.put("purchaseInvoiceNo",
+									Common.isEmpty(st.getPurchaseInvoiceNo()) ? "" : st.getPurchaseInvoiceNo());
 
-							in.put("newItemNo",Common.isEmpty(st.getNewItemNo()) ? "" : st.getNewItemNo());
-							in.put("paymentOrderNo", Common.isEmpty(st.getPaymentOrderNo()) ? ""
-									: st.getPaymentOrderNo());
+							in.put("newItemNo", Common.isEmpty(st.getNewItemNo()) ? "" : st.getNewItemNo());
+							in.put("paymentOrderNo",
+									Common.isEmpty(st.getPaymentOrderNo()) ? "" : st.getPaymentOrderNo());
 							in.put("supplier", Common.isEmpty(st.getStock().getSupplier()) ? ""
 									: st.getStock().getSupplier().getName());
-							in.put("purchaseInvoiceDate", Common.isEmpty(st.getPurchaseInvoiceDate()) ? ""
-									: st.getPurchaseInvoiceDate());
+							in.put("purchaseInvoiceDate",
+									Common.isEmpty(st.getPurchaseInvoiceDate()) ? "" : st.getPurchaseInvoiceDate());
 							inlist.add(in);
 						} else {
 							Map<String, Object> out = new HashMap<>();
@@ -661,15 +643,13 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 							out.put("num", st.getNum());
 							out.put("sailesInvoiceNo",
 									Common.isEmpty(st.getSailesInvoiceNo()) ? "" : st.getSailesInvoiceNo());
-							out.put("sailPrice",
-									Common.isEmpty(st.getSailPrice()) ? "" : st.getSailPrice());
+							out.put("sailPrice", Common.isEmpty(st.getSailPrice()) ? "" : st.getSailPrice());
 							out.put("sailesInvoiceDate",
 									Common.isEmpty(st.getSailesInvoiceDate()) ? "" : st.getSailesInvoiceDate());
-							out.put("receiptNo",
-									Common.isEmpty(st.getReceiptNo()) ? "" : st.getReceiptNo());
+							out.put("receiptNo", Common.isEmpty(st.getReceiptNo()) ? "" : st.getReceiptNo());
 							out.put("customer", Common.isEmpty(st.getCustomer()) ? "" : st.getCustomer());
-							out.put("purchaseInvoiceDate", Common.isEmpty(st.getPurchaseInvoiceDate()) ? ""
-									: st.getPurchaseInvoiceDate());
+							out.put("purchaseInvoiceDate",
+									Common.isEmpty(st.getPurchaseInvoiceDate()) ? "" : st.getPurchaseInvoiceDate());
 							outlist.add(out);
 
 						}
@@ -703,16 +683,17 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 	@Override
 	@SystemServiceLog(description = "导出适配金蝶的报表")
-	public Workbook toJD(HttpServletRequest request,RequestBo requestBo) {
-		Query query=new Query();
+	public Workbook toJD(HttpServletRequest request, RequestBo requestBo) {
+		Query query = new Query();
 		Criteria ca = new Criteria();
-		List<Stock> listStock=null;
-		if(!requestBo.isEmpty()){
+		List<Stock> listStock = null;
+		if (!requestBo.isEmpty()) {
 			Query querys = new Query();
-			querys=this.stockService.findByRequestBo(requestBo,querys);
-			listStock=this.stockService.find(querys,Stock.class);
-			List<Object> stockids=listStock.stream().map(stock -> new ObjectId(stock.getId())).collect(Collectors.toList());
-			query=query.addCriteria(Criteria.where("stock.$id").in(stockids));
+			querys = this.stockService.findByRequestBo(requestBo, querys);
+			listStock = this.stockService.find(querys, Stock.class);
+			List<Object> stockids = listStock.stream().map(stock -> new ObjectId(stock.getId()))
+					.collect(Collectors.toList());
+			query = query.addCriteria(Criteria.where("stock.$id").in(stockids));
 		}
 		if (Common.isNotEmpty(requestBo.getId())) {
 			ca.orOperator(Criteria.where("stock.$id").is(new ObjectId(requestBo.getId())));
@@ -720,22 +701,23 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		if (Common.isNotEmpty(requestBo.getUserId())) {
 			ca.orOperator(Criteria.where("financeUser.$id").is(new ObjectId(requestBo.getUserId())));
 		}
-		if(Common.isNotEmpty(requestBo.getItemNo())){
-			query=query.addCriteria(Criteria.where("newItemNo").regex(requestBo.getItemNo(), "i"));
+		if (Common.isNotEmpty(requestBo.getItemNo())) {
+			query = query.addCriteria(Criteria.where("newItemNo").regex(requestBo.getItemNo(), "i"));
 		}
-		if(Common.isNotEmpty(requestBo.getPurchaseInvoiceNo())){
-			query=query.addCriteria(Criteria.where("purchaseInvoiceNo").regex(requestBo.getPurchaseInvoiceNo(), "i"));
+		if (Common.isNotEmpty(requestBo.getPurchaseInvoiceNo())) {
+			query = query.addCriteria(Criteria.where("purchaseInvoiceNo").regex(requestBo.getPurchaseInvoiceNo(), "i"));
 		}
-		if(Common.isNotEmpty(requestBo.getPaymentOrderNo())){
-			query=query.addCriteria(Criteria.where("paymentOrderNo").regex(requestBo.getPaymentOrderNo(), "i"));
+		if (Common.isNotEmpty(requestBo.getPaymentOrderNo())) {
+			query = query.addCriteria(Criteria.where("paymentOrderNo").regex(requestBo.getPaymentOrderNo(), "i"));
 		}
-		if(Common.isNotEmpty(requestBo.getPurchaseInvoiceDate())){
-			query=query.addCriteria(Criteria.where("purchaseInvoiceDate").regex(requestBo.getPurchaseInvoiceDate(), "i"));
+		if (Common.isNotEmpty(requestBo.getPurchaseInvoiceDate())) {
+			query = query
+					.addCriteria(Criteria.where("purchaseInvoiceDate").regex(requestBo.getPurchaseInvoiceDate(), "i"));
 		}
 		if (Common.isNotEmpty(requestBo.getConfirm())) {
 			query = query.addCriteria(Criteria.where("confirm").is(Boolean.valueOf(requestBo.getConfirm())));
 		}
-		if(Common.isNotEmpty(requestBo.getType())){
+		if (Common.isNotEmpty(requestBo.getType())) {
 			if (requestBo.getType().equals("in")) {
 				query.addCriteria(Criteria.where("inOrOut").is(true));
 			} else if (requestBo.getType().equals("out")) {
@@ -743,23 +725,22 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			}
 		}
 		if (Common.isNotEmpty(requestBo.getStart()) && Common.isNotEmpty(requestBo.getEnd())) {
-			String end=requestBo.getEnd();
-			end=end+" 23:59:59";
+			String end = requestBo.getEnd();
+			end = end + " 23:59:59";
 			Criteria ca1 = new Criteria();
 			ca1.orOperator(Criteria.where("storageTime").gte(requestBo.getStart()).lte(end),
-					Criteria.where("depotTime").gte(requestBo.getStart()).lte(end)
-			);
+					Criteria.where("depotTime").gte(requestBo.getStart()).lte(end));
 			ca.andOperator(ca1);
 		}
 		query.addCriteria(ca);
 		query.with(new Sort(new Order(Direction.DESC, "createTime")));
-		String end=requestBo.getEnd();
+		String end = requestBo.getEnd();
 		query.addCriteria(Criteria.where("revoke").is(false));
-		List<StockStatistics> list =this.find(query,StockStatistics.class);
+		List<StockStatistics> list = this.find(query, StockStatistics.class);
 		List<Map<String, Object>> inlist = new ArrayList<>();
 		List<Map<String, Object>> outlist = new ArrayList<>();
-		int inN=0;
-		int OutN=0;
+		int inN = 0;
+		int OutN = 0;
 		for (Stock stock : listStock) {
 			// 获取所有的设备
 			for (StockStatistics st : list) {
@@ -769,51 +750,53 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 						if (st.isInOrOut()) {
 							// 入库统计
 							Map<String, Object> in = new HashMap<>();
-							//设备名称+型号+计量单位
-							String str=(Common.isEmpty(st.getStock().getName()) ? "" : st.getStock().getName())
-									+(Common.isEmpty(st.getStock().getModel()) ? "" : st.getStock().getModel())
-									+(Common.isEmpty(st.getStock().getUnit()) ? "" : st.getStock().getUnit().getName());
+							// 设备名称+型号+计量单位
+							String str = (Common.isEmpty(st.getStock().getName()) ? "" : st.getStock().getName())
+									+ (Common.isEmpty(st.getStock().getModel()) ? "" : st.getStock().getModel())
+									+ (Common.isEmpty(st.getStock().getUnit()) ? ""
+											: st.getStock().getUnit().getName());
 
 							in.put("itemNo", Common.isEmpty(stock.getItemNo()) ? "" : stock.getItemNo());
 //							in.put("id", Common.isEmpty(st.getId()) ? "" : st.getId());
-							in.put("id",createIdByStr(str));
+							in.put("id", createIdByStr(str));
 							inN++;
-							in.put("dj",createDJ(end,inN,""));
-							in.put("cg","赊购");
+							in.put("dj", createDJ(end, inN, ""));
+							in.put("cg", "赊购");
 							in.put("area", Common.isEmpty(stock.getArea()) ? "" : stock.getArea().getName());
 							in.put("projectName", Common.isEmpty(st.getProjectName()) ? "" : st.getProjectName());
 							in.put("stockName", Common.isEmpty(st.getStock().getName()) ? "" : st.getStock().getName());
 							in.put("modelName",
 									Common.isEmpty(st.getStock().getModel()) ? "" : st.getStock().getModel());
 //							in.put("price", Common.isEmpty(st.getStock().getPrice()) ? "" : st.getStock().getPrice());
-							//单价=入库总金额/入库数量
-							in.put("price",devide(st.getInprice(),st.getNum()));
+							// 单价=入库总金额/入库数量
+							in.put("price", devide(st.getInprice(), st.getNum()));
 							in.put("unit",
 									Common.isEmpty(st.getStock().getUnit()) ? "" : st.getStock().getUnit().getName());
-							in.put("depotTime", st.getStorageTime().substring(0,10));
+							in.put("depotTime", st.getStorageTime().substring(0, 10));
 							in.put("num", st.getNum());
-							in.put("purchaseInvoiceNo", Common.isEmpty(st.getPurchaseInvoiceNo()) ? ""
-									: st.getPurchaseInvoiceNo());
+							in.put("purchaseInvoiceNo",
+									Common.isEmpty(st.getPurchaseInvoiceNo()) ? "" : st.getPurchaseInvoiceNo());
 							in.put("supplier", Common.isEmpty(st.getStock().getSupplier()) ? ""
 									: st.getStock().getSupplier().getName());
 
-							in.put("purchaseInvoiceDate", Common.isEmpty(st.getPurchaseInvoiceDate()) ? ""
-									: st.getPurchaseInvoiceDate());
+							in.put("purchaseInvoiceDate",
+									Common.isEmpty(st.getPurchaseInvoiceDate()) ? "" : st.getPurchaseInvoiceDate());
 
 							inlist.add(in);
 						} else {
 							Map<String, Object> out = new HashMap<>();
-							//设备名称+型号+计量单位
-							String str=(Common.isEmpty(st.getStock().getName()) ? "" : st.getStock().getName())
-									+(Common.isEmpty(st.getStock().getModel()) ? "" : st.getStock().getModel())
-									+(Common.isEmpty(st.getStock().getUnit()) ? "" : st.getStock().getUnit().getName());
+							// 设备名称+型号+计量单位
+							String str = (Common.isEmpty(st.getStock().getName()) ? "" : st.getStock().getName())
+									+ (Common.isEmpty(st.getStock().getModel()) ? "" : st.getStock().getModel())
+									+ (Common.isEmpty(st.getStock().getUnit()) ? ""
+											: st.getStock().getUnit().getName());
 
 							out.put("itemNo", Common.isEmpty(stock.getItemNo()) ? "" : stock.getItemNo());
 //							out.put("id", Common.isEmpty(st.getId()) ? "" : st.getId());
-							out.put("id",createIdByStr(str));
+							out.put("id", createIdByStr(str));
 							OutN++;
-							out.put("dj",createDJ(end,OutN,""));
-							out.put("fs","赊销");
+							out.put("dj", createDJ(end, OutN, ""));
+							out.put("fs", "赊销");
 							out.put("area", Common.isEmpty(stock.getArea()) ? "" : stock.getArea().getName());
 							out.put("projectName", Common.isEmpty(st.getProjectName()) ? "" : st.getProjectName());
 							out.put("stockName",
@@ -823,17 +806,16 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 							out.put("price", Common.isEmpty(st.getStock().getPrice()) ? "" : st.getStock().getPrice());
 							out.put("unit",
 									Common.isEmpty(st.getStock().getUnit()) ? "" : st.getStock().getUnit().getName());
-							out.put("depotTime", st.getDepotTime().substring(0,10));
+							out.put("depotTime", st.getDepotTime().substring(0, 10));
 							out.put("num", st.getNum());
 							out.put("sailesInvoiceNo",
 									Common.isEmpty(st.getSailesInvoiceNo()) ? "" : st.getSailesInvoiceNo());
 							out.put("sailesInvoiceDate",
 									Common.isEmpty(st.getSailesInvoiceDate()) ? "" : st.getSailesInvoiceDate());
-							out.put("receiptNo",
-									Common.isEmpty(st.getReceiptNo()) ? "" : st.getReceiptNo());
+							out.put("receiptNo", Common.isEmpty(st.getReceiptNo()) ? "" : st.getReceiptNo());
 							out.put("customer", Common.isEmpty(st.getCustomer()) ? "" : st.getCustomer());
-							out.put("purchaseInvoiceDate", Common.isEmpty(st.getPurchaseInvoiceDate()) ? ""
-									: st.getPurchaseInvoiceDate());
+							out.put("purchaseInvoiceDate",
+									Common.isEmpty(st.getPurchaseInvoiceDate()) ? "" : st.getPurchaseInvoiceDate());
 							outlist.add(out);
 
 						}
@@ -865,25 +847,24 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 	}
 
-   //生成固定的单据编号
-	public String createDJ(String end,Integer i,String  tou){
-		String endnew=end.replace("-","").substring(0,8);
-		return tou+endnew + StringUtils.leftPad(String.valueOf(i), 8, '0');
+	// 生成固定的单据编号
+	public String createDJ(String end, Integer i, String tou) {
+		String endnew = end.replace("-", "").substring(0, 8);
+		return tou + endnew + StringUtils.leftPad(String.valueOf(i), 8, '0');
 	}
 
-
-	public String createIdByStr(String str){
-		String newStr=str.replace(".","");
+	public String createIdByStr(String str) {
+		String newStr = str.replace(".", "");
 		return PinyinTool.getPinYinHeadChar(newStr);
 	}
 
-	public BigDecimal devide(Double price,long num1){
-		if(Common.isEmpty(price)){
+	public BigDecimal devide(Double price, long num1) {
+		if (Common.isEmpty(price)) {
 			return new BigDecimal(0);
 		}
-		BigDecimal inprice=new BigDecimal(price);
-		BigDecimal num=new BigDecimal(num1);
-		return inprice.divide(num,2,BigDecimal.ROUND_HALF_UP);
+		BigDecimal inprice = new BigDecimal(price);
+		BigDecimal num = new BigDecimal(num1);
+		return inprice.divide(num, 2, BigDecimal.ROUND_HALF_UP);
 	}
 
 	/**
@@ -962,7 +943,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			msg = "出库:";
 		}
 		for (Stock stock : listStock) {
-			// 获取所有的设备 
+			// 获取所有的设备
 			HSSFRow row = sheet.createRow(j + 1);
 
 			HSSFCell cell = row.createCell(0);
@@ -1043,7 +1024,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		if (Common.isNotEmpty(searchAgent)) {
 			query = query.addCriteria(Criteria.where("agent").is(Boolean.valueOf(searchAgent)));
 		}
-		query = this.findbySearch(search, start, end, type, query, areaId,"");
+		query = this.findbySearch(search, start, end, type, query, areaId, "");
 		query.with(new Sort(new Order(Direction.DESC, "createTime")));
 		query.addCriteria(Criteria.where("revoke").is(false));
 		List<StockStatistics> list = this.find(query, StockStatistics.class);
@@ -1292,7 +1273,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	}
 
 	@Override
-	public Map<Object, Object> stockStatisticsPickup(StockStatistics stockStatistics,String i) {
+	public Map<Object, Object> stockStatisticsPickup(StockStatistics stockStatistics, String i) {
 		String outboundOrder = stockStatistics.getOutboundOrder();
 		List<StockStatistics> st = this.findByoutboundOrder(outboundOrder);
 		Map<Object, Object> map = new HashMap<>();
@@ -1301,12 +1282,12 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		map.put("customer", st.get(0).getCustomer());
 		map.put("description", st.get(0).getDescription());
 		map.put("outboundOrder", st.get(0).getOutboundOrder());
-		if(i.equals("sign")){
-			//已经签名2个不用判断
-		map.put("sign", st.get(0).getMysign().getSign());
-		map.put("othersign",st.get(0).getOthersign().getSign());
-		map.put("time", st.get(0).getPickupTime());
-		}else{
+		if (i.equals("sign")) {
+			// 已经签名2个不用判断
+			map.put("sign", st.get(0).getMysign().getSign());
+			map.put("othersign", st.get(0).getOthersign().getSign());
+			map.put("time", st.get(0).getPickupTime());
+		} else {
 			try {
 				String dateYMDHM = Common.getDateYMDHM(new Date());
 				stockStatistics.setPickupTime(dateYMDHM);
@@ -1330,8 +1311,8 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 					s.setPickupTime(stockStatistics.getPickupTime());
 					this.save(s);
 				});
-			}else{
-				//sign不为空，othersign为空的情况下，将form表单中的sign传入othersign，且保存pthersign
+			} else {
+				// sign不为空，othersign为空的情况下，将form表单中的sign传入othersign，且保存pthersign
 				map.put("sign", st.get(0).getMysign().getSign());
 				map.put("othersign", stockStatistics.getSign());
 				// 保存签名
@@ -1359,8 +1340,8 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 	@Override
 	public void updateStockStatistics(String ids, Double inprice, String purchaseInvoiceNo, String receiptNo,
-			String paymentOrderNo, String sailesInvoiceNo,String sailesInvoiceDate,
-									  User user,String purchaseInvoiceDate,Double sailPrice,String newItemNo,String description ) {
+			String paymentOrderNo, String sailesInvoiceNo, String sailesInvoiceDate, User user,
+			String purchaseInvoiceDate, Double sailPrice, String newItemNo, String description) {
 
 		List<String> array = Arrays.asList(ids.split(","));
 
@@ -1390,14 +1371,14 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			if (sailPrice != null) {
 				stockStatistics.setSailPrice(sailPrice);
 			}
-			if(!newItemNo.equals("null")){
+			if (!newItemNo.equals("null")) {
 				stockStatistics.setNewItemNo(newItemNo);
 			}
-			if(!description.equals("null")){
+			if (!description.equals("null")) {
 				stockStatistics.setDescription(description);
 			}
-				stockStatistics.setEditFinanceTime(Common.fromDateH());
-				stockStatistics.setFinanceUser(user);
+			stockStatistics.setEditFinanceTime(Common.fromDateH());
+			stockStatistics.setFinanceUser(user);
 			this.save(stockStatistics);
 		}
 
@@ -1405,29 +1386,43 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 	@Override
 	public Workbook newExport2(HttpServletRequest request, RequestBo requestBo) {
-		Query query=newQueryByRequestBo(requestBo);
+		// Query query=newQueryByRequestBo(requestBo);
+		Query query = new Query();
+
+		if (Common.isNotEmpty(requestBo.getStart()) && Common.isNotEmpty(requestBo.getEnd())) {
+
+			String end = requestBo.getEnd();
+			end = end + " 23:59:59";
+
+			Criteria ca = new Criteria();
+			ca.orOperator(Criteria.where("storageTime").gte(requestBo.getStart()).lte(end),
+					Criteria.where("depotTime").gte(requestBo.getStart()).lte(end));
+			query.addCriteria(ca);
+
+		}
+
 		query.addCriteria(Criteria.where("revoke").is(false));
 		query.addCriteria(Criteria.where("byRevoke").is(false));
-		List<StockStatistics> list=this.find(query,StockStatistics.class);
+		List<StockStatistics> list = this.find(query, StockStatistics.class);
 		List<Map<String, Object>> outlist = new ArrayList<>();
-		
-		//根据当前查询的开始日期 获取上月的最后一天年月日
+
+		// 根据当前查询的开始日期 获取上月的最后一天年月日
 		String lastDayOfPreviousMonthAsString = Common.getLastDayOfPreviousMonthAsString(requestBo.getStart());
-		
-		List<MonthEndStatistics> findMonthEndStatisticsByDate = this.monthEndStatisticsService.findMonthEndStatisticsByDate(lastDayOfPreviousMonthAsString);
-		
-		Map<String, MonthEndStatistics> listMonthEndStatisticsToMap = listMonthEndStatisticsToMap(findMonthEndStatisticsByDate);
-		
-		
-		
+
+		List<MonthEndStatistics> findMonthEndStatisticsByDate = this.monthEndStatisticsService
+				.findMonthEndStatisticsByDate(lastDayOfPreviousMonthAsString);
+
+		Map<String, MonthEndStatistics> listMonthEndStatisticsToMap = listMonthEndStatisticsToMap(
+				findMonthEndStatisticsByDate);
+
 		// 获取 start时间 （第一天）库存的初始数量 出库数量+剩余库存数量 num+newNum
 		// 获取所有的设备
 		Map<String, List<StockStatistics>> map = new HashMap<String, List<StockStatistics>>();
 
-		//获取到所有库存的设备信息
+		// 获取到所有库存的设备信息
 		List<Stock> findAllStock = this.stockService.findAllStock();
 
-		List<StockStatistics> list2 = findAllStock.stream().map(stock->{
+		List<StockStatistics> list2 = findAllStock.stream().map(stock -> {
 			StockStatistics st = new StockStatistics();
 			st.setNewNum(0);
 			st.setNum(0);
@@ -1451,41 +1446,36 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			}
 		}
 
+		// 集合的最后一条数据就是起初日期
+		// 遍历map ，将map数据放到outlist中
 
+		for (Map.Entry<String, List<StockStatistics>> entry : map.entrySet()) {
 
+			Map<String, Object> outmap = new HashMap<>();// 定义输出到excel的map
 
-		//集合的最后一条数据就是起初日期
-		//遍历map ，将map数据放到outlist中
+			// 期初库存 获取集合的最后一条数据为第一条记录
 
-
-		for(Map.Entry<String, List<StockStatistics>> entry:map.entrySet()) {
-
-
-			Map<String, Object> outmap = new HashMap<>();//定义输出到excel的map
-
-			//期初库存 获取集合的最后一条数据为第一条记录
-
-			StockStatistics gs = entry.getValue().get(entry.getValue().size()-1);
-			//获取设备其他信息
+			StockStatistics gs = entry.getValue().get(entry.getValue().size() - 1);
+			// 获取设备其他信息
 			outmap.put("area", Common.isEmpty(gs.getArea()) ? "" : gs.getArea().getName());
 			outmap.put("stockName", Common.isEmpty(gs.getStock().getName()) ? "" : gs.getStock().getName());
-			outmap.put("modelName",
-					Common.isEmpty(gs.getStock().getModel()) ? "" : gs.getStock().getModel());
+			outmap.put("modelName", Common.isEmpty(gs.getStock().getModel()) ? "" : gs.getStock().getModel());
 			outmap.put("scope", Common.isEmpty(gs.getStock().getScope()) ? "" : gs.getStock().getScope());
-			if(Common.isNotEmpty(gs.getStock().getGoodsStorage())) {
-				outmap.put("goodsStorage", Common.isNotEmpty(gs.getStock().getGoodsStorage().getShelflevel())?"/"+gs.getStock().getGoodsStorage().getShelflevel():"");
+			if (Common.isNotEmpty(gs.getStock().getGoodsStorage())) {
+				outmap.put("goodsStorage",
+						Common.isNotEmpty(gs.getStock().getGoodsStorage().getShelflevel())
+								? "/" + gs.getStock().getGoodsStorage().getShelflevel()
+								: "");
 			}
 
-			outmap.put("agent", Common.isEmpty(gs.getStock().isAgent()) ? "" : gs.getStock().isAgent()?"是":"否");
-			outmap.put("unit",
-					Common.isEmpty(gs.getStock().getUnit()) ? "" : gs.getStock().getUnit().getName());
-
+			outmap.put("agent", Common.isEmpty(gs.getStock().isAgent()) ? "" : gs.getStock().isAgent() ? "是" : "否");
+			outmap.put("unit", Common.isEmpty(gs.getStock().getUnit()) ? "" : gs.getStock().getUnit().getName());
 
 //			BigDecimal qcnum ;//期初库存 为当前时间的前一次库存数量  // new 包含本期未出入库，但有期末余额的库存，数量取期末余额。
-			BigDecimal dj = new BigDecimal(0);//单价
-			BigDecimal zj = new BigDecimal(0);//总金额
+			BigDecimal dj = new BigDecimal(0);// 单价
+			BigDecimal zj = new BigDecimal(0);// 总金额
 			BigDecimal newNum = new BigDecimal(gs.getNewNum());
-			BigDecimal num =new BigDecimal( gs.getNum());
+			BigDecimal num = new BigDecimal(gs.getNum());
 //			if(gs.isInOrOut()) {
 //				//如果是入库，需要减去入库数量
 //				qcnum =  newNum.subtract(num);
@@ -1495,50 +1485,49 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 //			}else {
 //				qcnum = newNum;
 //			}
-			BigDecimal qcnum =new BigDecimal(0);
-			//从定时任务统计的数据中拿到期初库存数据
+			BigDecimal qcnum = new BigDecimal(0);
+			// 从定时任务统计的数据中拿到期初库存数据
 			MonthEndStatistics monthEndStatistics = listMonthEndStatisticsToMap.get(gs.getStock().getId());
-			if(Common.isNotEmpty(monthEndStatistics)) {
-				qcnum =new BigDecimal(monthEndStatistics.getMonthEndStockNum());
+			if (Common.isNotEmpty(monthEndStatistics)) {
+				qcnum = new BigDecimal(monthEndStatistics.getMonthEndStockNum());
 			}
-			
-			if(Common.isNotEmpty(gs.getStock().getPrice())) {
+
+			if (Common.isNotEmpty(gs.getStock().getPrice())) {
 				String price = gs.getStock().getPrice();
 				boolean numeric = StringUtils.isNumeric(price);
-				if(!numeric) {
-					price ="0";
+				if (!numeric) {
+					price = "0";
 				}
 
-				dj = new BigDecimal(price) ;//期初单价
-				zj = qcnum.multiply(dj).setScale(2,BigDecimal.ROUND_HALF_UP);//出库总额
+				dj = new BigDecimal(price);// 期初单价
+				zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);// 出库总额
 			}
 
-			outmap.put("oldprice",dj);
-			outmap.put("oldinventory",qcnum);
-			outmap.put("oldpriceall",zj);
+			outmap.put("oldprice", dj);
+			outmap.put("oldinventory", qcnum);
+			outmap.put("oldpriceall", zj);
 
 //			//20221123 添加出库入库总价
 //			private Double inprice;
 
-			long in =0;//入库数量
-			//long inpriceall =0;//入库总价
-			long out =0;//出库数量
+			long in = 0;// 入库数量
+			// long inpriceall =0;//入库总价
+			long out = 0;// 出库数量
 //			int insize =0; //获入库次数
 //			int outsize =0;//获取出库次数
 
 			for (StockStatistics st : entry.getValue()) {
 
-				if(st.isInOrOut()) {
-					in+=st.getNum();//入库总数
+				if (st.isInOrOut()) {
+					in += st.getNum();// 入库总数
 //					insize++;//入库量计数
-					//inpriceall+=Common.isNotEmpty(st.getInprice())?st.getInprice():0;//所有入库总额
-				}else {
-					out+=st.getNum();//出库总数
+					// inpriceall+=Common.isNotEmpty(st.getInprice())?st.getInprice():0;//所有入库总额
+				} else {
+					out += st.getNum();// 出库总数
 //					outsize++;//出库量计数
 
 				}
 			}
-
 
 //			BigDecimal a = new BigDecimal(inpriceall);
 			BigDecimal a = dj;
@@ -1550,54 +1539,46 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 //			}
 
 			BigDecimal e = new BigDecimal(in);
-			if(in >0) {
-				BigDecimal	inpriceall =e.multiply(dj);
-				outmap.put("inpriceall",inpriceall);//入库总额
-			}else {
-				outmap.put("inpriceall",0);//入库总额
+			if (in > 0) {
+				BigDecimal inpriceall = e.multiply(dj);
+				outmap.put("inpriceall", inpriceall);// 入库总额
+			} else {
+				outmap.put("inpriceall", 0);// 入库总额
 			}
 
-
-			outmap.put("in",in);//入库数量
-			outmap.put("inprice",dj);//入库单价=所有入库总额/入库数量
-
-
+			outmap.put("in", in);// 入库数量
+			outmap.put("inprice", dj);// 入库单价=所有入库总额/入库数量
 
 			BigDecimal d = new BigDecimal(out);
-			BigDecimal outpriceall = d.multiply(dj).setScale(2,BigDecimal.ROUND_HALF_UP);//出库总额
-			outmap.put("out",out);//出库数量
-			outmap.put("outprice",dj);//出库单价=所有入库总额/入库数量
-			outmap.put("outpriceall",outpriceall);//出库总额
+			BigDecimal outpriceall = d.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);// 出库总额
+			outmap.put("out", out);// 出库数量
+			outmap.put("outprice", dj);// 出库单价=所有入库总额/入库数量
+			outmap.put("outpriceall", outpriceall);// 出库总额
 
-			//期末库存数量  单价  金额
+			// 期末库存数量 单价 金额
 			StockStatistics gsend = entry.getValue().get(0);
 //			long qmnum =0;//期初库存
 //			long qmdj =0;//单价
 //			long qmzj =0;//总金额
 
-			//qmnum = gsend.getNewNum();//期末库存数量
-			//期初库存+入库-出库
+			// qmnum = gsend.getNewNum();//期末库存数量
+			// 期初库存+入库-出库
 			BigDecimal qmnum = qcnum.add(e).subtract(d);
-			
-			BigDecimal qmzj =dj.multiply(qcnum).setScale(2,BigDecimal.ROUND_HALF_UP);
+
+			BigDecimal qmzj = dj.multiply(qcnum).setScale(2, BigDecimal.ROUND_HALF_UP);
 //			BigDecimal qmzj =zj.add(a).subtract(outpriceall);//期末总价
 //			BigDecimal qmdj = new BigDecimal(0);
 //			if(qmnum>0) {
 //				 qmdj =  qmzj.divide(new BigDecimal(qmnum),2,BigDecimal.ROUND_HALF_UP);
 //			}
-			outmap.put("newprice",dj);
-			outmap.put("newinventory",qmnum);
-			outmap.put("newpriceall",qmzj);
-			outmap.put("purchaseInvoiceDate", Common.isEmpty(gs.getPurchaseInvoiceDate()) ? "": gs.getPurchaseInvoiceDate());
+			outmap.put("newprice", dj);
+			outmap.put("newinventory", qmnum);
+			outmap.put("newpriceall", qmzj);
+			outmap.put("purchaseInvoiceDate",
+					Common.isEmpty(gs.getPurchaseInvoiceDate()) ? "" : gs.getPurchaseInvoiceDate());
 			outlist.add(outmap);
 
 		}
-
-
-
-
-
-
 
 		Map<String, Object> dataMap = new HashMap<>();
 
@@ -1620,32 +1601,25 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		return doc;
 
 	}
-	
-	
-	
+
 	@Override
 	public Workbook newExport3(HttpServletRequest request, String search, String start, String end, String type,
 			String name, String areaId, String searchAgent) {
 
 		// List<Stock> listStock = this.findStocksBySearch(search, areaId, searchAgent);
-		//获取选择月份的统计数据
+		// 获取选择月份的统计数据
 		List<StockStatistics> list1 = this.findStockStatistics(search, start, end, type, areaId, searchAgent);
-		
-		
+
 		Map<String, String> findDateByInputDate = Common.findDateByInputDate(start);
 		String ostart = findDateByInputDate.get("startDate");
 		String oend = findDateByInputDate.get("endDate");
-		
+
 		List<StockStatistics> list2 = this.findStockStatistics(search, ostart, oend, type, areaId, searchAgent);
-		   List<StockStatistics> list = list1.stream().filter(
-			        item ->list2.stream().map(e -> e.getStock().getId())
-			        .collect(Collectors.toList())
-			        .contains(item.getStock().getId()))
-			        .collect(Collectors.toList());
-		
+		List<StockStatistics> list = list1.stream().filter(item -> list2.stream().map(e -> e.getStock().getId())
+				.collect(Collectors.toList()).contains(item.getStock().getId())).collect(Collectors.toList());
+
 		// 获取所有的库存
-		
-		
+
 		List<Map<String, Object>> outlist = new ArrayList<>();
 		// 获取 start时间 （第一天）库存的初始数量 出库数量+剩余库存数量 num+newNum
 		// 获取所有的设备
@@ -1663,129 +1637,119 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				map.put(stockId, ls);
 			}
 		}
-		//集合的最后一条数据就是起初日期
-		//遍历map ，将map数据放到outlist中
-		
-		
-		for(Map.Entry<String, List<StockStatistics>> entry:map.entrySet()) {
-			
+		// 集合的最后一条数据就是起初日期
+		// 遍历map ，将map数据放到outlist中
 
-			Map<String, Object> outmap = new HashMap<>();//定义输出到excel的map
-			
-			//期初库存 获取集合的最后一条数据为第一条记录
-			
-			StockStatistics gs = entry.getValue().get(entry.getValue().size()-1);
-			//获取设备其他信息
+		for (Map.Entry<String, List<StockStatistics>> entry : map.entrySet()) {
+
+			Map<String, Object> outmap = new HashMap<>();// 定义输出到excel的map
+
+			// 期初库存 获取集合的最后一条数据为第一条记录
+
+			StockStatistics gs = entry.getValue().get(entry.getValue().size() - 1);
+			// 获取设备其他信息
 			outmap.put("area", Common.isEmpty(gs.getArea()) ? "" : gs.getArea().getName());
 			outmap.put("stockName", Common.isEmpty(gs.getStock().getName()) ? "" : gs.getStock().getName());
-			outmap.put("modelName",
-					Common.isEmpty(gs.getStock().getModel()) ? "" : gs.getStock().getModel());
+			outmap.put("modelName", Common.isEmpty(gs.getStock().getModel()) ? "" : gs.getStock().getModel());
 			outmap.put("scope", Common.isEmpty(gs.getStock().getScope()) ? "" : gs.getStock().getScope());
-			if(Common.isNotEmpty(gs.getStock().getGoodsStorage())) {
-				outmap.put("goodsStorage", Common.isNotEmpty(gs.getStock().getGoodsStorage().getShelflevel())?"/"+gs.getStock().getGoodsStorage().getShelflevel():"");
+			if (Common.isNotEmpty(gs.getStock().getGoodsStorage())) {
+				outmap.put("goodsStorage",
+						Common.isNotEmpty(gs.getStock().getGoodsStorage().getShelflevel())
+								? "/" + gs.getStock().getGoodsStorage().getShelflevel()
+								: "");
 			}
-		
-			outmap.put("agent", Common.isEmpty(gs.getStock().isAgent()) ? "" : gs.getStock().isAgent()?"是":"否");
-			outmap.put("unit",
-					Common.isEmpty(gs.getStock().getUnit()) ? "" : gs.getStock().getUnit().getName());
-			
-			
-			BigDecimal qcnum ;//期初库存 为当前时间的前一次库存数量
-			BigDecimal dj = new BigDecimal(0);//单价
-			BigDecimal zj = new BigDecimal(0);//总金额
+
+			outmap.put("agent", Common.isEmpty(gs.getStock().isAgent()) ? "" : gs.getStock().isAgent() ? "是" : "否");
+			outmap.put("unit", Common.isEmpty(gs.getStock().getUnit()) ? "" : gs.getStock().getUnit().getName());
+
+			BigDecimal qcnum;// 期初库存 为当前时间的前一次库存数量
+			BigDecimal dj = new BigDecimal(0);// 单价
+			BigDecimal zj = new BigDecimal(0);// 总金额
 			BigDecimal newNum = new BigDecimal(gs.getNewNum());
-			BigDecimal num =new BigDecimal( gs.getNum());
-			if(gs.isInOrOut()) {
-				//如果是入库，需要减去入库数量
-				qcnum =  newNum.subtract(num);
-			}else {
-				//如果是出库 需要吧出库数量加回去
-				qcnum = newNum.add(num) ;//获得期初库存数量
+			BigDecimal num = new BigDecimal(gs.getNum());
+			if (gs.isInOrOut()) {
+				// 如果是入库，需要减去入库数量
+				qcnum = newNum.subtract(num);
+			} else {
+				// 如果是出库 需要吧出库数量加回去
+				qcnum = newNum.add(num);// 获得期初库存数量
 			}
-			if(Common.isNotEmpty(gs.getStock().getPrice())) {
-			String price = gs.getStock().getPrice();
-			boolean numeric = StringUtils.isNumeric(price);
-			if(!numeric) {
-				price ="0";
+			if (Common.isNotEmpty(gs.getStock().getPrice())) {
+				String price = gs.getStock().getPrice();
+				boolean numeric = StringUtils.isNumeric(price);
+				if (!numeric) {
+					price = "0";
+				}
+
+				dj = new BigDecimal(price);// 期初单价
+				zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);// 出库总额
 			}
-			
-				dj = new BigDecimal(price) ;//期初单价
-				zj = qcnum.multiply(dj).setScale(2,BigDecimal.ROUND_HALF_UP);//出库总额
-			}
-		
-			outmap.put("oldprice",dj);
-			outmap.put("oldinventory",qcnum);
-			outmap.put("oldpriceall",zj);
-			
+
+			outmap.put("oldprice", dj);
+			outmap.put("oldinventory", qcnum);
+			outmap.put("oldpriceall", zj);
+
 //			//20221123 添加出库入库总价
 //			private Double inprice;
 
-			long in =0;//入库数量
-			long inpriceall =0;//入库总价
-			long out =0;//出库数量
+			long in = 0;// 入库数量
+			long inpriceall = 0;// 入库总价
+			long out = 0;// 出库数量
 //			int insize =0; //获入库次数
 //			int outsize =0;//获取出库次数
-			
+
 			for (StockStatistics st : entry.getValue()) {
-				
-				if(st.isInOrOut()) {
-					in+=st.getNum();//入库总数
+
+				if (st.isInOrOut()) {
+					in += st.getNum();// 入库总数
 //					insize++;//入库量计数
-					inpriceall+=Common.isNotEmpty(st.getInprice())?st.getInprice():0;//所有入库总额
-				}else {
-					out+=st.getNum();//出库总数
+					inpriceall += Common.isNotEmpty(st.getInprice()) ? st.getInprice() : 0;// 所有入库总额
+				} else {
+					out += st.getNum();// 出库总数
 //					outsize++;//出库量计数
-					
+
 				}
 			}
-			
-			
+
 			BigDecimal a = new BigDecimal(inpriceall);
 			BigDecimal b = new BigDecimal(in);
-			
+
 			BigDecimal crkdj = new BigDecimal(0);
-			if(in>0) {
-				crkdj =  a.divide(b,2,BigDecimal.ROUND_HALF_UP);
+			if (in > 0) {
+				crkdj = a.divide(b, 2, BigDecimal.ROUND_HALF_UP);
 			}
-			
-			outmap.put("in",in);//入库数量
-			outmap.put("inprice",crkdj);//入库单价=所有入库总额/入库数量
-			outmap.put("inpriceall",inpriceall);//入库总额
-			
-			
+
+			outmap.put("in", in);// 入库数量
+			outmap.put("inprice", crkdj);// 入库单价=所有入库总额/入库数量
+			outmap.put("inpriceall", inpriceall);// 入库总额
+
 			BigDecimal d = new BigDecimal(out);
 //			BigDecimal e = new BigDecimal(in);
-			BigDecimal outpriceall = d.multiply(crkdj).setScale(2,BigDecimal.ROUND_HALF_UP);//出库总额
-			outmap.put("out",out);//出库数量
-			outmap.put("outprice",crkdj);//出库单价=所有入库总额/入库数量
-			outmap.put("outpriceall",outpriceall);//出库总额
-			
-			//期末库存数量  单价  金额
+			BigDecimal outpriceall = d.multiply(crkdj).setScale(2, BigDecimal.ROUND_HALF_UP);// 出库总额
+			outmap.put("out", out);// 出库数量
+			outmap.put("outprice", crkdj);// 出库单价=所有入库总额/入库数量
+			outmap.put("outpriceall", outpriceall);// 出库总额
+
+			// 期末库存数量 单价 金额
 			StockStatistics gsend = entry.getValue().get(0);
-			long qmnum =0;//期初库存
+			long qmnum = 0;// 期初库存
 //			long qmdj =0;//单价
 //			long qmzj =0;//总金额
-			
-			qmnum = gsend.getNewNum();//期末库存数量
-			BigDecimal qmzj =zj.add(a).subtract(outpriceall);//期末总价
-			BigDecimal qmdj = new BigDecimal(0);
-			if(qmnum>0) {
-				 qmdj =  qmzj.divide(new BigDecimal(qmnum),2,BigDecimal.ROUND_HALF_UP);
-			}
-			outmap.put("newprice",qmdj);
-			outmap.put("newinventory",qmnum);
-			outmap.put("newpriceall",qmzj);
-			outmap.put("purchaseInvoiceDate", Common.isEmpty(gs.getPurchaseInvoiceDate()) ? ""
-					: gs.getPurchaseInvoiceDate());
-			outlist.add(outmap);
-		
-		}
-		
 
-		
-		
-		
-		
+			qmnum = gsend.getNewNum();// 期末库存数量
+			BigDecimal qmzj = zj.add(a).subtract(outpriceall);// 期末总价
+			BigDecimal qmdj = new BigDecimal(0);
+			if (qmnum > 0) {
+				qmdj = qmzj.divide(new BigDecimal(qmnum), 2, BigDecimal.ROUND_HALF_UP);
+			}
+			outmap.put("newprice", qmdj);
+			outmap.put("newinventory", qmnum);
+			outmap.put("newpriceall", qmzj);
+			outmap.put("purchaseInvoiceDate",
+					Common.isEmpty(gs.getPurchaseInvoiceDate()) ? "" : gs.getPurchaseInvoiceDate());
+			outlist.add(outmap);
+
+		}
 
 		Map<String, Object> dataMap = new HashMap<>();
 
@@ -1808,22 +1772,20 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		return doc;
 
 	}
-	
-	
-	public Query  newQueryByRequestBo(RequestBo requestBo){
-		Query query=new Query();
+
+	public Query newQueryByRequestBo(RequestBo requestBo) {
+		Query query = new Query();
 		Criteria ca = new Criteria();
 
-		if(Common.isNotEmpty(requestBo.getName())
-				||Common.isNotEmpty(requestBo.getSupplier())
-				||Common.isNotEmpty(requestBo.getPaymentOrderNo())
-				||Common.isNotEmpty(requestBo.getSearchArea())){
+		if (Common.isNotEmpty(requestBo.getName()) || Common.isNotEmpty(requestBo.getSupplier())
+				|| Common.isNotEmpty(requestBo.getPaymentOrderNo()) || Common.isNotEmpty(requestBo.getSearchArea())) {
 			Query querys = new Query();
-			querys=this.stockService.findByRequestBo(requestBo,querys);
+			querys = this.stockService.findByRequestBo(requestBo, querys);
 //			querys.addCriteria(Criteria.where("isDelete").is(false));
-			List<Stock> stocks=this.stockService.find(querys,Stock.class);
-			List<Object> stockids=stocks.stream().map(stock -> new ObjectId(stock.getId())).collect(Collectors.toList());
-			query=query.addCriteria(Criteria.where("stock.$id").in(stockids));
+			List<Stock> stocks = this.stockService.find(querys, Stock.class);
+			List<Object> stockids = stocks.stream().map(stock -> new ObjectId(stock.getId()))
+					.collect(Collectors.toList());
+			query = query.addCriteria(Criteria.where("stock.$id").in(stockids));
 		}
 		if (Common.isNotEmpty(requestBo.getId())) {
 			ca.orOperator(Criteria.where("stock.$id").is(new ObjectId(requestBo.getId())));
@@ -1834,38 +1796,40 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		if (Common.isNotEmpty(requestBo.getPname())) {
 			ca.orOperator(Criteria.where("pname.$id").is(new ObjectId(requestBo.getPname())));
 		}
-		if(Common.isNotEmpty(requestBo.getItemNo())){
-			query=query.addCriteria(Criteria.where("newItemNo").regex(requestBo.getItemNo(), "i"));
+		if (Common.isNotEmpty(requestBo.getItemNo())) {
+			query = query.addCriteria(Criteria.where("newItemNo").regex(requestBo.getItemNo(), "i"));
 		}
-		if(Common.isNotEmpty(requestBo.getPurchaseInvoiceNo())){
-			query=query.addCriteria(Criteria.where("purchaseInvoiceNo").regex(requestBo.getPurchaseInvoiceNo(), "i"));
+		if (Common.isNotEmpty(requestBo.getPurchaseInvoiceNo())) {
+			query = query.addCriteria(Criteria.where("purchaseInvoiceNo").regex(requestBo.getPurchaseInvoiceNo(), "i"));
 		}
-		if(Common.isNotEmpty(requestBo.getPaymentOrderNo())){
-			query=query.addCriteria(Criteria.where("paymentOrderNo").regex(requestBo.getPaymentOrderNo(), "i"));
+		if (Common.isNotEmpty(requestBo.getPaymentOrderNo())) {
+			query = query.addCriteria(Criteria.where("paymentOrderNo").regex(requestBo.getPaymentOrderNo(), "i"));
 		}
-		if(Common.isNotEmpty(requestBo.getPurchaseInvoiceDate())){
-			query=query.addCriteria(Criteria.where("purchaseInvoiceDate").regex(requestBo.getPurchaseInvoiceDate(), "i"));
+		if (Common.isNotEmpty(requestBo.getPurchaseInvoiceDate())) {
+			query = query
+					.addCriteria(Criteria.where("purchaseInvoiceDate").regex(requestBo.getPurchaseInvoiceDate(), "i"));
 		}
-		if(Common.isNotEmpty(requestBo.getProjectName())){
-			query=query.addCriteria(Criteria.where("projectName").regex(requestBo.getProjectName(), "i"));
+		if (Common.isNotEmpty(requestBo.getProjectName())) {
+			query = query.addCriteria(Criteria.where("projectName").regex(requestBo.getProjectName(), "i"));
 		}
 		if (Common.isNotEmpty(requestBo.getEntryName())) {
 			String[] sas = requestBo.getEntryName().split(",");
-			query = query.addCriteria(Criteria.where("pname.$id").in(Arrays.stream(sas).map(str -> new ObjectId(str)).collect(Collectors.toList())));
+			query = query.addCriteria(Criteria.where("pname.$id")
+					.in(Arrays.stream(sas).map(str -> new ObjectId(str)).collect(Collectors.toList())));
 		}
 //		if(Common.isNotEmpty(requestBo.getCustomer())){
 //			query=query.addCriteria(Criteria.where("customer").regex(requestBo.getCustomer(), "i"));
 //		}
-		if(Common.isNotEmpty(requestBo.getCustomer())){
+		if (Common.isNotEmpty(requestBo.getCustomer())) {
 			Query squery = new Query();
 			squery.addCriteria(Criteria.where("name").regex(requestBo.getCustomer(), "i"));
 			List<NewCustomer> customerList = this.newCustomerService.find(squery, NewCustomer.class);
 			if (!customerList.isEmpty()) {
-				ca.orOperator(Criteria.where("newCustomer.$id").in(customerList.stream().map(newCustomer -> new ObjectId(newCustomer.getId())).collect(Collectors.toList())));
+				ca.orOperator(Criteria.where("newCustomer.$id").in(customerList.stream()
+						.map(newCustomer -> new ObjectId(newCustomer.getId())).collect(Collectors.toList())));
 
 			}
 		}
-
 
 		if (Common.isNotEmpty(requestBo.getConfirm())) {
 			query = query.addCriteria(Criteria.where("confirm").is(Boolean.valueOf(requestBo.getConfirm())));
@@ -1873,7 +1837,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		if (Common.isNotEmpty(requestBo.getSailesInvoiceNo())) {
 			query = query.addCriteria(Criteria.where("sailesInvoiceNo").regex(requestBo.getSailesInvoiceNo(), "i"));
 		}
-		if(Common.isNotEmpty(requestBo.getType())){
+		if (Common.isNotEmpty(requestBo.getType())) {
 			if (requestBo.getType().equals("in")) {
 				query.addCriteria(Criteria.where("inOrOut").is(true));
 			} else if (requestBo.getType().equals("out")) {
@@ -1881,55 +1845,43 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			}
 		}
 		if (Common.isNotEmpty(requestBo.getStart()) && Common.isNotEmpty(requestBo.getEnd())) {
-			String end=requestBo.getEnd();
-			end=end+" 23:59:59";
+			String end = requestBo.getEnd();
+			end = end + " 23:59:59";
 			Criteria ca1 = new Criteria();
 			ca1.orOperator(Criteria.where("storageTime").gte(requestBo.getStart()).lte(end),
-					Criteria.where("depotTime").gte(requestBo.getStart()).lte(end)
-			);
+					Criteria.where("depotTime").gte(requestBo.getStart()).lte(end));
 			ca.andOperator(ca1);
 		}
 		query.addCriteria(ca);
 		query.with(new Sort(new Order(Direction.DESC, "createTime")));
-		return  query;
+		return query;
 	}
-	
+
 	/**
-	 * 将数据转换成 k v形式  取值的时候通过使用key直接获取
+	 * 将数据转换成 k v形式 取值的时候通过使用key直接获取
+	 * 
 	 * @param list
 	 * @return
 	 */
-	public Map<String,MonthEndStatistics> listMonthEndStatisticsToMap(List<MonthEndStatistics> list){
-		
-		Map<String,MonthEndStatistics>  map = new HashMap<String, MonthEndStatistics>();
-		list.forEach(m->{
+	public Map<String, MonthEndStatistics> listMonthEndStatisticsToMap(List<MonthEndStatistics> list) {
+
+		Map<String, MonthEndStatistics> map = new HashMap<String, MonthEndStatistics>();
+		list.forEach(m -> {
 			map.put(m.getStock().getId(), m);
 		});
 		return map;
-		
-	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
 
-	
+	}
+
 	public static void main(String[] args) {
-		
-		
-		long a =2004;
-		double b =20.333f;
+
+		long a = 2004;
+		double b = 20.333f;
 		BigDecimal bd = new BigDecimal(b);
 		BigDecimal bd2 = new BigDecimal(a);
-		BigDecimal divide = bd.divide(bd2,2,BigDecimal.ROUND_HALF_UP);
-		BigDecimal multiply = bd.multiply(bd2).setScale(2,BigDecimal.ROUND_HALF_UP);
+		BigDecimal divide = bd.divide(bd2, 2, BigDecimal.ROUND_HALF_UP);
+		BigDecimal multiply = bd.multiply(bd2).setScale(2, BigDecimal.ROUND_HALF_UP);
 		System.out.println(multiply);
 	}
-	
-	
+
 }
