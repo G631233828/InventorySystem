@@ -36,17 +36,7 @@
 												<td class="numeric">设备型号</td>
 												<td class="numeric" onclick="return selectColumn('model');"><input type="checkbox" th:checked="${#lists.contains(listColums,'model')}?'checked':'false'" id="ch_model"></td>
                                             </tr>
-                                            <tr>
-
-												  <td class="numeric">入库总价</td>
-                                           	    <td class="numeric" onclick="return selectColumn('inprice');"><input type="checkbox" th:checked="${#lists.contains(listColums,'inprice')}?'checked':'false'" id="ch_inprice"></td>
-                                                <td class="numeric">预计入库数量</td>
-                                                <td class="numeric" onclick="return selectColumn('esquantity');"><input type="checkbox" th:checked="${#lists.contains(listColums,'esquantity')}?'checked':'false'" id="ch_esquantity"></td>
-
-<!--												<td class="numeric">货架号/层</td>-->
-<!--												<td class="numeric" onclick="return selectColumn('goodsStorage');"><input type="checkbox" th:checked="${#lists.contains(listColums,'goodsStorage')}?'checked':'false'" id="ch_goodsStorage"></td>-->
-
-                                            </tr>
+                                    
                                             <tr>
                                               
 
@@ -107,7 +97,17 @@
                                                 <td class="numeric">供应商</td>
                                                 <td class="numeric" onclick="return selectColumn('supplier');"><input type="checkbox" th:checked="${#lists.contains(listColums,'supplier')}?'checked':'false'" id="ch_supplier"></td>
                                             </tr>
+        <tr>
 
+												<!--   <td class="numeric">入库总价</td>
+                                           	    <td class="numeric" onclick="return selectColumn('inprice');"><input type="checkbox" th:checked="${#lists.contains(listColums,'inprice')}?'checked':'false'" id="ch_inprice"></td>
+                                                 --><td class="numeric">预计入库数量</td>
+                                                <td class="numeric" onclick="return selectColumn('esquantity');"><input type="checkbox" th:checked="${#lists.contains(listColums,'esquantity')}?'checked':'false'" id="ch_esquantity"></td>
+
+<!--												<td class="numeric">货架号/层</td>-->
+<!--												<td class="numeric" onclick="return selectColumn('goodsStorage');"><input type="checkbox" th:checked="${#lists.contains(listColums,'goodsStorage')}?'checked':'false'" id="ch_goodsStorage"></td>-->
+
+                                            </tr>
                                         </tbody>
                                     </table>
 				
