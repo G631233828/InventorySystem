@@ -205,7 +205,7 @@ public class ExcelReadUtil {
                                  value = "";
                              }
                           } else {
-                             value = new DecimalFormat("0").format(cell.getNumericCellValue());
+                             value = new DecimalFormat("0.##").format(cell.getNumericCellValue());
                           }
                           break;
                       case HSSFCell.CELL_TYPE_FORMULA:

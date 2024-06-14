@@ -242,12 +242,12 @@ public String upload( HttpServletRequest request, HttpSession session){
 		query.addCriteria(Criteria.where("name").is(name));
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		Unit unit = this.findOneByQuery(query, Unit.class);
-		if(Common.isEmpty(unit)){
-			Unit ca = new Unit();
-			ca.setName(name);
-			this.insert(ca);
-			return ca;
-		}
+//		if(Common.isEmpty(unit)){
+//			Unit ca = new Unit();
+//			ca.setName(name);
+//			this.insert(ca);
+//			return ca;
+//		}
 		return unit;
 	}
 	
