@@ -227,7 +227,7 @@ public class SupplierServiceImpl extends GeneralServiceImpl<Supplier> implements
 				}
 				importSupplier.setName(name); //供应商名称
 				//根据供应商名称查看是否存在，如果不存在则创建一个
-				Supplier supplier = this.findByNameAndiFNotCreate(importSupplier.getName());
+				Supplier supplier = this.findByName(importSupplier.getName());
 
 				if(Common.isNotEmpty(resultexcel[i][j+15])){
 					importSupplier.setWyid(resultexcel[i][j+15]);
@@ -243,7 +243,7 @@ public class SupplierServiceImpl extends GeneralServiceImpl<Supplier> implements
 					}
 				}else {
 					error += "<span class='entypo-attention'></span>导入文件过程中出现错误，第<b>&nbsp;&nbsp;" + (i + 1)
-							+ "&nbsp&nbsp</b>行出现编号为空<b>&nbsp&nbsp名称为:<b>&nbsp;&nbsp;" + supplier.getName()
+							+ "&nbsp&nbsp</b>行出现编号为空<b>&nbsp&nbsp名称为:<b>&nbsp;&nbsp;" + importSupplier.getName()
 							+ "&nbsp;&nbsp;请手动去修改该条信息！</b></br>";
 					continue;
 				}
@@ -278,19 +278,22 @@ public class SupplierServiceImpl extends GeneralServiceImpl<Supplier> implements
 				if(Common.isNotEmpty(supplier)){
 					//供应商已存在
 					List<Category> list = supplier.getCategorys();
-					
+
 					for(String c : categorys){
 						Category category = null;
 						if(Common.isNotEmpty(c)){
 							category = this.categoryService.findByName(c);
 						}
+
+						if(Common.isNotEmpty(list)){
 						if(list.contains(category)){
 //							error += "<span class='entypo-attention'></span>导入文件过程中出现已经在相同系统分类下的类目信息，第<b>&nbsp&nbsp" + (i + 1)
 //									+ "&nbsp&nbsp</b>行出现重复内容为<b>&nbsp&nbsp导入类目名称为:<b>&nbsp&nbsp" + c
 //									+ "&nbsp&nbsp</b>已过滤重复数据！&nbsp&nbsp</b></br>";
 							continue;
-						}
+							}
 						list.add(category);
+						}
 					}
 					//更新原先供应商信息
 					String newContact = importSupplier.getContact();

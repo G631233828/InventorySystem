@@ -144,12 +144,12 @@ public class AreaServiceImpl extends GeneralServiceImpl<Area> implements AreaSer
 		query.addCriteria(Criteria.where("name").is(name));
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		Area brand = this.findOneByQuery(query, Area.class);
-		if(Common.isEmpty(brand)){
-			Area ca = new Area();
-			ca.setName(name);
-			this.insert(ca);
-			return ca;
-		}
+//		if(Common.isEmpty(brand)){
+//			Area ca = new Area();
+//			ca.setName(name);
+//			this.insert(ca);
+//			return ca;
+//		}
 		return brand;
 	}
 
