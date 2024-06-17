@@ -326,11 +326,12 @@
 										onclick="return editStockStatistics()">
 										<i class="entypo-search"> </i> 批量编辑
 									</button>
+									<shiro:hasPermission name="stockStatistics:confirm">
 									<button class="btn btn-primary btn-sm"
 										onclick="return confirms()">
 										<i class="fa fa-edit"> </i> 批量核对
 									</button>
-
+									</shiro:hasPermission>
 									<button class="btn btn-default" onclick="return toExport()">
 										<i class="entypo-export"> </i>导出库存出入统计报表
 									</button>

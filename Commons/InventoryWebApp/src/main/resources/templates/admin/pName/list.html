@@ -173,7 +173,7 @@
 															th:each="customer:${pName.customers}">
 														[[${customer.isDelete eq false}?${customer.name}+'&nbsp;&nbsp;':'']]
 													</th:block></td>
-													<td class="numeric" th:id="disBtn+${pName.id}"
+													<td class="numeric" th:id="disBtn+${pName.id}" shiro:hasPermission="|pName:disable|"
 														th:utext="${pName.isDisable eq true }?|<button type='button' onclick=toDisable('${pName.id}','pName') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${pName.id}','pName') class='btn btn-success'>启用</button>|"></td>
 													<td class="numeric"><shiro:hasPermission
 															name="pName:edit">

@@ -155,7 +155,7 @@
 													</td>
 
 													<td class="numeric">[[${unit.name}]]</td>
-													<td class="numeric" th:id="disBtn+${unit.id}"
+													<td class="numeric" th:id="disBtn+${unit.id}" shiro:hasPermission="|unit:disable|"
 														th:utext="${unit.isDisable eq true }?|<button type='button' onclick=toDisable('${unit.id}','unit') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${unit.id}','unit') class='btn btn-success'>启用</button>|"></td>
 													<td class="numeric"><shiro:hasPermission
 															name="unit:edit">
