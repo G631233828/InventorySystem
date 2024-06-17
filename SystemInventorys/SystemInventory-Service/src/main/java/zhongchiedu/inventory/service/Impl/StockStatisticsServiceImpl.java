@@ -1496,10 +1496,10 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 			if (Common.isNotEmpty(gs.getStock().getPrice())) {
 				String price = gs.getStock().getPrice();
-				boolean numeric = StringUtils.isNumeric(price);
-				if (!numeric) {
-					price = "0";
-				}
+//				boolean numeric = StringUtils.isNumeric(price);
+//				if (!numeric) {
+//					price = "0";
+//				}
 
 				dj = new BigDecimal(price);// 期初单价
 				zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);// 出库总额
@@ -1877,13 +1877,18 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 	public static void main(String[] args) {
 
-		long a = 2004;
-		double b = 20.333f;
-		BigDecimal bd = new BigDecimal(b);
-		BigDecimal bd2 = new BigDecimal(a);
-		BigDecimal divide = bd.divide(bd2, 2, BigDecimal.ROUND_HALF_UP);
-		BigDecimal multiply = bd.multiply(bd2).setScale(2, BigDecimal.ROUND_HALF_UP);
-		System.out.println(multiply);
+//		long a = 2004;
+//		double b = 20.333f;
+//		BigDecimal bd = new BigDecimal(b);
+//		BigDecimal bd2 = new BigDecimal(a);
+//		BigDecimal divide = bd.divide(bd2, 2, BigDecimal.ROUND_HALF_UP);
+//		BigDecimal multiply = bd.multiply(bd2).setScale(2, BigDecimal.ROUND_HALF_UP);
+//		System.out.println(multiply);
+		
+		String a = "20.55";
+		BigDecimal b = new BigDecimal(a);
+		System.out.println(b);
+		
 	}
 
 }

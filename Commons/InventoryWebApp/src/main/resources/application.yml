@@ -22,7 +22,8 @@ wx:
 #        tmpDirFile: D://AAA
         tmpDirFile: /zc/
 #    server-url: http://zhongchiedu.com
-    server-url: http://zhongchi.top
+#    server-url: http://zhongchi.top
+    server-url: http://cored.zhongchiedu.com
     #server-url: http://m7xm9x.natappfree.cc
 ##预入库之后发送通知处理
 
@@ -35,7 +36,8 @@ qrcode:
   height: 300
   width: 300
   #weburl: http://zhongchiedu.com/WXWebApp/
-  weburl: http://zhongchi.top/WXWebApp/
+  weburl: http://cored.zhongchiedu.com/WXWebApp/
+  #weburl: http://zhongchi.top/WXWebApp/
   #weburl: http://m7xm9x.natappfree.cc/WXWebApp/
   format: png
   qrcodepath: upload/qrcode/
