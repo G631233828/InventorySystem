@@ -996,7 +996,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			//区域，设备名称和型号相同的库存量总和
 			if(Common.isNotEmpty(key)){
 			Long sums=stocks.get(key).stream().mapToLong(Stock::getInventory).sum();
-            String[] ss=key.split("_");
+            String[] ss=key.split("<<");
 			String area=ss[0];
 			String name=ss[1];
 			String model=Common.isNotEmpty(ss[2])?ss[2]:"";
@@ -1051,7 +1051,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		String name=Common.isNotEmpty(stock.getName())?stock.getName():"设备名为空";
 		String model=Common.isNotEmpty(stock.getModel())?stock.getModel():"设备型号为空";
 		String price=Common.isNotEmpty(stock.getPrice())?stock.getPrice():"单价没填写";
-		return areaname+"_"+name+"_"+model+"_"+price;
+		return areaname+"<<"+name+"<<"+model+"<<"+price;
 	}
 
 
