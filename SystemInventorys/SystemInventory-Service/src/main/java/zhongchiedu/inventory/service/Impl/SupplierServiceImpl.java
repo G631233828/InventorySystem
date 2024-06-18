@@ -16,6 +16,9 @@ import javax.servlet.http.HttpSession;
 import org.bson.types.ObjectId;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
@@ -107,6 +110,7 @@ public class SupplierServiceImpl extends GeneralServiceImpl<Supplier> implements
 			if(Common.isNotEmpty(search)){
 				query= this.findbySearch(search, query);
 			}
+			query.with(new Sort(new Order(Direction.DESC, "createTime")));
 			query.addCriteria(Criteria.where("isDelete").is(false));
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, Supplier.class);
 			if (pagination == null)

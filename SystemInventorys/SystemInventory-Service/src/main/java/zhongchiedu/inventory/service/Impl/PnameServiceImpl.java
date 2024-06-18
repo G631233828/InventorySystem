@@ -4,6 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
@@ -103,7 +106,7 @@ public class PnameServiceImpl extends GeneralServiceImpl<Pname> implements Pname
 			if(Common.isNotEmpty(search)) {
 				query.addCriteria(Criteria.where("name").regex(search));
 			}
-
+			query.with(new Sort(new Order(Direction.DESC, "createTime")));
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, Pname.class);
 			if (pagination == null)
 				pagination = new Pagination<Pname>();
