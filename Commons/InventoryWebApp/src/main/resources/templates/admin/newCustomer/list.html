@@ -164,9 +164,18 @@
 
 													<td class="numeric">[[${newCustomer.name}]]</td>
 													<td class="numeric">[[${newCustomer.wyid}]]</td>
-													<td class="numeric" th:id="disBtn+${newCustomer.id}"
-														th:utext="${newCustomer.isDisable eq true }?|<button type='button' onclick=toDisable('${newCustomer.id}','newCustomer') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${newCustomer.id}','newCustomer') class='btn btn-success'>启用</button>|"></td>
-													<td class="numeric"><shiro:hasPermission
+
+<!--													<td class="numeric" th:id="disBtn+${newCustomer.id}"-->
+<!--														th:utext="${newCustomer.isDisable eq true }?|<button type='button' onclick=toDisable('${newCustomer.id}','newCustomer') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${newCustomer.id}','newCustomer') class='btn btn-success'>启用</button>|"></td>-->
+													<td class="numeric" th:id="disBtn+${newCustomer.id}" shiro:hasPermission="|newCustomer:disable|">
+														<button type='button'
+																th:onclick="|toDisable('${newCustomer.id}','newCustomer')|"
+																th:class="${newCustomer.isDisable} ? 'btn btn-danger' : 'btn btn-success'">
+															<span th:text="${newCustomer.isDisable} ? '禁用' : '启用'">状态</span>
+														</button>
+													</td>
+													<td class="numeric">
+														<shiro:hasPermission
 															name="newCustomer:edit">
 															<button class="btn btn-primary btn-xs"
 																th:onclick="|return toeditPage('${newCustomer.id}','newCustomer')|">

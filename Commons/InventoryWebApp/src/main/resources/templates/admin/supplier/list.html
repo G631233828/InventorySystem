@@ -235,7 +235,7 @@
 															th:style="${#lists.contains(listColums,'payMent')}?'':'display:none;'">[[${supplier?.payMent}]]</td>
 														<td class="numeric afterSaleService" id="afterSaleService"
 															th:style="${#lists.contains(listColums,'afterSaleService')}?'':'display:none;'">[[${supplier?.afterSaleService}]]</td>
-														<td class="numeric" th:id="disBtn+${supplier.id}"
+														<td class="numeric" th:id="disBtn+${supplier.id}" shiro:hasPermission="|supplier:disable|"
 															th:utext="${supplier.isDisable eq true }?|<button type='button' onclick=toDisable('${supplier.id}','supplier') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${supplier.id}','supplier') class='btn btn-success'>启用</button>|"></td>
 														<td class="numeric"><shiro:hasPermission
 																name="supplier:edit">

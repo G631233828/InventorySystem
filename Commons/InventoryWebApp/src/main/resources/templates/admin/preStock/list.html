@@ -83,10 +83,11 @@
                                     </button>
                                 </shiro:hasPermission>
 
+                                <shiro:hasPermission name="preStock:add">
                                 <button class="btn btn-success" onclick="return batchImput()">
                                     <i class="fontawesome-upload"> </i>批量导入
                                 </button>
-
+                                </shiro:hasPermission>
 
                                 <shiro:hasPermission name="preStock:edit">
                                     <button class="btn btn-primary btn-sm"
@@ -110,14 +111,17 @@
                                     <i class="entypo-export"> </i>导出预库存
                                 </button>
 
+                                <shiro:hasPermission name="preStock:in">
                                 <button class="btn btn-success" onclick="return batchOut()">
                                     <i class="fontawesome-upload"> </i>批量入库
                                 </button>
+                                </shiro:hasPermission>
+                                <shiro:hasPermission name="preStock:edit">
                                 <button class="btn btn-primary btn-sm"
                                         onclick="return editprestock()">
                                     <i class="entypo-search"> </i> 批量编辑
                                 </button>
-
+                                </shiro:hasPermission>
 
                             </div>
 
