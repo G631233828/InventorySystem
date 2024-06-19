@@ -358,7 +358,7 @@ public class InventoryTransferServiceImpl extends GeneralServiceImpl<InventoryTr
 		if (Common.isNotEmpty(search)) {
 			
 			ca1.orOperator(Criteria.where("name").regex(search),
-					Criteria.where("model").regex(search), Criteria.where("scope").regex(search),
+					Criteria.where("model").regex(Common.escapeExprSpecialWord(search)), Criteria.where("scope").regex(search),
 					Criteria.where("entryName").regex(search),Criteria.where("itemNo").regex(search),
 					Criteria.where("contactNumber").regex(search),Criteria.where("personInCharge").regex(search)
 					);

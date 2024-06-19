@@ -57,6 +57,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -1257,6 +1259,22 @@ public class Common {
 	    }
 	
 	
+		/**
+	     * mongo模糊查询 转义工具
+	     */
+	    public static String escapeExprSpecialWord(String keyword) {
+	        if (StringUtils.isNotBlank(keyword)) {
+	            String[] fbsArr = {"\\", "$", "(", ")", "*", "+", ".", "[", "]", "?", "^", "{", "}", "|", "（", "）"};
+	            for (String key : fbsArr) {
+	                if (keyword.contains(key)) {
+	                    keyword = keyword.replace(key, "\\" + key);
+	                }
+	            }
+	        }
+	        return keyword;
+	    }
+
+	 
 	
 	
 

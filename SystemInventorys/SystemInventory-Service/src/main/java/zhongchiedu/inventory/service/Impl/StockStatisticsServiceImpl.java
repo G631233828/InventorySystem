@@ -241,7 +241,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		Criteria ca = new Criteria();
 		ca.orOperator(Criteria.where("entryName").regex(search), Criteria.where("itemNo").regex(search),
 				Criteria.where("name").regex(search, "i"), Criteria.where("supplier.$id").in(findSupplierIds),
-				Criteria.where("projectLeader").regex(search), Criteria.where("model").regex(search, "i"));
+				Criteria.where("projectLeader").regex(search), Criteria.where("model").regex(Common.escapeExprSpecialWord(search), "i"));
 //				Criteria.where("model").regex("^" +search.replace("*",".*") + "$", "i"));
 		query.addCriteria(ca);
 //		query.addCriteria(Criteria.where("isDelete").is(false));  添加此条件，则被删除的库存无法在库存统计中显示
@@ -279,7 +279,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		if (Common.isNotEmpty(search)) {
 			Criteria ca = new Criteria();
 			query.addCriteria(
-					ca.orOperator(Criteria.where("name").regex(search), Criteria.where("model").regex(search)));
+					ca.orOperator(Criteria.where("name").regex(search), Criteria.where("model").regex(Common.escapeExprSpecialWord(search))));
 
 		}
 

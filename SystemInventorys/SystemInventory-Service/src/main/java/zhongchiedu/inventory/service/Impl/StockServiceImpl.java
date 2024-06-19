@@ -267,7 +267,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			query = query.addCriteria(Criteria.where("entryName").regex(requestBo.getEntryName(), "i"));
 		}
 		if (Common.isNotEmpty(requestBo.getModel())) {
-			query = query.addCriteria(Criteria.where("model").regex(requestBo.getModel(), "i"));
+			query = query.addCriteria(Criteria.where("model").regex(Common.escapeExprSpecialWord(requestBo.getModel()), "i"));
 		}
 		if (Common.isNotEmpty(requestBo.getSsC())) {
 			String[] ssCs = requestBo.getSsC().split(",");
@@ -307,7 +307,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 					  Criteria.where("supplier.$id").in(suppliersId),
 					  Criteria.where("brand.$id").in(brand),
 					  Criteria.where("name").regex(search, "i"),
-					Criteria.where("model").regex(search, "i"), Criteria.where("scope").regex(search),
+					Criteria.where("model").regex(Common.escapeExprSpecialWord(search), "i"), Criteria.where("scope").regex(search),
 					Criteria.where("entryName").regex(search),Criteria.where("itemNo").regex(search),
 					Criteria.where("projectLeader").regex(search))
 					);
@@ -441,7 +441,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			query.addCriteria(Criteria.where("name").is(name));
 				query.addCriteria(Criteria.where("area.$id").is(new ObjectId(areaId)));
 				query.addCriteria(Criteria.where("supplier.$id").is(new ObjectId(supplierId)));
-				query.addCriteria(Criteria.where("model").is(model));
+				query.addCriteria(Criteria.where("model").is(Common.escapeExprSpecialWord(model)));
 			Stock stock = this.findOneByQuery(query, Stock.class);
 			return stock != null ? BasicDataResult.build(206, "当前供应商信息已经存在，请检查", null) : BasicDataResult.ok();
 		}
@@ -734,7 +734,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 
 		query.addCriteria(Criteria.where("name").is(name));
-		query.addCriteria(Criteria.where("model").is(model));
+		query.addCriteria(Criteria.where("model").is(Common.escapeExprSpecialWord(model)));
 
 		if (Common.isNotEmpty(entryName)) {
 			query.addCriteria(Criteria.where("entryName").is(entryName));
@@ -767,7 +767,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		}
 
 		query.addCriteria(Criteria.where("name").is(name));
-		query.addCriteria(Criteria.where("model").is(model));
+		query.addCriteria(Criteria.where("model").is(Common.escapeExprSpecialWord(model)));
 
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		Stock stock = this.findOneByQuery(query, Stock.class);
@@ -1239,7 +1239,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				query.addCriteria(Criteria.where("area.$id").is(new ObjectId(areaId)));
 			}
 			if (Common.isNotEmpty(model)) {
-				query.addCriteria(Criteria.where("model").is(model));
+				query.addCriteria(Criteria.where("model").regex(Common.escapeExprSpecialWord(model)));
 			}
 			if(Common.isNotEmpty(supplieId)) {
 				query.addCriteria(Criteria.where("supplier.$id").is(new ObjectId(supplieId)));

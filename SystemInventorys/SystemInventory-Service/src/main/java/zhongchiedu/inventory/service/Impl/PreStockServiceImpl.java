@@ -165,7 +165,7 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 				query=query.addCriteria(Criteria.where("entryName").regex(requestBo.getEntryName(), "i"));
 			}
 			if(Common.isNotEmpty(requestBo.getModel())){
-				query=query.addCriteria(Criteria.where("model").regex(requestBo.getModel(), "i"));
+				query=query.addCriteria(Criteria.where("model").regex(Common.escapeExprSpecialWord(requestBo.getModel()), "i"));
 			}
 			if (Common.isNotEmpty(requestBo.getSsC())) {
 				String[] ssCs=requestBo.getSsC().split(",");
@@ -227,7 +227,7 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 											 * Criteria.where("goodsStorage.$id").in(goodsStorage), */
 											 Criteria.where("supplier.$id").in(suppliersId),
 											 Criteria.where("name").regex(search),
-					Criteria.where("model").regex(search),
+					Criteria.where("model").regex(Common.escapeExprSpecialWord(search)),
 					Criteria.where("entryName").regex(search),
 					Criteria.where("purchaseInvoiceNo").regex(search),
 					Criteria.where("paymentOrderNo").regex(search),
@@ -606,7 +606,7 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 			query.addCriteria(Criteria.where("supplier.$id").is(new ObjectId(supplier.getId())));
 		}
 		query.addCriteria(Criteria.where("name").is(name));
-		query.addCriteria(Criteria.where("model").is(model));
+		query.addCriteria(Criteria.where("model").is(Common.escapeExprSpecialWord(model)));
 		query.addCriteria(Criteria.where("entryName").is(entryName));
 		query.addCriteria(Criteria.where("status").is(status));
 		query.addCriteria(Criteria.where("isDelete").is(false));
@@ -787,7 +787,7 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 			query=query.addCriteria(Criteria.where("entryName").regex(requestBo.getEntryName(), "i"));
 		}
 		if(Common.isNotEmpty(requestBo.getModel())){
-			query=query.addCriteria(Criteria.where("model").regex(requestBo.getModel(), "i"));
+			query=query.addCriteria(Criteria.where("model").regex(Common.escapeExprSpecialWord(requestBo.getModel()), "i"));
 		}
 		if (Common.isNotEmpty(requestBo.getSsC())) {
 			String[] ssCs=requestBo.getSsC().split(",");
@@ -966,7 +966,7 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 			query.addCriteria(Criteria.where("name").is(name));
 			query.addCriteria(Criteria.where("area.$id").is(new ObjectId(areaId)));
 			query.addCriteria(Criteria.where("supplier.$id").is(new ObjectId(supplierId)));
-			query.addCriteria(Criteria.where("model").is(model));
+			query.addCriteria(Criteria.where("model").is(Common.escapeExprSpecialWord(model)));
 			query.addCriteria(Criteria.where("entryName").is(entryName));
 			PreStock stock = this.findOneByQuery(query, PreStock.class);
 			return stock != null ? BasicDataResult.build(206, "当前供应商信息已经存在，请检查", null) : BasicDataResult.ok();

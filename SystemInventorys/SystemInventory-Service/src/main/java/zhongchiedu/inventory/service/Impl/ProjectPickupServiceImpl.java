@@ -91,7 +91,7 @@ public class ProjectPickupServiceImpl extends GeneralServiceImpl<ProjectPickup> 
 //			query.addCriteria(Criteria.where("createTime").gte(Common.getDateByStringDate(start)));
 //			}
 			if(Common.isNotEmpty(search)) {
-				ca.orOperator(Criteria.where("name").regex(search), Criteria.where("model").regex(search),
+				ca.orOperator(Criteria.where("name").regex(search), Criteria.where("model").regex(Common.escapeExprSpecialWord(search)),
 						Criteria.where("phone").regex(search), Criteria.where("username").regex(search),
 						Criteria.where("entryName").regex(search),Criteria.where("itemNo").regex(search),
 						Criteria.where("projectLeader").regex(search));
@@ -123,7 +123,7 @@ public class ProjectPickupServiceImpl extends GeneralServiceImpl<ProjectPickup> 
 						Criteria.where("createTime").lte(Common.getDateByStringDate(end)));
 			}
 			if(Common.isNotEmpty(search)) {
-				ca.orOperator(Criteria.where("name").regex(search), Criteria.where("model").regex(search),
+				ca.orOperator(Criteria.where("name").regex(search), Criteria.where("model").regex(Common.escapeExprSpecialWord(search)),
 						Criteria.where("phone").regex(search), Criteria.where("username").regex(search),
 						Criteria.where("entryName").regex(search),Criteria.where("itemNo").regex(search),
 						Criteria.where("projectLeader").regex(search));

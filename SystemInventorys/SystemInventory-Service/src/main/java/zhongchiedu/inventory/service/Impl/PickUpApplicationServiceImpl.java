@@ -330,6 +330,12 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 
 				// 通过设备名称 型号 区域 供应商 来获取库存信息
 				Stock stock = this.stockService.findByAreaNameModel(area.getId(), name, model, supplier.getId());
+				
+				if (Common.isEmpty(stock)) {
+					error += "<span class='entypo-attention'></span>导入文件未找到设备，第<b>&nbsp&nbsp" + (i + 1)
+							+ "请手动去修改该条信息！名称："+name+"型号:"+model+"&nbsp&nbsp</b></br>";
+					continue;
+				}
 				// 绑定库存信息
 				importPickup.setStock(stock);
 

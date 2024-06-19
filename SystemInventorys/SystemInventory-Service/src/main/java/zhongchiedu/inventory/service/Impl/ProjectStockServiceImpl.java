@@ -191,7 +191,7 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 			Criteria ca = new Criteria();
 			query.addCriteria(ca.orOperator(Criteria.where("supplier.$id").in(suppliersId),
 					Criteria.where("name").regex(search), Criteria.where("projectName").regex(search),
-					Criteria.where("model").regex(search), Criteria.where("scope").regex(search)));
+					Criteria.where("model").regex(Common.escapeExprSpecialWord(search)), Criteria.where("scope").regex(search)));
 		}
 		if (Common.isNotEmpty(projectName)) {
 			query.addCriteria(Criteria.where("projectName").is(projectName));
@@ -527,7 +527,7 @@ public class ProjectStockServiceImpl extends GeneralServiceImpl<ProjectStock> im
 			query.addCriteria(Criteria.where("supplier.$id").is(new ObjectId(supplier.getId())));
 		}
 		query.addCriteria(Criteria.where("name").is(name));
-		query.addCriteria(Criteria.where("model").is(model));
+		query.addCriteria(Criteria.where("model").is(Common.escapeExprSpecialWord(model)));
 		query.addCriteria(Criteria.where("projectName").is(projectName));
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		ProjectStock stock = this.findOneByQuery(query, ProjectStock.class);

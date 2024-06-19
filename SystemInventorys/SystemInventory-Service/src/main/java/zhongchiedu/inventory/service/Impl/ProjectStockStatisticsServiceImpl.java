@@ -121,7 +121,7 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 		Query query = new Query();
 		Criteria ca = new Criteria();
 
-		query.addCriteria(ca.orOperator(Criteria.where("projectName").regex(search),Criteria.where("name").regex(search), Criteria.where("model").regex(search)));
+		query.addCriteria(ca.orOperator(Criteria.where("projectName").regex(search),Criteria.where("name").regex(search), Criteria.where("model").regex(Common.escapeExprSpecialWord(search))));
 		
 		 query.addCriteria(Criteria.where("isDelete").is(false)); query.with(new
 		 Sort(new Order(Direction.DESC, "createTime")));
@@ -140,7 +140,7 @@ public class ProjectStockStatisticsServiceImpl extends GeneralServiceImpl<Projec
 			query.addCriteria(Criteria.where("area.$id").is(new ObjectId(areaId)));
 		}
 		Criteria ca = new Criteria();
-		query.addCriteria(ca.orOperator(Criteria.where("name").regex(search), Criteria.where("model").regex(search)));
+		query.addCriteria(ca.orOperator(Criteria.where("name").regex(search), Criteria.where("model").regex(Common.escapeExprSpecialWord(search))));
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		List<ProjectStock> lists = this.projectStockService.find(query, ProjectStock.class);
 		return lists;
