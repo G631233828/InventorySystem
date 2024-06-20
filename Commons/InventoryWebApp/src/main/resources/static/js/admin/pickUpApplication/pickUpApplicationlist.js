@@ -242,7 +242,7 @@ function batchAdd() {
                                <input type="text" value="`+ (item.estimatedIssueQuantity - item.actualIssueQuantity) + `" onblur="return setpickUpNum('`+ item.id + `','` + item.estimatedIssueQuantity + `','` + item.actualIssueQuantity + `')"  class="form-control stockval batchout" id=pickupnum_` + item.id + `   name="batchnum" >
                                </td>
                                <td class="numeric">
-                               <button class="btn " type="button" onclick="return deleteStock('`+ item.id + `')" > <i  class="fa fa-trash-o">移除 </i>
+                               <button class="btn " type="button" onclick="return deleteStock('`+ item.id + `')" > <i  class="fa fa-trash-o"> </i>
 							  </button>
                                 </td>  </tr>`
 				});

@@ -232,16 +232,16 @@
 														for="checkall"></label>
 												</div>
 											</th>
-											<th class="numeric">项目名称</th>
-											<th class="numeric">客户</th>
+											<th class="numeric" style="width:200px;">项目</th>
+											<th class="numeric" style="width:200px;">客户</th>
 											<th class="numeric">区域</th>
-											<th class="numeric">设备名称</th>
-											<th class="numeric">设备型号</th>
+											<th class="numeric">设备</th>
+											<th class="numeric" style="width:200px;">型号</th>
 											<th class="numeric">领料人</th>
-											<th class="numeric">预计出库数量</th>
-											<th class="numeric">实际出库数量</th>
+											<th class="numeric">预出数</th>
+											<th class="numeric">实出数</th>
 											<th class="numeric">发布人</th>
-											<th class="numeric" th:if="${session.pickstatus}!=2">处理人</th>
+											<th class="numeric" th:if="${session.pickstatus}==2">处理人</th>
 											<th class="numeric" th:if="${session.pickstatus}==1">预计取货时间</th>
 											<th class="numeric">库存状态</th>
 											<th class="numeric">操作</th>
@@ -270,7 +270,7 @@
 												<td class="numeric">[[${pickupApplication?.estimatedIssueQuantity}]]</td>
 												<td class="numeric">[[${pickupApplication?.actualIssueQuantity}]]</td>
 												<td class="numeric">[[${pickupApplication?.publisher?.userName}]]</td>
-												<td class="numeric" th:if="${session.pickstatus}!=2">[[${pickupApplication?.handler?.userName}]]</td>
+												<td class="numeric" th:if="${session.pickstatus}==2">[[${pickupApplication?.handler?.userName}]]</td>
 												<td class="numeric" th:if="${session.pickstatus}==1"
 													th:text="${#dates.format(pickupApplication.pickUpTime,'yyyy-MM-dd hh:mm')}"></td>
 												<td class="numeric"
@@ -280,25 +280,25 @@
 														<button class="btn btn-primary btn-xs"
 															th:if="${pickupApplication?.status}!=2"
 															th:onclick="|return toeditPage('${pickupApplication.id}','pickUpApplicationAdd')|">
-															<i class="fa fa-edit"> </i>取货完成
+															<i class="fa fa-edit"> </i>取货
 														</button>
 													</shiro:hasPermission> <shiro:hasPermission name="pickUpApplication:wechatPush">
 														<button class="btn btn-primary btn-xs wx"
 															th:if="${pickupApplication?.status}!=2"
 															th:onclick="|return wechatPush('${pickupApplication.id}')|">
-															<i class="iconfont">&#xe69a;</i> 通知仓库人员
+															<i class="iconfont">&#xe69a;</i>通知
 														</button>
 													</shiro:hasPermission> <shiro:hasPermission name="pickUpApplication:edit">
 														<button class="btn btn-primary btn-xs"
 															th:if="${pickupApplication?.status}!=2"
 															th:onclick="|return toeditPage('${pickupApplication.id}','pickUpApplication')|">
-															<i class="fa fa-edit"> </i>编辑
+															<i class="fa fa-edit"> </i>
 														</button>
 
 													</shiro:hasPermission> <shiro:hasPermission name="pickUpApplication:delete">
 														<button class="btn btn-danger btn-xs"
 															th:onclick="|return del('@{/pickUpApplication/}${pickupApplication.id}','')|">
-															<i class="fa fa-trash-o"> </i>删除
+															<i class="fa fa-trash-o"> </i>
 														</button>
 													</shiro:hasPermission></td>
 											</tr>
