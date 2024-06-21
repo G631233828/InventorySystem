@@ -46,8 +46,8 @@
 						class="weui-form-preview__value">[[${map?.customer}]]</span>
 				</div>
 				<div class="weui-form-preview__item">
-					<label class="weui-form-preview__label">出库单号</label> <span
-						class="weui-form-preview__value">[[${map?.outboundOrder}]]</span>
+					<label class="weui-form-preview__label">领料人</label> <span
+						class="weui-form-preview__value">[[${map?.accepter}]]</span>
 				</div>
 
 				<div class="weui-form-preview__item">
@@ -90,11 +90,12 @@
 				</table>
 
 				<div class="weui-form-preview__item">
-					<label class="weui-form-preview__label">签名1</label> <img
+					<label class="weui-form-preview__label">领料人签名</label> <img
 						th:src="${map?.sign}" class="img-max">
 				</div>
-				<div class="weui-form-preview__item">
-					<label class="weui-form-preview__label">签名2</label> <img
+				
+				<div class="weui-form-preview__item" th:if="${map?.othersign!= ''}">
+					<label class="weui-form-preview__label">复核签名</label> <img
 						th:src="${map?.othersign}" class="img-max">
 				</div>
 			</div>

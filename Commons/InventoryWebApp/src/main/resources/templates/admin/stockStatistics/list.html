@@ -418,8 +418,8 @@
 													th:style="${#lists.contains(listColums,'newCustomer')}?'':'display:none;'">客户(新)</th>
 												<th class="numeric accepter"
 													th:style="${#lists.contains(listColums,'accepter')}?'':'display:none;'">领料人</th>
-												<th class="numeric outboundOrder"
-													th:style="${#lists.contains(listColums,'outboundOrder')}?'':'display:none;'">出库单号</th>
+												<!-- <th class="numeric outboundOrder"
+													th:style="${#lists.contains(listColums,'outboundOrder')}?'':'display:none;'">出库单号</th> -->
 												<!-- 		<th class="numeric inprice"
 													th:style="${#lists.contains(listColums,'inprice')}?'':'display:none;'">入库总金额</th> -->
 												<!-- 			<th class="numeric sailPrice"
@@ -543,9 +543,9 @@
 													<td class="numeric accepter" id="accepter"
 														th:style="${#lists.contains(listColums,'accepter')}?'':'display:none;'"
 														th:text="${stockStatistics.accepter != null}?${stockStatistics?.accepter}:'--------'"></td>
-													<td class="numeric outboundOrder" id="outboundOrder"
+													<!-- <td class="numeric outboundOrder" id="outboundOrder"
 														th:style="${#lists.contains(listColums,'outboundOrder')}?'':'display:none;'"
-														th:text="${stockStatistics.outboundOrder != null}?${stockStatistics?.outboundOrder}:'--------'"></td>
+														th:text="${stockStatistics.outboundOrder != null}?${stockStatistics?.outboundOrder}:'--------'"></td> -->
 													<!-- 
 													<td class="numeric inprice"  th:id="|inprice_${stockStatistics?.id}|"  th:ondblclick="|return change('${stockStatistics?.id}','inprice',${stockStatistics?.confirm})|"
 														th:style="${#lists.contains(listColums,'inprice')}?'':'display:none;'"
@@ -676,7 +676,7 @@
 															<button class="btn btn-default btn-sm"
 																th:id="|ckcode${stockStatistics?.id}|" title="出库二维码"
 																th:if="${stockStatistics.depotTime!=null}"
-																th:onclick="|return showQRCode('${stockStatistics.id}','${stockStatistics?.projectName}')|">
+																th:onclick="|return showQRCode('${stockStatistics.id}','${stockStatistics?.pname?.name}')|">
 																<i class="icon icon-view-thumb"> </i>
 
 															</button>
@@ -739,8 +739,8 @@
 														th:style="${#lists.contains(listColums,'customer')}?'':'display:none;'"></th>
 													<th class="numeric accepter"
 														th:style="${#lists.contains(listColums,'accepter')}?'':'display:none;'"></th>
-													<th class="numeric outboundOrder"
-														th:style="${#lists.contains(listColums,'outboundOrder')}?'':'display:none;'"></th>
+													<!-- <th class="numeric outboundOrder"
+														th:style="${#lists.contains(listColums,'outboundOrder')}?'':'display:none;'"></th> -->
 													<!-- <th class="numeric inprice" id="heji"
 													th:style="${#lists.contains(listColums,'inprice')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![inprice==null?0:inprice])}]]</th> -->
 													<!-- <th class="numeric sailPrice" id="sailPrice"

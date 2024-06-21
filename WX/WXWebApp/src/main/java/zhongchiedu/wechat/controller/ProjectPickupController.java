@@ -27,6 +27,8 @@ import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.Common;
 import zhongchiedu.common.utils.Contents;
 import zhongchiedu.general.pojo.User;
+import zhongchiedu.inventory.pojo.NewCustomer;
+import zhongchiedu.inventory.pojo.Pname;
 import zhongchiedu.inventory.pojo.ProjectPickup;
 import zhongchiedu.inventory.pojo.Stock;
 import zhongchiedu.inventory.pojo.StockStatistics;
@@ -152,6 +154,7 @@ public class ProjectPickupController {
 		String path="general/batchOut";
 		
 		StockStatistics stock = this.stockStatisticsService.findOneById(stockId, StockStatistics.class);
+		model.addAttribute("stock", stock);
 
 		//
 		if(Common.isNotEmpty(stock.getOthersign())) {
@@ -162,8 +165,10 @@ public class ProjectPickupController {
 				WXUserInfo getwXUserInfo = this.wXUserInfoService.findUserByOpenId(stock.getOpenId());
 				model.addAttribute("getwXUserInfo", getwXUserInfo);
 			}
-			
-			List<StockStatistics> list = this.stockStatisticsService.findByoutboundOrder(stock.getOutboundOrder());
+			//old 通过订单号查询
+//			List<StockStatistics> list = this.stockStatisticsService.findByoutboundOrder(stock.getOutboundOrder());
+
+			List<StockStatistics> list = this.stockStatisticsService.findStockStatisticsToCreateQrcode(stock.getPname(), stock.getNewCustomer(), stock.getAccepter());
 			model.addAttribute("list", list);
 			
 			path="general/batchOutSuccess";
@@ -172,8 +177,8 @@ public class ProjectPickupController {
 		if(Common.isNotEmpty(stock.getMysign())) {
 			model.addAttribute("sign",stock.getMysign());
 		}
-			List<StockStatistics> list = this.stockStatisticsService.findByoutboundOrder(stock.getOutboundOrder());
-			model.addAttribute("list", list);
+		List<StockStatistics> list = this.stockStatisticsService.findStockStatisticsToCreateQrcode(stock.getPname(), stock.getNewCustomer(), stock.getAccepter());
+		model.addAttribute("list", list);
 			model.addAttribute("stock", stock);
 
 			// 通过code获取微信相关信息
@@ -220,7 +225,8 @@ public class ProjectPickupController {
 		WXUserInfo wXUserInfo = this.wXUserInfoService.updateWXuserInfo(p);
 		model.addAttribute("wXUserInfo", wXUserInfo);
 		model.addAttribute("map", map);
-		List<StockStatistics> list = this.stockStatisticsService.findByoutboundOrder(map.get("outboundOrder").toString());
+	//	List<StockStatistics> list = this.stockStatisticsService.findByoutboundOrder(map.get("outboundOrder").toString());
+		List<StockStatistics> list =  this.stockStatisticsService.findStockStatisticsToCreateQrcode((Pname)map.get("pName"), (NewCustomer)map.get("newCustomer"), map.get("accepter").toString());
 		model.addAttribute("list", list);
 		
 		return "/general/batchOutSuccess";

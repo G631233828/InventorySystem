@@ -13,6 +13,8 @@ import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralService;
 import zhongchiedu.general.pojo.User;
+import zhongchiedu.inventory.pojo.NewCustomer;
+import zhongchiedu.inventory.pojo.Pname;
 import zhongchiedu.inventory.pojo.RequestBo;
 import zhongchiedu.inventory.pojo.Stock;
 import zhongchiedu.inventory.pojo.StockStatistics;
@@ -58,7 +60,7 @@ public interface StockStatisticsService extends GeneralService<StockStatistics> 
 	public  void updateStockStatistics(String ids,Double inprice,String purchaseInvoiceNo,String receiptNo,String paymentOrderNo,String sailesInvoiceNo,
 									   String sailesInvoiceDate,User user,String purchaseInvoiceDate,Double sailPrice,String newItemNo,String description);
 	
-	
+	public List<StockStatistics> findStockStatisticsToCreateQrcode(Pname pname,NewCustomer newcustomer,String accepter);
 	
 	
 }

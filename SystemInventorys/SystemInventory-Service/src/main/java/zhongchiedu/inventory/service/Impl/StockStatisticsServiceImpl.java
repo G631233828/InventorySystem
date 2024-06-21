@@ -1068,43 +1068,64 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		List<Map<String, Object>> stocks = new ArrayList<>();
 		Map<String, Object> stock;
 		// 根据stockStatistics获取订单号
-		if (Common.isEmpty(stockStatistics.getOutboundOrder())) {
-			System.out.println(stockStatistics.getStock() == null);
-			// 如果订单号为空说明是1个设备（历史数据处理）
-			if (stockStatistics.getStock() != null) {
-				stock = new HashMap<>();
-				stock.put("id", 1);
-				stock.put("name", Common.isEmpty(stockStatistics.getStock().getName()) ? ""
-						: stockStatistics.getStock().getName());
-				stock.put("model", Common.isEmpty(stockStatistics.getStock().getModel()) ? ""
-						: stockStatistics.getStock().getModel());
-				stock.put("unitName",
-						Common.isNotEmpty(stockStatistics.getStock().getUnit())
-								? stockStatistics.getStock().getUnit().getName()
-								: "");
-				stock.put("num", stockStatistics.getNum());
-				allnum = stockStatistics.getNum();
-				stocks.add(stock);
-			}
-		} else {
-			// 根据单号获取所有出库数据
-			List<StockStatistics> stockStatisticsList = this.findByoutboundOrder(stockStatistics.getOutboundOrder());
+//		if (Common.isEmpty(stockStatistics.getOutboundOrder())) {
+//			System.out.println(stockStatistics.getStock() == null);
+//			// 如果订单号为空说明是1个设备（历史数据处理）
+//			if (stockStatistics.getStock() != null) {
+//				stock = new HashMap<>();
+//				stock.put("id", 1);
+//				stock.put("name", Common.isEmpty(stockStatistics.getStock().getName()) ? ""
+//						: stockStatistics.getStock().getName());
+//				stock.put("model", Common.isEmpty(stockStatistics.getStock().getModel()) ? ""
+//						: stockStatistics.getStock().getModel());
+//				stock.put("unitName",
+//						Common.isNotEmpty(stockStatistics.getStock().getUnit())
+//								? stockStatistics.getStock().getUnit().getName()
+//								: "");
+//				stock.put("num", stockStatistics.getNum());
+//				allnum = stockStatistics.getNum();
+//				stocks.add(stock);
+//			}
+//		} else {
+//			// 根据单号获取所有出库数据
+//			List<StockStatistics> stockStatisticsList = this.findByoutboundOrder(stockStatistics.getOutboundOrder());
+//
+//			for (int i = 0; i < stockStatisticsList.size(); i++) {
+//				stock = new HashMap<>();
+//				stock.put("id", i + 1);
+//				stock.put("name", stockStatisticsList.get(i).getStock().getName());
+//				stock.put("model", stockStatisticsList.get(i).getStock().getModel());
+//				stock.put("unitName",
+//						Common.isNotEmpty(stockStatisticsList.get(i).getStock().getUnit())
+//								? stockStatisticsList.get(i).getStock().getUnit().getName()
+//								: "");
+//				stock.put("num", stockStatisticsList.get(i).getNum());
+//				allnum += stockStatisticsList.get(i).getNum();
+//				stocks.add(stock);
+//			}
+//
+//		}
+		
+		//通过项目id 客户id 领料人来获取数据  new
+		// 根据单号获取所有出库数据
+		List<StockStatistics> stockStatisticsList = this.findStockStatisticsToCreateQrcode(stockStatistics.getPname(),stockStatistics.getNewCustomer(),stockStatistics.getAccepter());
 
-			for (int i = 0; i < stockStatisticsList.size(); i++) {
-				stock = new HashMap<>();
-				stock.put("id", i + 1);
-				stock.put("name", stockStatisticsList.get(i).getStock().getName());
-				stock.put("model", stockStatisticsList.get(i).getStock().getModel());
-				stock.put("unitName",
-						Common.isNotEmpty(stockStatisticsList.get(i).getStock().getUnit())
-								? stockStatisticsList.get(i).getStock().getUnit().getName()
-								: "");
-				stock.put("num", stockStatisticsList.get(i).getNum());
-				allnum += stockStatisticsList.get(i).getNum();
-				stocks.add(stock);
-			}
-
+		for (int i = 0; i < stockStatisticsList.size(); i++) {
+			stock = new HashMap<>();
+			stock.put("id", i + 1);
+			stock.put("name", stockStatisticsList.get(i).getStock().getName());
+			stock.put("model", stockStatisticsList.get(i).getStock().getModel());
+			stock.put("unitName",
+					Common.isNotEmpty(stockStatisticsList.get(i).getStock().getUnit())
+							? stockStatisticsList.get(i).getStock().getUnit().getName()
+							: "");
+			stock.put("num", stockStatisticsList.get(i).getNum());
+			allnum += stockStatisticsList.get(i).getNum();
+			stocks.add(stock);
 		}
+		
+		
+		
 		dataMap.put("allnum", allnum);
 		dataMap.put("stocks", stocks);
 
@@ -1159,9 +1180,9 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 		}
 
-		String outboundOrder = Common.isEmpty(stockStatistics.getOutboundOrder()) ? ""
-				: stockStatistics.getOutboundOrder();
-		dataMap.put("customer", Common.isEmpty(stockStatistics.getCustomer()) ? "" : stockStatistics.getCustomer());
+//		String outboundOrder = Common.isEmpty(stockStatistics.getOutboundOrder()) ? ""
+//				: stockStatistics.getOutboundOrder();
+		dataMap.put("customer", Common.isEmpty(stockStatistics.getNewCustomer()) ? "" : stockStatistics.getNewCustomer().getName());
 		dataMap.put("personInCharge",
 				Common.isEmpty(stockStatistics.getPersonInCharge()) ? "" : stockStatistics.getPersonInCharge());
 		try {
@@ -1170,12 +1191,15 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		dataMap.put("outboundOrder", outboundOrder);
-		dataMap.put("description",
-				Common.isEmpty(stockStatistics.getDescription()) ? "" : stockStatistics.getDescription());
+//		dataMap.put("outboundOrder", outboundOrder);
+		//领货人
+		
+		dataMap.put("accepter", Common.isEmpty(stockStatistics.getAccepter()) ? "" : stockStatistics.getAccepter());
+//		dataMap.put("description",
+//				Common.isEmpty(stockStatistics.getDescription()) ? "" : stockStatistics.getDescription());
 		dataMap.put("username", Common.isEmpty(user.getUserName()) ? "" : user.getUserName());
 		dataMap.put("projectName",
-				Common.isEmpty(stockStatistics.getProjectName()) ? "" : stockStatistics.getProjectName());
+				Common.isEmpty(stockStatistics.getPname()) ? "" : stockStatistics.getPname().getName());
 
 //		  dataMap.put("customer",stockStatistics.getCustomer());
 //		  dataMap.put("personInCharge", stockStatistics.getPersonInCharge());
@@ -1234,10 +1258,11 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				// 生成二维码
 				String path = dir + qrcodepath + "/";
 				Common.checkPathAndMkdirs(path);
-				String projectname = Common.isNotEmpty(stock.getProjectName()) ? stock.getProjectName().trim() : "";
-				String customer = Common.isNotEmpty(stock.getCustomer()) ? stock.getCustomer().trim() : "";
-				if (stock.getOutboundOrder() != null) {
-					File outputFile = new File(path + projectname + customer + stock.getOutboundOrder() + ".png");
+				String projectname = Common.isNotEmpty(stock.getPname()) ? stock.getPname().getName(): "";
+				String customer = Common.isNotEmpty(stock.getNewCustomer()) ? stock.getNewCustomer().getName() : "";
+				String accepter = Common.isNotEmpty(stock.getAccepter()) ? stock.getAccepter() : "";
+//				if (stock.getOutboundOrder() != null) {
+					File outputFile = new File(path +"-"+ projectname +"-"+customer +"-"+accepter + ".png");
 					MatrixToImageWriter.writeToFile(bitMatrix, format, outputFile);
 					// 保存图片信息
 					MultiMedia saveQrCode = this.multiMediaService.saveQrCode(outputFile, dir, qrcodepath, "PHOTO");
@@ -1248,7 +1273,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 					this.qrCodeServce.insert(qrcode);
 					stock.setQrCode(qrcode);
 					this.save(stock);
-				}
+//				}
 
 			} catch (WriterException | IOException e) {
 				// TODO Auto-generated catch block
@@ -1264,9 +1289,14 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 		StockStatistics stockStatistics = this.findOneById(id, StockStatistics.class);
 
-		List<StockStatistics> findByoutboundOrder = this.findByoutboundOrder(stockStatistics.getOutboundOrder());
+		
+		//老版本  通过订单号outboundorder 
+		//List<StockStatistics> findByoutboundOrder = this.findByoutboundOrder(stockStatistics.getOutboundOrder());
+		//通过出库统计中 项目id 客户id 领料人 来获取所有出库统计作为一个出库二维码
+		
+		List<StockStatistics> sts = this.findStockStatisticsToCreateQrcode(stockStatistics.getPname(),stockStatistics.getNewCustomer(),stockStatistics.getAccepter());
 
-		findByoutboundOrder.forEach(o -> {
+		sts.forEach(o -> {
 			this.createStockStatisticsQrCode(o.getId());
 		});
 
@@ -1276,19 +1306,30 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 	@Override
 	public Map<Object, Object> stockStatisticsPickup(StockStatistics stockStatistics, String i) {
-		String outboundOrder = stockStatistics.getOutboundOrder();
-		List<StockStatistics> st = this.findByoutboundOrder(outboundOrder);
+		//根据stockStatisticsid查询
+		StockStatistics st = this.findOneById(stockStatistics.getId(), StockStatistics.class);
+		
+//		String outboundOrder = stockStatistics.getOutboundOrder();
+//		List<StockStatistics> st = this.findByoutboundOrder(outboundOrder);
+		List<StockStatistics> findStockStatisticsToCreateQrcode = this.findStockStatisticsToCreateQrcode(st.getPname(), st.getNewCustomer(), st.getAccepter());
+	
+		
+		
 		Map<Object, Object> map = new HashMap<>();
-		map.put("personInCharge", st.get(0).getPersonInCharge());
-		map.put("projectName", st.get(0).getProjectName());
-		map.put("customer", st.get(0).getCustomer());
-		map.put("description", st.get(0).getDescription());
-		map.put("outboundOrder", st.get(0).getOutboundOrder());
+		map.put("personInCharge", st.getPersonInCharge());
+		map.put("projectName",Common.isNotEmpty(st.getPname())?st.getPname().getName():"");
+		map.put("customer", Common.isNotEmpty(st.getNewCustomer())?st.getNewCustomer().getName():"");
+		map.put("accepter", st.getAccepter());
+		map.put("description", st.getDescription());
+		map.put("pName",st.getPname());
+		map.put("newCustomer", st.getNewCustomer());
+//		map.put("outboundOrder", st.getOutboundOrder());
+		
 		if (i.equals("sign")) {
 			// 已经签名2个不用判断
-			map.put("sign", st.get(0).getMysign().getSign());
-			map.put("othersign", st.get(0).getOthersign().getSign());
-			map.put("time", st.get(0).getPickupTime());
+			map.put("sign", st.getMysign().getSign());
+			map.put("othersign", st.getOthersign().getSign());
+			map.put("time", st.getPickupTime());
 		} else {
 			try {
 				String dateYMDHM = Common.getDateYMDHM(new Date());
@@ -1300,14 +1341,14 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				e.printStackTrace();
 			}
 
-			if (Common.isEmpty(st.get(0).getMysign()) && Common.isEmpty(st.get(0).getOthersign())) {
+			if (Common.isEmpty(st.getMysign()) && Common.isEmpty(st.getOthersign())) {
 				map.put("sign", stockStatistics.getSign());
 				// 保存签名
 				Sign sign = new Sign();
 				sign.setSign(stockStatistics.getSign());
 				this.signService.save(sign);
 
-				st.forEach(s -> {
+				findStockStatisticsToCreateQrcode.forEach(s -> {
 					s.setMysign(sign);
 					s.setOpenId(stockStatistics.getOpenId());
 					s.setPickupTime(stockStatistics.getPickupTime());
@@ -1315,13 +1356,13 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				});
 			} else {
 				// sign不为空，othersign为空的情况下，将form表单中的sign传入othersign，且保存pthersign
-				map.put("sign", st.get(0).getMysign().getSign());
+				map.put("sign", st.getMysign().getSign());
 				map.put("othersign", stockStatistics.getSign());
 				// 保存签名
 				Sign sign = new Sign();
 				sign.setSign(stockStatistics.getSign());
 				this.signService.save(sign);
-				st.forEach(s -> {
+				findStockStatisticsToCreateQrcode.forEach(s -> {
 					s.setOthersign(sign);
 					s.setOpenId(stockStatistics.getOpenId());
 					s.setPickupTime(stockStatistics.getPickupTime());
@@ -1875,20 +1916,27 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 	}
 
-	public static void main(String[] args) {
-
-//		long a = 2004;
-//		double b = 20.333f;
-//		BigDecimal bd = new BigDecimal(b);
-//		BigDecimal bd2 = new BigDecimal(a);
-//		BigDecimal divide = bd.divide(bd2, 2, BigDecimal.ROUND_HALF_UP);
-//		BigDecimal multiply = bd.multiply(bd2).setScale(2, BigDecimal.ROUND_HALF_UP);
-//		System.out.println(multiply);
+	/**
+	 * 通过 项目id  客户id  领料人 来查询数据
+	 */
+	@Override
+	public List<StockStatistics> findStockStatisticsToCreateQrcode(Pname pname,NewCustomer newcustomer,String accepter) {
 		
-		String a = "20.55";
-		BigDecimal b = new BigDecimal(a);
-		System.out.println(b);
-		
+		Query query = new Query();
+		query.addCriteria(Criteria.where("revoke").is(false));
+		query.addCriteria(Criteria.where("isDelete").is(false));
+		query.addCriteria(Criteria.where("isDisable").is(false));
+		if(Common.isNotEmpty(pname)) {
+			query.addCriteria(Criteria.where("pname.$id").is(new ObjectId(pname.getId())));
+		}
+		if(Common.isNotEmpty(newcustomer)) {
+			query.addCriteria(Criteria.where("newCustomer.$id").is(new ObjectId(newcustomer.getId())));
+		}
+		if(Common.isNotEmpty(accepter)) {
+			query.addCriteria(Criteria.where("accepter").is(accepter));
+		}
+	
+		return this.find(query, StockStatistics.class);
 	}
 
 }

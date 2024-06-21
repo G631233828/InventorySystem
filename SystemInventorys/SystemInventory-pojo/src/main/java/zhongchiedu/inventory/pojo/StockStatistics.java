@@ -66,7 +66,7 @@ public class StockStatistics extends GeneralBean<StockStatistics> {
 	private  boolean agent;//是否代理商品 false 非代理商品  true代理商品
 	
 	//出库单号
-	private String outboundOrder;//出库单
+//	private String outboundOrder;//出库单
 	
 	private String sign;//
 

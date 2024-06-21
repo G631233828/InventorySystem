@@ -37,8 +37,7 @@ qrcode:
   width: 300
   #weburl: http://zhongchiedu.com/WXWebApp/
   weburl: http://cored.zhongchiedu.com/WXWebApp/
-  #weburl: http://zhongchi.top/WXWebApp/
-  #weburl: http://m7xm9x.natappfree.cc/WXWebApp/
+#  weburl: http://zhongchi.top/WXWebApp/
   format: png
   qrcodepath: upload/qrcode/
 

@@ -158,8 +158,8 @@ public class StockStatisticsController {
 	public BasicDataResult out(@ModelAttribute("stockStatistics") StockStatistics stockStatistics,
 			HttpSession session) {
 		User user = (User) session.getAttribute(Contents.USER_SESSION);
-		String orderNum = Common.getOrderNum();
-		stockStatistics.setOutboundOrder(orderNum);
+//		String orderNum = Common.getOrderNum();
+//		stockStatistics.setOutboundOrder(orderNum);
 		return this.stockStatisticsService.inOrOutstockStatistics(stockStatistics, user);
 
 	}
@@ -191,7 +191,7 @@ public class StockStatisticsController {
 			return new BasicDataResult(400, "出库商品与id不匹配", "");
 		}
 		User user = (User) session.getAttribute(Contents.USER_SESSION);
-		String orderNum = Common.getOrderNum();
+		//String orderNum = Common.getOrderNum();
 		List<Object> list = new ArrayList<>();
 
 		for (int i = 0; i < batchidList.size(); i++) {
@@ -211,7 +211,7 @@ public class StockStatisticsController {
 			st.setNewCustomer(c);
 			st.setDescription(batchdescription);
 			st.setInOrOut(false);
-			st.setOutboundOrder(orderNum);
+			//st.setOutboundOrder(orderNum);
 			BasicDataResult r = this.stockStatisticsService.inOrOutstockStatistics(st, user);
 			StockStatistics statics = (StockStatistics) r.getData();
 
@@ -508,8 +508,8 @@ public class StockStatisticsController {
 					+ stockStatistics.getQrCode().getQrcode().getSavePath()
 					+ stockStatistics.getQrCode().getQrcode().getOriginalName();
 			FileOperateUtil.downloadbyFilePath(request, response,
-					stockStatistics.getProjectName() + stockStatistics.getCustomer()
-							+ stockStatistics.getOutboundOrder()
+					stockStatistics.getPname().getName()+"-"+ stockStatistics.getNewCustomer().getName()+"-"+stockStatistics.getAccepter()
+//							+ stockStatistics.getOutboundOrder()
 							+ stockStatistics.getQrCode().getQrcode().getExtension(),
 					contentType, new File(downLoadPath));
 		} catch (Exception e) {
@@ -587,46 +587,46 @@ public class StockStatisticsController {
 	
 	
 	
-	@Autowired
-	private SignService signService;
-
-	@RequestMapping(value = "/stockStatistics/updateSign", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
-	@ResponseBody
-	@SystemControllerLog(description = "修复签名数据")
-	public BasicDataResult updateSign() {
-		Query query = new Query();
-		query.addCriteria(Criteria.where("outboundOrder").exists(true));
-		List<StockStatistics> st = this.stockStatisticsService.find(query, StockStatistics.class);
-		Set<String> outbound = new HashSet<>();
-
-		st.forEach(s -> {
-			outbound.add(s.getOutboundOrder());
-		});
-
-		Iterator<String> it = outbound.iterator();
-		while (it.hasNext()) {
-			// 获取所有相同订单的数据，并且判断有没有签名，如果有签名，获取签名并且将签名保存到mysign中去
-			List<StockStatistics> stock = this.stockStatisticsService.findByoutboundOrder(it.next());
-			String sign = stock.get(0).getSign();
-
-			if (Common.isNotEmpty(sign)) {
-				Sign s = new Sign();
-				s.setSign(sign);
-				this.signService.save(s);
-				
-				stock.forEach(a -> {
-					a.setMysign(s);
-					a.setSign("");
-					this.stockStatisticsService.save(a);
-				});
-
-			}
-
-		}
-
-		return new BasicDataResult().ok();
-
-	}
+//	@Autowired
+//	private SignService signService;
+//
+//	@RequestMapping(value = "/stockStatistics/updateSign", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+//	@ResponseBody
+//	@SystemControllerLog(description = "修复签名数据")
+//	public BasicDataResult updateSign() {
+//		Query query = new Query();
+//		query.addCriteria(Criteria.where("outboundOrder").exists(true));
+//		List<StockStatistics> st = this.stockStatisticsService.find(query, StockStatistics.class);
+//		Set<String> outbound = new HashSet<>();
+//
+//		st.forEach(s -> {
+//			outbound.add(s.getOutboundOrder());
+//		});
+//
+//		Iterator<String> it = outbound.iterator();
+//		while (it.hasNext()) {
+//			// 获取所有相同订单的数据，并且判断有没有签名，如果有签名，获取签名并且将签名保存到mysign中去
+//			List<StockStatistics> stock = this.stockStatisticsService.findByoutboundOrder(it.next());
+//			String sign = stock.get(0).getSign();
+//
+//			if (Common.isNotEmpty(sign)) {
+//				Sign s = new Sign();
+//				s.setSign(sign);
+//				this.signService.save(s);
+//				
+//				stock.forEach(a -> {
+//					a.setMysign(s);
+//					a.setSign("");
+//					this.stockStatisticsService.save(a);
+//				});
+//
+//			}
+//
+//		}
+//
+//		return new BasicDataResult().ok();
+//
+//	}
 
 	
 	

@@ -163,9 +163,10 @@ public class ProjectPickupController {
 				stockStatistics.setNum(projectPickup.getNum());
 				stockStatistics.setInOrOut(false);
 				stockStatistics.setStock(projectPickup.getStock());
-				stockStatistics.setOutboundOrder(Common.getOrderNum());
+//				stockStatistics.setOutboundOrder(Common.getOrderNum());
 				stockStatistics.setMysign(sign);
-				
+				String orderNum = Common.getOrderNum();
+//				stockStatistics.setOutboundOrder(orderNum);
 				
 				BasicDataResult inOrOutstockStatistics = this.stockStatisticsService.inOrOutstockStatistics(stockStatistics, user);
 				if(inOrOutstockStatistics.getStatus()==200) {

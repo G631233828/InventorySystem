@@ -121,7 +121,7 @@ table tr td font {
 					<dl class="weui-pay-line">
 						<dd class="weui-pay-name">中颂建筑智能化（上海）有限公司销货单</dd>
 						<dt class="weui-pay-label">客户名称：</dt>
-						<dd class="weui-pay-e">[[${stock?.customer}]]</dd>
+						<dd class="weui-pay-e">[[${stock?.newCustomer?.name}]]</dd>
 					</dl>
 					<dl class="weui-pay-line">
 						<dt class="weui-pay-label">负责人：</dt>
@@ -132,12 +132,12 @@ table tr td font {
 						<dd class="weui-pay-e">[[${stock?.depotTime}]]</dd>
 					</dl>
 					<dl class="weui-pay-line">
-						<dt class="weui-pay-label">单据编号：</dt>
-						<dd class="weui-pay-e">[[${stock?.outboundOrder}]]</dd>
+						<dt class="weui-pay-label">领料人：</dt>
+						<dd class="weui-pay-e">[[${stock?.accepter}]]</dd>
 					</dl>
 					<dl class="weui-pay-line">
 						<dt class="weui-pay-label">项目名称：</dt>
-						<dd class="weui-pay-e">[[${stock?.projectName}]]</dd>
+						<dd class="weui-pay-e">[[${stock?.pname?.name}]]</dd>
 					</dl>
 					<dl class="weui-pay-line">
 						<dt class="weui-pay-label">备注：</dt>
@@ -193,9 +193,12 @@ table tr td font {
 
 			<div class="weui-pay-area">
 				<canvas id='canvas'></canvas>
-				<input type="hidden" name="sign" id="sign"> <input
+				<input type="hidden" name="sign" id="sign"> 
+				<input type="hidden" name="id" id="stockStatisticsId" th:value="${stock?.id}"> 
+				
+				<!-- <input
 					type="hidden" name="outboundOrder"
-					th:value="${stock?.outboundOrder}"> <input type="hidden"
+					th:value="${stock?.outboundOrder}">  --><input type="hidden"
 					th:value="${getwXUserInfo?.openId}" name="openId">
 				<div id="canvas-btn">
 					<div class="cleaerfix"></div>
