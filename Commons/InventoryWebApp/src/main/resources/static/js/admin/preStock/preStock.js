@@ -9,32 +9,27 @@ $().ready(function() {
 			name : {
 				required : true,
 			},
-			entryName:{
-				required : true,
-				remote : {
-					url : getRootPath() + "/pName/ajaxgetRepletes",
-					type : "POST",
-					data : {
-						name : function() {
-							return $("#entryName").val();
-						},
-						type:"true"
-					},
-					dataType : "json",
-					dataFilter : function(data, type) {
-						// var oldname = $("#oldname").val();
-						// var name = $("#name").val();
-						// if(oldname == name){
-						// 	return true;
-						// }
-						var jsondata = $.parseJSON(data);
-						if (jsondata.status == 206) {
-							return true;
-						}
-						return false;
-					}
-				}
-			},
+			// entryName:{
+			// 	required : true,
+			// 	remote : {
+			// 		url : getRootPath() + "/pName/ajaxgetRepletes",
+			// 		type : "POST",
+			// 		data : {
+			// 			name : function() {
+			// 				return $("#entryName").val();
+			// 			},
+			// 			type:"true"
+			// 		},
+			// 		dataType : "json",
+			// 		dataFilter : function(data, type) {
+			// 			var jsondata = $.parseJSON(data);
+			// 			if (jsondata.status == 206) {
+			// 				return true;
+			// 			}
+			// 			return false;
+			// 		}
+			// 	}
+			// },
 
 			upload : {
 				required : true
@@ -55,10 +50,10 @@ $().ready(function() {
 			name : {
 				required : a + "请输入设备名称",
 			},
-			entryName : {
-				required : a + "请输入项目名称",
-				remote : a + "不存在该项目，请先添加！"
-			},
+			// entryName : {
+			// 	required : a + "请输入项目名称",
+			// 	remote : a + "不存在该项目，请先添加！"
+			// },
 			upload : {
 				required : a + "导入文件不能为空！"
 			},
@@ -94,10 +89,11 @@ $().ready(function() {
 					},
 					supplierId: function() {
 						return $("#number-multiple").val();
-					},
-					entryname: function (){
-						return $("#entryName").val();
 					}
+					// ,
+					// entryname: function (){
+					// 	return $("#entryName").val();
+					// }
 				},
 				success: function(msg) {
 					if (msg.status == 206) {

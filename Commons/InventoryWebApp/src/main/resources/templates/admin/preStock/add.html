@@ -114,14 +114,28 @@
 														th:value="${stock?.model}">
 												</div>
 											</div>
-											<div class="form-group" id="pnameform">
+
+<!--											<div class="form-group" id="pnameform">-->
+<!--												<label class="col-lg-1 control-label">项目名称：</label>-->
+<!--												<div class="col-lg-6">-->
+<!--													<input class="form-control" id="entryName"-->
+<!--														placeholder="请输入项目名称" name="entryName"-->
+<!--														th:value="${stock?.entryName}">-->
+<!--												</div>-->
+<!--											</div>-->
+
+											<div class="form-group">
 												<label class="col-lg-1 control-label">项目名称：</label>
 												<div class="col-lg-6">
-													<input class="form-control" id="entryName"
-														placeholder="请输入项目名称" name="entryName"
-														th:value="${stock?.entryName}">
+													<select multiple class="selectpicker form-control"
+															id="number-multiple1" data-container="body" required="required"
+															name="entryName"
+															title="请选择项目" data-live-search="true"
+															data-hide-disabled="true" data-actions-box="false"
+															data-virtual-scroll="false" data-max-options="1"></select>
 												</div>
-											</div>	
+											</div>
+
 											<div class="form-group" id="">
 												<label class="col-lg-1 control-label">采购付款单编码（新）：</label>
 												<div class="col-lg-6">
@@ -386,6 +400,24 @@ var options = [], _options;
 			     $("#number-multiple").selectpicker('val',a);
 				  $("#number-multiple").selectpicker('refresh');
 			  $('#number-multiple').selectpicker('render')
+
+
+	var options1 = [], _options1;
+
+	var pnamedata = [[${pnames}]]
+
+	$.each(pnamedata, function(index, item) {
+
+		var option = '<option value="' + item.name + '">' + item.name + '_' + item.itemid + '</option>';
+		options1.push(option);
+	});
+	_options1= options1.join('');
+	$('#number-multiple1')[0].innerHTML = _options1;
+	var a1 = /*[[${stock?.entryName}]]*/
+			$("#number-multiple1").selectpicker('val', a1);
+	$("#number-multiple1").selectpicker('refresh');
+	$('#number-multiple1').selectpicker('render');
+
 })	  
 	  
  /*]]>*/

@@ -153,7 +153,8 @@ public class PreStockController {
 		// 计量单位
 		List<Unit> listUnits = this.unitService.findAllUnit(false);
 		model.addAttribute("units", listUnits);
-
+		List<Pname> findAllName = this.pnameService.findAllName(false);
+		model.addAttribute("pnames", findAllName);
 		List<SystemClassification>  ssCs=this.ssCService.findAllSystemClassification(false);
 		model.addAttribute("ssCs",ssCs);
 		return "admin/preStock/add";
@@ -173,7 +174,8 @@ public class PreStockController {
 		model.addAttribute("areas", areas);
 		PreStock stock = this.preStockService.findOneById(id, PreStock.class);
 		model.addAttribute("stock", stock);
-
+		List<Pname> findAllName = this.pnameService.findAllName(false);
+		model.addAttribute("pnames", findAllName);
 		List<SystemClassification>  ssCs=this.ssCService.findAllSystemClassification(false);
 		model.addAttribute("ssCs",ssCs);
 		if (Common.isNotEmpty(stock.getArea())) {
