@@ -1184,7 +1184,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 //				: stockStatistics.getOutboundOrder();
 		dataMap.put("customer", Common.isEmpty(stockStatistics.getNewCustomer()) ? "" : stockStatistics.getNewCustomer().getName());
 		dataMap.put("personInCharge",
-				Common.isEmpty(stockStatistics.getPersonInCharge()) ? "" : stockStatistics.getPersonInCharge());
+				Common.isEmpty(stockStatistics.getPname()) ? "" : stockStatistics.getPname().getName());
 		try {
 			dataMap.put("createDate", Common.getDateYMDHM(stockStatistics.getDepotTime()));
 		} catch (ParseException e) {
@@ -1316,7 +1316,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		
 		
 		Map<Object, Object> map = new HashMap<>();
-		map.put("personInCharge", st.getPersonInCharge());
+		map.put("personInCharge", Common.isNotEmpty(st.getPname())?st.getPname().getPm():"");
 		map.put("projectName",Common.isNotEmpty(st.getPname())?st.getPname().getName():"");
 		map.put("customer", Common.isNotEmpty(st.getNewCustomer())?st.getNewCustomer().getName():"");
 		map.put("accepter", st.getAccepter());

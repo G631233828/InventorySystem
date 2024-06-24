@@ -21,7 +21,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;import org.apache.poi.util.SystemOutLogger;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.util.SystemOutLogger;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,18 +80,16 @@ public class StockController {
 
 	private @Autowired BrandServiceImpl brandService;
 
+	private @Autowired SystemClassificationServiceImpl ssCService;
 
-	private @Autowired SystemClassificationServiceImpl  ssCService;
-	
 	private @Autowired PickUpApplicationService pickUpApplicationService;
-	
 
 	@Autowired
 	private NewCustomerServiceImpl newCustomerService;
 
 	@Autowired
 	private PnameServiceImpl pnameService;
-	
+
 	@GetMapping("stocks")
 	@RequiresPermissions(value = "stock:list")
 	@SystemControllerLog(description = "查询所有库存管理")
@@ -102,42 +101,41 @@ public class StockController {
 			@RequestParam(value = "searchAgent", defaultValue = "") String searchAgent,
 			@RequestParam(value = "stockType", defaultValue = "1") Integer stockType,
 //			@RequestParam(value = "ssC", defaultValue = "") String ssC,
-			@ModelAttribute RequestBo requestBo
-			) throws JsonProcessingException {
+			@ModelAttribute RequestBo requestBo) throws JsonProcessingException {
 		// 区域
 		List<Area> areas = this.areaService.findAllArea(false);
 		model.addAttribute("areas", areas);
-		List<NewCustomer> customers=this.newCustomerService.findAllCustomer(false);
-		model.addAttribute("customers",customers);
-		List<Pname> pnames=this.pnameService.findAllName(false);
-		model.addAttribute("pnames",pnames);
-		ObjectMapper objectMapper=new ObjectMapper();
-		String jsonString=objectMapper.writeValueAsString(requestBo);
-		model.addAttribute("Bo",jsonString);
-		model.addAttribute("requestBo",requestBo);
-		List<SystemClassification>  ssCs=this.ssCService.findAllSystemClassification(false);
-		model.addAttribute("ssCs",ssCs);
+		List<NewCustomer> customers = this.newCustomerService.findAllCustomer(false);
+		model.addAttribute("customers", customers);
+		List<Pname> pnames = this.pnameService.findAllName(false);
+		model.addAttribute("pnames", pnames);
+		ObjectMapper objectMapper = new ObjectMapper();
+		String jsonString = objectMapper.writeValueAsString(requestBo);
+		model.addAttribute("Bo", jsonString);
+		model.addAttribute("requestBo", requestBo);
+		List<SystemClassification> ssCs = this.ssCService.findAllSystemClassification(false);
+		model.addAttribute("ssCs", ssCs);
 
 		model.addAttribute("errorImport", errorImport);
 //		Pagination<Stock> pagination = this.stockService.findpagination(pageNo, pageSize, search, searchArea,searchAgent,ssC);
 		Pagination<Stock> pagination = this.stockService.findpagination(pageNo, pageSize, requestBo);
-		
+
 		List<Stock> datas = pagination.getDatas();
-		
-			datas.stream().map(stock->{
-			List<PickUpApplication> pickUpApplication = this.pickUpApplicationService.findPickUpApplicationsByStockId(stock.getId());
-			long num = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0,Long::sum);
-			long acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((long) 0,Long::sum);
-			stock.setRemainingNum(stock.getInventory()-(num-acnum));
+
+		datas.stream().map(stock -> {
+			List<PickUpApplication> pickUpApplication = this.pickUpApplicationService
+					.findPickUpApplicationsByStockId(stock.getId());
+			long num = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0,
+					Long::sum);
+			long acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((long) 0,
+					Long::sum);
+			stock.setRemainingNum(stock.getInventory() - (num - acnum));
 			return stock;
 		}).collect(Collectors.toList());
-		
-		
-		
-		
+
 		model.addAttribute("pageList", pagination);
 		User user = (User) session.getAttribute(Contents.USER_SESSION);
-		List<String> listColums = this.columnService.findColumns("stock",user.getId());
+		List<String> listColums = this.columnService.findColumns("stock", user.getId());
 		model.addAttribute("listColums", listColums);
 
 		session.setAttribute("pageNo", pageNo);
@@ -155,8 +153,7 @@ public class StockController {
 //		model.addAttribute("ssC",ssC);
 		return "admin/stock/list";
 	}
-	
-	
+
 //	@GetMapping("prestock")
 //	@RequiresPermissions(value = "stock:list")
 //	@SystemControllerLog(description = "查询所有预库存管理")
@@ -181,7 +178,7 @@ public class StockController {
 		// 所有供应商
 		List<Supplier> syslist = this.supplierService.findAllSupplier(false);
 		model.addAttribute("suppliers", syslist);
-		//获取所有品牌
+		// 获取所有品牌
 		List<Brand> brands = this.brandService.findAllBrand(false);
 		model.addAttribute("brands", brands);
 		// 区域
@@ -191,8 +188,8 @@ public class StockController {
 		List<Unit> listUnits = this.unitService.findAllUnit(false);
 		model.addAttribute("units", listUnits);
 
-		List<SystemClassification>  ssCs=this.ssCService.findAllSystemClassification(false);
-		model.addAttribute("ssCs",ssCs);
+		List<SystemClassification> ssCs = this.ssCService.findAllSystemClassification(false);
+		model.addAttribute("ssCs", ssCs);
 
 		return "admin/stock/add";
 	}
@@ -249,22 +246,18 @@ public class StockController {
 		String search = (String) session.getAttribute("search");
 		String searchArea = (String) session.getAttribute("searchArea");
 		String ssC = (String) session.getAttribute("ssC");
-			return "redirect:/stocks?pageNo=" + pageNo + "&pageSize=" + pageSize + "&search="
-					+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea + "&ssC=" +ssC;
-	
+		return "redirect:/stocks?pageNo=" + pageNo + "&pageSize=" + pageSize + "&search="
+				+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea + "&ssC=" + ssC;
+
 	}
-	
-	
+
 	@GetMapping("/copyStock")
 	@RequiresPermissions(value = "stock:copy")
 	@SystemControllerLog(description = "复制设备")
 	public String addUser(String id, HttpSession session) throws UnsupportedEncodingException {
-		
-		
 
-		this.stockService.copyStock(id,session);
-		
-		
+		this.stockService.copyStock(id, session);
+
 		Integer pageNo = (Integer) session.getAttribute("pageNo");
 		Integer pageSize = (Integer) session.getAttribute("pageSize");
 		String search = (String) session.getAttribute("search");
@@ -272,15 +265,9 @@ public class StockController {
 		String ssC = (String) session.getAttribute("ssC");
 
 		return "redirect:/stocks?pageNo=" + pageNo + "&pageSize=" + pageSize + "&search="
-		+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea + "&ssC=" +ssC;
-		
+				+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea + "&ssC=" + ssC;
+
 	}
-	
-	
-	
-	
-	
-	
 
 	@PutMapping("/stock")
 	@RequiresPermissions(value = "stock:edit")
@@ -295,10 +282,9 @@ public class StockController {
 		String ssC = (String) session.getAttribute("ssC");
 
 		this.stockService.saveOrUpdate(stock);
-	
-			return "redirect:/stocks?pageNo=" + pageNo + "&pageSize=" + pageSize + "&search="
-					+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea+ "&ssC=" +ssC;
-		
+
+		return "redirect:/stocks?pageNo=" + pageNo + "&pageSize=" + pageSize + "&search="
+				+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea + "&ssC=" + ssC;
 
 	}
 
@@ -321,12 +307,12 @@ public class StockController {
 		// 所有供应商
 		List<Supplier> syslist = this.supplierService.findAllSupplier(false);
 		model.addAttribute("suppliers", syslist);
-		//获取所有品牌
+		// 获取所有品牌
 		List<Brand> brands = this.brandService.findAllBrand(false);
 		model.addAttribute("brands", brands);
 
-		List<SystemClassification>  ssCs=this.ssCService.findAllSystemClassification(false);
-		model.addAttribute("ssCs",ssCs);
+		List<SystemClassification> ssCs = this.ssCService.findAllSystemClassification(false);
+		model.addAttribute("ssCs", ssCs);
 		// 区域
 		List<Area> areas = this.areaService.findAllArea(false);
 		model.addAttribute("areas", areas);
@@ -363,7 +349,7 @@ public class StockController {
 		String ssC = (String) session.getAttribute("ssC");
 
 		return "redirect:/stocks?pageNo=" + pageNo + "&pageSize=" + pageSize + "&search="
-				+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea+ "&ssC=" +ssC;
+				+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea + "&ssC=" + ssC;
 	}
 
 	/**
@@ -379,7 +365,7 @@ public class StockController {
 			@RequestParam(value = "areaId", defaultValue = "") String areaId,
 			@RequestParam(value = "supplierId", defaultValue = "") String supplierId,
 			@RequestParam(value = "model", defaultValue = "") String model) {
-		return this.stockService.ajaxgetRepletes(name, areaId, model,supplierId);
+		return this.stockService.ajaxgetRepletes(name, areaId, model, supplierId);
 	}
 
 	/**
@@ -458,9 +444,9 @@ public class StockController {
 	@RequestMapping(value = "/stock/columns", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public BasicDataResult editColumns(@RequestParam(value = "column", defaultValue = "") String column,
-			@RequestParam(value = "flag", defaultValue = "") boolean flag,HttpSession session) {
+			@RequestParam(value = "flag", defaultValue = "") boolean flag, HttpSession session) {
 		User user = (User) session.getAttribute(Contents.USER_SESSION);
-		return this.columnService.editColumns("stock", column, flag,user.getId());
+		return this.columnService.editColumns("stock", column, flag, user.getId());
 	}
 
 	@RequestMapping(value = "/stock/getSupplier", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
@@ -489,7 +475,7 @@ public class StockController {
 			response.setContentType("application/vnd.ms-excel");
 			String name = Common.fromDateYM() + "库存报表";
 			String fileName = new String((name).getBytes("gb2312"), "ISO8859-1");
-			HSSFWorkbook wb = this.stockService.export(name, areaId,searchAgent);
+			HSSFWorkbook wb = this.stockService.export(name, areaId, searchAgent);
 			response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xls");
 			OutputStream ouputStream = response.getOutputStream();
 			wb.write(ouputStream);
@@ -503,20 +489,19 @@ public class StockController {
 
 	/**
 	 * 导出库存报表库存量统计
-	 * @param response
-//	 * @param areaId
-//	 * @param searchAgent
+	 * 
+	 * @param response // * @param areaId // * @param searchAgent
 	 */
 	@RequestMapping(value = "/stock/exportTJ")
 	public void exportStockTJ(HttpServletResponse response,
 //							@RequestParam(value = "areaId", defaultValue = "") String areaId,
 //							  @RequestParam(value = "searchAgent", defaultValue = "") String searchAgent,
-							  @ModelAttribute RequestBo bo) {
+			@ModelAttribute RequestBo bo) {
 		try {
 			response.setContentType("application/vnd.ms-excel");
 			String name = Common.fromDateYM() + "库存报表TJ";
 			String fileName = new String((name).getBytes("gb2312"), "ISO8859-1");
-			HSSFWorkbook wb = this.stockService.exportTJ(name,bo);
+			HSSFWorkbook wb = this.stockService.exportTJ(name, bo);
 			response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xls");
 			OutputStream ouputStream = response.getOutputStream();
 			wb.write(ouputStream);
@@ -528,39 +513,32 @@ public class StockController {
 
 	}
 
-
-
-
-	
 	@Value("${upload.savedir}")
 	private String dir;
 	@Value("${qrcode.qrcodepath}")
 	private String qrcodepath;
 
-	
 	/**
 	 * 下载二维码
 	 * 
 	 */
 	@RequestMapping(value = "stock/downloadQRcode")
 	@SystemControllerLog(description = "下载二维码")
-	public ModelAndView download(HttpServletRequest request, HttpServletResponse response, String id,String search) throws Exception {
-		
-		List<Stock> list=null;
-		
-		if(Common.isEmpty(search)) {
+	public ModelAndView download(HttpServletRequest request, HttpServletResponse response, String id, String search)
+			throws Exception {
+
+		List<Stock> list = null;
+
+		if (Common.isEmpty(search)) {
 			list = this.stockService.findStockByIds(id);
-		}
-		else if("所有库存二维码".equals(search.trim())) {
-			//获取所有库存二维码
+		} else if ("所有库存二维码".equals(search.trim())) {
+			// 获取所有库存二维码
 			list = this.stockService.findStockByType("1");
-		}else if("有库存二维码".equals(search.trim())) 
-		{
+		} else if ("有库存二维码".equals(search.trim())) {
 			list = this.stockService.findStockByType("2");
-		}else {
+		} else {
 			list = this.stockService.findStockByIds(id);
 		}
-		
 
 		String contentType = "application/octet-stream";
 		if (list.size() == 1) {
@@ -581,8 +559,7 @@ public class StockController {
 			list.forEach(stock -> {
 				// 获取所有下载文件file
 				String downLoadPath = stock.getQrCode().getQrcode().getDir()
-						+ stock.getQrCode().getQrcode().getSavePath()
-						+ stock.getQrCode().getQrcode().getOriginalName();
+						+ stock.getQrCode().getQrcode().getSavePath() + stock.getQrCode().getQrcode().getOriginalName();
 				file.add(new File(downLoadPath));
 
 			});
@@ -606,225 +583,194 @@ public class StockController {
 		return null;
 	}
 
-	
-	//修复数据
+	// 修复数据
 	@RequestMapping(value = "stock/update")
 	@ResponseBody
 	@SystemControllerLog(description = "数据修复代理商品数据")
-	public String updateagent() {	
+	public String updateagent() {
 		List<Stock> stocks = this.stockService.find(new Query(), Stock.class);
 		StringBuffer buf = new StringBuffer();
-		stocks.forEach(s->{
-			
-			if(!s.isAgent()){
-				buf.append("修复："+s.getName()+"数据"+s.isAgent()+"</br>");
+		stocks.forEach(s -> {
+
+			if (!s.isAgent()) {
+				buf.append("修复：" + s.getName() + "数据" + s.isAgent() + "</br>");
 				s.setAgent(false);
 				this.stockService.save(s);
 			}
 		});
-		
-		
-		
+
 		return buf.toString();
-		
+
 	}
-	
-	
+
 	@RequestMapping(value = "/stock/addToStocklist", method = RequestMethod.POST)
 	@RequiresPermissions(value = "stockStatistics:out")
 	@ResponseBody
-	public BasicDataResult addToStocklist(HttpSession session ,@RequestParam(value = "id", defaultValue = "") String id) {
-		
-		if(Common.isNotEmpty(id)) {
-		Stock stock = this.stockService.findOneById(id, Stock.class);
-		//判断库存数量是否>0
-		if(stock.getInventory()<=0) {
-			return new BasicDataResult(400, "当前商品库存数量为0,加入出列表失败！", "");
-		}
-			
-		
-		List getstockSession = (List) session.getAttribute(Contents.STOCK_LIST);
-		
-		if(getstockSession==null) {
-			List list = new ArrayList<>();
-			list.add(id);
-			session.setAttribute(Contents.STOCK_LIST, list);
-		}else {
-			if(getstockSession.contains(id)) {
-				return new BasicDataResult(200, "出库列表已存在，无需重复添加", "");
+	public BasicDataResult addToStocklist(HttpSession session,
+			@RequestParam(value = "id", defaultValue = "") String id) {
+
+		if (Common.isNotEmpty(id)) {
+			Stock stock = this.stockService.findOneById(id, Stock.class);
+			// 判断库存数量是否>0
+			if (stock.getInventory() <= 0) {
+				return new BasicDataResult(400, "当前商品库存数量为0,加入出列表失败！", "");
 			}
-			
-			getstockSession.add(id);
-			session.setAttribute(Contents.STOCK_LIST, getstockSession);
-		}
-		return new BasicDataResult(200, "已加入出库列表", "");
-		
-	
+
+			List getstockSession = (List) session.getAttribute(Contents.STOCK_LIST);
+
+			if (getstockSession == null) {
+				List list = new ArrayList<>();
+				list.add(id);
+				session.setAttribute(Contents.STOCK_LIST, list);
+			} else {
+				if (getstockSession.contains(id)) {
+					return new BasicDataResult(200, "出库列表已存在，无需重复添加", "");
+				}
+
+				getstockSession.add(id);
+				session.setAttribute(Contents.STOCK_LIST, getstockSession);
+			}
+			return new BasicDataResult(200, "已加入出库列表", "");
+
 		}
 		return new BasicDataResult(400, "加入出库列表失败", "");
-		
-		
-	}
-	
-	
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	}
+
 	@RequestMapping(value = "/stock/batchOut", method = RequestMethod.POST)
 	@ResponseBody
 	@RequiresPermissions(value = "stockStatistics:out")
-	public BasicDataResult batchOut(HttpSession session,String id) {
+	public BasicDataResult batchOut(HttpSession session, String id) {
 		List list = (List) session.getAttribute(Contents.STOCK_LIST);
-		if(list==null&& Common.isEmpty(id)) {
+		if (list == null && Common.isEmpty(id)) {
 			return new BasicDataResult(400, "获取出库列表失败，请先添加或选中出库商品！", null);
 		}
-		if(Common.isNotEmpty(id)) {
-			 list = Arrays.asList(id.split(","));
-			 list.forEach(o->{
-				 List getstockSession = (List) session.getAttribute(Contents.STOCK_LIST);
-					
-					if(getstockSession==null) {
-						List listid = new ArrayList<>();
-						listid.add(o);
-						session.setAttribute(Contents.STOCK_LIST, listid);
-					}else {
-						if(!getstockSession.contains(id)) {
-							getstockSession.add(o);
-							session.setAttribute(Contents.STOCK_LIST, getstockSession);
-						}
+		if (Common.isNotEmpty(id)) {
+			list = Arrays.asList(id.split(","));
+			list.forEach(o -> {
+				List getstockSession = (List) session.getAttribute(Contents.STOCK_LIST);
+
+				if (getstockSession == null) {
+					List listid = new ArrayList<>();
+					listid.add(o);
+					session.setAttribute(Contents.STOCK_LIST, listid);
+				} else {
+					if (!getstockSession.contains(id)) {
+						getstockSession.add(o);
+						session.setAttribute(Contents.STOCK_LIST, getstockSession);
 					}
-			 });
+				}
+			});
 		}
-		if(Common.isNotEmpty(list)&&list.size()>0) {
+		if (Common.isNotEmpty(list) && list.size() > 0) {
 			List<Stock> stocks = this.stockService.findStocksByIds(list);
 			List<Stock> liststock = new ArrayList<>();
-			//便利 数据过滤
-			stocks.forEach(s->{
+			// 便利 数据过滤
+			stocks.forEach(s -> {
 				Stock stock = new Stock();
 				stock.setName(s.getName());
 				stock.setInventory(s.getInventory());
 				stock.setModel(s.getModel());
 				stock.setId(s.getId());
-				List<PickUpApplication> pickUpApplication = this.pickUpApplicationService.findPickUpApplicationsByStockId(s.getId());
-				long num = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0,Long::sum);
-				long acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((long) 0,Long::sum);
-				stock.setRemainingNum(stock.getInventory()-(num-acnum));
+				List<PickUpApplication> pickUpApplication = this.pickUpApplicationService
+						.findPickUpApplicationsByStockId(s.getId());
+				long num = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0,
+						Long::sum);
+				long acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((long) 0,
+						Long::sum);
+				stock.setRemainingNum(stock.getInventory() - (num - acnum));
 				liststock.add(stock);
 			});
-			
+
 //			liststock.stream().map(stock->{
 //				List<PickUpApplication> pickUpApplication = this.pickUpApplicationService.findPickUpApplicationsByStockId(stock.getId());
 //				long num = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0,Long::sum);
 //				stock.setRemainingNum(stock.getInventory()-num);
 //				return stock;
 //			}).collect(Collectors.toList());
-			
-			
+
 			return new BasicDataResult(200, "获取出库列表", liststock);
-		}else {
+		} else {
 			return new BasicDataResult(400, "获取出库列表失败，请先添加出库商品！", null);
 		}
-		
-		
+
 	}
-	
-	
-	
+
 	@RequestMapping(value = "/stock/deleteInSession", method = RequestMethod.POST)
 	@ResponseBody
 	@RequiresPermissions(value = "stockStatistics:out")
-	public BasicDataResult delStockInSession(HttpSession session,@RequestParam(value = "id", defaultValue = "") String id) {
-		
-		if(Common.isNotEmpty(id)) {
+	public BasicDataResult delStockInSession(HttpSession session,
+			@RequestParam(value = "id", defaultValue = "") String id) {
+
+		if (Common.isNotEmpty(id)) {
 			List list = (List) session.getAttribute(Contents.STOCK_LIST);
-			if(list==null) {
+			if (list == null) {
 				return new BasicDataResult(400, "库列表未获取到商品！", "");
 			}
-					list.remove(id);
+			list.remove(id);
 			session.setAttribute(Contents.STOCK_LIST, list);
 			return new BasicDataResult(200, "库列表删除成功！", id);
 		}
-		
+
 		return new BasicDataResult(400, "库列表删除失败！", "");
 	}
-	
+
 	@RequestMapping(value = "/stock/checkNum", method = RequestMethod.POST)
 	@ResponseBody
-	public BasicDataResult checkNum(HttpSession session,
-			@RequestParam(value = "id", defaultValue = "") String id,
+	public BasicDataResult checkNum(HttpSession session, @RequestParam(value = "id", defaultValue = "") String id,
 			@RequestParam(value = "num", defaultValue = "") String num) {
-		if(Common.isNotEmpty(id)) {
-		
+		if (Common.isNotEmpty(id)) {
+
 			boolean isnum = StringUtils.isNumeric(num);
-			if(!isnum) {
+			if (!isnum) {
 				return new BasicDataResult(400, "请输入合法的数字！", "");
 			}
-			//根据id获取库存商品
+			// 根据id获取库存商品
 			Stock stock = this.stockService.findOneById(id, Stock.class);
-			List<PickUpApplication> pickUpApplication = this.pickUpApplicationService.findPickUpApplicationsByStockId(id);
-			long ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0,Long::sum);
-			long acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((long) 0,Long::sum);
-			
-			if((stock.getInventory()-(ycknum-acnum))<Long.valueOf(num)) {
+			List<PickUpApplication> pickUpApplication = this.pickUpApplicationService
+					.findPickUpApplicationsByStockId(id);
+			long ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0,
+					Long::sum);
+			long acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((long) 0,
+					Long::sum);
+
+			if ((stock.getInventory() - (ycknum - acnum)) < Long.valueOf(num)) {
 				return new BasicDataResult(400, "出库数量大于库存数量，请检查！", "");
 			}
 			return new BasicDataResult(200, "库存无误！", "");
 		}
-		
+
 		return new BasicDataResult(400, "获取库存信息失败", "");
 	}
-	
-	
+
 	@RequestMapping(value = "/stock/getQRCode", method = RequestMethod.POST)
 	@ResponseBody
-	public BasicDataResult getQRCode(HttpSession session,
-			@RequestParam(value = "id", defaultValue = "") String id) {
+	public BasicDataResult getQRCode(HttpSession session, @RequestParam(value = "id", defaultValue = "") String id) {
 		List<Stock> list = this.stockService.findStockByIds(id);
-		String downLoadPath =list.get(0).getQrCode().getQrcode().getSavePath()
+		String downLoadPath = list.get(0).getQrCode().getQrcode().getSavePath()
 				+ list.get(0).getQrCode().getQrcode().getOriginalName();
-		
+
 		return new BasicDataResult(200, "success", downLoadPath);
-		
+
 	}
-	
-	
+
 	@RequestMapping(value = "/stock/batchPaymentOrderNo", method = RequestMethod.POST)
 	@ResponseBody
 	public BasicDataResult batchPaymentOrderNo(HttpSession session,
 			@RequestParam(value = "stockid", defaultValue = "") String stockid,
-			@RequestParam(value = "itemNo", defaultValue = "") String itemNo
-			) {
-		
+			@RequestParam(value = "itemNo", defaultValue = "") String itemNo) {
+
 		try {
 			this.stockService.updateItemNo(stockid, itemNo);
 			return new BasicDataResult(200, "批量修改采购付款申请单成功", itemNo);
-			
-		}catch(Exception e) {
+
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return new BasicDataResult(400, "批量修改采购付款申请单出现问题，请联系管理员", itemNo);
-		
-		
+
 	}
-	
-	
-	
+
 	/**
 	 * 跳转到预库存添加页面
 	 */
@@ -837,14 +783,14 @@ public class StockController {
 		// 区域
 		List<Area> areas = this.areaService.findAllArea(false);
 		model.addAttribute("areas", areas);
-		
+
 		Stock stock = this.stockService.findOneById(id, Stock.class);
 		stock.setId(null);
 		PreStock pstock = new PreStock();
 		BeanUtils.copyProperties(stock, pstock);
 		model.addAttribute("stock", pstock);
-		List<SystemClassification>  ssCs=this.ssCService.findAllSystemClassification(false);
-		model.addAttribute("ssCs",ssCs);
+		List<SystemClassification> ssCs = this.ssCService.findAllSystemClassification(false);
+		model.addAttribute("ssCs", ssCs);
 		if (Common.isNotEmpty(stock.getArea())) {
 			// 所有货架
 			List<GoodsStorage> list = this.goodsStorageService.findAllGoodsStorage(false, stock.getArea().getId());
@@ -857,12 +803,21 @@ public class StockController {
 		return "admin/preStock/add";
 	}
 
+	@RequestMapping(value = "/stock/batchEditStocks", method = RequestMethod.POST)
+	@ResponseBody
+	public BasicDataResult batchEditStocks(HttpSession session,
+			@RequestParam(value = "stockid", defaultValue = "") String stockid,
+			@RequestParam(value = "price", defaultValue = "0") String price) {
+		try {
+			Stock stock = this.stockService.findOneById(stockid, Stock.class);
+			stock.setPrice(price);
+			this.stockService.saveOrUpdate(stock);
+			return new BasicDataResult(200, "修改数据成功", "");
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
 	
-	
-	
-	
+		return new BasicDataResult(400, "修改数据失败", "");
+	}
 
 }
-
-
-	
