@@ -35,13 +35,13 @@ function showQRCode(o, o2) {
 *
 */
 function batchOut(o) {
-	if(o =="1"){
-	$("#bout").html("商品批量出库")
-	}else if(o=="2"){
-	$("#bout").html("商品批量预出库")
+	if (o == "1") {
+		$("#bout").html("商品批量出库")
+	} else if (o == "2") {
+		$("#bout").html("商品批量预出库")
 	}
 	$("#type").val(o)
-	
+
 	var batchids = "";
 	var id = $("input[name='ids']:checked");
 	var str = "";
@@ -66,7 +66,7 @@ function batchOut(o) {
                                <td class="numeric">`+ item.remainingNum + `</td>
                                <td class="numeric">
 							   <input type="hidden" name="batchid" value="`+ item.id + `"> 
-                               <input type="text" onblur="return setStockNum('`+ item.id + `')"  value="`+ item.remainingNum + `" class="form-control stockval batchout" id=stocknum_` + item.id + `   name="batchnum" >
+                               <input type="text" onblur="return setStockNum('`+ item.id + `')"  value="` + item.remainingNum + `" class="form-control stockval batchout" id=stocknum_` + item.id + `   name="batchnum" >
                                </td>
                                <td class="numeric">
                                <button class="btn " type="button" onclick="return deleteStock('`+ item.id + `')" > <i  class="fa fa-trash-o">移除 </i>
@@ -339,11 +339,11 @@ function searchBo() {
 	var searchArea = $("#searchArea").val();
 	var pageSize = $("#pageSize").val();
 	var stockType = $("#stockType").val();
-	var name=$('[name="name"]').val();
-	var model=$('[name="model"]').val();
-	var supplier=$('[name="supplier"]').val();
-	var entryName=$('[name="entryName"]').val();
-	var itemNo=$('[name="itemNo"]').val();
+	var name = $('[name="name"]').val();
+	var model = $('[name="model"]').val();
+	var supplier = $('[name="supplier"]').val();
+	var entryName = $('[name="entryName"]').val();
+	var itemNo = $('[name="itemNo"]').val();
 	// var purchaseInvoiceNo=$('[name="purchaseInvoiceNo"]').val();
 	// var purchaseInvoiceDate=$('[name="purchaseInvoiceDate"]').val();
 	// var paymentOrderNo=$('[name="paymentOrderNo"]').val();
@@ -353,7 +353,7 @@ function searchBo() {
 	 * text : "查询内容不能为空!!", }); return ; }
 	 */
 	window.location.href = "stocks?pageSize=" + pageSize + "&ssC=" + ssC
-	+"&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo + "&searchArea=" + searchArea+ "&stockType=" + stockType;
+		+ "&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo + "&searchArea=" + searchArea + "&stockType=" + stockType;
 
 }
 
@@ -390,8 +390,8 @@ function toStatistics(o) {
 }
 
 //库存跳转至预库存
-function topreStock(o){
-window.location.href = "topreStock" + o;
+function topreStock(o) {
+	window.location.href = "topreStock" + o;
 }
 
 // function toExport() {
@@ -413,13 +413,13 @@ window.location.href = "topreStock" + o;
 
 function toExportTJ(Bo) {
 	var bo = JSON.parse(Bo);
-	var name=returnEmpty(bo.name);
-	var ssC=returnEmpty(bo.ssC);
-	var area=returnEmpty(bo.searchArea);
-	var model=returnEmpty(bo.model);
-	var supplier=returnEmpty(bo.supplier);
-	var entryName=returnEmpty(bo.entryName);
-	var itemNo=returnEmpty(bo.itemNo);
+	var name = returnEmpty(bo.name);
+	var ssC = returnEmpty(bo.ssC);
+	var area = returnEmpty(bo.searchArea);
+	var model = returnEmpty(bo.model);
+	var supplier = returnEmpty(bo.supplier);
+	var entryName = returnEmpty(bo.entryName);
+	var itemNo = returnEmpty(bo.itemNo);
 	jqueryAlert({
 		'icon': getRootPath() + '/plugs/alert/img/right.png',
 		'content': "正在导出请稍等...",
@@ -428,7 +428,7 @@ function toExportTJ(Bo) {
 	var areaId = $("#searchArea").val();
 	var searchAgent = $("#agent").val();
 	window.location.href = "stock/exportTJ?&ssC=" + ssC
-	+"&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo + "&searchArea=" + area;
+		+ "&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo + "&searchArea=" + area;
 
 
 }
@@ -542,11 +542,11 @@ function cleanSearch() {
 
 
 function toDownloadQRcode(o) {
-var search = $("#serach").val();
-	if(search=="所有库存二维码"||search=="有库存二维码"){
-		window.location.href = "stock/downloadQRcode?id=" + o+"&search="+search;
+	var search = $("#serach").val();
+	if (search == "所有库存二维码" || search == "有库存二维码") {
+		window.location.href = "stock/downloadQRcode?id=" + o + "&search=" + search;
 		return;
-}
+	}
 
 	if (o != "") {
 		//下载单个
@@ -584,82 +584,142 @@ var search = $("#serach").val();
 function batchPaymentOrderNo() {
 
 	var a = $("input[name='ids']:checked").length;
-		if (a == 0) {
-			swal({
-				type: "warning",
-				title: "",
-				text: "批量修改采购付款单编号至少选择一项!!",
-			});
-		
-		}else{
-		
-	$("#myPaymentOrderNo").modal('show');
+	if (a == 0) {
+		swal({
+			type: "warning",
+			title: "",
+			text: "批量修改采购付款单编号至少选择一项!!",
+		});
 
-	var batchids = "";
-	var id = $("input[name='ids']:checked");
-	var str = "";
-	$(id).each(function() {
-		str += this.value + ",";
-	});
-	if (str != "") {
-		batchids = str.substring(0, str.length - 1);
+	} else {
+
+		$("#myPaymentOrderNo").modal('show');
+
+		var batchids = "";
+		var id = $("input[name='ids']:checked");
+		var str = "";
+		$(id).each(function() {
+			str += this.value + ",";
+		});
+		if (str != "") {
+			batchids = str.substring(0, str.length - 1);
+		}
+
+		$("#stockid").val(batchids);
 	}
 
-	$("#stockid").val(batchids);
-}
-
 
 
 
 }
 
-function searchbyN(size,totalpage,Bo){
+function searchbyN(size, totalpage, Bo) {
 	var bo = JSON.parse(Bo);
-	var N=$("#searchN").val();
-	if(N <= 0 || N > totalpage){
+	var N = $("#searchN").val();
+	if (N <= 0 || N > totalpage) {
 		swal({
 			type: "warning",
 			title: "",
 			text: "页数不对，重新填写!!",
 		});
-	}else{
-		var name=returnEmpty(bo.name);
-		var ssC=returnEmpty(bo.ssC);
-		var area=returnEmpty(bo.searchArea);
-		var model=returnEmpty(bo.model);
-		var supplier=returnEmpty(bo.supplier);
-		var entryName=returnEmpty(bo.entryName);
-		var itemNo=returnEmpty(bo.itemNo);
+	} else {
+		var name = returnEmpty(bo.name);
+		var ssC = returnEmpty(bo.ssC);
+		var area = returnEmpty(bo.searchArea);
+		var model = returnEmpty(bo.model);
+		var supplier = returnEmpty(bo.supplier);
+		var entryName = returnEmpty(bo.entryName);
+		var itemNo = returnEmpty(bo.itemNo);
 		// var purchaseInvoiceNo=returnEmpty(bo.purchaseInvoiceNo);
 		// var purchaseInvoiceDate=returnEmpty(bo.purchaseInvoiceDate);
 		// var paymentOrderNo=returnEmpty(bo.paymentOrderNo);
-		window.location.href = "stocks?pageNo=" + N +"&pageSize=" + size  +  "&ssC=" + ssC
-			+"&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo + "&searchArea=" + area;
+		window.location.href = "stocks?pageNo=" + N + "&pageSize=" + size + "&ssC=" + ssC
+			+ "&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo + "&searchArea=" + area;
 	}
 
 }
-function  returnEmpty(str){
-	if(str === null  || str === undefined ){
+function returnEmpty(str) {
+	if (str === null || str === undefined) {
 		return '';
 	}
 	return str;
 }
 
-function  pageS(pageNo,size,totalpage,Bo){
+function pageS(pageNo, size, totalpage, Bo) {
 	var bo = JSON.parse(Bo);
-	var name=returnEmpty(bo.name);
-	var ssC=returnEmpty(bo.ssC);
-	var area=returnEmpty(bo.searchArea);
-	var model=returnEmpty(bo.model);
-	var supplier=returnEmpty(bo.supplier);
-	var entryName=returnEmpty(bo.entryName);
-	var itemNo=returnEmpty(bo.itemNo);
+	var name = returnEmpty(bo.name);
+	var ssC = returnEmpty(bo.ssC);
+	var area = returnEmpty(bo.searchArea);
+	var model = returnEmpty(bo.model);
+	var supplier = returnEmpty(bo.supplier);
+	var entryName = returnEmpty(bo.entryName);
+	var itemNo = returnEmpty(bo.itemNo);
 	// var purchaseInvoiceNo=returnEmpty(bo.purchaseInvoiceNo);
 	// var purchaseInvoiceDate=returnEmpty(bo.purchaseInvoiceDate);
 	// var paymentOrderNo=returnEmpty(bo.paymentOrderNo);
-	window.location.href = "stocks?pageNo=" + pageNo +"&pageSize=" + size  +  "&ssC=" + ssC
-		+"&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo + "&searchArea=" + area;
+	window.location.href = "stocks?pageNo=" + pageNo + "&pageSize=" + size + "&ssC=" + ssC
+		+ "&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo + "&searchArea=" + area;
 }
+
+
+
+
+
+function change(o, o2) {
+
+	var o1 = $("#" + o2 + "_" + o).text().trim();
+	$("#" + o2 + "_" + o).html(`<input name="` + o2 + `" id="` + o2 + `id_` + o + `" value="` + o1 + `" onkeydown="return dosubmit(event)"  onblur="return hideinput('` + o + `','` + o1 + `','` + o2 + `')">`)
+
+
+}
+
+
+function hideinput(o, o1, o2) {
+
+	var v = $("#" + o2 + "id_" + o).val();
+	if (v != o1) {
+
+		//ajax提交数据库
+		$.ajax({
+			dataType: "json",
+			type: "POST",
+			url: getRootPath() + "/stock/batchEditStocks",
+			data: o2 + "=" + v + "&stockid=" + o,
+			success: function(data) {
+				if (data.status == 200) {
+					jqueryAlert({
+						'icon': getRootPath() + '/plugs/alert/img/right.png',
+						'content': data.msg,
+						'closeTime': 1000,
+					})
+
+					$("#" + o2 + "_" + o).text(v);
+				}
+			}
+		});
+	}
+
+	$("#" + o2 + "_" + o).text(v);
+
+}
+
+function dosubmit(e) {
+
+	if (e.keyCode == 13) {
+		$("#serach").focus();
+
+	}
+	return;
+}
+
+
+
+
+
+
+
+
+
 
 
 
