@@ -91,7 +91,12 @@ public class NewCustomerServiceImpl extends GeneralServiceImpl<NewCustomer> impl
 			Query query = new Query();
 			query.addCriteria(Criteria.where("isDelete").is(false));
 			if(Common.isNotEmpty(search)) {
+				boolean isNumeric=search.matches("\\d+");
+				if(isNumeric){
+					query.addCriteria(Criteria.where("wyid").regex(search));
+				}else{
 				query.addCriteria(Criteria.where("name").regex(search));
+				}
 			}
 			query.with(new Sort(new Order(Direction.DESC, "createTime")));
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, NewCustomer.class);

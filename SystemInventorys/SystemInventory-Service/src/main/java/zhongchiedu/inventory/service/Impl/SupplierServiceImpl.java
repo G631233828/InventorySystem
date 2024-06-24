@@ -108,7 +108,12 @@ public class SupplierServiceImpl extends GeneralServiceImpl<Supplier> implements
 			Query query = new Query();
 			
 			if(Common.isNotEmpty(search)){
-				query= this.findbySearch(search, query);
+				boolean isNumeric=search.matches("\\d+");
+				if(isNumeric){
+					query.addCriteria(Criteria.where("wyid").regex(search));
+				}else{
+					query= this.findbySearch(search, query);
+				}
 			}
 			query.with(new Sort(new Order(Direction.DESC, "createTime")));
 			query.addCriteria(Criteria.where("isDelete").is(false));

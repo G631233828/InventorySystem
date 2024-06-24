@@ -104,7 +104,13 @@ public class PnameServiceImpl extends GeneralServiceImpl<Pname> implements Pname
 			Query query = new Query();
 			query.addCriteria(Criteria.where("isDelete").is(false));
 			if(Common.isNotEmpty(search)) {
-				query.addCriteria(Criteria.where("name").regex(search));
+				boolean isNumeric=search.matches("\\d+");
+				if(isNumeric){
+					//纯数字则查询项目编号
+					query.addCriteria(Criteria.where("itemid").regex(search));
+				}else{
+					query.addCriteria(Criteria.where("name").regex(search));
+				}
 			}
 			query.with(new Sort(new Order(Direction.DESC, "createTime")));
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, Pname.class);
