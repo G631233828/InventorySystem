@@ -194,7 +194,7 @@ public class PreStockController {
 	 * 跳转到预库存添加页面
 	 */
 	@GetMapping("/preStockAdd{id}")
-	@RequiresPermissions(value = "preStock:add")
+	@RequiresPermissions(value = "preStock:in")
 	public String inStockPage(Model model, @PathVariable String id) {
 		// 所有供应商
 		List<Supplier> syslist = this.supplierService.findAllSupplier(false);

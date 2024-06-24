@@ -23,6 +23,7 @@ import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.util.SystemOutLogger;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -639,7 +640,7 @@ public class StockController {
 
 	@RequestMapping(value = "/stock/batchOut", method = RequestMethod.POST)
 	@ResponseBody
-	@RequiresPermissions(value = "stockStatistics:out")
+	@RequiresPermissions(value = {"stockStatistics:out","stockStatistics:yout"},logical = Logical.OR)
 	public BasicDataResult batchOut(HttpSession session, String id) {
 		List list = (List) session.getAttribute(Contents.STOCK_LIST);
 		if (list == null && Common.isEmpty(id)) {
