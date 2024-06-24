@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -516,7 +517,7 @@ public class PickUpApplicationController {
 
 	@RequestMapping(value = "/pickUpApplication/batchOut", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	@RequiresPermissions(value = "pickUpApplication:out")
+	@RequiresPermissions(value = {"stockStatistics:out","stockStatistics:yout","pickUpApplication:out"},logical = Logical.OR)
 	@SystemControllerLog(description = "批量预出库")
 	public BasicDataResult batchOut(String batchid, String batchnum, String batchdescription, String pname,
 			String newCustomer, String accepter, HttpSession session) {

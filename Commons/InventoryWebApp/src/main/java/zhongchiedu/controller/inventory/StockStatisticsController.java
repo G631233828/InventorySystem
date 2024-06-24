@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.propertyeditors.CustomDateEditor;
@@ -166,7 +167,7 @@ public class StockStatisticsController {
 
 	@RequestMapping(value = "/stockStatistics/batchOut", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	@RequiresPermissions(value = "stockStatistics:out")
+	@RequiresPermissions(value = {"stockStatistics:out","stockStatistics:yout"},logical = Logical.OR)
 	@SystemControllerLog(description = "设备出库")
 	public BasicDataResult batchOut(String batchid, String batchnum, String batchdescription,
 			String pname, String newCustomer, String accepter, HttpSession session) {
