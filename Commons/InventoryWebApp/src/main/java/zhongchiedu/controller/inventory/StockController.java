@@ -605,7 +605,7 @@ public class StockController {
 	}
 
 	@RequestMapping(value = "/stock/addToStocklist", method = RequestMethod.POST)
-	@RequiresPermissions(value = "stockStatistics:out")
+//	@RequiresPermissions(value = "stockStatistics:out")
 	@ResponseBody
 	public BasicDataResult addToStocklist(HttpSession session,
 			@RequestParam(value = "id", defaultValue = "") String id) {
@@ -640,7 +640,7 @@ public class StockController {
 
 	@RequestMapping(value = "/stock/batchOut", method = RequestMethod.POST)
 	@ResponseBody
-	@RequiresPermissions(value = {"stockStatistics:out","stockStatistics:yout"},logical = Logical.OR)
+//	@RequiresPermissions(value = {"stockStatistics:out","stockStatistics:yout"},logical = Logical.OR)
 	public BasicDataResult batchOut(HttpSession session, String id) {
 		List list = (List) session.getAttribute(Contents.STOCK_LIST);
 		if (list == null && Common.isEmpty(id)) {
@@ -699,7 +699,7 @@ public class StockController {
 
 	@RequestMapping(value = "/stock/deleteInSession", method = RequestMethod.POST)
 	@ResponseBody
-	@RequiresPermissions(value = "stockStatistics:out")
+//	@RequiresPermissions(value = "stockStatistics:out")
 	public BasicDataResult delStockInSession(HttpSession session,
 			@RequestParam(value = "id", defaultValue = "") String id) {
 

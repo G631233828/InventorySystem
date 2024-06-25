@@ -145,7 +145,7 @@ public class StockStatisticsController {
 
 	@RequestMapping(value = "/stockStatistics/in", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	@RequiresPermissions(value = "stockStatistics:in")
+//	@RequiresPermissions(value = "stockStatistics:in")
 	@SystemControllerLog(description = "设备入库")
 	public BasicDataResult in(@ModelAttribute("stockStatistics") StockStatistics stockStatistics, HttpSession session) {
 		User user = (User) session.getAttribute(Contents.USER_SESSION);
@@ -154,7 +154,7 @@ public class StockStatisticsController {
 
 	@RequestMapping(value = "/stockStatistics/out", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	@RequiresPermissions(value = "stockStatistics:out")
+//	@RequiresPermissions(value = "stockStatistics:out")
 	@SystemControllerLog(description = "设备出库")
 	public BasicDataResult out(@ModelAttribute("stockStatistics") StockStatistics stockStatistics,
 			HttpSession session) {
@@ -167,7 +167,7 @@ public class StockStatisticsController {
 
 	@RequestMapping(value = "/stockStatistics/batchOut", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	@RequiresPermissions(value = {"stockStatistics:out","stockStatistics:yout"},logical = Logical.OR)
+//	@RequiresPermissions(value = {"stockStatistics:out","stockStatistics:yout"},logical = Logical.OR)
 	@SystemControllerLog(description = "设备出库")
 	public BasicDataResult batchOut(String batchid, String batchnum, String batchdescription,
 			String pname, String newCustomer, String accepter, HttpSession session) {
@@ -251,7 +251,7 @@ public class StockStatisticsController {
 	@RequestMapping(value = "/stockStatistics/revoke", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	@SystemControllerLog(description = "出入库撤销")
-	@RequiresPermissions(value = "stockStatistics:revoke")
+//	@RequiresPermissions(value = "stockStatistics:revoke")
 	public BasicDataResult revoke(@RequestParam(value = "", defaultValue = "") String id,@RequestParam(value = "num", defaultValue = "0") String num,HttpSession session) {
 		User user = (User) session.getAttribute(Contents.USER_SESSION);
 		return this.stockStatisticsService.revoke(id,Integer.valueOf(num),user);
@@ -260,7 +260,7 @@ public class StockStatisticsController {
 	@RequestMapping(value = "/stockStatistics/confirm", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	@SystemControllerLog(description = "核对")
-	@RequiresPermissions(value = "stockStatistics:confirm")
+//	@RequiresPermissions(value = "stockStatistics:confirm")
 	public BasicDataResult confirm(@RequestParam(value = "id", defaultValue = "") String id) {
 		if(id.contains(",")){
 			String[] ids = id.split(",");
@@ -681,21 +681,40 @@ public class StockStatisticsController {
 	}
 
 
-
-
-
+	
+	
+	
+/**
+ * 导出项目统计exportProjectStockStatistics
+ */
+@RequestMapping(value = "/stockStatistics/exportProjectStockStatistics", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
+@SystemControllerLog(description = "")
+public void exportProjectStockStatistics (
+		@RequestParam(value = "start", defaultValue = "") String start,
+		@RequestParam(value = "end", defaultValue = "") String end,
+		HttpServletResponse response,
+		HttpServletRequest request) throws Exception{
+	
+	String exportName = start+"~"+end+"项目统计";
+	
+	response.setContentType("application/vnd.ms-excel");
+	String fileName = new String((exportName).getBytes("gb2312"), "ISO8859-1");
+	response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xlsx");
+	Workbook newExport = this.stockStatisticsService.exportStockStatistics(request,start,end);
+	
+	OutputStream out = response.getOutputStream();
+	newExport.write(out);
+	out.flush();
+	out.close();
+	
+	
+	
 }
 	
 	
 	
 	
-	
-	
-	
-	
-	
-	
-	
+}
 	
 	
 	

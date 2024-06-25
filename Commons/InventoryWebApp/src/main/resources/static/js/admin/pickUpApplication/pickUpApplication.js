@@ -134,6 +134,7 @@ $().ready(function() {
 				url: getRootPath() + "/pickUpApplicationAdd",
 				data: $("#pickUpApplicationAddForm").serialize(),
 				success: function(data) {
+				
 					if (data.status == 200) {
 						// 判断是否已存在，如果已存在则直接显示
 						jqueryAlert({

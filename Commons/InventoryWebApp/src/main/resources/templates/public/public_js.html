@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+   <!DOCTYPE html>
 <!-- saved from url=(0052)http://getbootstrap.com/docs/4.0/examples/dashboard/ -->
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -318,7 +318,29 @@
 				$("#myModal").modal('show');
 			}
 			
-				
+			$(document).ready(function() {
+			    // 选择所有具有btn和btn-success类的提交按钮
+			    $('button.btn.btn-success[type="submit"]').on('click', function(e) {
+			        // 允许表单的默认提交行为
+			        var form = $(this).closest('form');
+			        form.off('submit.disableButton'); // 如果之前绑定了阻止提交的处理程序，先解除它
+			        form.submit(); // 提交表单
+
+			        // 禁用按钮
+			        $(this).prop('disabled', true).text('提交中...'); // 更改按钮文本为可选
+
+			        // 设置一个定时器，在5秒后重新启用按钮
+			        setTimeout(function() {
+			            $(this).prop('disabled', false).text('提交'); // 恢复按钮文本和状态
+			        }.bind(this), 5000); // 5000毫秒 = 5秒
+
+			        // 阻止按钮的默认点击事件冒泡（如果需要）
+			        e.preventDefault(); // 注意：这里通常不需要，因为我们已经调用了form.submit()
+
+			        // 如果你不想在提交后还保留这个点击事件处理程序，可以解绑它
+			        // $(this).off('click'); // 但这通常不是必要的，因为表单可能已经刷新或导航到另一个页面
+			    });
+			});
 			
 		</script>
 	</div>

@@ -941,6 +941,30 @@ function searchBo() {
 }
 
 
+//导出项目统计
+function projectStockStatistics() {
+
+	var start = $("#start").val();
+	var end = $("#end").val();
+
+	if (start == "" || end == "") {
+		jqueryAlert({
+			'icon': getRootPath() + '/plugs/alert/img/error.png',
+			'content': "导入的时间段不能为空",
+			'closeTime': 2000,
+		})
+		return;
+	}
+
+
+	jqueryAlert({
+		'icon': getRootPath() + '/plugs/alert/img/right.png',
+		'content': "正在导出请稍等...",
+		'closeTime': 5000,
+	})
+	window.location.href = "stockStatistics/exportProjectStockStatistics?"+"start=" + start + "&end=" + end ;
+
+}
 
 
 

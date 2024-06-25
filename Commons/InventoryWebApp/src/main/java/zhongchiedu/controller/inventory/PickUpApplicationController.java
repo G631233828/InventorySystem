@@ -223,7 +223,7 @@ public class PickUpApplicationController {
 	 * 跳转到预库存添加页面
 	 */
 	@GetMapping("/pickUpApplicationAdd{id}")
-	@RequiresPermissions(value = "pickUpApplication:add")
+//	@RequiresPermissions(value = "pickUpApplication:add")
 	public String inStockPage(Model model, @PathVariable String id) {
 
 		// 区域
@@ -264,7 +264,7 @@ public class PickUpApplicationController {
 	}
 
 	@PutMapping("/pickUpApplicationAdd")
-	@RequiresPermissions(value = "pickUpApplication:out")
+//	@RequiresPermissions( value={"pickUpApplication:out","pickUpApplication:add"},logical=Logical.OR)
 	@SystemControllerLog(description = "库存完成出库")
 	@ResponseBody
 	public BasicDataResult addPickUpApplicationAdd(
@@ -376,11 +376,14 @@ public class PickUpApplicationController {
 		String search = (String) session.getAttribute("picksearch");
 		String searchArea = (String) session.getAttribute("picksearchArea");
 		String status = (String) session.getAttribute("pickstatus");
+		
+		search = Common.isNotEmpty(search)?URLEncoder.encode(search, "UTF-8"):"";
+				
 		log.info("删除设备" + id);
 		this.pickUpApplicationService.delete(id);
 		log.info("删除设备" + id + "成功");
 		return "redirect:/pickUpApplications?pageNo=" + pageNo + "&pageSize=" + pageSize + "&search="
-				+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea + "&status=" + status;
+				+search + "&searchArea=" + searchArea + "&status=" + status;
 	}
 
 	@RequestMapping("/pickUpApplication/clearSearch")
@@ -517,7 +520,7 @@ public class PickUpApplicationController {
 
 	@RequestMapping(value = "/pickUpApplication/batchOut", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	@RequiresPermissions(value = {"stockStatistics:out","stockStatistics:yout","pickUpApplication:out"},logical = Logical.OR)
+//	@RequiresPermissions(value = {"stockStatistics:out","stockStatistics:yout","pickUpApplication:out"},logical = Logical.OR)
 	@SystemControllerLog(description = "批量预出库")
 	public BasicDataResult batchOut(String batchid, String batchnum, String batchdescription, String pname,
 			String newCustomer, String accepter, HttpSession session) {
@@ -652,7 +655,7 @@ public class PickUpApplicationController {
 	 * 跳转到预库存添加页面
 	 */
 	@RequestMapping(value = "/pickUpApplication/batchAdd", method = RequestMethod.POST)
-	@RequiresPermissions(value = "pickUpApplication:batch")
+//	@RequiresPermissions(value = "pickUpApplication:batch")
 	@ResponseBody
 	public BasicDataResult batchAdd(Model model, String batchid, String batchnum, HttpSession session) {
 
