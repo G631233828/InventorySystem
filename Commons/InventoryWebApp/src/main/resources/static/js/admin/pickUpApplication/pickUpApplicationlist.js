@@ -334,7 +334,7 @@ $.ajax({
 				jqueryAlert({
 					'icon': getRootPath() + '/plugs/alert/img/right.png',
 					'content': data.data,
-					'closeTime': 5000,
+					'closeTime': 1000,
 				})
 				  location.reload();
 			} 

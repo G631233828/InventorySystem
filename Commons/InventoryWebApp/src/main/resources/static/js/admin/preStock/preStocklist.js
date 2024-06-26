@@ -501,6 +501,40 @@ function  pageS(pageNo,size,totalpage,Bo,status){
 	    + "&status=" +status;
 }
 
+
+
+function searchbyN(size, totalpage, Bo) {
+	var bo = JSON.parse(Bo);
+	var N = $("#searchN").val();
+	if (N <= 0 || N > totalpage) {
+		swal({
+			type: "warning",
+			title: "",
+			text: "页数不对，重新填写!!",
+		});
+	} else {
+		var name = returnEmpty(bo.name);
+	var model=returnEmpty(bo.model);
+	var area=returnEmpty(bo.searchArea);
+	var ssC=returnEmpty(bo.ssC);
+	var supplier=returnEmpty(bo.supplier);
+	var entryName=returnEmpty(bo.entryName);
+	var itemNo=returnEmpty(bo.itemNo);
+	
+	window.location.href = "preStocks?pageNo=" + N +"&pageSize=" + size  +  "&ssC=" + ssC
+		+"&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo + "&searchArea=" + area
+	    + "&status=" +status;
+	}
+
+}
+
+
+
+
+
+
+
+
 function searchBo() {
 	var status=$('#prestatus').val();
 	var searchArea = $("#searchArea").val();

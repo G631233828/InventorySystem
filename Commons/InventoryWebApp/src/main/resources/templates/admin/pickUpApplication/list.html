@@ -325,6 +325,10 @@
 										<div class="col-md-6">
 											<ul class="pagination pagination-split pull-right"
 												style="margin-top: 0px;">
+												
+												  <li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a                            
+                                                   th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/pickUpApplications(pageNo=1,pageSize=${session.pickpageNo},stockid=${session.stockid},modelid=${session.modelid},customerid=${session.selectcustomer},pnameid=${session.selectpname},status=${session.pickstatus},searchArea=${session.picksearchArea})}">首页</a>
+                                            </li>
 												<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
 													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/pickUpApplications(pageNo=${pageList.upPage},pageSize=${session.pickpageNo},stockid=${session.stockid},modelid=${session.modelid},customerid=${session.selectcustomer},pnameid=${session.selectpname},status=${session.pickstatus},searchArea=${session.picksearchArea})}">上一页</a>
 												</li>
@@ -333,9 +337,19 @@
 													th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/pickUpApplications(pageNo=${page},pageSize=${session.pickpageNo},stockid=${session.stockid},modelid=${session.modelid},customerid=${session.selectcustomer},pnameid=${session.selectpname},status=${session.pickstatus},searchArea=${session.picksearchArea})}">[[${page}]]</a>
 												</li>
 												<li
-													th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
+													th:class="${pageList.pageNo eq pageList.totalPage || pageList.totalPage == 0}?disabled:''">
 													<a
 													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/pickUpApplications(pageNo=${pageList.nextPage},pageSize=${session.pickpageNo},stockid=${session.stockid},modelid=${session.modelid},customerid=${session.selectcustomer},pnameid=${session.selectpname},status=${session.pickstatus},searchArea=${session.picksearchArea})}">下一页</a>
+												</li>
+											  <li><input class="form-control" id="searchN" style="width: 60px;display: inline-block;"  type="number" placeholder=""  />
+											  
+											  <a href="javascript:void(0);" style="float:right;"  onclick=" topage()" >跳转</a>
+											  
+                                            </li>
+												<li
+													th:class="${pageList.pageNo eq pageList.totalPage || pageList.totalPage == 0}?disabled:''">
+													<a
+													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/pickUpApplications(pageNo=${pageList.totalPage},pageSize=${session.pickpageNo},stockid=${session.stockid},modelid=${session.modelid},customerid=${session.selectcustomer},pnameid=${session.selectpname},status=${session.pickstatus},searchArea=${session.picksearchArea})}">尾页</a>
 												</li>
 											</ul>
 										</div>
@@ -382,6 +396,45 @@
 <script th:src="@{/assets/js/select/bootstrap-select.js}"
         type="text/javascript"></script>
 
+<script type="text/javascript" th:inline="javascript">
+
+/* <![CDATA[ */
+function topage(){
+	
+alert(123)
+   
+var searchNValue = $("#searchN").val(); // 读取input的值
+
+if(searchNValue !=""){
+	
+	 var pageNo = searchNValue; // 假设我们直接用input的值作为pageNo
+     var pageSize = [[${session.pickpageNo}]]; // 使用Thymeleaf表达式从session中获取值
+     var stockid = [[${session.stockid}]];
+     var modelid = [[${session.modelid}]];
+     var customerid = [[${session.selectcustomer}]];
+     var pnameid = [[${session.selectpname}]];
+     var status = [[${session.pickstatus}]];
+     var searchArea = [[${session.picksearchArea}]];
+
+     // 构建URL
+     var url = getRootPath()+"/pickUpApplications?pageNo=" + pageNo + "&pageSize=" + pageSize + "&stockid=" + stockid + "&modelid=" + modelid + "&customerid=" + customerid + "&pnameid=" + pnameid + "&status=" + status + "&searchArea=" + searchArea;
+alert(url)
+     // 重定向到新的URL
+     window.location.href = url;
+}
+
+}
+/*]]>*/
+</script>
+
+
 </body>
+
+
+
+
+
+
+
 
 </html>

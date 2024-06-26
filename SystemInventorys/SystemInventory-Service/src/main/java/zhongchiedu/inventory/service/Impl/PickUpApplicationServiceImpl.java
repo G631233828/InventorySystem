@@ -413,7 +413,7 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 				importPickup.setPname(pname);
 
 				String accepter = resultexcel[i][j + 8].trim();// 领料人
-				if (Common.isEmpty(n)) {
+				if (Common.isEmpty(accepter)) {
 					error += "<span class='entypo-attention'></span>导入文件过程中出现预出库领料人为空，第<b>&nbsp&nbsp" + (i + 1)
 							+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
 					continue;

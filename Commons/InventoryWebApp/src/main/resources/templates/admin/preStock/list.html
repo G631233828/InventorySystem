@@ -1,602 +1,607 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org"
-      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
 
 <head th:include="public/public_css::pub_css"></head>
 <head>
-    <meta charset="utf-8">
-    <link rel="stylesheet" type="text/css"
-          th:href="@{/assets/js/progress-bar/number-pb.css}">
-    <link th:href="@{/plugs/sweetalert/sweetalert.css}" rel="stylesheet">
-    <link rel="stylesheet" th:href="@{/plugs/datapicker/datepicker3.css}">
-    <link rel="stylesheet" th:href="@{/assets/css/bootstrap-select.css}">
-    <script type="text/javascript"
-            th:src="@{/plugs/datapicker/bootstrap-datepicker.js}"></script>
+<meta charset="utf-8">
+<link rel="stylesheet" type="text/css"
+	th:href="@{/assets/js/progress-bar/number-pb.css}">
+<link th:href="@{/plugs/sweetalert/sweetalert.css}" rel="stylesheet">
+<link rel="stylesheet" th:href="@{/plugs/datapicker/datepicker3.css}">
+<link rel="stylesheet" th:href="@{/assets/css/bootstrap-select.css}">
+<script type="text/javascript"
+	th:src="@{/plugs/datapicker/bootstrap-datepicker.js}"></script>
 </head>
 <script th:src="@{/icon/iconfont.js}"></script>
 <style>
-    @font-face {
-        font-family: 'iconfont';
-        src: url('icon/iconfont.ttf?t=1631513698345') format('truetype');
-    }
+@font-face {
+	font-family: 'iconfont';
+	src: url('icon/iconfont.ttf?t=1631513698345') format('truetype');
+}
 
-    .iconfont {
-        font-family: "iconfont" !important;
-        font-size: 12px;
-        font-style: normal;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-    }
+.iconfont {
+	font-family: "iconfont" !important;
+	font-size: 12px;
+	font-style: normal;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
 
-    .wx {
-        background-color: #56bb23;
-    }
+.wx {
+	background-color: #56bb23;
+}
 </style>
 <body>
-<!-- Preloader -->
-<div id="preloader">
-    <div id="status">&nbsp;</div>
-</div>
-<!-- TOP NAVBAR -->
-<div th:replace="public/public::top"></div>
-<!-- /END OF TOP NAVBAR -->
+	<!-- Preloader -->
+	<div id="preloader">
+		<div id="status">&nbsp;</div>
+	</div>
+	<!-- TOP NAVBAR -->
+	<div th:replace="public/public::top"></div>
+	<!-- /END OF TOP NAVBAR -->
 
-<!-- SIDE MENU -->
-<div th:replace="public/public::left(activeUri='stockManager')"></div>
-<!-- END OF SIDE MENU -->
+	<!-- SIDE MENU -->
+	<div th:replace="public/public::left(activeUri='stockManager')"></div>
+	<!-- END OF SIDE MENU -->
 
-<!--  PAPER WRAP -->
-<div class="wrap-fluid">
-    <div class="container-fluid paper-wrap bevel tlbr">
-
-
-        <!-- CONTENT -->
-        <!--TITLE -->
-        <div th:replace="public/public::title"></div>
-        <!--/ TITLE -->
-
-        <!-- BREADCRUMB -->
-        <div th:replace="public/public::menu"></div>
-        <!-- END OF BREADCRUMB -->
+	<!--  PAPER WRAP -->
+	<div class="wrap-fluid">
+		<div class="container-fluid paper-wrap bevel tlbr">
 
 
-        <div class="content-wrap">
-            <div class="row">
+			<!-- CONTENT -->
+			<!--TITLE -->
+			<div th:replace="public/public::title"></div>
+			<!--/ TITLE -->
+
+			<!-- BREADCRUMB -->
+			<div th:replace="public/public::menu"></div>
+			<!-- END OF BREADCRUMB -->
 
 
-                <div class="col-sm-12">
-                    <div class="body-nest" id="alert" th:if="${errorMsg!=''}">
-                        <div class="alert alert-danger">
-                            <button data-dismiss="alert" class="close" type="button">×</button>
-                            <th:block th:utext="${errorMsg}">
-                            </th:block>
-                        </div>
-
-                    </div>
-                    <div class="nest" id="tableStaticClose">
-                        <div class="title-alt">
-                            <div>
-                                <shiro:hasPermission name="preStock:add">
-                                    <button class="btn btn-default btn-sm"
-                                            th:onclick="|window.location.href='@{/preStock}'|">
-                                        <i class="glyphicon glyphicon-plus"> </i> 添加预库存
-                                    </button>
-                                </shiro:hasPermission>
-
-                                <shiro:hasPermission name="preStock:add">
-                                <button class="btn btn-success" onclick="return batchImput()">
-                                    <i class="fontawesome-upload"> </i>批量导入
-                                </button>
-                                </shiro:hasPermission>
-
-                                <shiro:hasPermission name="preStock:edit">
-                                    <button class="btn btn-primary btn-sm"
-                                            onclick="return toeditPage('','preStock')">
-                                        <i class="fa fa-edit"> </i>编辑
-                                    </button>
-                                </shiro:hasPermission>
-
-                                <shiro:hasPermission name="preStock:delete">
-                                    <button class="btn btn-danger btn-sm"
-                                            th:onclick="|return del('','@{/preStock/}')|">
-                                        <i class="fa fa-trash-o"> </i>删除
-                                    </button>
-                                </shiro:hasPermission>
-
-                                <button class="btn btn-default" onclick="return showColumn()">
-                                    <i class="entypo-list-add"> </i>显示列
-                                </button>
-
-                                <button class="btn btn-default" onclick="return toExport()">
-                                    <i class="entypo-export"> </i>导出预库存
-                                </button>
-
-                                <shiro:hasPermission name="preStock:in">
-                                <button class="btn btn-success" onclick="return batchOut()">
-                                    <i class="fontawesome-upload"> </i>批量入库
-                                </button>
-                                </shiro:hasPermission>
-                                <shiro:hasPermission name="preStock:edit">
-                                <button class="btn btn-primary btn-sm"
-                                        onclick="return editprestock()">
-                                    <i class="entypo-search"> </i> 批量编辑
-                                </button>
-                                </shiro:hasPermission>
-
-                            </div>
-
-                            <div class="titleClose">
-                                <a class="gone" href="#tableStaticClose"> <span
-                                        class="entypo-cancel"></span>
-                                </a>
-                            </div>
-                            <div class="titleToggle">
-                                <a class="nav-toggle-alt" href="#tableStatic"> <span
-                                        class="entypo-up-open"></span>
-                                </a>
-                            </div>
-
-                        </div>
+			<div class="content-wrap">
+				<div class="row">
 
 
-                        <div class="body-nest" id="tableStatic">
+					<div class="col-sm-12">
+						<div class="body-nest" id="alert" th:if="${errorMsg!=''}">
+							<div class="alert alert-danger">
+								<button data-dismiss="alert" class="close" type="button">×</button>
+								<th:block th:utext="${errorMsg}">
+								</th:block>
+							</div>
 
-<!--                            <div class="row" style="margin-bottom: 10px;">-->
-<!--                                <div class="col-sm-8 form-inline">-->
+						</div>
+						<div class="nest" id="tableStaticClose">
+							<div class="title-alt">
+								<div>
+									<shiro:hasPermission name="preStock:add">
+										<button class="btn btn-default btn-sm"
+											th:onclick="|window.location.href='@{/preStock}'|">
+											<i class="glyphicon glyphicon-plus"> </i> 添加预库存
+										</button>
+									</shiro:hasPermission>
 
-<!--                                    <select class="filter-status form-control" id="searchArea"-->
-<!--                                            onchange="return searchVal()">-->
-<!--                                        <option value="">&#45;&#45;选择区域&#45;&#45;</option>-->
-<!--                                        <option th:selected="${session.presearchArea}==${area?.id}"-->
-<!--                                                th:each="area:${areas}" th:value="${area?.id}"-->
-<!--                                                th:text="${area?.name}"></option>-->
+									<shiro:hasPermission name="preStock:add">
+										<button class="btn btn-success" onclick="return batchImput()">
+											<i class="fontawesome-upload"> </i>批量导入
+										</button>
+									</shiro:hasPermission>
 
-<!--                                    </select>-->
-<!--                                    <select class="filter-status form-control" id="searchssC"-->
-<!--                                            onchange="return searchVal()">-->
-<!--                                        <option value="">&#45;&#45;选择分类&#45;&#45;</option>-->
-<!--                                        <option th:selected="${session.ssC}==${sC?.id}"-->
-<!--                                                th:each="sC:${ssCs}" th:value="${sC?.id}"-->
-<!--                                                th:text="${sC?.name}"></option>-->
+									<shiro:hasPermission name="preStock:edit">
+										<button class="btn btn-primary btn-sm"
+											onclick="return toeditPage('','preStock')">
+											<i class="fa fa-edit"> </i>编辑
+										</button>
+									</shiro:hasPermission>
 
-<!--                                    </select>-->
+									<shiro:hasPermission name="preStock:delete">
+										<button class="btn btn-danger btn-sm"
+											th:onclick="|return del('','@{/preStock/}')|">
+											<i class="fa fa-trash-o"> </i>删除
+										</button>
+									</shiro:hasPermission>
 
-<!--                                    <select class="filter-status form-control" id="prestatus"-->
-<!--                                                      onchange="return searchVal()">-->
-<!--                                    <option value="">&#45;&#45;入库状态&#45;&#45;</option>-->
-<!--                                    <option th:value="1" th:selected="${session.status}==1">预入库</option>-->
-<!--                                    <option th:value="2" th:selected="${session.status}==2">已入库</option>-->
+									<button class="btn btn-default" onclick="return showColumn()">
+										<i class="entypo-list-add"> </i>显示列
+									</button>
 
+									<button class="btn btn-default" onclick="return toExport()">
+										<i class="entypo-export"> </i>导出预库存
+									</button>
 
-<!--                                </select> <select class="filter-status form-control" id="pageSize"-->
-<!--                                                  onchange="return searchVal()">-->
-<!--                                    <option value="10" th:selected="${session.prepageSize == 10}">10-->
+									<shiro:hasPermission name="preStock:in">
+										<button class="btn btn-success" onclick="return batchOut()">
+											<i class="fontawesome-upload"> </i>批量入库
+										</button>
+									</shiro:hasPermission>
+									<shiro:hasPermission name="preStock:edit">
+										<button class="btn btn-primary btn-sm"
+											onclick="return editprestock()">
+											<i class="entypo-search"> </i> 批量编辑
+										</button>
+									</shiro:hasPermission>
 
-<!--                                    <option value="20" th:selected="${session.prepageSize == 20}">20-->
+								</div>
 
+								<div class="titleClose">
+									<a class="gone" href="#tableStaticClose"> <span
+										class="entypo-cancel"></span>
+									</a>
+								</div>
+								<div class="titleToggle">
+									<a class="nav-toggle-alt" href="#tableStatic"> <span
+										class="entypo-up-open"></span>
+									</a>
+								</div>
 
-<!--                                    <option value="50" th:selected="${session.prepageSize == 50}">50-->
-
-
-<!--                                    <option value="100"-->
-<!--                                            th:selected="${session.prepageSize == 100}">100-->
-<!--                                </select> <input class="form-control" id="serach" placeholder="模糊匹配"-->
-<!--                                                 th:value="${session.presearch}" type="text">-->
-<!--                                    <button class="btn btn-default btn-sm"-->
-<!--                                            onclick="return searchVal()">-->
-<!--                                        <i class="entypo-search"> </i> 搜索-->
-<!--                                    </button>-->
-<!--                                    <button class="btn btn-default btn-sm"-->
-<!--                                            onclick="return cleanSearch()">-->
-<!--                                        <i class="fontawesome-remove"> </i> 清除搜索条件-->
-<!--                                    </button>-->
-<!--                                </div>-->
-<!--                            </div>-->
-
-                            <div class="row" style="margin-bottom: 10px;">
-                                <div class="col-sm-12 form-inline" style="margin-bottom: 10px;">
-                                    <label class="control-label text-muted">设备名称：</label>
-                                    <input class="form-control" name="name" placeholder=""
-                                           type="text" th:value="${requestBo.name!=null?requestBo.name:''}">
-                                    <label class="control-label text-muted">设备型号：</label>
-                                    <input class="form-control" name="model" placeholder=""
-                                           type="text" th:value="${requestBo?.model}">
-                                    <label class="control-label text-muted">供应商：</label>
-                                    <input class="form-control" name="supplier" placeholder=""
-                                           type="text" th:value="${requestBo?.supplier}">
-                                    <label class="control-label text-muted">项目名称：</label>
-                                    <input class="form-control" name="entryName" placeholder=""
-                                           type="text" th:value="${requestBo?.entryName}">
-                                </div>
-
-                                <div class="col-sm-12 form-inline" style="margin-bottom: 10px;">
-                                    <label class="control-label text-muted">采购付款申请单：</label>
-                                    <input class="form-control" name="itemNo" placeholder=""
-                                           type="text" th:value="${requestBo.itemNo !=null ? requestBo.itemNo:''}">
-<!--                                    <label class="control-label text-muted">采购发票号：</label>-->
-<!--                                    <input class="form-control" name="purchaseInvoiceNo" placeholder=""-->
-<!--                                           type="text" th:value="${requestBo?.purchaseInvoiceNo}">-->
-<!--                                    <label class="control-label text-muted">采购发票到票日期：</label>-->
-<!--                                    <input class="form-control" name="purchaseInvoiceDate" placeholder=""-->
-<!--                                           type="text" th:value="${requestBo?.purchaseInvoiceDate}">-->
-<!--                                    <label class="control-label text-muted">银行付款日期：</label>-->
-<!--                                    <input class="form-control" name="paymentOrderNo" placeholder=""-->
-<!--                                           type="text" th:value="${requestBo?.paymentOrderNo}">-->
-                                </div>
-
-                                <div class="col-sm-7 form-inline">
-                                    <select class="filter-status form-control" id="pageSize">
-                                        <option value="10" th:selected="${session.prepageSize == 10}">10
-                                        <option value="20" th:selected="${session.prepageSize == 20}">20
-                                        <option value="50" th:selected="${session.prepageSize == 50}">50
-                                        <option value="100" th:selected="${session.prepageSize == 100}">100
-                                    </select>
-                                    <select class="filter-status form-control" id="prestatus">
-                                        <option value="">--入库状态--</option>
-                                        <option th:value="1" th:selected="${session.status}==1">预入库</option>
-                                        <option th:value="2" th:selected="${session.status}==2">已入库</option>
-                                    </select>
-                                    <select multiple class="filter-status form-control selectpicker" id="searchssC"
-                                            data-max-options="5" title="选择分类">
-                                        <option th:selected="${requestBo?.ssC}==${sC?.id}"
-                                                th:each="sC:${ssCs}" th:value="${sC?.id}"
-                                                th:text="${sC?.name}"></option>
-                                    </select>
-                                    <select multiple class="filter-status form-control selectpicker" id="searchArea"
-                                            data-max-options="5" title="选择区域">
-                                        <option th:selected="${requestBo?.searchArea}==${area?.id}"
-                                                th:each="area:${areas}" th:value="${area?.id}"
-                                                th:text="${area?.name}"></option>
-                                    </select>
-                                    <button class="btn btn-default btn-sm"
-                                            onclick="return searchBo()">
-                                        <i class="entypo-search"> </i> 搜索
-                                    </button>
-                                </div>
-
-                            </div>
-
-                            <div class="col-sm-6"></div>
+							</div>
 
 
-                        </div>
+							<div class="body-nest" id="tableStatic">
+
+								<!--                            <div class="row" style="margin-bottom: 10px;">-->
+								<!--                                <div class="col-sm-8 form-inline">-->
+
+								<!--                                    <select class="filter-status form-control" id="searchArea"-->
+								<!--                                            onchange="return searchVal()">-->
+								<!--                                        <option value="">&#45;&#45;选择区域&#45;&#45;</option>-->
+								<!--                                        <option th:selected="${session.presearchArea}==${area?.id}"-->
+								<!--                                                th:each="area:${areas}" th:value="${area?.id}"-->
+								<!--                                                th:text="${area?.name}"></option>-->
+
+								<!--                                    </select>-->
+								<!--                                    <select class="filter-status form-control" id="searchssC"-->
+								<!--                                            onchange="return searchVal()">-->
+								<!--                                        <option value="">&#45;&#45;选择分类&#45;&#45;</option>-->
+								<!--                                        <option th:selected="${session.ssC}==${sC?.id}"-->
+								<!--                                                th:each="sC:${ssCs}" th:value="${sC?.id}"-->
+								<!--                                                th:text="${sC?.name}"></option>-->
+
+								<!--                                    </select>-->
+
+								<!--                                    <select class="filter-status form-control" id="prestatus"-->
+								<!--                                                      onchange="return searchVal()">-->
+								<!--                                    <option value="">&#45;&#45;入库状态&#45;&#45;</option>-->
+								<!--                                    <option th:value="1" th:selected="${session.status}==1">预入库</option>-->
+								<!--                                    <option th:value="2" th:selected="${session.status}==2">已入库</option>-->
 
 
-                        <section id="flip-scroll">
-<!--                            <table class="table table-bordered table-striped cf">-->
-                            <div
-                                    style="overflow-y: auto; overflow-x: auto; white-space: nowrap; text-overflow: ellipsis;">
-                            <table
-                                    class="table table-bordered table-striped cf text-nowrap  table-hover">
-                                <thead class="cf">
-                                <tr>
-                                    <th class="numeric" style="width: 20px;">
-                                        <div class="checkbox checkbox-inline"
-                                             style="margin-top: 0px;">
-                                            <input type="checkbox" id="checkall" name="checkall"/> <label
-                                                for="checkall"></label>
-                                        </div>
-                                    </th>
-                                    <th class="numeric area"
-                                        th:style="${#lists.contains(listColums,'area')}?'':'display:none;'">区域</th>
-                                    <th class="numeric name"
-                                        th:style="${#lists.contains(listColums,'name')}?'':'display:none;'">设备名称</th>
-                                    <th class="numeric model"
-                                        th:style="${#lists.contains(listColums,'model')}?'':'display:none;'">设备型号</th>
-                                    <th class="numeric entryName"
-                                        th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'">项目名称</th>
-                                    <th class="numeric unit"
-                                        th:style="${#lists.contains(listColums,'unit')}?'':'display:none;'">单位</th>
-                                    <th class="numeric esquantity"
-                                        th:style="${#lists.contains(listColums,'esquantity')}?'':'display:none;'">预计入库数量</th>
-                                    <th class="numeric acquantity"
-                                        th:style="${#lists.contains(listColums,'acquantity')}?'':'display:none;'">实际入库数量</th>
-                                    <th class="numeric eaquantity"
-                                        th:style="${#lists.contains(listColums,'eaquantity')}?'':'display:none;'">剩余入库数量</th>
-                                  <!--   <th class="numeric inprice"
+								<!--                                </select> <select class="filter-status form-control" id="pageSize"-->
+								<!--                                                  onchange="return searchVal()">-->
+								<!--                                    <option value="10" th:selected="${session.prepageSize == 10}">10-->
+
+								<!--                                    <option value="20" th:selected="${session.prepageSize == 20}">20-->
+
+
+								<!--                                    <option value="50" th:selected="${session.prepageSize == 50}">50-->
+
+
+								<!--                                    <option value="100"-->
+								<!--                                            th:selected="${session.prepageSize == 100}">100-->
+								<!--                                </select> <input class="form-control" id="serach" placeholder="模糊匹配"-->
+								<!--                                                 th:value="${session.presearch}" type="text">-->
+								<!--                                    <button class="btn btn-default btn-sm"-->
+								<!--                                            onclick="return searchVal()">-->
+								<!--                                        <i class="entypo-search"> </i> 搜索-->
+								<!--                                    </button>-->
+								<!--                                    <button class="btn btn-default btn-sm"-->
+								<!--                                            onclick="return cleanSearch()">-->
+								<!--                                        <i class="fontawesome-remove"> </i> 清除搜索条件-->
+								<!--                                    </button>-->
+								<!--                                </div>-->
+								<!--                            </div>-->
+
+								<div class="row" style="margin-bottom: 10px;">
+									<div class="col-sm-12 form-inline" style="margin-bottom: 10px;">
+										<label class="control-label text-muted">设备名称：</label> <input
+											class="form-control" name="name" placeholder="" type="text"
+											th:value="${requestBo.name!=null?requestBo.name:''}">
+										<label class="control-label text-muted">设备型号：</label> <input
+											class="form-control" name="model" placeholder="" type="text"
+											th:value="${requestBo?.model}"> <label
+											class="control-label text-muted">供应商：</label> <input
+											class="form-control" name="supplier" placeholder=""
+											type="text" th:value="${requestBo?.supplier}"> <label
+											class="control-label text-muted">项目名称：</label> <input
+											class="form-control" name="entryName" placeholder=""
+											type="text" th:value="${requestBo?.entryName}">
+									</div>
+
+									<div class="col-sm-12 form-inline" style="margin-bottom: 10px;">
+										<label class="control-label text-muted">采购付款申请单：</label> <input
+											class="form-control" name="itemNo" placeholder="" type="text"
+											th:value="${requestBo.itemNo !=null ? requestBo.itemNo:''}">
+										<!--                                    <label class="control-label text-muted">采购发票号：</label>-->
+										<!--                                    <input class="form-control" name="purchaseInvoiceNo" placeholder=""-->
+										<!--                                           type="text" th:value="${requestBo?.purchaseInvoiceNo}">-->
+										<!--                                    <label class="control-label text-muted">采购发票到票日期：</label>-->
+										<!--                                    <input class="form-control" name="purchaseInvoiceDate" placeholder=""-->
+										<!--                                           type="text" th:value="${requestBo?.purchaseInvoiceDate}">-->
+										<!--                                    <label class="control-label text-muted">银行付款日期：</label>-->
+										<!--                                    <input class="form-control" name="paymentOrderNo" placeholder=""-->
+										<!--                                           type="text" th:value="${requestBo?.paymentOrderNo}">-->
+									</div>
+
+									<div class="col-sm-7 form-inline">
+										<select class="filter-status form-control" id="pageSize">
+											<option value="10" th:selected="${session.prepageSize == 10}">10
+											
+											<option value="20" th:selected="${session.prepageSize == 20}">20
+											
+											<option value="50" th:selected="${session.prepageSize == 50}">50
+											
+											<option value="100"
+												th:selected="${session.prepageSize == 100}">100
+										</select> <select class="filter-status form-control" id="prestatus">
+											<option value="">--入库状态--</option>
+											<option th:value="1" th:selected="${session.status}==1">预入库</option>
+											<option th:value="2" th:selected="${session.status}==2">已入库</option>
+										</select> <select multiple
+											class="filter-status form-control selectpicker"
+											id="searchssC" data-max-options="5" title="选择分类">
+											<option th:selected="${requestBo?.ssC}==${sC?.id}"
+												th:each="sC:${ssCs}" th:value="${sC?.id}"
+												th:text="${sC?.name}"></option>
+										</select> <select multiple
+											class="filter-status form-control selectpicker"
+											id="searchArea" data-max-options="5" title="选择区域">
+											<option th:selected="${requestBo?.searchArea}==${area?.id}"
+												th:each="area:${areas}" th:value="${area?.id}"
+												th:text="${area?.name}"></option>
+										</select>
+										<button class="btn btn-default btn-sm"
+											onclick="return searchBo()">
+											<i class="entypo-search"> </i> 搜索
+										</button>
+									</div>
+
+								</div>
+
+								<div class="col-sm-6"></div>
+
+
+							</div>
+
+
+							<section id="flip-scroll">
+								<!--                            <table class="table table-bordered table-striped cf">-->
+								<div
+									style="overflow-y: auto; overflow-x: auto; white-space: nowrap; text-overflow: ellipsis;">
+									<table
+										class="table table-bordered table-striped cf text-nowrap  table-hover">
+										<thead class="cf">
+											<tr>
+												<th class="numeric" style="width: 20px;">
+													<div class="checkbox checkbox-inline"
+														style="margin-top: 0px;">
+														<input type="checkbox" id="checkall" name="checkall" /> <label
+															for="checkall"></label>
+													</div>
+												</th>
+												<th class="numeric area"
+													th:style="${#lists.contains(listColums,'area')}?'':'display:none;'">区域</th>
+												<th class="numeric name"
+													th:style="${#lists.contains(listColums,'name')}?'':'display:none;'">设备名称</th>
+												<th class="numeric model"
+													th:style="${#lists.contains(listColums,'model')}?'':'display:none;'">设备型号</th>
+												<th class="numeric entryName"
+													th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'">项目名称</th>
+												<th class="numeric unit"
+													th:style="${#lists.contains(listColums,'unit')}?'':'display:none;'">单位</th>
+												<th class="numeric esquantity"
+													th:style="${#lists.contains(listColums,'esquantity')}?'':'display:none;'">预计入库数量</th>
+												<th class="numeric acquantity"
+													th:style="${#lists.contains(listColums,'acquantity')}?'':'display:none;'">实际入库数量</th>
+												<th class="numeric eaquantity"
+													th:style="${#lists.contains(listColums,'eaquantity')}?'':'display:none;'">剩余入库数量</th>
+												<!--   <th class="numeric inprice"
                                         th:style="${#lists.contains(listColums,'inprice')}?'':'display:none;'">入库总金额</th> -->
-<!--                                    <th class="numeric purchaseInvoiceNo"-->
-<!--                                        th:style="${#lists.contains(listColums,'purchaseInvoiceNo')}?'':'display:none;'">采购发票号</th>-->
-<!--                                    <th class="numeric purchaseInvoiceDate"-->
-<!--                                        th:style="${#lists.contains(listColums,'purchaseInvoiceDate')}?'':'display:none;'">采购发票到票日期</th>-->
-<!--                                    <th class="numeric paymentOrderNo"-->
-<!--                                        th:style="${#lists.contains(listColums,'paymentOrderNo')}?'':'display:none;'">银行付款日期</th>-->
-                                    <th class="numeric itemNo"
-                                        th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'">采购付款单编码（新）</th>
-                                    <th class="numeric handler"
-                                        th:style="${#lists.contains(listColums,'handler')}?'':'display:none;'">发布人</th>
-<!--                                    <th class="numeric" th:if="${session.status}!=1">处理人</th>-->
-                                    <th class="numeric createTime"
-                                        th:style="${#lists.contains(listColums,'createTime')}?'':'display:none;'">录入时间</th>
-<!--                                    <th class="numeric" th:if="${session.status}==1">预计入库时间</th>-->
-                                    <th class="numeric status"
-                                        th:style="${#lists.contains(listColums,'status')}?'':'display:none;'">入库状态</th>
-                                    <th class="numeric ssC"
-                                        th:style="${#lists.contains(listColums,'ssC')}?'':'display:none;'">分类</th>
-                                    <th class="numeric supplier"
-                                        th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'">供应商</th>
-                                    <th class="numeric">操作</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <!-- 目录 -->
-                                <th:block th:each="stock:${pageList?.datas}">
-                                    <tr>
-                                        <td class="numeric">
-                                            <div class="checkbox checkbox-inline"
-                                                 style="margin-top: 0px;">
-                                                <input type="checkbox" name="ids" th:id="${stock?.id}"
-                                                       class="numeric" th:value="${stock?.id}"> <label
-                                                    th:for="${stock?.id}"></label>
-                                            </div>
-                                        </td>
-                                        <td class="numeric area"
-                                            th:style="${#lists.contains(listColums,'area')}?'':'display:none;'">[[${stock?.area?.name}]]</td>
-                                        <td class="numeric name"
-                                            th:style="${#lists.contains(listColums,'name')}?'':'display:none;'">[[${stock?.name}]]</td>
-                                        <td class="numeric model"
-                                            th:style="${#lists.contains(listColums,'model')}?'':'display:none;'">[[${stock?.model}]]</td>
-                                        <td class="numeric entryName" th:id="|entryName_${stock?.id}|"
-                                            th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'">[[${stock?.entryName}]]</td>
-                                        <td class="numeric unit"
-                                            th:style="${#lists.contains(listColums,'unit')}?'':'display:none;'">[[${stock?.unit?.name}]]</td>
-                                        <td class="numeric esquantity"
-                                            th:style="${#lists.contains(listColums,'esquantity')}?'':'display:none;'">[[${stock?.estimatedInventoryQuantity}]]</td>
-                                        <td class="numeric acquantity" th:id="|acquantity_${stock?.id}|"
-                                            th:style="${#lists.contains(listColums,'acquantity')}?'':'display:none;'">
-                                            [[${stock?.actualReceiptQuantity}]]
-                                        </td>
-                                        <td class="numeric eaquantity" th:id="|eaquantity_${stock?.id}|"
-                                            th:style="${#lists.contains(listColums,'eaquantity')}?'':'display:none;'">
-                                            [[${stock?.estimatedInventoryQuantity}-${stock?.actualReceiptQuantity}]]
-                                        </td>
-                                        <!-- <td class="numeric inprice" th:id="|inprice_${stock?.id}|"
+												<!--                                    <th class="numeric purchaseInvoiceNo"-->
+												<!--                                        th:style="${#lists.contains(listColums,'purchaseInvoiceNo')}?'':'display:none;'">采购发票号</th>-->
+												<!--                                    <th class="numeric purchaseInvoiceDate"-->
+												<!--                                        th:style="${#lists.contains(listColums,'purchaseInvoiceDate')}?'':'display:none;'">采购发票到票日期</th>-->
+												<!--                                    <th class="numeric paymentOrderNo"-->
+												<!--                                        th:style="${#lists.contains(listColums,'paymentOrderNo')}?'':'display:none;'">银行付款日期</th>-->
+												<th class="numeric itemNo"
+													th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'">采购付款单编码（新）</th>
+												<th class="numeric handler"
+													th:style="${#lists.contains(listColums,'handler')}?'':'display:none;'">发布人</th>
+												<!--                                    <th class="numeric" th:if="${session.status}!=1">处理人</th>-->
+												<th class="numeric createTime"
+													th:style="${#lists.contains(listColums,'createTime')}?'':'display:none;'">录入时间</th>
+												<!--                                    <th class="numeric" th:if="${session.status}==1">预计入库时间</th>-->
+												<th class="numeric status"
+													th:style="${#lists.contains(listColums,'status')}?'':'display:none;'">入库状态</th>
+												<th class="numeric ssC"
+													th:style="${#lists.contains(listColums,'ssC')}?'':'display:none;'">分类</th>
+												<th class="numeric supplier"
+													th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'">供应商</th>
+												<th class="numeric">操作</th>
+											</tr>
+										</thead>
+										<tbody>
+											<!-- 目录 -->
+											<th:block th:each="stock:${pageList?.datas}">
+												<tr>
+													<td class="numeric">
+														<div class="checkbox checkbox-inline"
+															style="margin-top: 0px;">
+															<input type="checkbox" name="ids" th:id="${stock?.id}"
+																class="numeric" th:value="${stock?.id}"> <label
+																th:for="${stock?.id}"></label>
+														</div>
+													</td>
+													<td class="numeric area"
+														th:style="${#lists.contains(listColums,'area')}?'':'display:none;'">[[${stock?.area?.name}]]</td>
+													<td class="numeric name"
+														th:style="${#lists.contains(listColums,'name')}?'':'display:none;'">[[${stock?.name}]]</td>
+													<td class="numeric model"
+														th:style="${#lists.contains(listColums,'model')}?'':'display:none;'">[[${stock?.model}]]</td>
+													<td class="numeric entryName"
+														th:id="|entryName_${stock?.id}|"
+														th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'">[[${stock?.entryName}]]</td>
+													<td class="numeric unit"
+														th:style="${#lists.contains(listColums,'unit')}?'':'display:none;'">[[${stock?.unit?.name}]]</td>
+													<td class="numeric esquantity"
+														th:style="${#lists.contains(listColums,'esquantity')}?'':'display:none;'">[[${stock?.estimatedInventoryQuantity}]]</td>
+													<td class="numeric acquantity"
+														th:id="|acquantity_${stock?.id}|"
+														th:style="${#lists.contains(listColums,'acquantity')}?'':'display:none;'">
+														[[${stock?.actualReceiptQuantity}]]</td>
+													<td class="numeric eaquantity"
+														th:id="|eaquantity_${stock?.id}|"
+														th:style="${#lists.contains(listColums,'eaquantity')}?'':'display:none;'">
+														[[${stock?.estimatedInventoryQuantity}-${stock?.actualReceiptQuantity}]]
+													</td>
+													<!-- <td class="numeric inprice" th:id="|inprice_${stock?.id}|"
                                             th:style="${#lists.contains(listColums,'inprice')}?'':'display:none;'"
                                             th:ondblclick="|return change('${stock?.id}','inprice')|"
                                             th:text="${stock?.inprice != 0.0}?${stock?.inprice}:'0.0'">
 
                                         </td> -->
-<!--                                        <td class="numeric purchaseInvoiceNo" th:id="|purchaseInvoiceNo_${stock?.id}|"-->
-<!--                                            th:ondblclick="|return change('${stock?.id}','purchaseInvoiceNo')|"-->
-<!--                                            th:style="${#lists.contains(listColums,'purchaseInvoiceNo')}?'':'display:none;'">[[${stock?.purchaseInvoiceNo}]]</td>-->
-<!--                                        <td class="numeric purchaseInvoiceDate"-->
-<!--                                            th:id="|purchaseInvoiceDate_${stock?.id}|"-->
-<!--                                            th:ondblclick="|return changeDate('${stock?.id}','purchaseInvoiceDate')|"-->
-<!--                                            th:text="${stock?.purchaseInvoiceDate != null}?${stock?.purchaseInvoiceDate}:''"-->
-<!--                                            th:style="${#lists.contains(listColums,'purchaseInvoiceDate')}?'':'display:none;'"></td>-->
-<!--                                        <td class="numeric paymentOrderNo"-->
-<!--                                            th:id="|paymentOrderNo_${stock?.id}|"-->
-<!--                                            th:ondblclick="|return change('${stock?.id}','paymentOrderNo')|"-->
-<!--                                            th:style="${#lists.contains(listColums,'paymentOrderNo')}?'':'display:none;'">[[${stock?.paymentOrderNo}]]</td>-->
-                                        <td class="numeric itemNo" th:id="|itemNo_${stock?.id}|"
-                                            th:ondblclick="|return change('${stock?.id}','itemNo')|"
-                                            th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'">[[${stock?.itemNo}]]</td>
+													<!--                                        <td class="numeric purchaseInvoiceNo" th:id="|purchaseInvoiceNo_${stock?.id}|"-->
+													<!--                                            th:ondblclick="|return change('${stock?.id}','purchaseInvoiceNo')|"-->
+													<!--                                            th:style="${#lists.contains(listColums,'purchaseInvoiceNo')}?'':'display:none;'">[[${stock?.purchaseInvoiceNo}]]</td>-->
+													<!--                                        <td class="numeric purchaseInvoiceDate"-->
+													<!--                                            th:id="|purchaseInvoiceDate_${stock?.id}|"-->
+													<!--                                            th:ondblclick="|return changeDate('${stock?.id}','purchaseInvoiceDate')|"-->
+													<!--                                            th:text="${stock?.purchaseInvoiceDate != null}?${stock?.purchaseInvoiceDate}:''"-->
+													<!--                                            th:style="${#lists.contains(listColums,'purchaseInvoiceDate')}?'':'display:none;'"></td>-->
+													<!--                                        <td class="numeric paymentOrderNo"-->
+													<!--                                            th:id="|paymentOrderNo_${stock?.id}|"-->
+													<!--                                            th:ondblclick="|return change('${stock?.id}','paymentOrderNo')|"-->
+													<!--                                            th:style="${#lists.contains(listColums,'paymentOrderNo')}?'':'display:none;'">[[${stock?.paymentOrderNo}]]</td>-->
+													<td class="numeric itemNo" th:id="|itemNo_${stock?.id}|"
+														th:ondblclick="|return change('${stock?.id}','itemNo')|"
+														th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'">[[${stock?.itemNo}]]</td>
 
-                                        <td class="numeric handler"
-                                            th:style="${#lists.contains(listColums,'handler')}?'':'display:none;'">[[${stock?.publisher?.userName}]]</td>
-<!--                                        <td class="numeric" th:if="${session.status}!=1">-->
-<!--                                            [[${stock?.handler?.userName}]]-->
-<!--                                        </td>-->
+													<td class="numeric handler"
+														th:style="${#lists.contains(listColums,'handler')}?'':'display:none;'">[[${stock?.publisher?.userName}]]</td>
+													<!--                                        <td class="numeric" th:if="${session.status}!=1">-->
+													<!--                                            [[${stock?.handler?.userName}]]-->
+													<!--                                        </td>-->
 
-                                        <td class="numeric createTime"
-                                            th:text="${#dates.format(stock?.createTime, 'yyyy-MM-dd HH:mm:ss')}"
-                                            th:style="${#lists.contains(listColums,'createTime')}?'':'display:none;'"></td>
-<!--                                        <td class="numeric" th:if="${session.status}==1"-->
-<!--                                            th:text="${#dates.format(stock?.estimatedWarehousingTime,'yyyy-MM-dd hh:mm')}"></td>-->
+													<td class="numeric createTime"
+														th:text="${#dates.format(stock?.createTime, 'yyyy-MM-dd HH:mm:ss')}"
+														th:style="${#lists.contains(listColums,'createTime')}?'':'display:none;'"></td>
+													<!--                                        <td class="numeric" th:if="${session.status}==1"-->
+													<!--                                            th:text="${#dates.format(stock?.estimatedWarehousingTime,'yyyy-MM-dd hh:mm')}"></td>-->
 
-                                        <td class="numeric status"
-                                            th:text="${stock?.status == 1?'预入库':stock?.status == 2?'已入库':stock?.status == 3?'部分入库':stock?.status == 4?'超量入库':''}"
-                                            th:style="${#lists.contains(listColums,'status')}?'':'display:none;'"></td>
-                                        <td class="numeric ssC" id="ssC"
-                                            th:style="${#lists.contains(listColums,'ssC')}?'':'display:none;'">[[${stock?.systemClassification?.name}]]</td>
-                                        <td class="numeric supplier"  th:id="|supplier_${stock?.id}|"
-                                            th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'">[[${stock?.supplier?.name}]]</td>
-                                        <td class="numeric">
-                                            <shiro:hasPermission name="preStock:in">
-                                                <button class="btn btn-primary btn-xs"
-                                                        th:if="${stock?.status}==1"
-                                                        th:onclick="|return toeditPage('${stock.id}','preStockAdd')|">
-                                                    <i class="fa fa-edit"> </i>预库存入库
-                                                </button>
-                                            </shiro:hasPermission>
-                                            <shiro:hasPermission name="preStock:wechatPush">
-                                                <button class="btn btn-primary btn-xs wx"
-                                                        th:if="${stock?.status}==1"
-                                                        th:onclick="|return wechatPush('${stock.id}')|">
-                                                    <i class="iconfont">&#xe69a;</i> 通知仓库人员
-                                                </button>
-                                            </shiro:hasPermission>
-                                            <shiro:hasPermission name="preStock:edit">
-                                                <button class="btn btn-primary btn-xs"
-                                                        th:if="${stock?.status}==1"
-                                                        th:onclick="|return toeditPage('${stock.id}','preStock')|">
-                                                    <i class="fa fa-edit"> </i>编辑
-                                                </button>
+													<td class="numeric status"
+														th:text="${stock?.status == 1?'预入库':stock?.status == 2?'已入库':stock?.status == 3?'部分入库':stock?.status == 4?'超量入库':''}"
+														th:style="${#lists.contains(listColums,'status')}?'':'display:none;'"></td>
+													<td class="numeric ssC" id="ssC"
+														th:style="${#lists.contains(listColums,'ssC')}?'':'display:none;'">[[${stock?.systemClassification?.name}]]</td>
+													<td class="numeric supplier"
+														th:id="|supplier_${stock?.id}|"
+														th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'">[[${stock?.supplier?.name}]]</td>
+													<td class="numeric"><shiro:hasPermission
+															name="preStock:in">
+															<button class="btn btn-primary btn-xs"
+																th:if="${stock?.status}==1"
+																th:onclick="|return toeditPage('${stock.id}','preStockAdd')|">
+																<i class="fa fa-edit"> </i>预库存入库
+															</button>
+														</shiro:hasPermission> <shiro:hasPermission name="preStock:wechatPush">
+															<button class="btn btn-primary btn-xs wx"
+																th:if="${stock?.status}==1"
+																th:onclick="|return wechatPush('${stock.id}')|">
+																<i class="iconfont">&#xe69a;</i> 通知仓库人员
+															</button>
+														</shiro:hasPermission> <shiro:hasPermission name="preStock:edit">
+															<button class="btn btn-primary btn-xs"
+																th:if="${stock?.status}==1"
+																th:onclick="|return toeditPage('${stock.id}','preStock')|">
+																<i class="fa fa-edit"> </i>编辑
+															</button>
 
-                                            </shiro:hasPermission>
-                                            <shiro:hasPermission name="preStock:delete">
-                                                <button class="btn btn-danger btn-xs"
-                                                        th:onclick="|return del('@{/preStock/}${stock.id}','')|">
-                                                    <i class="fa fa-trash-o"> </i>删除
-                                                </button>
-                                            </shiro:hasPermission>
-
-
-                                        </td>
-                                    </tr>
-                                    <!-- 菜单 -->
-                                </th:block>
+														</shiro:hasPermission> <shiro:hasPermission name="preStock:delete">
+															<button class="btn btn-danger btn-xs"
+																th:onclick="|return del('@{/preStock/}${stock.id}','')|">
+																<i class="fa fa-trash-o"> </i>删除
+															</button>
+														</shiro:hasPermission></td>
+												</tr>
+												<!-- 菜单 -->
+											</th:block>
 
 
-                                </tbody>
+										</tbody>
 
-                                <thead class="cf">
-                                <tr>
-                                    <th class="numeric" >
-                                        合计
-                                    </th>
-                                    <th class="numeric area"
-                                        th:style="${#lists.contains(listColums,'area')}?'':'display:none;'"></th>
-                                    <th class="numeric name"
-                                        th:style="${#lists.contains(listColums,'name')}?'':'display:none;'"></th>
-                                    <th class="numeric model"
-                                        th:style="${#lists.contains(listColums,'model')}?'':'display:none;'"></th>
-                                    <th class="numeric entryName"
-                                        th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'"></th>
-                                    <th class="numeric unit"
-                                        th:style="${#lists.contains(listColums,'unit')}?'':'display:none;'"></th>
-                                    <th class="numeric esquantity"
-                                        th:style="${#lists.contains(listColums,'esquantity')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![estimatedInventoryQuantity==null?0:estimatedInventoryQuantity])}]]</th>
-                                    <th class="numeric acquantity"
-                                        th:style="${#lists.contains(listColums,'acquantity')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![actualReceiptQuantity==null?0:actualReceiptQuantity])}]]</th>
-                                    <th class="numeric eaquantity"
-                                        th:style="${#lists.contains(listColums,'eaquantity')}?'':'display:none;'"></th>
-                                   <!--  <th class="numeric inprice"
+										<thead class="cf">
+											<tr>
+												<th class="numeric">合计</th>
+												<th class="numeric area"
+													th:style="${#lists.contains(listColums,'area')}?'':'display:none;'"></th>
+												<th class="numeric name"
+													th:style="${#lists.contains(listColums,'name')}?'':'display:none;'"></th>
+												<th class="numeric model"
+													th:style="${#lists.contains(listColums,'model')}?'':'display:none;'"></th>
+												<th class="numeric entryName"
+													th:style="${#lists.contains(listColums,'entryName')}?'':'display:none;'"></th>
+												<th class="numeric unit"
+													th:style="${#lists.contains(listColums,'unit')}?'':'display:none;'"></th>
+												<th class="numeric esquantity"
+													th:style="${#lists.contains(listColums,'esquantity')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![estimatedInventoryQuantity==null?0:estimatedInventoryQuantity])}]]</th>
+												<th class="numeric acquantity"
+													th:style="${#lists.contains(listColums,'acquantity')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![actualReceiptQuantity==null?0:actualReceiptQuantity])}]]</th>
+												<th class="numeric eaquantity"
+													th:style="${#lists.contains(listColums,'eaquantity')}?'':'display:none;'"></th>
+												<!--  <th class="numeric inprice"
                                         th:style="${#lists.contains(listColums,'inprice')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![inprice==null?0:inprice])}]]</th>
-                                    --> <th class="numeric purchaseInvoiceNo"
-                                        th:style="${#lists.contains(listColums,'purchaseInvoiceNo')}?'':'display:none;'"></th>
-                                    <th class="numeric purchaseInvoiceDate"
-                                        th:style="${#lists.contains(listColums,'purchaseInvoiceDate')}?'':'display:none;'"></th>
-                                    <th class="numeric paymentOrderNo"
-                                        th:style="${#lists.contains(listColums,'paymentOrderNo')}?'':'display:none;'"></th>
-                                    <th class="numeric itemNo"
-                                        th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'"></th>
-                                    <th class="numeric handler"
-                                        th:style="${#lists.contains(listColums,'handler')}?'':'display:none;'"></th>
+                                    -->
+												<th class="numeric purchaseInvoiceNo"
+													th:style="${#lists.contains(listColums,'purchaseInvoiceNo')}?'':'display:none;'"></th>
+												<th class="numeric purchaseInvoiceDate"
+													th:style="${#lists.contains(listColums,'purchaseInvoiceDate')}?'':'display:none;'"></th>
+												<th class="numeric paymentOrderNo"
+													th:style="${#lists.contains(listColums,'paymentOrderNo')}?'':'display:none;'"></th>
+												<th class="numeric itemNo"
+													th:style="${#lists.contains(listColums,'itemNo')}?'':'display:none;'"></th>
+												<th class="numeric handler"
+													th:style="${#lists.contains(listColums,'handler')}?'':'display:none;'"></th>
 
-                                    <th class="numeric createTime"
-                                        th:style="${#lists.contains(listColums,'createTime')}?'':'display:none;'"></th>
+												<th class="numeric createTime"
+													th:style="${#lists.contains(listColums,'createTime')}?'':'display:none;'"></th>
 
-                                    <th class="numeric status"
-                                        th:style="${#lists.contains(listColums,'status')}?'':'display:none;'"></th>
-                                    <th class="numeric ssC"
-                                        th:style="${#lists.contains(listColums,'ssC')}?'':'display:none;'"></th>
-                                    <th class="numeric supplier"
-                                        th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'"></th>
-                                    <th class="numeric"></th>
+												<th class="numeric status"
+													th:style="${#lists.contains(listColums,'status')}?'':'display:none;'"></th>
+												<th class="numeric ssC"
+													th:style="${#lists.contains(listColums,'ssC')}?'':'display:none;'"></th>
+												<th class="numeric supplier"
+													th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'"></th>
+												<th class="numeric"></th>
 
-                                </tr>
-                                </thead>
+											</tr>
+										</thead>
 
-                            </table>
-                            </div>
-                            <form method="post" id="deleteForm">
-                                <input name="_method" value="delete" type="hidden">
-                            </form>
+									</table>
+								</div>
+								<form method="post" id="deleteForm">
+									<input name="_method" value="delete" type="hidden">
+								</form>
 
-                            <div class="row">
+								<div class="row">
 
-                                <div class="col-md-12">
-                                    <div class="col-md-6">
-                                        <div class="dataTables_info hidden-xs"
-                                             style="margin-top: 0px;" role="status" aria-live="polite"
-                                             th:text="|每页显示${pageList.pageSize}行
+									<div class="col-md-12">
+										<div class="col-md-6">
+											<div class="dataTables_info hidden-xs"
+												style="margin-top: 0px;" role="status" aria-live="polite"
+												th:text="|每页显示${pageList.pageSize}行
 										－ 当前页${pageList.pageNo}页 － 共${pageList.totalPage}页|"></div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <ul class="pagination pagination-split pull-right"
-                                            style="margin-top: 0px;">
+										</div>
+										<div class="col-md-6">
+											<ul class="pagination pagination-split pull-right"
+												style="margin-top: 0px;">
 
-<!--                                            <li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a-->
-<!--                                                    th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/preStocks(pageNo=${pageList.upPage},pageSize=${session.prepageSize},search=${session.presearch},searchArea=${session.presearchArea},status=${session.status})}">上一页</a>-->
-<!--                                            </li>-->
-<!--                                            <li th:each="page:${pageList.navigatepageNums}"-->
-<!--                                                th:class="${page  == pageList.pageNo}?active:''"><a-->
-<!--                                                    th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/preStocks(pageNo=${page},pageSize=${session.prepageSize},search=${session.presearch},searchArea=${session.presearchArea},status=${session.status})}">[[${page}]]</a>-->
-<!--                                            </li>-->
-<!--                                            <li-->
-<!--                                                    th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">-->
-<!--                                                <a-->
-<!--                                                        th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/preStocks(pageNo=${pageList.nextPage},pageSize=${session.prepageSize},search=${session.presearch},searchArea=${session.searchArea},status=${session.status})}">下一页</a>-->
-<!--                                            </li>-->
+												<!--                                            <li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a-->
+												<!--                                                    th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/preStocks(pageNo=${pageList.upPage},pageSize=${session.prepageSize},search=${session.presearch},searchArea=${session.presearchArea},status=${session.status})}">上一页</a>-->
+												<!--                                            </li>-->
+												<!--                                            <li th:each="page:${pageList.navigatepageNums}"-->
+												<!--                                                th:class="${page  == pageList.pageNo}?active:''"><a-->
+												<!--                                                    th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/preStocks(pageNo=${page},pageSize=${session.prepageSize},search=${session.presearch},searchArea=${session.presearchArea},status=${session.status})}">[[${page}]]</a>-->
+												<!--                                            </li>-->
+												<!--                                            <li-->
+												<!--                                                    th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">-->
+												<!--                                                <a-->
+												<!--                                                        th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/preStocks(pageNo=${pageList.nextPage},pageSize=${session.prepageSize},search=${session.presearch},searchArea=${session.searchArea},status=${session.status})}">下一页</a>-->
+												<!--                                            </li>-->
 
-                                            <li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
-                                                    th:href="${pageList.pageNo} eq 1?'javascript:void(0);':'#'"
-                                                    th:onclick="|return pageS('1','${session.prepageSize}','${pageList.totalPage}','${Bo}','${session.status}')|">首页</a>
-                                            </li>
-
-
-                                            <li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
-                                                    th:href="${pageList.pageNo} eq 1?'javascript:void(0);':'#'"
-                                                    th:onclick="|return pageS('${pageList.upPage}','${session.prepageSize}','${pageList.totalPage}','${Bo}','${session.status}')|">上一页</a>
-                                            </li>
+												<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
+													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':'#'"
+													th:onclick="|return pageS('1','${session.prepageSize}','${pageList.totalPage}','${Bo}','${session.status}')|">首页</a>
+												</li>
 
 
-                                            <li th:each="page:${pageList.navigatepageNums}"
-                                                th:class="${page  == pageList.pageNo}?active:''"><a
-                                                    th:href="${page eq pageList.pageNo}?'javascript:void(0)':'#'"
-                                                    th:onclick="|return pageS('${page}','${session.prepageSize}','${pageList.totalPage}','${Bo}','${session.status}')|">[[${page}]]</a>
-                                            </li>
+												<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
+													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':'#'"
+													th:onclick="|return pageS('${pageList.upPage}','${session.prepageSize}','${pageList.totalPage}','${Bo}','${session.status}')|">上一页</a>
+												</li>
 
 
-                                            <li th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
-                                                <a th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':'#'"
-                                                   th:onclick="|return pageS('${pageList.nextPage}','${session.prepageSize}','${pageList.totalPage}','${Bo}','${session.status}')|">下一页</a>
-                                            </li>
+												<li th:each="page:${pageList.navigatepageNums}"
+													th:class="${page  == pageList.pageNo}?active:''"><a
+													th:href="${page eq pageList.pageNo}?'javascript:void(0)':'#'"
+													th:onclick="|return pageS('${page}','${session.prepageSize}','${pageList.totalPage}','${Bo}','${session.status}')|">[[${page}]]</a>
+												</li>
 
 
-                                            <li th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
-                                                <a th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':'#'"
-                                                   th:onclick="|return pageS('${pageList.totalPage}','${session.prepageSize}','${pageList.totalPage}','${Bo}','${session.status}')|">尾页</a>
-                                            </li>
-
-<!--                                            <li><input class="form-control" id="searchN" style="width: 60px;"-->
-<!--                                                       type="number" placeholder=""/> <a href="javascript:void(0);"-->
-<!--                                                                                         th:onclick="|return searchbyN('${session.pageSize}','${session.searchArea}','${pageList.totalPage}','${session.ssC}','${Bo}')|">跳转</a>-->
-<!--                                            </li>-->
-
-                                        </ul>
-                                    </div>
-                                </div>
-
-                                <!-- 分页结束 -->
-                            </div>
-
-                        </section>
+												<li
+													th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
+													<a
+													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':'#'"
+													th:onclick="|return pageS('${pageList.nextPage}','${session.prepageSize}','${pageList.totalPage}','${Bo}','${session.status}')|">下一页</a>
+												</li>
 
 
-                    </div>
+												<li><input class="form-control" id="searchN"
+													style="width: 60px; display: inline-block;" type="number"
+													placeholder="" /> <a href="javascript:void(0);" style="float:right;"
+													th:onclick="|return searchbyN('${session.prepageSize}','${session.searchArea}','${pageList.totalPage}','${session.ssC}','${Bo}')|">跳转</a>
+												</li>
 
-                </div>
+												<li
+													th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
+													<a
+													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':'#'"
+													th:onclick="|return pageS('${pageList.totalPage}','${session.prepageSize}','${pageList.totalPage}','${Bo}','${session.status}')|">尾页</a>
+												</li>
 
 
-            </div>
+											</ul>
+										</div>
+									</div>
 
-        </div>
-    </div>
+									<!-- 分页结束 -->
+								</div>
 
-    <div th:replace="public/public::myModal"></div>
-    <div th:replace="admin/preStock/batch::mybatch"></div>
-    <div th:replace="admin/preStock/column::mycolumn"></div>
-    <div th:replace="admin/preStock/batchout::mystockbatchout"></div>
-    <div th:replace="admin/preStock/batcheditprestock::editprestock"></div>
-    <script type="text/javascript" th:inline="javascript"
-            th:src="@{/js/admin/preStock/preStocklist.js}"></script>
-    <script type="text/javascript" th:inline="javascript"
-            th:src="@{/js/admin/preStock/changevalue.js}"></script>
-</div>
-</div>
-<!--  END OF PAPER WRAP -->
-<!-- 右侧隐藏菜单start -->
-<div th:replace="public/public::right"></div>
+							</section>
 
-<!-- 右侧隐藏菜单end-->
-<!-- 底部js -->
-<div th:replace="public/public_js::pub_js"></div>
-<div th:replace="public/public_js::public_script"></div>
-<div th:replace="public/public::footer"></div>
-<!-- Sweet alert -->
-<script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
-<script type="text/javascript"
-        th:src="@{/plugs/prettyfile/bootstrap-prettyfile.js}"></script>
-<script type="text/javascript"
-        th:src="@{/plugs/validate/jquery.validate.min.js}"></script>
-<script type="text/javascript"
-        th:src="@{/plugs/validate/messages_zh.min.js}"></script>
-<div th:replace="public/public_js::validator"></div>
-<script th:src="@{/assets/js/select/bootstrap-select.js}"
-        type="text/javascript"></script>
-<script type="text/javascript" th:inline="javascript">
+
+						</div>
+
+					</div>
+
+
+				</div>
+
+			</div>
+		</div>
+
+		<div th:replace="public/public::myModal"></div>
+		<div th:replace="admin/preStock/batch::mybatch"></div>
+		<div th:replace="admin/preStock/column::mycolumn"></div>
+		<div th:replace="admin/preStock/batchout::mystockbatchout"></div>
+		<div th:replace="admin/preStock/batcheditprestock::editprestock"></div>
+		<script type="text/javascript" th:inline="javascript"
+			th:src="@{/js/admin/preStock/preStocklist.js}"></script>
+		<script type="text/javascript" th:inline="javascript"
+			th:src="@{/js/admin/preStock/changevalue.js}"></script>
+	</div>
+	</div>
+	<!--  END OF PAPER WRAP -->
+	<!-- 右侧隐藏菜单start -->
+	<div th:replace="public/public::right"></div>
+
+	<!-- 右侧隐藏菜单end-->
+	<!-- 底部js -->
+	<div th:replace="public/public_js::pub_js"></div>
+	<div th:replace="public/public_js::public_script"></div>
+	<div th:replace="public/public::footer"></div>
+	<!-- Sweet alert -->
+	<script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
+	<script type="text/javascript"
+		th:src="@{/plugs/prettyfile/bootstrap-prettyfile.js}"></script>
+	<script type="text/javascript"
+		th:src="@{/plugs/validate/jquery.validate.min.js}"></script>
+	<script type="text/javascript"
+		th:src="@{/plugs/validate/messages_zh.min.js}"></script>
+	<div th:replace="public/public_js::validator"></div>
+	<script th:src="@{/assets/js/select/bootstrap-select.js}"
+		type="text/javascript"></script>
+	<script type="text/javascript" th:inline="javascript">
     function isEmpty(value) {
         return value === "" || value === undefined || value === null;
     }

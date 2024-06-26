@@ -700,37 +700,37 @@ public class PickUpApplicationController {
 			getpickUpApplication.setNum(num);
 			BasicDataResult pickUpApplicationToStock = this.stockService.pickUpApplicationToStock(getpickUpApplication);
 
-			if (pickUpApplicationToStock.getStatus() == 200) {
-				// 出库成功 推送消息
-
-				// 创建通知
-				InventoryRole inventoryRole = this.inventoryRoleService.findByType("HANDLER");
-				if (Common.isEmpty(inventoryRole)) {
-					errorMsg.append("批量预出库成功，未获得绑定微信人员信息<BR/>");
-					//return new BasicDataResult().build(200, "出库成功", "未获得绑定微信人员信息");
-				}
-				List<User> users = inventoryRole.getUsers();
-
-				
-				Map<String, String> map = new HashMap<>();
-				map.put("first", "设备出库提醒！");
-				map.put("keyword1", getpickUpApplication.getStock().getName());
-				map.put("keyword2", String.valueOf(num));
-				map.put("keyword3", getpickUpApplication.getNewCustomer().getName());
-				map.put("keyword4", getpickUpApplication.getPname().getPm());
-				map.put("remark", "设备出库已完成");
-				users.stream().filter(user -> Common.isEmpty(user.getOpenId())).forEach(user -> {
-					errorMsg.append("用户：" + user.getUserName() + "尚未绑定微信<BR/>");
-				});
-				users.stream().filter(user -> Common.isNotEmpty(user.getOpenId())).forEach(user -> {
-					String sendWxMessage = this.wxMsgPush.sendWxMessage(templateId3, user.getOpenId(), "", map);
-					if (sendWxMessage == "-1") {
-						errorMsg.append("用户：" + user.getUserName() + "消息发送失败！<BR/>");
-					}
-					// this.wxMsgPush.sendWxMessage(templateId1, "ooiMKv7cqR-2EgkeC9LdATpr-mbY",
-					// "www.baidu.com", map);
-				});
-			}
+//			if (pickUpApplicationToStock.getStatus() == 200) {
+//				// 出库成功 推送消息
+//
+//				// 创建通知
+//				InventoryRole inventoryRole = this.inventoryRoleService.findByType("HANDLER");
+//				if (Common.isEmpty(inventoryRole)) {
+//					errorMsg.append("批量预出库成功，未获得绑定微信人员信息<BR/>");
+//					//return new BasicDataResult().build(200, "出库成功", "未获得绑定微信人员信息");
+//				}
+//				List<User> users = inventoryRole.getUsers();
+//
+//				
+//				Map<String, String> map = new HashMap<>();
+//				map.put("first", "设备出库提醒！");
+//				map.put("keyword1", getpickUpApplication.getStock().getName());
+//				map.put("keyword2", String.valueOf(num));
+//				map.put("keyword3", getpickUpApplication.getNewCustomer().getName());
+//				map.put("keyword4", getpickUpApplication.getPname().getPm());
+//				map.put("remark", "设备出库已完成");
+//				users.stream().filter(user -> Common.isEmpty(user.getOpenId())).forEach(user -> {
+//					errorMsg.append("用户：" + user.getUserName() + "尚未绑定微信<BR/>");
+//				});
+//				users.stream().filter(user -> Common.isNotEmpty(user.getOpenId())).forEach(user -> {
+//					String sendWxMessage = this.wxMsgPush.sendWxMessage(templateId3, user.getOpenId(), "", map);
+//					if (sendWxMessage == "-1") {
+//						errorMsg.append("用户：" + user.getUserName() + "消息发送失败！<BR/>");
+//					}
+//					// this.wxMsgPush.sendWxMessage(templateId1, "ooiMKv7cqR-2EgkeC9LdATpr-mbY",
+//					// "www.baidu.com", map);
+//				});
+//			}
 		}
 		return new BasicDataResult().build(200, "出库成功", errorMsg);
 	}

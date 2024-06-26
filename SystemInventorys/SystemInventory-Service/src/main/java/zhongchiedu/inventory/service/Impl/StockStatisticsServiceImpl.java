@@ -1822,7 +1822,9 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		Criteria ca = new Criteria();
 
 		if (Common.isNotEmpty(requestBo.getName()) || Common.isNotEmpty(requestBo.getSupplier())
-				|| Common.isNotEmpty(requestBo.getPaymentOrderNo()) || Common.isNotEmpty(requestBo.getSearchArea())) {
+				|| Common.isNotEmpty(requestBo.getPaymentOrderNo()) || Common.isNotEmpty(requestBo.getSearchArea())
+				||Common.isNotEmpty(requestBo.getModel())
+				) {
 			Query querys = new Query();
 			querys = this.stockService.findByRequestBo(requestBo, querys);
 //			querys.addCriteria(Criteria.where("isDelete").is(false));
