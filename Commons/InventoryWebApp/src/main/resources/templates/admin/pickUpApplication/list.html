@@ -175,7 +175,7 @@
 										<select multiple
 											class="filter-status form-control selectpicker" id="stockid"
 											data-live-search="true" data-max-options="1" title="选择设备名称">
-											<option th:selected="${session.stockid}==${stock?.id}"
+											<option th:selected="${session.stockid}==${stock?.id}" 
 												th:each="stock:${stocklists}" th:value="${stock?.id}"
 												th:text="|${stock?.name}(${stock?.supplier?.name})|"></option>
 										</select> 
@@ -183,7 +183,7 @@
 										<select multiple
 											class="filter-status form-control selectpicker" id="modelid"
 											data-live-search="true" data-max-options="1" title="选择设备型号">
-											<option th:selected="${session.modelid}==${stock?.id}" th:if="${stock.model!=''}"
+											<option th:selected="${session.modelid}==${stock?.id}" 
 												th:each="stock:${stocklists}" th:value="${stock?.id}"
 												th:text="|${stock?.model}(${stock?.supplier?.name})|"></option>
 										</select> 

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -67,8 +68,8 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 
 	@Override
 	@SystemServiceLog(description = "获取所有待出库信息")
-	public Pagination<PickUpApplication> findpagination(Integer pageNo, Integer pageSize,
-			String searchArea, String status,String pnameid,String customerid,String stockid,String modelid) {
+	public Pagination<PickUpApplication> findpagination(Integer pageNo, Integer pageSize, String searchArea,
+			String status, String pnameid, String customerid, String stockid, String modelid) {
 		// 分页查询数据
 		Pagination<PickUpApplication> pagination = null;
 		try {
@@ -77,7 +78,7 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 			if (Common.isNotEmpty(searchArea)) {
 				query = query.addCriteria(Criteria.where("area.$id").is(new ObjectId(searchArea)));
 			}
-			if (Common.isEmpty(status)||status.equals("0")) {
+			if (Common.isEmpty(status) || status.equals("0")) {
 				List<Integer> l = new ArrayList();
 				l.add(1);
 				l.add(3);
@@ -85,27 +86,27 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 			} else {
 				query.addCriteria(Criteria.where("status").is(Integer.valueOf(status)));
 			}
-			
+
 			List<Criteria> orCriteriaList = new ArrayList<>();
-			
-			//查询 项目名称跟客户 
-			if(Common.isNotEmpty(pnameid)) {
+
+			// 查询 项目名称跟客户
+			if (Common.isNotEmpty(pnameid)) {
 				orCriteriaList.add(Criteria.where("pname.$id").is(new ObjectId(pnameid)));
 			}
-			if(Common.isNotEmpty(customerid)) {
+			if (Common.isNotEmpty(customerid)) {
 				orCriteriaList.add(Criteria.where("newCustomer.$id").is(new ObjectId(customerid)));
 			}
 
-			if(Common.isNotEmpty(stockid)) {
+			if (Common.isNotEmpty(stockid)) {
 				orCriteriaList.add(Criteria.where("stock.$id").is(new ObjectId(stockid)));
 			}
-			if(Common.isNotEmpty(modelid)) {
+			if (Common.isNotEmpty(modelid)) {
 				orCriteriaList.add(Criteria.where("stock.$id").is(new ObjectId(modelid)));
 			}
-			
+
 			if (!orCriteriaList.isEmpty()) {
-			    Criteria orCriteria = new Criteria().andOperator(orCriteriaList.toArray(new Criteria[0]));
-			    query.addCriteria(orCriteria);
+				Criteria orCriteria = new Criteria().andOperator(orCriteriaList.toArray(new Criteria[0]));
+				query.addCriteria(orCriteria);
 			}
 			query.addCriteria(Criteria.where("isDisable").is(false));
 			query.addCriteria(Criteria.where("isDelete").is(false));
@@ -277,6 +278,8 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 		int rowLength = resultexcel.length;
 		ProcessInfo pri = new ProcessInfo();
 		pri.allnum = rowLength;
+		// 定义list 用于存放从excel 读取到的数据
+		List<PickUpApplication> list = new ArrayList();
 		for (int i = 1; i < rowLength; i++) {
 			Query query = new Query();
 			PickUpApplication importPickup = new PickUpApplication();
@@ -330,10 +333,10 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 
 				// 通过设备名称 型号 区域 供应商 来获取库存信息
 				Stock stock = this.stockService.findByAreaNameModel(area.getId(), name, model, supplier.getId());
-				
+
 				if (Common.isEmpty(stock)) {
 					error += "<span class='entypo-attention'></span>导入文件未找到设备，第<b>&nbsp&nbsp" + (i + 1)
-							+ "请手动去修改该条信息！名称："+name+"型号:"+model+"&nbsp&nbsp</b></br>";
+							+ "请手动去修改该条信息！名称：" + name + "型号:" + model + "&nbsp&nbsp</b></br>";
 					continue;
 				}
 				// 绑定库存信息
@@ -373,23 +376,20 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 							+ "&nbsp;&nbsp;</b>，第<b>&nbsp&nbsp" + (i + 1) + "请手动去修改该条信息！&nbsp&nbsp</b></br>";
 					continue;
 				}
-				//检查库存数量 以及预出库中的数量 做比较
+				// 检查库存数量 以及预出库中的数量 做比较
 				List<PickUpApplication> checkpickUpApplication = this.findPickUpApplicationsByStockId(stock.getId());
-				long ycknum = checkpickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0,
-						Long::sum);
-				long acnum = checkpickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((long) 0,
-						Long::sum);
+				long ycknum = checkpickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity)
+						.reduce((long) 0, Long::sum);
+				long acnum = checkpickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity)
+						.reduce((long) 0, Long::sum);
 
 				if (Long.valueOf(n) > (stock.getInventory() - (ycknum - acnum))) {
-					error += "<span class='entypo-attention'></span>导入文件过程中第<b>&nbsp&nbsp"+ (i + 1)  +"出现不合法的库存数量不足<b>&nbsp;&nbsp;当前剩余可出库数量" + String.valueOf(stock.getInventory() - (ycknum - acnum))
+					error += "<span class='entypo-attention'></span>导入文件过程中第<b>&nbsp&nbsp" + (i + 1)
+							+ "出现不合法的库存数量不足<b>&nbsp;&nbsp;当前剩余可出库数量"
+							+ String.valueOf(stock.getInventory() - (ycknum - acnum))
 							+ "&nbsp;&nbsp;</b>，请手动去修改该条信息！&nbsp&nbsp</b></br>";
 					continue;
 				}
-				
-				
-				
-				
-				
 
 				String projname = resultexcel[i][j + 6].trim();// 项目名称
 
@@ -422,7 +422,9 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 				importPickup.setStatus(1);
 				User suser = (User) session.getAttribute(Contents.USER_SESSION);
 				importPickup.setPublisher(suser);
-				this.insert(importPickup);
+				// 2024年6月27日 批量执行的时候 不直接存数据库中，如果有问题就直接全部禁止导入
+				list.add(importPickup);// 导入数据放入list中
+				// this.insert(importPickup);
 				// 捕捉批量导入过程中遇到的错误，记录错误行数继续执行下去
 			} catch (Exception e) {
 				log.debug("导入文件过程中出现错误第" + (i + 1) + "行出现错误" + e);
@@ -435,6 +437,15 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 				}
 
 			}
+		}
+
+		if (error == "") {
+			// 逆序
+			Collections.reverse(list);
+			list.forEach(p -> {
+				this.insert(p);
+			});
+
 		}
 		log.info(error);
 		return error;

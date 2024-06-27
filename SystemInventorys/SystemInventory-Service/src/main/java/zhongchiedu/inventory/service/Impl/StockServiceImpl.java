@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -123,14 +124,16 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 	/**
 	 * 单个添加时判断是否存在库存
+	 * 
 	 * @param stock
 	 */
 	@Override
 	public void saveOrExist(Stock stock) {
 		if (Common.isNotEmpty(stock)) {
 			return;
-		}else {
-			Stock stock1=this.findByNameSupplier(stock.getArea().getName(),stock.getName(),stock.getModel(),stock.getSupplier().getName());
+		} else {
+			Stock stock1 = this.findByNameSupplier(stock.getArea().getName(), stock.getName(), stock.getModel(),
+					stock.getSupplier().getName());
 
 		}
 	}
@@ -193,7 +196,8 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 	@Override
 	@SystemServiceLog(description = "分页查询库存信息")
-	public Pagination<Stock> findpagination(Integer pageNo, Integer pageSize, String search, String searchArea, String searchAgent, String ssC) {
+	public Pagination<Stock> findpagination(Integer pageNo, Integer pageSize, String search, String searchArea,
+			String searchAgent, String ssC) {
 		// 分页查询数据
 		Pagination<Stock> pagination = null;
 		try {
@@ -233,17 +237,17 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		try {
 			Query query = new Query();
 			if (Common.isNotEmpty(requestBo.getItemNo())) {
-				query=query.addCriteria(Criteria.where("itemNo").regex(requestBo.getItemNo(), "i"));
+				query = query.addCriteria(Criteria.where("itemNo").regex(requestBo.getItemNo(), "i"));
 			}
-			query=this.findByRequestBo(requestBo,query);
+			query = this.findByRequestBo(requestBo, query);
 			query.addCriteria(Criteria.where("isDelete").is(false));
-			//默认查询库存量大于0的设备
-			if(requestBo.getStockType() == 1||requestBo.getStockType() == 0) {
+			// 默认查询库存量大于0的设备
+			if (requestBo.getStockType() == 1 || requestBo.getStockType() == 0) {
 				query.addCriteria(Criteria.where("inventory").gt(0));
-			}else if(requestBo.getStockType() == 2) {
+			} else if (requestBo.getStockType() == 2) {
 				query.addCriteria(Criteria.where("inventory").is(0));
 			}
-			
+
 			query.with(new Sort(new Order(Direction.DESC, "createTime")));
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, Stock.class);
 			if (pagination == null)
@@ -256,9 +260,8 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 	}
 
-
-	public Query findByRequestBo(RequestBo requestBo,Query query) {
-		Criteria ca=new Criteria();
+	public Query findByRequestBo(RequestBo requestBo, Query query) {
+		Criteria ca = new Criteria();
 //		query.addCriteria(Criteria.where("isDelete").is(false));
 		if (Common.isNotEmpty(requestBo.getName())) {
 			query = query.addCriteria(Criteria.where("name").regex(requestBo.getName(), "i"));
@@ -267,15 +270,18 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			query = query.addCriteria(Criteria.where("entryName").regex(requestBo.getEntryName(), "i"));
 		}
 		if (Common.isNotEmpty(requestBo.getModel())) {
-			query = query.addCriteria(Criteria.where("model").regex(Common.escapeExprSpecialWord(requestBo.getModel()), "i"));
+			query = query.addCriteria(
+					Criteria.where("model").regex(Common.escapeExprSpecialWord(requestBo.getModel()), "i"));
 		}
 		if (Common.isNotEmpty(requestBo.getSsC())) {
 			String[] ssCs = requestBo.getSsC().split(",");
-			query = query.addCriteria(Criteria.where("systemClassification.$id").in(Arrays.stream(ssCs).map(str -> new ObjectId(str)).collect(Collectors.toList())));
+			query = query.addCriteria(Criteria.where("systemClassification.$id")
+					.in(Arrays.stream(ssCs).map(str -> new ObjectId(str)).collect(Collectors.toList())));
 		}
 		if (Common.isNotEmpty(requestBo.getSearchArea())) {
 			String[] sas = requestBo.getSearchArea().split(",");
-			query = query.addCriteria(Criteria.where("area.$id").in(Arrays.stream(sas).map(str -> new ObjectId(str)).collect(Collectors.toList())));
+			query = query.addCriteria(Criteria.where("area.$id")
+					.in(Arrays.stream(sas).map(str -> new ObjectId(str)).collect(Collectors.toList())));
 		}
 
 		if (Common.isNotEmpty(requestBo.getSupplier())) {
@@ -283,34 +289,29 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			squery.addCriteria(Criteria.where("name").regex(requestBo.getSupplier(), "i"));
 			List<Supplier> supplierList = this.supplierService.find(squery, Supplier.class);
 			if (!supplierList.isEmpty()) {
-				ca.orOperator(Criteria.where("supplier.$id").in(supplierList.stream().map(supplier -> new ObjectId(supplier.getId())).collect(Collectors.toList())));
+				ca.orOperator(Criteria.where("supplier.$id").in(supplierList.stream()
+						.map(supplier -> new ObjectId(supplier.getId())).collect(Collectors.toList())));
 				query.addCriteria(ca);
 			}
 		}
 		return query;
 	}
 
-
-
 	@SystemServiceLog(description = "查询库存信息")
 	public Query findbySearch(String search, Query query) {
 		if (Common.isNotEmpty(search)) {
-			 List<Object> systemClassification = this.findSystemClassificationIds(search);
-			 List<Object> brand = this.findBrandIds(search);
-			 List<Object> goodsStorage = this.findGoodsStorageIds(search);
-			 List<Object> category = this.findCategoryIds(search);
-			 List<Object> suppliersId = this.findSuppliersId(search, systemClassification,
-			 category, brand);
+			List<Object> systemClassification = this.findSystemClassificationIds(search);
+			List<Object> brand = this.findBrandIds(search);
+			List<Object> goodsStorage = this.findGoodsStorageIds(search);
+			List<Object> category = this.findCategoryIds(search);
+			List<Object> suppliersId = this.findSuppliersId(search, systemClassification, category, brand);
 			Criteria ca = new Criteria();
-			query.addCriteria(ca.orOperator(
-					  Criteria.where("goodsStorage.$id").in(goodsStorage),
-					  Criteria.where("supplier.$id").in(suppliersId),
-					  Criteria.where("brand.$id").in(brand),
-					  Criteria.where("name").regex(search, "i"),
-					Criteria.where("model").regex(Common.escapeExprSpecialWord(search), "i"), Criteria.where("scope").regex(search),
-					Criteria.where("entryName").regex(search),Criteria.where("itemNo").regex(search),
-					Criteria.where("projectLeader").regex(search))
-					);
+			query.addCriteria(ca.orOperator(Criteria.where("goodsStorage.$id").in(goodsStorage),
+					Criteria.where("supplier.$id").in(suppliersId), Criteria.where("brand.$id").in(brand),
+					Criteria.where("name").regex(search, "i"),
+					Criteria.where("model").regex(Common.escapeExprSpecialWord(search), "i"),
+					Criteria.where("scope").regex(search), Criteria.where("entryName").regex(search),
+					Criteria.where("itemNo").regex(search), Criteria.where("projectLeader").regex(search)));
 		}
 
 		return query;
@@ -433,15 +434,16 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 	@Override
 	@SystemServiceLog(description = "根据名称查询库存信息")
-	public BasicDataResult ajaxgetRepletes(String name, String areaId, String model,String supplierId) {
+	public BasicDataResult ajaxgetRepletes(String name, String areaId, String model, String supplierId) {
 		Query query = new Query();
 
-		if (Common.isNotEmpty(name)&&Common.isNotEmpty(areaId)&&Common.isNotEmpty(supplierId)&&Common.isNotEmpty(model)) {
+		if (Common.isNotEmpty(name) && Common.isNotEmpty(areaId) && Common.isNotEmpty(supplierId)
+				&& Common.isNotEmpty(model)) {
 			query.addCriteria(Criteria.where("isDelete").is(false));
 			query.addCriteria(Criteria.where("name").is(name));
-				query.addCriteria(Criteria.where("area.$id").is(new ObjectId(areaId)));
-				query.addCriteria(Criteria.where("supplier.$id").is(new ObjectId(supplierId)));
-				query.addCriteria(Criteria.where("model").is(Common.escapeExprSpecialWord(model)));
+			query.addCriteria(Criteria.where("area.$id").is(new ObjectId(areaId)));
+			query.addCriteria(Criteria.where("supplier.$id").is(new ObjectId(supplierId)));
+			query.addCriteria(Criteria.where("model").is(Common.escapeExprSpecialWord(model)));
 			Stock stock = this.findOneByQuery(query, Stock.class);
 			return stock != null ? BasicDataResult.build(206, "当前供应商信息已经存在，请检查", null) : BasicDataResult.ok();
 		}
@@ -478,8 +480,8 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		int rowLength = resultexcel.length;
 		ProcessInfo pri = new ProcessInfo();
 		pri.allnum = rowLength;
+		List<Stock> list = new ArrayList<>();
 		for (int i = 1; i < rowLength; i++) {
-			Query query = new Query();
 			Stock importStock = new Stock();
 
 			pri.nownum = i;
@@ -492,14 +494,15 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				Supplier supplier = null;
 				Unit unit = null;
 				Brand brand = null;
-				SystemClassification ssC=null;
+				SystemClassification ssC = null;
 				String areaName = resultexcel[i][j].trim();// 区域名称
 				// 通过区域名称查询区域是否存在
 				Area getarea = this.areaService.findByName(areaName);
 				if (Common.isEmpty(getarea)) {
 					error += "<span class='entypo-attention'></span>导入文件过程中，第<b>&nbsp&nbsp" + (i + 1)
 							+ "行出现未添加的区域，请手动去修改该条信息或创建区域！&nbsp&nbsp</b></br>";
-					return error;
+					continue;
+//					return error;
 				}
 				importStock.setArea(getarea);
 				String name = resultexcel[i][j + 1].trim();// 设备名称
@@ -508,10 +511,9 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 							+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
 					continue;
 				}
-				
+
 				importStock.setName(name.replaceAll("/", "^")); // 设备名称
-				
-				
+
 				String model = resultexcel[i][j + 2].trim();
 				if (Common.isEmpty(model)) {
 					error += "<span class='entypo-attention'></span>导入文件过程中出现设备型号为空，第<b>&nbsp&nbsp" + (i + 1)
@@ -519,10 +521,9 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 					continue;
 				}
 				importStock.setModel(model);// 设备型号
-				
-				
-				String brandname= resultexcel[i][j + 3].trim();
-				
+
+				String brandname = resultexcel[i][j + 3].trim();
+
 				if (Common.isNotEmpty(brandname)) {
 					// 根据供应商名称查找，看供应商是否存在
 					brand = this.brandService.findByName(brandname);
@@ -533,33 +534,28 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 						continue;
 					}
 				}
-				
+
 				importStock.setBrand(brand);
-				
-			
-				
-				//新添加了入库数量
+
+				// 新添加了入库数量
 				importStock.setStocknum(Long.valueOf(resultexcel[i][j + 4].trim()));
 
-
 				String n = resultexcel[i][j + 5].trim();
-				String c=resultexcel[i][j + 5];
+//				String c=resultexcel[i][j + 5];
 				if (Common.isEmpty(n)) {
 					error += "<span class='entypo-attention'></span>导入文件过程中出现价格为空，第<b>&nbsp&nbsp" + (i + 1)
-							+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
+							+ "行请手动去修改该条信息！&nbsp&nbsp</b></br>";
 					continue;
 				}
-				
+
 				boolean num = Common.isInteger(n);
-				if(num) {
+				if (num) {
 					importStock.setPrice(n);// 价格
-				}else {
+				} else {
 					error += "<span class='entypo-attention'></span>导入文件过程中出现不合法的金额<b>&nbsp;&nbsp;" + n
-							+ "&nbsp;&nbsp;</b>，第<b>&nbsp&nbsp" + (i + 1)
-							+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
+							+ "&nbsp;&nbsp;</b>，第<b>&nbsp&nbsp" + (i + 1) + "行请手动去修改该条信息！&nbsp&nbsp</b></br>";
 					continue;
 				}
-				
 
 				String unitName = resultexcel[i][j + 6].trim();
 				if (Common.isNotEmpty(unitName)) {
@@ -571,28 +567,27 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				importStock.setEntryName(entryName);// 项目名称
 				importStock.setItemNo(resultexcel[i][j + 8].trim());// 项目编号
 				String supplierName = resultexcel[i][j + 9].trim();// 供应商名称
-				
+
 				if (Common.isNotEmpty(supplierName)) {
 					// 根据供应商名称查找，看供应商是否存在
 					supplier = this.supplierService.findByName(supplierName);
 					if (Common.isEmpty(supplier)) {
 						error += "<span class='entypo-attention'></span>导入文件过程中出现不存在的供应商<b>&nbsp;&nbsp;" + supplierName
 								+ "&nbsp;&nbsp;</b>，请先添加供应商，第<b>&nbsp&nbsp" + (i + 1)
-								+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
+								+ "行请手动去修改该条信息！&nbsp&nbsp</b></br>";
 						continue;
 					}
-				}else {
+				} else {
 					error += "<span class='entypo-attention'></span>导入文件过程中出现供应商为空<b>&nbsp;&nbsp;" + supplierName
-							+ "&nbsp;&nbsp;</b>，请添加对应供应商，第<b>&nbsp&nbsp" + (i + 1)
-							+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
+							+ "&nbsp;&nbsp;</b>，请添加对应供应商，第<b>&nbsp&nbsp" + (i + 1) + "行请手动去修改该条信息！&nbsp&nbsp</b></br>";
 					continue;
 				}
 				importStock.setSupplier(supplier);
-				//新添加 是否代理商品
-				String agent =  resultexcel[i][j + 10].trim();// 获取是否代理商品
-				importStock.setAgent(agent=="是");
+				// 新添加 是否代理商品
+				String agent = resultexcel[i][j + 10].trim();// 获取是否代理商品
+				importStock.setAgent(agent == "是");
 
-				//添加系统分类
+				// 添加系统分类
 //				String ssCName = resultexcel[i][j + 11].trim();// 系统分类
 //				if (Common.isNotEmpty(ssCName)) {
 //					// 根据供应商名称查找，看供应商是否存在
@@ -605,34 +600,34 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 //					}
 //				}
 //				importStock.setSystemClassification(ssC);
-				
-				//根据供应商名称判断供应商是否存在
-				Supplier getsupplier=this.supplierService.findByName(supplierName);
-				
+
+				// 根据供应商名称判断供应商是否存在
+				Supplier getsupplier = this.supplierService.findByName(supplierName);
+
 				if (Common.isEmpty(getsupplier)) {
 					error += "<span class='entypo-attention'></span>导入文件过程中出现不存在的供应商<b>&nbsp;&nbsp;" + supplierName
-							+ "&nbsp;&nbsp;</b>，请先添加供应商，第<b>&nbsp&nbsp" + (i + 1)
-							+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
+							+ "&nbsp;&nbsp;</b>，请先添加供应商，第<b>&nbsp&nbsp" + (i + 1) + "行请手动去修改该条信息！&nbsp&nbsp</b></br>";
 					continue;
 				}
-				
 
-				stock = this.findByNameSupplier(areaName,name, model,supplierName);
-				
-				 StockStatistics stockStatistics = new StockStatistics();//
-				 stockStatistics.setNum(importStock.getStocknum());//
-			        stockStatistics.setInOrOut(true);//true为入库//
+				stock = this.findByNameSupplier(areaName, name, model, supplierName);
+
+//				 StockStatistics stockStatistics = new StockStatistics();//
+//				 stockStatistics.setNum(importStock.getStocknum());//
+//			        stockStatistics.setInOrOut(true);//true为入库//
 				if (Common.isNotEmpty(stock)) {
-					//对于已经存在设备执行入库操作
-					 stockStatistics.setStock(stock);//
+					// 对于已经存在设备执行入库操作
+//					 stockStatistics.setStock(stock);//
 					// 设备已存在
-					error += "<span class='entypo-attention'></span>导入文件过程中第<b>&nbsp&nbsp" + (i + 1) + "设备已经存在，设备名称<b>&nbsp;&nbsp;" + stock.getName()
-							+ "&nbsp;&nbsp;</b>，入库数量为"+importStock.getStocknum()+"已经完成入库！&nbsp&nbsp</b></br>";
-					//continue;
+//					error += "<span class='entypo-attention'></span>导入文件过程中第<b>&nbsp&nbsp" + (i + 1)
+//							+ "设备已经存在，设备名称<b>&nbsp;&nbsp;" + stock.getName() + "&nbsp;&nbsp;</b>，入库数量为"
+//							+ importStock.getStocknum() + "已经完成入库！&nbsp&nbsp</b></br>";
+					// continue;
 				} else {
 					// 添加新设备
 					importStock.setUpdateTime(new Date());
-					this.insert(importStock);
+					list.add(importStock);
+					// this.insert(importStock);
 //					//设备添加完成之后执行入库操作 获取入库数据如果>0
 //					if(importStock.getStocknum()>0) {
 //						//读取session中的用户    
@@ -643,19 +638,17 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 //				        stockStatistics.setStock(importStock);
 //				        this.stockStatisticsService.inOrOutstockStatistics(stockStatistics, user);
 //					}
-				        stockStatistics.setStock(importStock);//
+//				        stockStatistics.setStock(importStock);//
 				}
-				//设备添加完成之后执行入库操作 获取入库数据如果>0
-				if(importStock.getStocknum()>0) {
-					//读取session中的用户    
-			        User user = (User) session.getAttribute(Contents.USER_SESSION);  
-			       
-			        this.stockStatisticsService.inOrOutstockStatistics(stockStatistics, user);
-				}
-				
-				
-				
-				
+
+				// 2024年6月27日10:01:31 改成从list中拿数据判断在保存
+//				//设备添加完成之后执行入库操作 获取入库数据如果>0
+//				if(importStock.getStocknum()>0) {
+//					//读取session中的用户    
+//			        User user = (User) session.getAttribute(Contents.USER_SESSION);  
+//			       
+//			        this.stockStatisticsService.inOrOutstockStatistics(stockStatistics, user);
+//				}
 
 				// 捕捉批量导入过程中遇到的错误，记录错误行数继续执行下去
 			} catch (Exception e) {
@@ -670,11 +663,31 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 			}
 		}
+
+		if(error == "") {
+			// 逆序
+			Collections.reverse(list);
+			list.forEach(p -> {
+
+				this.insert(p);
+
+				if (p.getStocknum() > 0) {
+					StockStatistics stockStatistics = new StockStatistics();//
+					stockStatistics.setNum(p.getStocknum());//
+					stockStatistics.setInOrOut(true);// true为入库//
+					stockStatistics.setStock(p);//
+					// 读取session中的用户
+					User user = (User) session.getAttribute(Contents.USER_SESSION);
+					this.stockStatisticsService.inOrOutstockStatistics(stockStatistics, user);
+				}
+
+			});
+		}
+		
+
 		log.info(error);
 		return error;
 	}
-	
-
 
 	/**
 	 * 执行上传文件，返回错误消息
@@ -718,20 +731,18 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 	}
 
-
 	/**
-	 *   查找区域信息，设备名称，型号是否有冲突
+	 * 查找区域信息，设备名称，型号是否有冲突
 	 */
 
 	@Override
-	public Stock findByName(String areaName,String name,String model,String entryName){
+	public Stock findByName(String areaName, String name, String model, String entryName) {
 		Area area = this.areaService.findByName(areaName);
 
 		Query query = new Query();
 		if (Common.isNotEmpty(area.getId())) {
 			query.addCriteria(Criteria.where("area.$id").is(new ObjectId(area.getId())));
 		}
-
 
 		query.addCriteria(Criteria.where("name").is(name));
 		query.addCriteria(Criteria.where("model").is(Common.escapeExprSpecialWord(model)));
@@ -749,20 +760,19 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		return stock;
 	}
 
-
 	/**
 	 * 根据区域，设备名称、型号，供应商
 	 */
 	@Override
-	public Stock findByNameSupplier(String areaName,String name, String model,String supplierName) {
-		//获取areaid信息
+	public Stock findByNameSupplier(String areaName, String name, String model, String supplierName) {
+		// 获取areaid信息
 		Area area = this.areaService.findByName(areaName);
-		Supplier supplier=this.supplierService.findByName(supplierName);
+		Supplier supplier = this.supplierService.findByName(supplierName);
 		Query query = new Query();
 		if (Common.isNotEmpty(area.getId())) {
 			query.addCriteria(Criteria.where("area.$id").is(new ObjectId(area.getId())));
 		}
-		if(Common.isNotEmpty(supplier.getId())){
+		if (Common.isNotEmpty(supplier.getId())) {
 			query.addCriteria(Criteria.where("supplier.$id").is(new ObjectId(supplier.getId())));
 		}
 
@@ -780,27 +790,27 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 	@SystemServiceLog(description = "根据id查询库存信息")
 	public BasicDataResult findOneById(String id) {
-		
+
 		List<PickUpApplication> pickUpApplication = this.pickUpApplicationService.findPickUpApplicationsByStockId(id);
-		long ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0,Long::sum);
-		long acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((long) 0,Long::sum);
-		
+		long ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0,
+				Long::sum);
+		long acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((long) 0,
+				Long::sum);
+
 		Stock getstock = new Stock();
 		Stock stock = this.findOneById(id, Stock.class);
 		getstock.setName(stock.getName());
-		getstock.setInventory(stock.getInventory()-(ycknum-acnum));
+		getstock.setInventory(stock.getInventory() - (ycknum - acnum));
 		getstock.setDescription(stock.getDescription());
 		getstock.setId(stock.getId());
-		
-		
-		
+
 		return Common.isNotEmpty(getstock) ? BasicDataResult.build(200, "查询成功", getstock)
 				: BasicDataResult.build(400, "查询失败", null);
 	}
 
 	@Override
 	@SystemServiceLog(description = "导出库存信息")
-	public HSSFWorkbook export(String name, String areaId,String searchAgent) {
+	public HSSFWorkbook export(String name, String areaId, String searchAgent) {
 		HSSFWorkbook wb = new HSSFWorkbook();
 
 		// 创建sheet
@@ -809,7 +819,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		List<String> title = this.title(true);
 		this.createHead(sheet, title, style, name);
 		this.createTitle(sheet, title, style);
-		this.createStock(sheet, title, style, areaId,searchAgent);
+		this.createStock(sheet, title, style, areaId, searchAgent);
 		sheet.setDefaultColumnWidth(12);
 		sheet.autoSizeColumn(1, true);
 		return wb;
@@ -817,7 +827,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 	@Override
 	@SystemServiceLog(description = "导出库存量总和表")
-	public HSSFWorkbook exportTJ(String name,RequestBo bo) {
+	public HSSFWorkbook exportTJ(String name, RequestBo bo) {
 		HSSFWorkbook wb = new HSSFWorkbook();
 		// 创建sheet
 		HSSFSheet sheet = wb.createSheet(name);
@@ -825,15 +835,11 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		List<String> title = this.title(false);
 		this.createHead(sheet, title, style, name);
 		this.createTitle(sheet, title, style);
-		this.createStockTJ(sheet, title, style,bo);
+		this.createStockTJ(sheet, title, style, bo);
 		sheet.setDefaultColumnWidth(12);
 		sheet.autoSizeColumn(1, true);
 		return wb;
 	}
-
-
-
-
 
 	/**
 	 * 创建样式
@@ -894,11 +900,12 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	 * 
 	 * @param sheet
 	 */
-	public void createStock(HSSFSheet sheet, List<String> title, HSSFCellStyle style, String areaId,String searchAgent) {
+	public void createStock(HSSFSheet sheet, List<String> title, HSSFCellStyle style, String areaId,
+			String searchAgent) {
 
 		int j = 1;
 		// 获取所有的库存
-		List<Stock> list = this.findAllStock(false, areaId,searchAgent);
+		List<Stock> list = this.findAllStock(false, areaId, searchAgent);
 
 		for (Stock stock : list) {
 			// 获取所有的设备
@@ -906,29 +913,29 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 			HSSFCell cell = row.createCell(0);
 			cell.setCellStyle(style);
-			if(stock.getArea()!=null) {
+			if (stock.getArea() != null) {
 				cell.setCellValue(stock.getArea().getName());
-			}else {
+			} else {
 				cell.setCellValue("");
-				
+
 			}
 			cell = row.createCell(1);
 			cell.setCellStyle(style);
 			cell.setCellValue(stock.getId());
 
-			cell = row.createCell(1+1);
+			cell = row.createCell(1 + 1);
 			cell.setCellStyle(style);
 			cell.setCellValue(stock.getName());
 
-			cell = row.createCell(2+1);
+			cell = row.createCell(2 + 1);
 			cell.setCellStyle(style);
 			cell.setCellValue(stock.getModel());
 
-			cell = row.createCell(3+1);
+			cell = row.createCell(3 + 1);
 			cell.setCellStyle(style);
 			cell.setCellValue(stock.getScope());
 
-			cell = row.createCell(4+1);
+			cell = row.createCell(4 + 1);
 			cell.setCellStyle(style);
 			if (Common.isNotEmpty(stock.getGoodsStorage())) {
 				String level = "";
@@ -940,7 +947,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				cell.setCellValue("-/-");
 
 			}
-			cell = row.createCell(5+1);
+			cell = row.createCell(5 + 1);
 			cell.setCellStyle(style);
 			if (Common.isNotEmpty(stock.getUnit())) {
 				cell.setCellValue(stock.getUnit().getName());
@@ -948,7 +955,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				cell.setCellValue("");
 			}
 
-			cell = row.createCell(6+1);
+			cell = row.createCell(6 + 1);
 			cell.setCellStyle(style);
 			if (Common.isNotEmpty(stock.getPrice())) {
 				cell.setCellValue(stock.getPrice());
@@ -956,11 +963,11 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				cell.setCellValue("");
 			}
 
-			cell = row.createCell(7+1);
+			cell = row.createCell(7 + 1);
 			cell.setCellStyle(style);
 			cell.setCellValue(stock.getInventory());
 
-			cell = row.createCell(8+1);
+			cell = row.createCell(8 + 1);
 			cell.setCellStyle(style);
 			if (Common.isNotEmpty(stock.getInventory()) && Common.isNotEmpty(stock.getPrice())) {
 				cell.setCellValue(stock.getInventory() * Double.valueOf(stock.getPrice()));
@@ -968,92 +975,85 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				cell.setCellValue("");
 			}
 
-			
-			cell = row.createCell(9+1);
+			cell = row.createCell(9 + 1);
 			cell.setCellStyle(style);
-			cell.setCellValue(stock.isAgent()==true?"是":"否");
+			cell.setCellValue(stock.isAgent() == true ? "是" : "否");
 
 			j++;
 		}
 
 	}
-
 
 	public void createStockTJ(HSSFSheet sheet, List<String> title, HSSFCellStyle style, RequestBo bo) {
 
 		int j = 1;
 		// 获取所有的库存
 //		List<Stock> list = this.findAllStock(false, areaId,searchAgent);
-		Query query=new Query();
-		query=this.findByRequestBo(bo,query);
+		Query query = new Query();
+		query = this.findByRequestBo(bo, query);
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		query.with(new Sort(new Order(Direction.DESC, "createTime")));
-		List<Stock> list=this.find(query,Stock.class);
+		List<Stock> list = this.find(query, Stock.class);
 
-		Map<String, List<Stock>> stocks=list.stream().collect(Collectors.groupingBy(stock -> fetchGroupKey(stock)));
+		Map<String, List<Stock>> stocks = list.stream().collect(Collectors.groupingBy(stock -> fetchGroupKey(stock)));
 
-		for(String key:stocks.keySet()){
-			//区域，设备名称和型号相同的库存量总和
-			if(Common.isNotEmpty(key)){
-			Long sums=stocks.get(key).stream().mapToLong(Stock::getInventory).sum();
-            String[] ss=key.split("<<");
-			String area=ss[0];
-			String name=ss[1];
-			String model=Common.isNotEmpty(ss[2])?ss[2]:"";
-			String price=ss[3];
-			String unit=Common.isNotEmpty(stocks.get(key).get(0).getUnit())?stocks.get(key).get(0).getUnit().getName():"单位空";
+		for (String key : stocks.keySet()) {
+			// 区域，设备名称和型号相同的库存量总和
+			if (Common.isNotEmpty(key)) {
+				Long sums = stocks.get(key).stream().mapToLong(Stock::getInventory).sum();
+				String[] ss = key.split("<<");
+				String area = ss[0];
+				String name = ss[1];
+				String model = Common.isNotEmpty(ss[2]) ? ss[2] : "";
+				String price = ss[3];
+				String unit = Common.isNotEmpty(stocks.get(key).get(0).getUnit())
+						? stocks.get(key).get(0).getUnit().getName()
+						: "单位空";
 
+				HSSFRow row = sheet.createRow(j + 1);
 
-			HSSFRow row = sheet.createRow(j + 1);
+				HSSFCell cell = row.createCell(0);
+				cell.setCellStyle(style);
+				cell.setCellValue(area);
 
-			HSSFCell cell = row.createCell(0);
-			cell.setCellStyle(style);
-			cell.setCellValue(area);
+				cell = row.createCell(1);
+				cell.setCellStyle(style);
+				cell.setCellValue(name);
 
-			cell = row.createCell(1);
-			cell.setCellStyle(style);
-			cell.setCellValue(name);
+				cell = row.createCell(2);
+				cell.setCellStyle(style);
+				cell.setCellValue(model);
 
+				cell = row.createCell(3);
+				cell.setCellStyle(style);
+				cell.setCellValue(unit);
 
-			cell = row.createCell(2);
-			cell.setCellStyle(style);
-			cell.setCellValue(model);
+				cell = row.createCell(4);
+				cell.setCellStyle(style);
+				cell.setCellValue(sums);
 
-
-			cell = row.createCell(3);
-			cell.setCellStyle(style);
-			cell.setCellValue(unit);
-
-
-			cell = row.createCell(4);
-			cell.setCellStyle(style);
-			cell.setCellValue(sums);
-
-			cell = row.createCell(5);
-			cell.setCellStyle(style);
-			cell.setCellValue(price);
-			j++;
+				cell = row.createCell(5);
+				cell.setCellStyle(style);
+				cell.setCellValue(price);
+				j++;
 			}
 		}
 
-
 	}
-
-
 
 	/**
 	 * 根据区域，设备名称和设备型号分组
+	 * 
 	 * @param stock
 	 * @return
 	 */
-	private String fetchGroupKey(Stock stock){
-		String areaname=Common.isNotEmpty(stock.getArea().getName())?stock.getArea().getName():"区域空";
-		String name=Common.isNotEmpty(stock.getName())?stock.getName():"设备名为空";
-		String model=Common.isNotEmpty(stock.getModel())?stock.getModel():"设备型号为空";
-		String price=Common.isNotEmpty(stock.getPrice())?stock.getPrice():"单价没填写";
-		return areaname+"<<"+name+"<<"+model+"<<"+price;
+	private String fetchGroupKey(Stock stock) {
+		String areaname = Common.isNotEmpty(stock.getArea().getName()) ? stock.getArea().getName() : "区域空";
+		String name = Common.isNotEmpty(stock.getName()) ? stock.getName() : "设备名为空";
+		String model = Common.isNotEmpty(stock.getModel()) ? stock.getModel() : "设备型号为空";
+		String price = Common.isNotEmpty(stock.getPrice()) ? stock.getPrice() : "单价没填写";
+		return areaname + "<<" + name + "<<" + model + "<<" + price;
 	}
-
 
 	/**
 	 * 设置title
@@ -1062,7 +1062,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	 */
 	public List<String> title(boolean a) {
 		List<String> list = new ArrayList<>();
-		if(a){
+		if (a) {
 			list.add("区域");
 			list.add("物料代码(*)");
 			list.add("设备名称");
@@ -1074,7 +1074,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			list.add("当前库存");
 			list.add("总价");
 			list.add("代理商品");
-		}else{
+		} else {
 			list.add("区域");
 			list.add("设备名称");
 			list.add("设备型号");
@@ -1084,8 +1084,6 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		}
 		return list;
 	}
-
-
 
 	@Override
 	@SystemServiceLog(description = "查询低库存量信息")
@@ -1123,15 +1121,16 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 	/***
 	 * 预库存入库
-	 * @param preStock  预库存参数
-	 * @param actnum    预库存的实际已经入库的数量
+	 * 
+	 * @param preStock 预库存参数
+	 * @param actnum   预库存的实际已经入库的数量
 	 */
 	@Override
-	public void preStockToStock(PreStock preStock,long actnum) {
+	public void preStockToStock(PreStock preStock, long actnum) {
 		String areaId = preStock.getArea().getId();
 		String name = preStock.getName();
 		String model = preStock.getModel();
-		String supperId= preStock.getSupplier().getId();
+		String supperId = preStock.getSupplier().getId();
 		// 1.通过区域、设备名称、设备型号,和项目名称 判断设备是否在库存中已经存在
 		StockStatistics stockStatistics = new StockStatistics();
 		// 字段绑定
@@ -1142,41 +1141,42 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			stockStatistics.setPreStockId(preStock.getId());
 			stockStatistics.setNum(preStock.getActualReceiptQuantity());// 设置实际入库数量
 
-			if(Common.isNotEmpty(preStock.getInprice())){
-				stockStatistics.setInprice(preStock.getInprice());//入库总金额
+			if (Common.isNotEmpty(preStock.getInprice())) {
+				stockStatistics.setInprice(preStock.getInprice());// 入库总金额
 			}
-			if(Common.isNotEmpty(preStock.getEntryName())){ //库存统计添加项目名称（新）
-				Pname pname=this.pnameService.findByName(preStock.getEntryName());
-				if(Common.isNotEmpty(pname)){
+			if (Common.isNotEmpty(preStock.getEntryName())) { // 库存统计添加项目名称（新）
+				Pname pname = this.pnameService.findByName(preStock.getEntryName());
+				if (Common.isNotEmpty(pname)) {
 					stockStatistics.setPname(pname);
 				}
 			}
-			if(Common.isNotEmpty(preStock.getPurchaseInvoiceNo())){
-				stockStatistics.setPurchaseInvoiceNo(preStock.getPurchaseInvoiceNo());//采购发票号
+			if (Common.isNotEmpty(preStock.getPurchaseInvoiceNo())) {
+				stockStatistics.setPurchaseInvoiceNo(preStock.getPurchaseInvoiceNo());// 采购发票号
 			}
 
-			if(Common.isNotEmpty(preStock.getPaymentOrderNo())){
-				stockStatistics.setPaymentOrderNo(preStock.getPaymentOrderNo());//银行付款日期
+			if (Common.isNotEmpty(preStock.getPaymentOrderNo())) {
+				stockStatistics.setPaymentOrderNo(preStock.getPaymentOrderNo());// 银行付款日期
 			}
-			if(Common.isNotEmpty(preStock.getPurchaseInvoiceDate())){
-				stockStatistics.setPurchaseInvoiceDate(preStock.getPurchaseInvoiceDate());//采购发票到票时间
+			if (Common.isNotEmpty(preStock.getPurchaseInvoiceDate())) {
+				stockStatistics.setPurchaseInvoiceDate(preStock.getPurchaseInvoiceDate());// 采购发票到票时间
 			}
-			if(Common.isNotEmpty(preStock.getItemNo())){
-				stockStatistics.setNewItemNo(preStock.getItemNo());//采购付款单编码（新）
+			if (Common.isNotEmpty(preStock.getItemNo())) {
+				stockStatistics.setNewItemNo(preStock.getItemNo());// 采购付款单编码（新）
 			}
-			if(Common.isNotEmpty(preStock.getDescription())){
-				stockStatistics.setDescription(preStock.getDescription());//备注
+			if (Common.isNotEmpty(preStock.getDescription())) {
+				stockStatistics.setDescription(preStock.getDescription());// 备注
 			}
 		}
-		//根据同一名字、同一型号、同一供应商、同一区域叠加。
-		Stock stock = this.findByAreaNameModel(areaId, name, model,supperId);
+		// 根据同一名字、同一型号、同一供应商、同一区域叠加。
+		Stock stock = this.findByAreaNameModel(areaId, name, model, supperId);
 //		Stock stock = this.findByNameSupplier(preStock.getArea().getName(),preStock.getName(),preStock.getModel(),preStock.getSupplier().getName());
-		if(Common.isNotEmpty(stock)){
-			if(Common.isNotEmpty(preStock.getSystemClassification()) && Common.isEmpty(stock.getSystemClassification())){
+		if (Common.isNotEmpty(stock)) {
+			if (Common.isNotEmpty(preStock.getSystemClassification())
+					&& Common.isEmpty(stock.getSystemClassification())) {
 				stock.setSystemClassification(preStock.getSystemClassification());
 			}
 			this.saveOrUpdate(stock);
-		}//这一步是将库存管理中 分类没设置的库存  设置  为预库存的  分类。
+		} // 这一步是将库存管理中 分类没设置的库存 设置 为预库存的 分类。
 
 		// 2.如果已经存在 执行入库操作添加库存数量
 		if (Common.isNotEmpty(stock)) {
@@ -1190,11 +1190,11 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			stock.setName(preStock.getName());
 			stock.setModel(preStock.getModel());
 			stock.setSystemClassification(preStock.getSystemClassification());
-			//stock.setScope(preStock.getScope());
+			// stock.setScope(preStock.getScope());
 			stock.setGoodsStorage(preStock.getGoodsStorage());
 			stock.setPrice(preStock.getPrice());
 			stock.setUnit(preStock.getUnit());
-			//stock.setMaintenance(preStock.getMaintenance());
+			// stock.setMaintenance(preStock.getMaintenance());
 			stock.setEntryName(preStock.getEntryName());
 			stock.setItemNo(preStock.getItemNo());
 			stock.setSupplier(preStock.getSupplier());
@@ -1210,7 +1210,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		// 预入库
 		long estimatedInventoryQuantity = preStock.getEstimatedInventoryQuantity();
 		// 实际入库=之前入库的加现在入库的
-		long actualReceiptQuantity =actnum + preStock.getActualReceiptQuantity();
+		long actualReceiptQuantity = actnum + preStock.getActualReceiptQuantity();
 
 //		if (estimatedInventoryQuantity >= actualReceiptQuantity) {
 //			preStock.setStatus(2);
@@ -1221,7 +1221,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 //			// 实际入库>预入库
 //			preStock.setStatus(4);// 超量入库
 //		}
-		if(estimatedInventoryQuantity-actualReceiptQuantity == 0) {
+		if (estimatedInventoryQuantity - actualReceiptQuantity == 0) {
 			preStock.setStatus(2);
 		}
 		preStock.setActualReceiptQuantity(actualReceiptQuantity);
@@ -1229,7 +1229,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	}
 
 	@Override
-	public Stock findByAreaNameModel(String areaId, String name, String model,String supplieId) {
+	public Stock findByAreaNameModel(String areaId, String name, String model, String supplieId) {
 		Query query = new Query();
 
 		if (Common.isNotEmpty(name)) {
@@ -1241,7 +1241,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			if (Common.isNotEmpty(model)) {
 				query.addCriteria(Criteria.where("model").regex(Common.escapeExprSpecialWord(model)));
 			}
-			if(Common.isNotEmpty(supplieId)) {
+			if (Common.isNotEmpty(supplieId)) {
 				query.addCriteria(Criteria.where("supplier.$id").is(new ObjectId(supplieId)));
 			}
 			return this.findOneByQuery(query, Stock.class);
@@ -1252,27 +1252,24 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 	@Override
 	public BasicDataResult pickUpApplicationToStock(PickUpApplication pickUpApplication) {
-		
+
 		Stock stock = this.findOneById(pickUpApplication.getStock().getId(), Stock.class);
-		if (stock==null) {
+		if (stock == null) {
 			return new BasicDataResult().build(400, "未能找到库存商品，出库失败！", null);
 		}
-		
+
 //		List<PickUpApplication> pickUpApplicationlist = this.pickUpApplicationService.findPickUpApplicationsByStockId(stock.getId());
 //		long ycknum = pickUpApplicationlist.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0,Long::sum);
-		
-		
-		long inventory = stock.getInventory();//获取库存数量
-		if(inventory<=0) {
+
+		long inventory = stock.getInventory();// 获取库存数量
+		if (inventory <= 0) {
 			return new BasicDataResult().build(400, "库存数量不足", null);
 		}
 		long num = pickUpApplication.getNum();
-		if(num>inventory) {
-			return new BasicDataResult().build(400, "库存数量不足,剩余库存:"+inventory, null);
+		if (num > inventory) {
+			return new BasicDataResult().build(400, "库存数量不足,剩余库存:" + inventory, null);
 		}
-		
-		
-		
+
 		// 1.通过区域、设备名称、设备型号判断设备是否在库存中已经存在
 		StockStatistics stockStatistics = new StockStatistics();
 		// 字段绑定
@@ -1283,24 +1280,23 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			stockStatistics.setProjectName(pickUpApplication.getProjectName());
 			stockStatistics.setPersonInCharge(pickUpApplication.getPersonInCharge());
 			stockStatistics.setCustomer(pickUpApplication.getCustomer());
-			stockStatistics.setNewCustomer(pickUpApplication.getNewCustomer());//客户
-			stockStatistics.setPname(pickUpApplication.getPname());//项目
+			stockStatistics.setNewCustomer(pickUpApplication.getNewCustomer());// 客户
+			stockStatistics.setPname(pickUpApplication.getPname());// 项目
 			stockStatistics.setDescription(pickUpApplication.getDescription());
-			stockStatistics.setAccepter(pickUpApplication.getAccepter());//领料人
+			stockStatistics.setAccepter(pickUpApplication.getAccepter());// 领料人
 			stockStatistics.setYck(true);
 			stockStatistics.setStock(stock);
 		}
-		//总出库数量   =  实际出库数量 + num
-		long allNum = pickUpApplication.getActualIssueQuantity()+pickUpApplication.getNum();
-		//如果总出库数量等于预出库数量 设置状态为2
-		if(allNum == pickUpApplication.getEstimatedIssueQuantity()) {
+		// 总出库数量 = 实际出库数量 + num
+		long allNum = pickUpApplication.getActualIssueQuantity() + pickUpApplication.getNum();
+		// 如果总出库数量等于预出库数量 设置状态为2
+		if (allNum == pickUpApplication.getEstimatedIssueQuantity()) {
 			// 出库完成修改出库状态
 			pickUpApplication.setStatus(2);
-		}else if(allNum< pickUpApplication.getEstimatedIssueQuantity()) {
+		} else if (allNum < pickUpApplication.getEstimatedIssueQuantity()) {
 			pickUpApplication.setStatus(3);
 		}
-		
-		
+
 		pickUpApplication.setActualIssueQuantity(allNum);
 		this.pickUpApplicationService.saveOrUpdate(pickUpApplication);
 
@@ -1326,36 +1322,36 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		Stock stock = null;
 		if (Common.isNotEmpty(stockId)) {
 			stock = this.findOneById(stockId, Stock.class);
-			if(stock.getQrCode()!=null) {
-				//判断二维码是否存在，不存在则重新创建
+			if (stock.getQrCode() != null) {
+				// 判断二维码是否存在，不存在则重新创建
 				String downLoadPath = stock.getQrCode().getQrcode().getDir()
-						+ stock.getQrCode().getQrcode().getSavePath()
-						+ stock.getQrCode().getQrcode().getOriginalName();
+						+ stock.getQrCode().getQrcode().getSavePath() + stock.getQrCode().getQrcode().getOriginalName();
 				File f = new File(downLoadPath);
-				if(!f.exists()) {
+				if (!f.exists()) {
 					stock.setQrCode(null);
 				}
 			}
-			
+
 		}
 		if (stock == null) {
 			return null;
 		}
-		
+
 		QrCode qrcode = null;
-		if(stock.getQrCode()==null) {
+		if (stock.getQrCode() == null) {
 			qrcode = new QrCode();
 			try {
 				Hashtable<EncodeHintType, String> hints = new Hashtable<EncodeHintType, String>();
 				hints.put(EncodeHintType.CHARACTER_SET, "utf-8"); // 内容所使用字符集编码
-				String urlpath = "wechat/cargoFromStorage/"+ stockId;
+				String urlpath = "wechat/cargoFromStorage/" + stockId;
 				String url = weburl + urlpath;
 				BitMatrix bitMatrix = new MultiFormatWriter().encode(url, BarcodeFormat.QR_CODE, width, height, hints);
 				// 生成二维码
 				String path = dir + qrcodepath + File.separator;
 				Common.checkPathAndMkdirs(path);
-				String fn = (stock.getName()+stock.getModel()).replace("\\", "").replace("/", "").replace("*", "x").replace(":", "").replace("\"", "").replace("|", "").replace("<", "").replace(">", "");
-				File outputFile = new File(path +fn + stock.getId() + ".png");
+				String fn = (stock.getName() + stock.getModel()).replace("\\", "").replace("/", "").replace("*", "x")
+						.replace(":", "").replace("\"", "").replace("|", "").replace("<", "").replace(">", "");
+				File outputFile = new File(path + fn + stock.getId() + ".png");
 				MatrixToImageWriter.writeToFile(bitMatrix, format, outputFile);
 				// 保存图片信息
 				MultiMedia saveQrCode = this.multiMediaService.saveQrCode(outputFile, dir, qrcodepath, "PHOTO");
@@ -1372,21 +1368,20 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				e.printStackTrace();
 			}
 		}
-		
+
 		return stock.getQrCode();
 	}
 
 	@Override
 	public List<Stock> findStockByIds(String id) {
-		
-		
+
 		Query query = new Query();
 		String[] split = id.split(",");
 		List<String> array = Arrays.asList(split);
-		array.forEach(s->{
+		array.forEach(s -> {
 			this.createStockQrCode(s);
-		});	
-		
+		});
+
 		query.addCriteria(Criteria.where("_id").in(array));
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		query.addCriteria(Criteria.where("isDisable").is(false));
@@ -1404,12 +1399,12 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	}
 
 	@Override
-	public void copyStock(String id,HttpSession session) {
+	public void copyStock(String id, HttpSession session) {
 		User user = (User) session.getAttribute(Contents.USER_SESSION);
-		
+
 		Stock ed = this.findOneById(id, Stock.class);
-	
-		if(ed!=null) {
+
+		if (ed != null) {
 			ed.setCreateDate(new Date().toString());
 			ed.setCreateTime(new Date());
 			ed.setId(null);
@@ -1421,22 +1416,19 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			BeanUtils.copyProperties(ed, stock);
 			this.insert(stock);
 		}
-		
+
 	}
 
 	@Override
 	public void updateItemNo(String ids, String itemNo) {
 		List<String> array = Arrays.asList(ids.split(","));
-		
-		for(String id:array) {
+
+		for (String id : array) {
 			Stock stock = this.findOneById(id, Stock.class);
 			stock.setItemNo(itemNo);
 			this.save(stock);
 		}
-		
 
-		
-		
 	}
 
 	@Override
@@ -1444,21 +1436,20 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		Query query = new Query();
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		query.addCriteria(Criteria.where("isDisable").is(false));
-		if("1".equals(type)) {
-			//获取所有二维码
-		}else if("2".equals(type)) {
+		if ("1".equals(type)) {
+			// 获取所有二维码
+		} else if ("2".equals(type)) {
 			query.addCriteria(Criteria.where("inventory").gt(0));
 		}
-		
+
 		List<Stock> list = this.find(query, Stock.class);
 
-		list.forEach(s->{
+		list.forEach(s -> {
 			this.createStockQrCode(s.getId());
-		});	
-		
+		});
+
 		return list;
-		
-		
+
 	}
 
 	@Override
@@ -1469,8 +1460,5 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		query.addCriteria(Criteria.where("inventory").gt(0));
 		return this.find(query, Stock.class);
 	}
-
-	
-	
 
 }

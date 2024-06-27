@@ -118,9 +118,8 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 
 	@Override
 	@SystemServiceLog(description = "分页查询库存信息")
-	public Pagination<PreStock>
-	findpagination(Integer pageNo, Integer pageSize, String search, String searchArea,
-			int status,String ssC) {
+	public Pagination<PreStock> findpagination(Integer pageNo, Integer pageSize, String search, String searchArea,
+			int status, String ssC) {
 		// 分页查询数据
 		Pagination<PreStock> pagination = null;
 		try {
@@ -140,8 +139,8 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 
 			}
 			query.addCriteria(Criteria.where("isDelete").is(false));
-			 query.with(new Sort(new Order(Direction.DESC, "createTime")));
-			query.with(new Sort(new Order(Direction.DESC, "inventory"))); //按照库存量排序
+			query.with(new Sort(new Order(Direction.DESC, "createTime")));
+			query.with(new Sort(new Order(Direction.DESC, "inventory"))); // 按照库存量排序
 
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, PreStock.class);
 			if (pagination == null)
@@ -153,32 +152,35 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 		return pagination;
 	}
 
-	public Pagination<PreStock> findpagination(Integer pageNo, Integer pageSize, RequestBo requestBo,Integer status){
+	public Pagination<PreStock> findpagination(Integer pageNo, Integer pageSize, RequestBo requestBo, Integer status) {
 		Pagination<PreStock> pagination = null;
 		try {
 			Query query = new Query();
 			Criteria ca = new Criteria();
-			if(Common.isNotEmpty(requestBo.getName())){
-				query=query.addCriteria(Criteria.where("name").regex(requestBo.getName(), "i"));
+			if (Common.isNotEmpty(requestBo.getName())) {
+				query = query.addCriteria(Criteria.where("name").regex(requestBo.getName(), "i"));
 			}
-			if(Common.isNotEmpty(requestBo.getEntryName())){
-				query=query.addCriteria(Criteria.where("entryName").regex(requestBo.getEntryName(), "i"));
+			if (Common.isNotEmpty(requestBo.getEntryName())) {
+				query = query.addCriteria(Criteria.where("entryName").regex(requestBo.getEntryName(), "i"));
 			}
-			if(Common.isNotEmpty(requestBo.getModel())){
-				query=query.addCriteria(Criteria.where("model").regex(Common.escapeExprSpecialWord(requestBo.getModel()), "i"));
+			if (Common.isNotEmpty(requestBo.getModel())) {
+				query = query.addCriteria(
+						Criteria.where("model").regex(Common.escapeExprSpecialWord(requestBo.getModel()), "i"));
 			}
 			if (Common.isNotEmpty(requestBo.getSsC())) {
-				String[] ssCs=requestBo.getSsC().split(",");
+				String[] ssCs = requestBo.getSsC().split(",");
 //				query = query.addCriteria(Criteria.where("systemClassification.$id").is(new ObjectId(ssC)));
-				query = query.addCriteria(Criteria.where("systemClassification.$id").in(Arrays.stream(ssCs).map(str->new ObjectId(str)).collect(Collectors.toList())));
+				query = query.addCriteria(Criteria.where("systemClassification.$id")
+						.in(Arrays.stream(ssCs).map(str -> new ObjectId(str)).collect(Collectors.toList())));
 			}
 			if (Common.isNotEmpty(requestBo.getSearchArea())) {
-				String[] sas=requestBo.getSearchArea().split(",");
+				String[] sas = requestBo.getSearchArea().split(",");
 //				query = query.addCriteria(Criteria.where("area.$id").is(new ObjectId(searchArea)));
-				query = query.addCriteria(Criteria.where("area.$id").in(Arrays.stream(sas).map(str->new ObjectId(str)).collect(Collectors.toList())));
+				query = query.addCriteria(Criteria.where("area.$id")
+						.in(Arrays.stream(sas).map(str -> new ObjectId(str)).collect(Collectors.toList())));
 			}
-			if(Common.isNotEmpty(requestBo.getItemNo())){
-				query=query.addCriteria(Criteria.where("itemNo").regex(requestBo.getItemNo(), "i"));
+			if (Common.isNotEmpty(requestBo.getItemNo())) {
+				query = query.addCriteria(Criteria.where("itemNo").regex(requestBo.getItemNo(), "i"));
 			}
 
 //			if(Common.isNotEmpty(requestBo.getPurchaseInvoiceNo())){
@@ -190,19 +192,20 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 //			if(Common.isNotEmpty(requestBo.getPurchaseInvoiceDate())){
 //				query=query.addCriteria(Criteria.where("purchaseInvoiceDate").regex(requestBo.getPurchaseInvoiceDate(), "i"));
 //			}
-			if(Common.isNotEmpty(requestBo.getSupplier())){
-				Query squery=new Query();
-				squery.addCriteria(Criteria.where("name").regex(requestBo.getSupplier(),"i"));
+			if (Common.isNotEmpty(requestBo.getSupplier())) {
+				Query squery = new Query();
+				squery.addCriteria(Criteria.where("name").regex(requestBo.getSupplier(), "i"));
 				List<Supplier> supplierList = this.supplierService.find(squery, Supplier.class);
-				if(!supplierList.isEmpty()){
-					ca.orOperator(Criteria.where("supplier.$id").in(supplierList.stream().map(supplier ->new ObjectId(supplier.getId())).collect(Collectors.toList())));
+				if (!supplierList.isEmpty()) {
+					ca.orOperator(Criteria.where("supplier.$id").in(supplierList.stream()
+							.map(supplier -> new ObjectId(supplier.getId())).collect(Collectors.toList())));
 					query.addCriteria(ca);
 				}
 			}
 			query.addCriteria(Criteria.where("isDelete").is(false));
 			query.addCriteria(Criteria.where("status").is(status));
 			query.with(new Sort(new Order(Direction.DESC, "createTime")));
-			query.with(new Sort(new Order(Direction.DESC, "inventory"))); //按照库存量排序
+			query.with(new Sort(new Order(Direction.DESC, "inventory"))); // 按照库存量排序
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, PreStock.class);
 			if (pagination == null)
 				pagination = new Pagination<PreStock>();
@@ -216,30 +219,25 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 	@SystemServiceLog(description = "查询库存信息")
 	public Query findbySearch(String search, Query query) {
 		if (Common.isNotEmpty(search)) {
-			 List<Object> systemClassification = this.findSystemClassificationIds(search);
-			 List<Object> brand = this.findBrandIds(search);
+			List<Object> systemClassification = this.findSystemClassificationIds(search);
+			List<Object> brand = this.findBrandIds(search);
 //			 List<Object> goodsStorage = this.findGoodsStorageIds(search);
-			 List<Object> category = this.findCategoryIds(search);
-			 List<Object> suppliersId = this.findSuppliersId(search, systemClassification,
-			 category, brand);
+			List<Object> category = this.findCategoryIds(search);
+			List<Object> suppliersId = this.findSuppliersId(search, systemClassification, category, brand);
 			Criteria ca = new Criteria();
 			query.addCriteria(ca.orOperator(/*
-											 * Criteria.where("goodsStorage.$id").in(goodsStorage), */
-											 Criteria.where("supplier.$id").in(suppliersId),
-											 Criteria.where("name").regex(search),
+											 * Criteria.where("goodsStorage.$id").in(goodsStorage),
+											 */
+					Criteria.where("supplier.$id").in(suppliersId), Criteria.where("name").regex(search),
 					Criteria.where("model").regex(Common.escapeExprSpecialWord(search)),
-					Criteria.where("entryName").regex(search),
-					Criteria.where("purchaseInvoiceNo").regex(search),
-					Criteria.where("paymentOrderNo").regex(search),
-					Criteria.where("itemNo").regex(search),
+					Criteria.where("entryName").regex(search), Criteria.where("purchaseInvoiceNo").regex(search),
+					Criteria.where("paymentOrderNo").regex(search), Criteria.where("itemNo").regex(search),
 					Criteria.where("scope").regex(search)));
 		}
 
 		return query;
 
 	}
-
-
 
 	/**
 	 * 模糊匹配系统分类的Id
@@ -355,7 +353,6 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 		return list;
 	}
 
-
 	@Override
 	@SystemServiceLog(description = "启用禁用库存信息")
 	public BasicDataResult todisable(String id) {
@@ -388,6 +385,7 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 		int rowLength = resultexcel.length;
 		ProcessInfo pri = new ProcessInfo();
 		pri.allnum = rowLength;
+		List<PreStock> list = new ArrayList();
 		for (int i = 1; i < rowLength; i++) {
 			Query query = new Query();
 			PreStock importPreStock = new PreStock();
@@ -401,9 +399,9 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 				PreStock stock = null; // 库存信息
 				Supplier supplier = null;
 				Unit unit = null;
-				SystemClassification ssC=null;
-				Pname pname=null;
-				Area getarea=null;
+				SystemClassification ssC = null;
+				Pname pname = null;
+				Area getarea = null;
 				String areaName = resultexcel[i][j].trim();// 区域名称
 				// 通过区域名称查询区域是否存在
 				if (Common.isEmpty(areaName)) {
@@ -436,7 +434,7 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 				}
 				importPreStock.setModel(model);
 				importPreStock.setEstimatedInventoryQuantity(Long.valueOf(resultexcel[i][j + 3].trim()));// 预备入库的数量
-				String unitName = resultexcel[i][j + 4].trim();//单位
+				String unitName = resultexcel[i][j + 4].trim();// 单位
 				if (Common.isEmpty(unitName)) {
 					error += "<span class='entypo-attention'></span>导入文件过程中，第<b>&nbsp&nbsp" + (i + 1)
 							+ "行</b>出现单位为空，请添加！&nbsp&nbsp</br>";
@@ -450,19 +448,18 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 				importPreStock.setUnit(unit);
 				String supplierName = resultexcel[i][j + 5].trim();// 供应商名称
 
-				if(Common.isEmpty(supplierName)){
+				if (Common.isEmpty(supplierName)) {
 					error += "<span class='entypo-attention'></span>导入文件过程中，第<b>&nbsp&nbsp" + (i + 1)
 							+ "行</b>出现供应商名称为空，请添加！&nbsp&nbsp</br>";
 					continue;
 				}
-					// 根据供应商名称查找，看供应商是否存在
-					supplier = this.supplierService.findByName(supplierName);
-					if (Common.isEmpty(supplier)) {
-						error += "<span class='entypo-attention'></span>导入文件过程中出现不存在的供应商<b>&nbsp;&nbsp;" + supplierName
-								+ "&nbsp;&nbsp;</b>，请先添加供应商，第<b>&nbsp&nbsp" + (i + 1)
-								+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
-						continue;
-					}
+				// 根据供应商名称查找，看供应商是否存在
+				supplier = this.supplierService.findByName(supplierName);
+				if (Common.isEmpty(supplier)) {
+					error += "<span class='entypo-attention'></span>导入文件过程中出现不存在的供应商<b>&nbsp;&nbsp;" + supplierName
+							+ "&nbsp;&nbsp;</b>，请先添加供应商，第<b>&nbsp&nbsp" + (i + 1) + "请手动去修改该条信息！&nbsp&nbsp</b></br>";
+					continue;
+				}
 
 //				String ssCName = resultexcel[i][j + 6].trim();// 系统分类
 //				if(Common.isEmpty(ssCName)){
@@ -479,50 +476,50 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 //						continue;
 //					}
 
-				String pname1=resultexcel[i][j + 7].trim();
-				if(Common.isEmpty(pname1)){
+				String pname1 = resultexcel[i][j + 7].trim();
+				if (Common.isEmpty(pname1)) {
 					error += "<span class='entypo-attention'></span>导入文件过程中，第<b>&nbsp&nbsp" + (i + 1)
 							+ "行</b>出现项目名称为空，请添加！&nbsp&nbsp</br>";
 					continue;
 				}
-					// 根据项目名称
-					pname = this.pnameService.findByName(pname1);
-					if (Common.isEmpty(pname)) {
-						error += "<span class='entypo-attention'></span>导入文件过程中出现不存在的项目名称<b>&nbsp;&nbsp;" + pname1
-								+ "&nbsp;&nbsp;</b>，请先添加项目名称，第<b>&nbsp&nbsp" + (i + 1)
-								+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
-						continue;
-					}
-
+				// 根据项目名称
+				pname = this.pnameService.findByName(pname1);
+				if (Common.isEmpty(pname)) {
+					error += "<span class='entypo-attention'></span>导入文件过程中出现不存在的项目名称<b>&nbsp;&nbsp;" + pname1
+							+ "&nbsp;&nbsp;</b>，请先添加项目名称，第<b>&nbsp&nbsp" + (i + 1) + "请手动去修改该条信息！&nbsp&nbsp</b></br>";
+					continue;
+				}
 
 				importPreStock.setSystemClassification(ssC);
 				importPreStock.setSupplier(supplier);
 				importPreStock.setEntryName(pname1);
 				importPreStock.setPublisher(user);// 发布人
-				String itemNo=resultexcel[i][j + 8].trim();
+				String itemNo = resultexcel[i][j + 8].trim();
 				importPreStock.setItemNo(itemNo);
-				stock = this.findByName(getarea,name, model,1,pname1,supplier);//预入库查重 区域，名字，型号，项目名称,供应商
-				if(Common.isNotEmpty(stock)){
-						if(Common.isNotEmpty(stock.getUnit())){
-							if(!stock.getUnit().getName().equals(unitName)){
-								error += "<span class='entypo-attention'></span>导入文件过程中，第<b>&nbsp&nbsp" + (i + 1)
-										+ "行</b>单位和已有的预库存产品单位不一致，请修改确认！&nbsp&nbsp</br>";
-								continue;
-							}
+				stock = this.findByName(getarea, name, model, 1, pname1, supplier);// 预入库查重 区域，名字，型号，项目名称,供应商
+				if (Common.isNotEmpty(stock)) {
+					if (Common.isNotEmpty(stock.getUnit())) {
+						if (!stock.getUnit().getName().equals(unitName)) {
+							error += "<span class='entypo-attention'></span>导入文件过程中，第<b>&nbsp&nbsp" + (i + 1)
+									+ "行</b>单位和已有的预库存产品单位不一致，请修改确认！&nbsp&nbsp</br>";
+							continue;
 						}
+					}
 				}
 				if (Common.isNotEmpty(stock)) {
-					if(Common.isNotEmpty(ssC))stock.setSystemClassification(ssC);
-					long newnum=this.updatePreStock(stock,importPreStock.getEstimatedInventoryQuantity());
-					error += "<span class='entypo-attention'></span>该设备预库存已经存在，预库存数量将会叠加<b>&nbsp;&nbsp;" + stock.getName()
-							+ "&nbsp;&nbsp;</b>，预库存量为"+newnum+"！&nbsp&nbsp</b></br>";
+					if (Common.isNotEmpty(ssC))
+						stock.setSystemClassification(ssC);
+					long newnum = this.updatePreStock(stock, importPreStock.getEstimatedInventoryQuantity());
+					error += "<span class='entypo-attention'></span>该设备预库存已经存在，预库存数量将会叠加<b>&nbsp;&nbsp;"
+							+ stock.getName() + "&nbsp;&nbsp;</b>，预库存量为" + newnum + "！&nbsp&nbsp</b></br>";
 					// 设备已存在
 //					error += "<span class='entypo-attention'></span>该设备预库存已经存在，设备名称<b>&nbsp;&nbsp;" + stock.getName()
 //							+ "&nbsp;&nbsp;</b>，第<b>&nbsp&nbsp" + (i + 1) + "请手动去修改该条信息！&nbsp&nbsp</b></br>";
 					continue;
 				} else {
 					// 添加新设备
-					this.insert(importPreStock);
+//					this.insert(importPreStock);
+					list.add(importPreStock);// 导入数据放入list中
 				}
 
 				// 捕捉批量导入过程中遇到的错误，记录错误行数继续执行下去
@@ -538,29 +535,38 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 
 			}
 		}
+		if (error == "") {
+			// 逆序
+			Collections.reverse(list);
+			list.forEach(p -> {
+				this.insert(p);
+			});
+		}
 		log.info(error);
 		return error;
 	}
 
 	/**
 	 * 更新预库存中的预计入库数量
+	 * 
 	 * @param stock
 	 * @param num
 	 * @return
 	 */
-	private long updatePreStock(PreStock stock,long num){
-			lock.lock();
-			long newnum=0;
-			try{
-				newnum=stock.getEstimatedInventoryQuantity()+num;
-				stock.setEstimatedInventoryQuantity(newnum);
+	private long updatePreStock(PreStock stock, long num) {
+		lock.lock();
+		long newnum = 0;
+		try {
+			newnum = stock.getEstimatedInventoryQuantity() + num;
+			stock.setEstimatedInventoryQuantity(newnum);
 
-				this.save(stock);
-				return newnum;
-			}finally {
-				lock.unlock();
-			}
+			this.save(stock);
+			return newnum;
+		} finally {
+			lock.unlock();
 		}
+	}
+
 	/**
 	 * 执行上传文件，返回错误消息
 	 */
@@ -597,12 +603,13 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 	 * 根据单位名称查找单位，如果没有则创建一个
 	 */
 	@Override
-	public PreStock findByName(Area area,String name, String model,Integer status,String entryName,Supplier supplier) {
+	public PreStock findByName(Area area, String name, String model, Integer status, String entryName,
+			Supplier supplier) {
 		Query query = new Query();
 		if (Common.isNotEmpty(area.getId())) {
 			query.addCriteria(Criteria.where("area.$id").is(new ObjectId(area.getId())));
 		}
-		if(Common.isNotEmpty(supplier.getId())){
+		if (Common.isNotEmpty(supplier.getId())) {
 			query.addCriteria(Criteria.where("supplier.$id").is(new ObjectId(supplier.getId())));
 		}
 		query.addCriteria(Criteria.where("name").is(name));
@@ -777,30 +784,33 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 
 	}
 
-	public Workbook newExport(HttpServletRequest request,  RequestBo requestBo){
+	public Workbook newExport(HttpServletRequest request, RequestBo requestBo) {
 		Query query = new Query();
 		Criteria ca = new Criteria();
-		if(Common.isNotEmpty(requestBo.getName())){
-			query=query.addCriteria(Criteria.where("name").regex(requestBo.getName(), "i"));
+		if (Common.isNotEmpty(requestBo.getName())) {
+			query = query.addCriteria(Criteria.where("name").regex(requestBo.getName(), "i"));
 		}
-		if(Common.isNotEmpty(requestBo.getEntryName())){
-			query=query.addCriteria(Criteria.where("entryName").regex(requestBo.getEntryName(), "i"));
+		if (Common.isNotEmpty(requestBo.getEntryName())) {
+			query = query.addCriteria(Criteria.where("entryName").regex(requestBo.getEntryName(), "i"));
 		}
-		if(Common.isNotEmpty(requestBo.getModel())){
-			query=query.addCriteria(Criteria.where("model").regex(Common.escapeExprSpecialWord(requestBo.getModel()), "i"));
+		if (Common.isNotEmpty(requestBo.getModel())) {
+			query = query.addCriteria(
+					Criteria.where("model").regex(Common.escapeExprSpecialWord(requestBo.getModel()), "i"));
 		}
 		if (Common.isNotEmpty(requestBo.getSsC())) {
-			String[] ssCs=requestBo.getSsC().split(",");
+			String[] ssCs = requestBo.getSsC().split(",");
 //				query = query.addCriteria(Criteria.where("systemClassification.$id").is(new ObjectId(ssC)));
-			query = query.addCriteria(Criteria.where("systemClassification.$id").in(Arrays.stream(ssCs).map(str->new ObjectId(str)).collect(Collectors.toList())));
+			query = query.addCriteria(Criteria.where("systemClassification.$id")
+					.in(Arrays.stream(ssCs).map(str -> new ObjectId(str)).collect(Collectors.toList())));
 		}
 		if (Common.isNotEmpty(requestBo.getSearchArea())) {
-			String[] sas=requestBo.getSearchArea().split(",");
+			String[] sas = requestBo.getSearchArea().split(",");
 //				query = query.addCriteria(Criteria.where("area.$id").is(new ObjectId(searchArea)));
-			query = query.addCriteria(Criteria.where("area.$id").in(Arrays.stream(sas).map(str->new ObjectId(str)).collect(Collectors.toList())));
+			query = query.addCriteria(Criteria.where("area.$id")
+					.in(Arrays.stream(sas).map(str -> new ObjectId(str)).collect(Collectors.toList())));
 		}
-		if(Common.isNotEmpty(requestBo.getItemNo())){
-			query=query.addCriteria(Criteria.where("itemNo").regex(requestBo.getItemNo(), "i"));
+		if (Common.isNotEmpty(requestBo.getItemNo())) {
+			query = query.addCriteria(Criteria.where("itemNo").regex(requestBo.getItemNo(), "i"));
 		}
 
 //		if(Common.isNotEmpty(requestBo.getPurchaseInvoiceNo())){
@@ -812,47 +822,51 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 //		if(Common.isNotEmpty(requestBo.getPurchaseInvoiceDate())){
 //			query=query.addCriteria(Criteria.where("purchaseInvoiceDate").regex(requestBo.getPurchaseInvoiceDate(), "i"));
 //		}
-		if(Common.isNotEmpty(requestBo.getSupplier())){
-			Query squery=new Query();
-			squery.addCriteria(Criteria.where("name").regex(requestBo.getSupplier(),"i"));
+		if (Common.isNotEmpty(requestBo.getSupplier())) {
+			Query squery = new Query();
+			squery.addCriteria(Criteria.where("name").regex(requestBo.getSupplier(), "i"));
 			List<Supplier> supplierList = this.supplierService.find(squery, Supplier.class);
-			if(!supplierList.isEmpty()){
-				ca.orOperator(Criteria.where("supplier.$id").in(supplierList.stream().map(supplier ->new ObjectId(supplier.getId())).collect(Collectors.toList())));
+			if (!supplierList.isEmpty()) {
+				ca.orOperator(Criteria.where("supplier.$id").in(supplierList.stream()
+						.map(supplier -> new ObjectId(supplier.getId())).collect(Collectors.toList())));
 				query.addCriteria(ca);
 			}
 		}
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		query.addCriteria(Criteria.where("status").is(1));
 		query.with(new Sort(new Order(Direction.DESC, "createTime")));
-		query.with(new Sort(new Order(Direction.DESC, "inventory"))); //按照库存量排序
+		query.with(new Sort(new Order(Direction.DESC, "inventory"))); // 按照库存量排序
 //		List<PreStock> list = this.findAllPreStock(false, areaId);
-		List<PreStock> list =find(query,PreStock.class);
+		List<PreStock> list = find(query, PreStock.class);
 		List<Map<String, Object>> arrayList = new ArrayList<>();
 		List<Map<String, Object>> doneList = new ArrayList<>();
 		for (PreStock stock : list) {
-			if(stock.getStatus() == 1){
+			if (stock.getStatus() == 1) {
 				Map<String, Object> in = new HashMap<>();
 				in.put("area", Common.isEmpty(stock.getArea()) ? "" : stock.getArea().getName());
 				in.put("name", Common.isEmpty(stock.getName()) ? "" : stock.getName());
 				in.put("model", Common.isEmpty(stock.getModel()) ? "" : stock.getModel());
-				in.put("esq", Common.isEmpty(stock.getEstimatedInventoryQuantity()) ? "" : stock.getEstimatedInventoryQuantity());
+				in.put("esq", Common.isEmpty(stock.getEstimatedInventoryQuantity()) ? ""
+						: stock.getEstimatedInventoryQuantity());
 				in.put("arq", Common.isEmpty(stock.getActualReceiptQuantity()) ? "" : stock.getActualReceiptQuantity());
-				in.put("sy",stock.getEstimatedInventoryQuantity()-stock.getActualReceiptQuantity());
+				in.put("sy", stock.getEstimatedInventoryQuantity() - stock.getActualReceiptQuantity());
 				in.put("unit", Common.isEmpty(stock.getUnit()) ? "" : stock.getUnit().getName());
-				in.put("entryname",Common.isEmpty(stock.getEntryName())?"":stock.getEntryName());
-				in.put("suppler",Common.isEmpty(stock.getSupplier())?"":stock.getSupplier().getName());
+				in.put("entryname", Common.isEmpty(stock.getEntryName()) ? "" : stock.getEntryName());
+				in.put("suppler", Common.isEmpty(stock.getSupplier()) ? "" : stock.getSupplier().getName());
 				arrayList.add(in);
 			} else if (stock.getStatus() == 2) {
 				Map<String, Object> done = new HashMap<>();
 				done.put("area", Common.isEmpty(stock.getArea()) ? "" : stock.getArea().getName());
 				done.put("name", Common.isEmpty(stock.getName()) ? "" : stock.getName());
 				done.put("model", Common.isEmpty(stock.getModel()) ? "" : stock.getModel());
-				done.put("esq", Common.isEmpty(stock.getEstimatedInventoryQuantity()) ? "" : stock.getEstimatedInventoryQuantity());
-				done.put("arq", Common.isEmpty(stock.getActualReceiptQuantity()) ? "" : stock.getActualReceiptQuantity());
-				done.put("sy",stock.getEstimatedInventoryQuantity()-stock.getActualReceiptQuantity());
+				done.put("esq", Common.isEmpty(stock.getEstimatedInventoryQuantity()) ? ""
+						: stock.getEstimatedInventoryQuantity());
+				done.put("arq",
+						Common.isEmpty(stock.getActualReceiptQuantity()) ? "" : stock.getActualReceiptQuantity());
+				done.put("sy", stock.getEstimatedInventoryQuantity() - stock.getActualReceiptQuantity());
 				done.put("unit", Common.isEmpty(stock.getUnit()) ? "" : stock.getUnit().getName());
-				done.put("entryname",Common.isEmpty(stock.getEntryName())?"":stock.getEntryName());
-				done.put("suppler",Common.isEmpty(stock.getSupplier())?"":stock.getSupplier().getName());
+				done.put("entryname", Common.isEmpty(stock.getEntryName()) ? "" : stock.getEntryName());
+				done.put("suppler", Common.isEmpty(stock.getSupplier()) ? "" : stock.getSupplier().getName());
 //				上次修改时间
 //				String lastTime="";
 //				try {
@@ -927,27 +941,27 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 	}
 
 	@Override
-	public void updateStockStatistics(String ids,String itemNo,String pnameId,String supplierId){
+	public void updateStockStatistics(String ids, String itemNo, String pnameId, String supplierId) {
 		List<String> array = Arrays.asList(ids.split(","));
-		String pname=null;
-		Supplier supplier=null;
-		if(Common.isNotEmpty(pnameId)){
-			Pname pname1=this.pnameService.findOneById(pnameId,Pname.class);
-			pname=pname1.getName();
+		String pname = null;
+		Supplier supplier = null;
+		if (Common.isNotEmpty(pnameId)) {
+			Pname pname1 = this.pnameService.findOneById(pnameId, Pname.class);
+			pname = pname1.getName();
 		}
-		if(Common.isNotEmpty(supplierId)){
-			 supplier=this.supplierService.findOneById(supplierId,Supplier.class);
+		if (Common.isNotEmpty(supplierId)) {
+			supplier = this.supplierService.findOneById(supplierId, Supplier.class);
 		}
 		for (String id : array) {
 			PreStock preStock = this.findOneById(id, PreStock.class);
 
-			if(!itemNo.equals("null")){
+			if (!itemNo.equals("null")) {
 				preStock.setItemNo(itemNo);
 			}
-			if(Common.isNotEmpty(pname)){
+			if (Common.isNotEmpty(pname)) {
 				preStock.setEntryName(pname);
 			}
-			if(Common.isNotEmpty(supplier)){
+			if (Common.isNotEmpty(supplier)) {
 				preStock.setSupplier(supplier);
 			}
 //			stockStatistics.setEditFinanceTime(Common.fromDateH());
@@ -957,10 +971,12 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 	}
 
 	@Override
-	public BasicDataResult ajaxgetRepletes(String name, String areaId, String model, String supplierId, String entryName) {
+	public BasicDataResult ajaxgetRepletes(String name, String areaId, String model, String supplierId,
+			String entryName) {
 		Query query = new Query();
 
-		if (Common.isNotEmpty(name)&&Common.isNotEmpty(areaId)&&Common.isNotEmpty(supplierId)&&Common.isNotEmpty(model)&&Common.isNotEmpty(entryName)) {
+		if (Common.isNotEmpty(name) && Common.isNotEmpty(areaId) && Common.isNotEmpty(supplierId)
+				&& Common.isNotEmpty(model) && Common.isNotEmpty(entryName)) {
 
 			query.addCriteria(Criteria.where("isDelete").is(false));
 			query.addCriteria(Criteria.where("name").is(name));
