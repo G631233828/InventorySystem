@@ -164,8 +164,15 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 				query = query.addCriteria(Criteria.where("entryName").regex(requestBo.getEntryName(), "i"));
 			}
 			if (Common.isNotEmpty(requestBo.getModel())) {
-				query = query.addCriteria(
-						Criteria.where("model").regex(Common.escapeExprSpecialWord(requestBo.getModel()), "i"));
+				
+				if(requestBo.getModel().contains("%")) {
+					query = query.addCriteria(
+							Criteria.where("model").regex(Common.escapeExprSpecialWord(requestBo.getModel().replace("%", "")), "i"));
+				}else {
+					query = query.addCriteria(
+							Criteria.where("model").is(Common.escapeExprSpecialWord(requestBo.getModel())));
+				}
+				
 			}
 			if (Common.isNotEmpty(requestBo.getSsC())) {
 				String[] ssCs = requestBo.getSsC().split(",");
@@ -229,8 +236,12 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 											 * Criteria.where("goodsStorage.$id").in(goodsStorage),
 											 */
 					Criteria.where("supplier.$id").in(suppliersId), Criteria.where("name").regex(search),
-					Criteria.where("model").regex(Common.escapeExprSpecialWord(search)),
-					Criteria.where("entryName").regex(search), Criteria.where("purchaseInvoiceNo").regex(search),
+					
+//					Criteria.where("model").regex(Common.escapeExprSpecialWord(search)),
+					
+					Criteria.where("entryName").regex(search),
+					
+					Criteria.where("purchaseInvoiceNo").regex(search),
 					Criteria.where("paymentOrderNo").regex(search), Criteria.where("itemNo").regex(search),
 					Criteria.where("scope").regex(search)));
 		}

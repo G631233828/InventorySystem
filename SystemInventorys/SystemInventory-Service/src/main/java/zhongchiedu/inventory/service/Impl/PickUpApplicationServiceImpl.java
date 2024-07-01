@@ -355,7 +355,7 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 					}
 				} else {
 					error += "<span class='entypo-attention'></span>导入文件过程中出现客户为空<b>&nbsp;&nbsp;" + customerName
-							+ "&nbsp;&nbsp;</b>，请添加对应供应商，第<b>&nbsp&nbsp" + (i + 1) + "请手动去修改该条信息！&nbsp&nbsp</b></br>";
+							+ "&nbsp;&nbsp;</b>，请添加对应客户，第<b>&nbsp&nbsp" + (i + 1) + "请手动去修改该条信息！&nbsp&nbsp</b></br>";
 					continue;
 				}
 
