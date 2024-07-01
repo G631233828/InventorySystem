@@ -542,11 +542,11 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 				String n = resultexcel[i][j + 5].trim();
 //				String c=resultexcel[i][j + 5];
-				if (Common.isEmpty(n)) {
-					error += "<span class='entypo-attention'></span>导入文件过程中出现价格为空，第<b>&nbsp&nbsp" + (i + 1)
-							+ "行请手动去修改该条信息！&nbsp&nbsp</b></br>";
-					continue;
-				}
+//				if (Common.isEmpty(n)) {
+//					error += "<span class='entypo-attention'></span>导入文件过程中出现价格为空，第<b>&nbsp&nbsp" + (i + 1)
+//							+ "行请手动去修改该条信息！&nbsp&nbsp</b></br>";
+//					continue;
+//				}
 
 				boolean num = Common.isInteger(n);
 				if (num) {
@@ -602,32 +602,32 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 //				importStock.setSystemClassification(ssC);
 
 				// 根据供应商名称判断供应商是否存在
-				Supplier getsupplier = this.supplierService.findByName(supplierName);
+//				Supplier getsupplier = this.supplierService.findByName(supplierName);
+//
+//				if (Common.isEmpty(getsupplier)) {
+//					error += "<span class='entypo-attention'></span>导入文件过程中出现不存在的供应商<b>&nbsp;&nbsp;" + supplierName
+//							+ "&nbsp;&nbsp;</b>，请先添加供应商，第<b>&nbsp&nbsp" + (i + 1) + "行请手动去修改该条信息！&nbsp&nbsp</b></br>";
+//					continue;
+//				}
 
-				if (Common.isEmpty(getsupplier)) {
-					error += "<span class='entypo-attention'></span>导入文件过程中出现不存在的供应商<b>&nbsp;&nbsp;" + supplierName
-							+ "&nbsp;&nbsp;</b>，请先添加供应商，第<b>&nbsp&nbsp" + (i + 1) + "行请手动去修改该条信息！&nbsp&nbsp</b></br>";
-					continue;
-				}
-
-				stock = this.findByNameSupplier(areaName, name, model, supplierName);
+//				stock = this.findByNameSupplier(areaName, name, model, supplierName);
 
 //				 StockStatistics stockStatistics = new StockStatistics();//
 //				 stockStatistics.setNum(importStock.getStocknum());//
 //			        stockStatistics.setInOrOut(true);//true为入库//
-				if (Common.isNotEmpty(stock)) {
-					// 对于已经存在设备执行入库操作
+//				if (Common.isNotEmpty(stock)) {
+				// 对于已经存在设备执行入库操作
 //					 stockStatistics.setStock(stock);//
-					// 设备已存在
+				// 设备已存在
 //					error += "<span class='entypo-attention'></span>导入文件过程中第<b>&nbsp&nbsp" + (i + 1)
-//							+ "设备已经存在，设备名称<b>&nbsp;&nbsp;" + stock.getName() + "&nbsp;&nbsp;</b>，入库数量为"
-//							+ importStock.getStocknum() + "已经完成入库！&nbsp&nbsp</b></br>";
-					// continue;
-				} else {
-					// 添加新设备
-					importStock.setUpdateTime(new Date());
-					list.add(importStock);
-					// this.insert(importStock);
+//							+ "设备已经存在，设备名称<b>&nbsp;&nbsp;" + stock.getName() + "&nbsp;&nbsp;</b>无需再次导入！&nbsp&nbsp</b></br>";
+//					 continue;
+//					list.add(importStock);
+//				} else {
+				// 添加新设备
+//					importStock.setUpdateTime(new Date());
+//					list.add(importStock);
+				// this.insert(importStock);
 //					//设备添加完成之后执行入库操作 获取入库数据如果>0
 //					if(importStock.getStocknum()>0) {
 //						//读取session中的用户    
@@ -639,7 +639,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 //				        this.stockStatisticsService.inOrOutstockStatistics(stockStatistics, user);
 //					}
 //				        stockStatistics.setStock(importStock);//
-				}
+//				}
 
 				// 2024年6月27日10:01:31 改成从list中拿数据判断在保存
 //				//设备添加完成之后执行入库操作 获取入库数据如果>0
@@ -649,7 +649,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 //			       
 //			        this.stockStatisticsService.inOrOutstockStatistics(stockStatistics, user);
 //				}
-
+				list.add(importStock);
 				// 捕捉批量导入过程中遇到的错误，记录错误行数继续执行下去
 			} catch (Exception e) {
 				log.debug("导入文件过程中出现错误第" + (i + 1) + "行出现错误" + e);
@@ -664,18 +664,28 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			}
 		}
 
-		if(error == "") {
+		if (error == "") {
 			// 逆序
 			Collections.reverse(list);
 			list.forEach(p -> {
-
-				this.insert(p);
+				StockStatistics stockStatistics = new StockStatistics();//
+				Stock stock = this.findByNameSupplier(p.getArea().getName(), p.getName(), p.getModel(),
+						p.getSupplier().getName());
+				if (Common.isNotEmpty(stock)) {
+					stockStatistics.setStock(stock);//
+					// 对于已经存在设备执行入库操作
+//				 设备已存在
+//				error += "<span class='entypo-attention'></span>导入文件过程中<b>&nbsp&nbsp设备已经存在，设备名称<b>&nbsp;&nbsp;" + stock.getName() + "&nbsp;&nbsp;</b>无需再次导入！&nbsp&nbsp</b></br>";
+				} else {
+					this.insert(p);
+					stockStatistics.setStock(p);//
+				}
 
 				if (p.getStocknum() > 0) {
-					StockStatistics stockStatistics = new StockStatistics();//
+					
 					stockStatistics.setNum(p.getStocknum());//
 					stockStatistics.setInOrOut(true);// true为入库//
-					stockStatistics.setStock(p);//
+					
 					// 读取session中的用户
 					User user = (User) session.getAttribute(Contents.USER_SESSION);
 					this.stockStatisticsService.inOrOutstockStatistics(stockStatistics, user);
@@ -683,7 +693,6 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 			});
 		}
-		
 
 		log.info(error);
 		return error;

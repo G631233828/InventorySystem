@@ -440,11 +440,13 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 		}
 
 		if (error == "") {
-			// 逆序
-			Collections.reverse(list);
+//			Collections.reverse(list);
 			list.forEach(p -> {
 				this.insert(p);
 			});
+//			for(int i=list.size()-1;i>=0;i--) {
+//				this.insert(list.get(i));
+//			}
 
 		}
 		log.info(error);
