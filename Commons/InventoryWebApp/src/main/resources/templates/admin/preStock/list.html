@@ -251,6 +251,11 @@
 												th:each="area:${areas}" th:value="${area?.id}"
 												th:text="${area?.name}"></option>
 										</select>
+										 <select class="filter-status form-control" id="pbr">
+										     <option value="">--发布人--</option>
+										     <option th:selected="${requestBo?.userId}==${pbr?.id}"
+										             th:each="pbr:${publishers}" th:value="${pbr?.id}"
+													 th:text="${pbr?.userName}"></option></select>
 										<button class="btn btn-default btn-sm"
 											onclick="return searchBo()">
 											<i class="entypo-search"> </i> 搜索

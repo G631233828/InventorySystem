@@ -24,6 +24,8 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -46,6 +48,7 @@ import zhongchiedu.common.utils.Contents;
 import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.general.pojo.User;
+import zhongchiedu.general.service.Impl.UserServiceImpl;
 import zhongchiedu.inventory.pojo.*;
 import zhongchiedu.inventory.service.Impl.*;
 import zhongchiedu.inventory.service.InventoryRoleService;
@@ -84,12 +87,17 @@ public class PreStockController {
 	private @Autowired ColumnServiceImpl columnService;
 
 	private @Autowired PnameServiceImpl pnameService;
+
+
+	private @Autowired UserServiceImpl userService;
 	@Value("${templateId1}")
 	private String templateId1;
 	@Value("${templateId2}")
 	private String templateId2;
 	@Value("${qrcode.weburl}")
 	private String weburl;
+
+
 
 	@GetMapping("preStocks")
 	@RequiresPermissions(value = "preStock:list")
@@ -109,6 +117,10 @@ public class PreStockController {
 		model.addAttribute("requestBo",requestBo);
 		List<Pname> pnames=this.pnameService.findAllName(false);
 		model.addAttribute("pnames",pnames);
+		Query query=new Query();
+		query.addCriteria(Criteria.where("cardId").is("publisher"));
+		List<User> users=userService.find(query,User.class);
+		model.addAttribute("publishers",users);
 		List<Supplier> syslist = this.supplierService.findAllSupplier(false);
 		model.addAttribute("suppliers", syslist);
 //		Pagination<PreStock> pagination = this.preStockService.findpagination(pageNo, pageSize, search, searchArea,
