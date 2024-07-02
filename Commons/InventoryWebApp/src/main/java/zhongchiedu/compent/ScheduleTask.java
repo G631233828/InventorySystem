@@ -26,7 +26,7 @@ public class ScheduleTask {
 			System.out.println("执行库存月末统计");
 			// 是最后一天
 			log.info("开始统计数据" + LocalDate.now().toString());
-			this.monthEndStatisticsService.automaticStatistics();
+			this.monthEndStatisticsService.automaticStatistics("");
 			log.info("统计完成");
 		}
 

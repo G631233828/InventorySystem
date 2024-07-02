@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -23,15 +24,15 @@ public class MonthEndStatisticsController {
 	@Autowired
 	private MonthEndStatisticsService monthEndStatisticsService;
 
-	@GetMapping("/createMonthEndStatistics")
+	@GetMapping("/createMonthEndStatistics/{date}")
 	@RequiresPermissions(value = "createMonthEndStatistics:create")
 	@SystemControllerLog(description = "创建期末数据")
 	@ResponseBody
-	public BasicDataResult createMonthEndStatistics() {
+	public BasicDataResult createMonthEndStatistics(@PathVariable String date) {
 
 		try {
 
-			this.monthEndStatisticsService.automaticStatistics();
+			this.monthEndStatisticsService.automaticStatistics(date);
 			return BasicDataResult.build(200, "创建成功", "");
 		} catch (Exception e) {
 			e.printStackTrace();
