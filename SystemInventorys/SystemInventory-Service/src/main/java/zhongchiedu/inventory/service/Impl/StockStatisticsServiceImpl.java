@@ -455,7 +455,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		} finally {
 			lock.unlock();
 		}
-
+//
 	}
 
 	@Override

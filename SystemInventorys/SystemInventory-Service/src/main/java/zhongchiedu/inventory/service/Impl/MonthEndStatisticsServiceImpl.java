@@ -22,14 +22,14 @@ public class MonthEndStatisticsServiceImpl extends GeneralServiceImpl<MonthEndSt
 	private StockService stockService;
 
 	@Override
-	public void automaticStatistics() {
+	public void automaticStatistics(String date) {
 		//拿到所有库存的数据
 		List<Stock> findAllStock = this.stockService.findAllStock();
 		findAllStock.forEach(stock->{
 			log.info("记录库存设备{},数量{}",stock.getName(),stock.getInventory());
 			MonthEndStatistics  ms = new MonthEndStatistics();
 			ms.setMonthEndStockNum(stock.getInventory());//库存数量
-			ms.setDate(Common.fromDateYMD());
+			ms.setDate(Common.isEmpty(date)?Common.fromDateYMD():date);
 			ms.setStockName(stock.getName());
 			ms.setStockModel(stock.getModel());
 			ms.setStockSuppier(stock.getSupplier().getName());
