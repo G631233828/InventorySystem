@@ -434,7 +434,7 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 				String aa = e.getLocalizedMessage();
 				String b = aa.substring(aa.indexOf(":") + 1, aa.length()).replaceAll("\"", "");
 				error += "<span class='entypo-attention'></span>导入文件过程中出现错误第<b>&nbsp&nbsp" + (i + 1)
-						+ "&nbsp&nbsp</b>行出现错误内容为<b>&nbsp&nbsp" + b + "&nbsp&nbsp</b></br>";
+						+ "&nbsp&nbsp</b>行出现错误<b>&nbsp&nbsp" + b + "&nbsp&nbsp</b></br>";
 				if ((i + 1) < rowLength) {
 					continue;
 				}

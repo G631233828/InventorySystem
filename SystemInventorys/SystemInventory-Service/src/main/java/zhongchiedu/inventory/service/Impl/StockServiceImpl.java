@@ -505,7 +505,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 //					return error;
 				}
 				importStock.setArea(getarea);
-				String name = resultexcel[i][j + 1].trim();// 设备名称
+				String name = resultexcel[i][j + 1].trim().replaceAll(" ", "");// 设备名称
 				if (Common.isEmpty(name)) {
 					error += "<span class='entypo-attention'></span>导入文件过程中出现设备名称为空，第<b>&nbsp&nbsp" + (i + 1)
 							+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
@@ -522,7 +522,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				}
 				importStock.setModel(model);// 设备型号
 
-				String brandname = resultexcel[i][j + 3].trim();
+				String brandname = resultexcel[i][j + 3].trim().replaceAll(" ", "");
 
 				if (Common.isNotEmpty(brandname)) {
 					// 根据供应商名称查找，看供应商是否存在
@@ -540,7 +540,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				// 新添加了入库数量
 				importStock.setStocknum(Long.valueOf(resultexcel[i][j + 4].trim()));
 
-				String n = resultexcel[i][j + 5].trim();
+				String n = resultexcel[i][j + 5].trim().replaceAll(" ", "");
 //				String c=resultexcel[i][j + 5];
 //				if (Common.isEmpty(n)) {
 //					error += "<span class='entypo-attention'></span>导入文件过程中出现价格为空，第<b>&nbsp&nbsp" + (i + 1)
@@ -786,7 +786,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		}
 
 		query.addCriteria(Criteria.where("name").is(name));
-		query.addCriteria(Criteria.where("model").is(Common.escapeExprSpecialWord(model)));
+		query.addCriteria(Criteria.where("model").is(model));
 
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		Stock stock = this.findOneByQuery(query, Stock.class);
@@ -1470,4 +1470,6 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		return this.find(query, Stock.class);
 	}
 
+
+	
 }

@@ -165,12 +165,12 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 			}
 			if (Common.isNotEmpty(requestBo.getModel())) {
 				
-				if(requestBo.getModel().contains("%")) {
+				if(requestBo.getModel().contains("$")) {
 					query = query.addCriteria(
-							Criteria.where("model").regex(Common.escapeExprSpecialWord(requestBo.getModel().replace("%", "")), "i"));
+							Criteria.where("model").regex(requestBo.getModel().replace("$", "")));
 				}else {
 					query = query.addCriteria(
-							Criteria.where("model").is(Common.escapeExprSpecialWord(requestBo.getModel())));
+							Criteria.where("model").is(requestBo.getModel()));
 				}
 				
 			}
@@ -447,8 +447,24 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 							+ "行</b>出现设备型号为空，请添加！&nbsp&nbsp</br>";
 					continue;
 				}
+				
 				importPreStock.setModel(model);
-				importPreStock.setEstimatedInventoryQuantity(Long.valueOf(resultexcel[i][j + 3].trim()));// 预备入库的数量
+				
+				String n = resultexcel[i][j + 3].trim();
+				
+				boolean num = Common.isInteger(n);
+				if (num) {
+					importPreStock.setEstimatedInventoryQuantity(Integer.valueOf(n));// 预备入库的数量
+				} else {
+					error += "<span class='entypo-attention'></span>导入文件过程中出现不合法的金额<b>&nbsp;&nbsp;" + n
+							+ "&nbsp;&nbsp;</b>，第<b>&nbsp&nbsp" + (i + 1) + "行请手动去修改该条信息！&nbsp&nbsp</b></br>";
+					continue;
+				}
+				
+				
+				
+				
+				
 				String unitName = resultexcel[i][j + 4].trim();// 单位
 				if (Common.isEmpty(unitName)) {
 					error += "<span class='entypo-attention'></span>导入文件过程中，第<b>&nbsp&nbsp" + (i + 1)
