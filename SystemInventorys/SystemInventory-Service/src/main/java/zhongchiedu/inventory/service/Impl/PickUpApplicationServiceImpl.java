@@ -69,7 +69,7 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 	@Override
 	@SystemServiceLog(description = "获取所有待出库信息")
 	public Pagination<PickUpApplication> findpagination(Integer pageNo, Integer pageSize, String searchArea,
-			String status, String pnameid, String customerid, String stockid, String modelid) {
+			String status, String pnameid, String customerid, String stockid, String modelid,String publisherid) {
 		// 分页查询数据
 		Pagination<PickUpApplication> pagination = null;
 		try {
@@ -77,6 +77,9 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 
 			if (Common.isNotEmpty(searchArea)) {
 				query = query.addCriteria(Criteria.where("area.$id").is(new ObjectId(searchArea)));
+			}
+			if(Common.isNotEmpty(publisherid)){
+				query=query.addCriteria(Criteria.where("publisher.$id").is(new ObjectId(publisherid)));
 			}
 			if (Common.isEmpty(status) || status.equals("0")) {
 				List<Integer> l = new ArrayList();

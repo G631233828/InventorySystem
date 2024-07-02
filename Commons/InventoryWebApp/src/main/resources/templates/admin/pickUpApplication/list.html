@@ -183,12 +183,19 @@
 										<select multiple
 											class="filter-status form-control selectpicker" id="modelid"
 											data-live-search="true" data-max-options="1" title="选择设备型号">
-											<option th:selected="${session.modelid}==${stock?.id}" 
+											<option th:selected="${session.modelid}==${stock?.id}"
 												th:each="stock:${stocklists}" th:value="${stock?.id}"
 												th:text="|${stock?.model}(${stock?.supplier?.name})|"></option>
-										</select> 
+										</select>
 
-										
+										<select multiple
+												class="filter-status form-control selectpicker" id="publisherid"
+												data-live-search="true" data-max-options="1" title="选择发布人">
+											<option th:selected="${session.publisherid}==${pbr?.id}"
+													th:each="pbr:${publishers}" th:value="${pbr?.id}"
+													th:text="${pbr?.userName}"></option>
+										</select>
+
 										<select class="filter-status form-control" id="pageSize"
 											onchange="return searchVal()">
 											<option value="10" th:selected="${session.prepageSize == 10}">10

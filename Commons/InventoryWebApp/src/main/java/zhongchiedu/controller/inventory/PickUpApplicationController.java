@@ -23,6 +23,8 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -112,12 +114,13 @@ public class PickUpApplicationController {
 			@RequestParam(value = "customerid", defaultValue = "") String customerid,
 			@RequestParam(value = "stockid", defaultValue = "") String stockid,
 			@RequestParam(value = "modelid", defaultValue = "") String modelid,
+			@RequestParam(value = "publisherid", defaultValue = "") String publisherid,
 			@ModelAttribute("errorImport") String errorImport,
 			@RequestParam(value = "searchArea", defaultValue = "") String searchArea,
 			@ModelAttribute("errorMsg") String errorMsg) {
 
 		Pagination<PickUpApplication> pagination = this.pickUpApplicationService.findpagination(pageNo, pageSize,
-				 searchArea, status,pnameid,customerid,stockid,modelid);
+				 searchArea, status,pnameid,customerid,stockid,modelid,publisherid);
 		
 		List<Pname> findAllName = this.pnameService.findAllName(false);
 		model.addAttribute("pnames", findAllName);
@@ -125,8 +128,11 @@ public class PickUpApplicationController {
 		// 获取到所有客户
 		List<NewCustomer> findAllCustomer = this.newCustomerService.findAllCustomer(false);
 		model.addAttribute("customers", findAllCustomer);
-	
-		
+
+		Query query=new Query();
+		query.addCriteria(Criteria.where("cardId").is("publisher"));
+		List<User> users=userService.find(query,User.class);
+		model.addAttribute("publishers",users);
 		
 		List<PickUpApplication> findAllPickUpApplication = this.pickUpApplicationService.findAllPickUpApplication(false, null);
 		
@@ -160,7 +166,7 @@ public class PickUpApplicationController {
 		session.setAttribute("pickpageSize", pageSize);
 		session.setAttribute("picksearchArea", searchArea);
 		session.setAttribute("pickstatus", status);
-
+		session.setAttribute("publisherid",publisherid);
 
 		return "admin/pickUpApplication/list";
 	}

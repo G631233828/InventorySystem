@@ -545,13 +545,14 @@ function searchBo() {
 	var entryName=$('[name="entryName"]').val();
 	var itemNo=$('[name="itemNo"]').val();
 	var ssC = $("#searchssC").val();
+	var userId=$("#pbr").val();
 	/*
 	 * if (search == null || search == "") { swal({ type : "warning", title : "",
 	 * text : "查询内容不能为空!!", }); return ; }
 	 */
 	window.location.href = "preStocks?pageSize=" + pageSize + "&ssC=" + ssC
 		+"&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo + "&searchArea=" + searchArea
-		+"&status=" +status;
+		+"&status=" +status + "&userId=" + userId;
 
 }
 

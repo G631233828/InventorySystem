@@ -189,6 +189,10 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 			if (Common.isNotEmpty(requestBo.getItemNo())) {
 				query = query.addCriteria(Criteria.where("itemNo").regex(requestBo.getItemNo(), "i"));
 			}
+			//根据发布人查询
+			if(Common.isNotEmpty(requestBo.getUserId())){
+				query=query.addCriteria(Criteria.where("publisher.$id").is(new ObjectId(requestBo.getUserId())));
+			}
 
 //			if(Common.isNotEmpty(requestBo.getPurchaseInvoiceNo())){
 //				query=query.addCriteria(Criteria.where("purchaseInvoiceNo").regex(requestBo.getPurchaseInvoiceNo(), "i"));
