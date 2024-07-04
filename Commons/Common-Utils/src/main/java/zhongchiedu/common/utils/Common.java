@@ -1318,12 +1318,15 @@ public class Common {
 //	list2.add("3");
 //	
 		 // 输入的日期字符串
-        String inputDateString = "2024-06-04";
-        // 日期格式
-        // 获取上个月最后一天的日期字符串
-        String lastDayOfPreviousMonthString = getLastDayOfPreviousMonthAsString(inputDateString);
-        // 输出结果
-        System.out.println("上个月最后一天的日期字符串: " + lastDayOfPreviousMonthString);
+//        String inputDateString = "2024-06-04";
+//        // 日期格式
+//        // 获取上个月最后一天的日期字符串
+//        String lastDayOfPreviousMonthString = getLastDayOfPreviousMonthAsString(inputDateString);
+//        // 输出结果
+//        System.out.println("上个月最后一天的日期字符串: " + lastDayOfPreviousMonthString);
+		
+		boolean integer = isInteger("2.01f");
+		System.out.println(integer);
 
 		
 	}

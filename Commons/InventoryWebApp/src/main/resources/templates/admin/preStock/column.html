@@ -78,6 +78,8 @@
                                             <tr>
                                                 <td class="numeric">入库状态</td>
                                                 <td class="numeric" onclick="return selectColumn('status');"><input type="checkbox" th:checked="${#lists.contains(listColums,'status')}?'checked':'false'" id="ch_status"></td>
+                                                <td class="numeric">价格</td>
+                                                <td class="numeric" onclick="return selectColumn('price');"><input type="checkbox" th:checked="${#lists.contains(listColums,'price')}?'checked':'false'" id="ch_price"></td>
 <!--                                                <td class="numeric">采购发票号</td>-->
 <!--                                                <td class="numeric" onclick="return selectColumn('purchaseInvoiceNo');"><input type="checkbox" th:checked="${#lists.contains(listColums,'purchaseInvoiceNo')}?'checked':'false'" id="ch_purchaseInvoiceNo"></td>-->
                                             </tr>

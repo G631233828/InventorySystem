@@ -301,6 +301,8 @@
 													th:style="${#lists.contains(listColums,'acquantity')}?'':'display:none;'">实际入库数量</th>
 												<th class="numeric eaquantity"
 													th:style="${#lists.contains(listColums,'eaquantity')}?'':'display:none;'">剩余入库数量</th>
+												<th class="numeric price"
+													th:style="${#lists.contains(listColums,'price')}?'':'display:none;'">价格</th>
 												<!--   <th class="numeric inprice"
                                         th:style="${#lists.contains(listColums,'inprice')}?'':'display:none;'">入库总金额</th> -->
 												<!--                                    <th class="numeric purchaseInvoiceNo"-->
@@ -360,6 +362,9 @@
 														th:style="${#lists.contains(listColums,'eaquantity')}?'':'display:none;'">
 														[[${stock?.estimatedInventoryQuantity}-${stock?.actualReceiptQuantity}]]
 													</td>
+													<td class="numeric price"
+														th:style="${#lists.contains(listColums,'price')}?'':'display:none;'">[[${stock?.price}]]</td>
+													
 													<!-- <td class="numeric inprice" th:id="|inprice_${stock?.id}|"
                                             th:style="${#lists.contains(listColums,'inprice')}?'':'display:none;'"
                                             th:ondblclick="|return change('${stock?.id}','inprice')|"
@@ -454,6 +459,8 @@
 													th:style="${#lists.contains(listColums,'acquantity')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![actualReceiptQuantity==null?0:actualReceiptQuantity])}]]</th>
 												<th class="numeric eaquantity"
 													th:style="${#lists.contains(listColums,'eaquantity')}?'':'display:none;'"></th>
+													<th class="numeric price"
+													th:style="${#lists.contains(listColums,'price')}?'':'display:none;'"></th>
 												<!--  <th class="numeric inprice"
                                         th:style="${#lists.contains(listColums,'inprice')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![inprice==null?0:inprice])}]]</th>
                                     -->
@@ -495,7 +502,7 @@
 											<div class="dataTables_info hidden-xs"
 												style="margin-top: 0px;" role="status" aria-live="polite"
 												th:text="|每页显示${pageList.pageSize}行
-										－ 当前页${pageList.pageNo}页 － 共${pageList.totalPage}页|"></div>
+										－ 当前页${pageList.pageNo}页 － 共${pageList.totalPage}页－ 本页共${#lists.size(pageList?.datas)}条数据|"></div>
 										</div>
 										<div class="col-md-6">
 											<ul class="pagination pagination-split pull-right"

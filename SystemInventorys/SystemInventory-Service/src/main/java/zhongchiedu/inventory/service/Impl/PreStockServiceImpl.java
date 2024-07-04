@@ -527,6 +527,24 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 				importPreStock.setPublisher(user);// 发布人
 				String itemNo = resultexcel[i][j + 8].trim();
 				importPreStock.setItemNo(itemNo);
+				
+				String price = resultexcel[i][j + 9].trim();
+			
+				if(Common.isNotEmpty(price)) {
+					
+					boolean isprice = Common.isInteger(price);
+					if(isprice) {
+						importPreStock.setPrice(price);
+					}else {
+						error += "<span class='entypo-attention'></span>导入文件过程中出现错误的价格<b>&nbsp;&nbsp;" + price
+								+ "&nbsp;&nbsp;</b>请手动去修改该条信息！&nbsp&nbsp</b></br>";
+						continue;
+					}
+				}
+				
+				
+				
+				
 				stock = this.findByName(getarea, name, model, 1, pname1, supplier);// 预入库查重 区域，名字，型号，项目名称,供应商
 				if (Common.isNotEmpty(stock)) {
 					if (Common.isNotEmpty(stock.getUnit())) {
