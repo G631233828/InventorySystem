@@ -18,6 +18,10 @@
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal">×</button>
 					<h4>显示隐藏列信息</h4>
+					<button class="btn btn-default btn-sm" onclick="return instock()">  入库显示列 </button>
+					<button class="btn btn-default btn-sm" onclick="return outstock()">  出库显示列 </button>
+					
+					
 				</div>
 				
 				<table class="table table-bordered table-striped">
@@ -160,6 +164,67 @@
 			</div>
 
 		</div>
+		
+		<script type="text/javascript">
+		
+		//var all="stockName,stockModel,pname,newCustomer,storageTime,inNum,depotTime,outNum,newNum,user,revoke,revokeNum,customer,area,unit,personInCharge,description,sign,brand,supplier,newItemNo,accepter,outboundOrder,othersign,ssC";
+		
+		function cancelColumn(){
+			
+			var all="stockName,stockModel,pname,newCustomer,storageTime,inNum,depotTime,outNum,newNum,user,revoke,revokeNum,customer,area,unit,personInCharge,description,sign,brand,supplier,newItemNo,accepter,outboundOrder,othersign,ssC";
+			var parts = all.split(','); // 使用逗号分割字符串为数组
+			// 遍历数组并调用 selectColumn 函数
+			$.each(parts, function(index, part) {
+			 if( $("#ch_"+part).prop("checked")){
+				 selectColumn(part);
+			 }
+			});
+			
+		}
+		
+		
+		function instock(){
+			cancelColumn();
+			
+			var inst="stockName,stockModel,pname,storageTime,inNum,user,revoke,area,unit,description,supplier";
+
+			var inparts = inst.split(','); // 使用逗号分割字符串为数组
+
+			// 遍历数组并调用 selectColumn 函数
+			$.each(inparts, function(index, part) {
+			    // 注意：这里我们假设 selectColumn 函数已经定义好了
+			    // 并且可以接受一个字符串参数
+			    selectColumn(part); // 调用函数，传递当前遍历到的部分
+			});
+
+			
+		}
+		
+		function outstock(){
+			
+			cancelColumn();
+			
+			var inst="stockName,stockModel,pname,newCustomer,depotTime,outNum,user,revoke,customer,area,unit,personInCharge,description,sign,accepter,outboundOrder,othersign";
+			var inparts = inst.split(','); // 使用逗号分割字符串为数组
+
+			// 遍历数组并调用 selectColumn 函数
+			$.each(inparts, function(index, part) {
+			    // 注意：这里我们假设 selectColumn 函数已经定义好了
+			    // 并且可以接受一个字符串参数
+			    selectColumn(part); // 调用函数，传递当前遍历到的部分
+			});
+
+			
+		}
+		
+		</script>
+		
+		
+		
+		
+		
+		
+		
 
 	</div>
 
