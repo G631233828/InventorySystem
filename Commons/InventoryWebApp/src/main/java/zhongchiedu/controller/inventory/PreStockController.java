@@ -593,9 +593,11 @@ public class PreStockController {
 		if (batchidList.size() != batchnumList.size()) {
 			return new BasicDataResult(400, "出库商品与id不匹配", "");
 		}
+		User user = (User) session.getAttribute(Contents.USER_SESSION);
 		List<Object> list = new ArrayList<>();
 		for (int i = 0; i < batchidList.size(); i++) {
 			PreStock preStock=this.preStockService.findOneById(batchidList.get(i),PreStock.class);
+			preStock.setHandler(user);
 			PreStock stock=new PreStock();
 			stock.setId(preStock.getId());
 			stock.setEstimatedInventoryQuantity(preStock.getEstimatedInventoryQuantity());

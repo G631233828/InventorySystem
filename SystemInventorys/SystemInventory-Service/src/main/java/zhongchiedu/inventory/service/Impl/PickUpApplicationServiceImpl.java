@@ -388,7 +388,7 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 
 				if (Long.valueOf(n) > (stock.getInventory() - (ycknum - acnum))) {
 					error += "<span class='entypo-attention'></span>导入文件过程中第<b>&nbsp&nbsp" + (i + 1)
-							+ "出现不合法的库存数量不足<b>&nbsp;&nbsp;当前剩余可出库数量"
+							+ "行出现库存数量不足<b>&nbsp;&nbsp;当前剩余可出库数量"
 							+ String.valueOf(stock.getInventory() - (ycknum - acnum))
 							+ "&nbsp;&nbsp;</b>，请手动去修改该条信息！&nbsp&nbsp</b></br>";
 					continue;

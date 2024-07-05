@@ -334,19 +334,19 @@
 												style="margin-top: 0px;">
 												
 												  <li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a                            
-                                                   th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/pickUpApplications(pageNo=1,pageSize=${session.pickpageNo},stockid=${session.stockid},modelid=${session.modelid},customerid=${session.selectcustomer},pnameid=${session.selectpname},status=${session.pickstatus},searchArea=${session.picksearchArea})}">首页</a>
+                                                   th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/pickUpApplications(pageNo=1,pageSize=${session.pickpageSize},stockid=${session.stockid},modelid=${session.modelid},customerid=${session.selectcustomer},pnameid=${session.selectpname},status=${session.pickstatus},searchArea=${session.picksearchArea})}">首页</a>
                                             </li>
 												<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
-													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/pickUpApplications(pageNo=${pageList.upPage},pageSize=${session.pickpageNo},stockid=${session.stockid},modelid=${session.modelid},customerid=${session.selectcustomer},pnameid=${session.selectpname},status=${session.pickstatus},searchArea=${session.picksearchArea})}">上一页</a>
+													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/pickUpApplications(pageNo=${pageList.upPage},pageSize=${session.pickpageSize},stockid=${session.stockid},modelid=${session.modelid},customerid=${session.selectcustomer},pnameid=${session.selectpname},status=${session.pickstatus},searchArea=${session.picksearchArea})}">上一页</a>
 												</li>
 												<li th:each="page:${pageList.navigatepageNums}"
 													th:class="${page  == pageList.pageNo}?active:''"><a
-													th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/pickUpApplications(pageNo=${page},pageSize=${session.pickpageNo},stockid=${session.stockid},modelid=${session.modelid},customerid=${session.selectcustomer},pnameid=${session.selectpname},status=${session.pickstatus},searchArea=${session.picksearchArea})}">[[${page}]]</a>
+													th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/pickUpApplications(pageNo=${page},pageSize=${session.pickpageSize},stockid=${session.stockid},modelid=${session.modelid},customerid=${session.selectcustomer},pnameid=${session.selectpname},status=${session.pickstatus},searchArea=${session.picksearchArea})}">[[${page}]]</a>
 												</li>
 												<li
 													th:class="${pageList.pageNo eq pageList.totalPage || pageList.totalPage == 0}?disabled:''">
 													<a
-													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/pickUpApplications(pageNo=${pageList.nextPage},pageSize=${session.pickpageNo},stockid=${session.stockid},modelid=${session.modelid},customerid=${session.selectcustomer},pnameid=${session.selectpname},status=${session.pickstatus},searchArea=${session.picksearchArea})}">下一页</a>
+													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/pickUpApplications(pageNo=${pageList.nextPage},pageSize=${session.pickpageSize},stockid=${session.stockid},modelid=${session.modelid},customerid=${session.selectcustomer},pnameid=${session.selectpname},status=${session.pickstatus},searchArea=${session.picksearchArea})}">下一页</a>
 												</li>
 											  <li><input class="form-control" id="searchN" style="width: 60px;display: inline-block;"  type="number" placeholder=""  />
 											  
@@ -356,7 +356,7 @@
 												<li
 													th:class="${pageList.pageNo eq pageList.totalPage || pageList.totalPage == 0}?disabled:''">
 													<a
-													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/pickUpApplications(pageNo=${pageList.totalPage},pageSize=${session.pickpageNo},stockid=${session.stockid},modelid=${session.modelid},customerid=${session.selectcustomer},pnameid=${session.selectpname},status=${session.pickstatus},searchArea=${session.picksearchArea})}">尾页</a>
+													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/pickUpApplications(pageNo=${pageList.totalPage},pageSize=${session.pickpageSize},stockid=${session.stockid},modelid=${session.modelid},customerid=${session.selectcustomer},pnameid=${session.selectpname},status=${session.pickstatus},searchArea=${session.picksearchArea})}">尾页</a>
 												</li>
 											</ul>
 										</div>

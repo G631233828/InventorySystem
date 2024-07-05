@@ -252,7 +252,7 @@
                                                 th:text="${sC?.name}"></option>
                                     </select>
                                     <select multiple class="filter-status form-control selectpicker" id="searchArea"
-                                            data-max-options="5" title="选择区域">
+                                            data-max-options="10" title="选择区域">
                                         <option th:selected="${requestBo?.searchArea}==${area?.id}"
                                                 th:each="area:${areas}" th:value="${area?.id}"
                                                 th:text="${area?.name}"></option>
@@ -474,12 +474,12 @@
                                                         <i class="entypo-upload"> </i>
                                                     </button>
                                                 </shiro:hasPermission>
-                                                <shiro:hasPermission name="stockStatistics:out">
+                                            
                                                     <button class="btn source btn-xs" title="加入出库列表"
                                                             th:onclick="|return addToStocklist('${stock.id}')|">
                                                         <i class="fontawesome-share"> </i>
                                                     </button>
-                                                </shiro:hasPermission>
+                                            
                                                 
 
 

@@ -3055,7 +3055,7 @@ input[type="button"].btn-block {
 .dropdown-menu > .active > a:focus {
   color: #fff;
   text-decoration: none;
-  background-color: #428bca;
+/*   background-color: #428bca; */
   outline: 0;
 }
 .dropdown-menu > .disabled > a,

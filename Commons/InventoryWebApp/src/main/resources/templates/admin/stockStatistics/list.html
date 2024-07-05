@@ -277,20 +277,8 @@
 											th:value="${session.user_session.id}" id="userId"> <select
 											class="filter-status form-control" id="type" name="type">
 											<option value="all" th:selected="${requestBo?.type == 'all'}">所有
-
-
-
-											
 											<option value="in" th:selected="${requestBo?.type == 'in'}">入库
-
-
-
-											
 											<option value="out" th:selected="${requestBo?.type == 'out'}">出库
-
-
-
-											
 										</select> <select class="filter-status form-control" id="revoke"
 											name="revoke">
 											<option value="0" selected>--选择状态--</option>
