@@ -279,12 +279,26 @@
 											<option value="all" th:selected="${requestBo?.type == 'all'}">所有
 											<option value="in" th:selected="${requestBo?.type == 'in'}">入库
 											<option value="out" th:selected="${requestBo?.type == 'out'}">出库
-										</select> <select class="filter-status form-control" id="revoke"
+										</select>
+										<select class="filter-status form-control" id="revoke"
 											name="revoke">
 											<option value="0" selected>--选择状态--</option>
 											<option value="1" th:selected="${requestBo?.revoke=='1'}">已撤销</option>
 											<option value="2" th:selected="${requestBo?.revoke=='2'}">正常</option>
-										</select> <select class="filter-status form-control" id="confirm"
+										</select>
+										<select class="filter-status form-control" id="mysign"
+												name="mysign">
+											<option value="" selected>--选择签名--</option>
+											<option value="1" th:selected="${requestBo?.mysign=='1'}">已签名</option>
+											<option value="2" th:selected="${requestBo?.mysign=='2'}">未签名</option>
+										</select>
+										<select class="filter-status form-control" id="myothersign"
+												name="myothersign">
+											<option value="" selected>--复核签名--</option>
+											<option value="1" th:selected="${requestBo?.othersign=='1'}">已签名</option>
+											<option value="2" th:selected="${requestBo?.othersign=='2'}">未签名</option>
+										</select>
+										<select class="filter-status form-control" id="confirm"
 											name="confirm">
 											<option value="" selected>--是否核对--</option>
 											<option value="true"

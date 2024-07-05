@@ -166,6 +166,20 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 					query.addCriteria(Criteria.where("revoke").is(false));
 				}
 			}
+			if(Common.isNotEmpty(requestBo.getMysign())){
+				if(requestBo.getMysign().equals("1")){
+					query.addCriteria(Criteria.where("mysign").exists(true));
+				}else if(requestBo.getMysign().equals("2")){
+					query.addCriteria(Criteria.where("mysign").exists(false));
+				}
+			}
+			if(Common.isNotEmpty(requestBo.getOthersign())){
+				if(requestBo.getOthersign().equals("1")){
+					query.addCriteria(Criteria.where("othersign").exists(true));
+				}else if(requestBo.getOthersign().equals("2")){
+					query.addCriteria(Criteria.where("othersign").exists(false));
+				}
+			}
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, StockStatistics.class);
 			if (pagination == null)
 				pagination = new Pagination<StockStatistics>();

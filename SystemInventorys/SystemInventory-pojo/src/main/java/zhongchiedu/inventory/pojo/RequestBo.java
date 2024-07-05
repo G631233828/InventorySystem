@@ -49,6 +49,9 @@ public class RequestBo {
     
     private int stockType;// 1.有库存 2.无库存 3.所有
 
+    private String mysign;// 签名 1.已签名 2未签名
+
+    private String othersign;//复核签名1.已签名 2未签名
     public  boolean isNotEmpty(Object s) {
         if (null == s || "".equals(s) || "".equals(String.valueOf(s).trim())
                 || "null".equalsIgnoreCase(String.valueOf(s))) {

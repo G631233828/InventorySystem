@@ -927,6 +927,8 @@ function searchBo() {
 	var customer = $('[name="customer"]').val();
 	var sailesInvoiceNo = $('[name="sailesInvoiceNo"]').val();
 	var pnames = $("#pnames").val();
+	var mysign = $("#mysign").val();
+	var othersign = $("#myothersign").val();
 	// var userId=$('[name="userId"]').val();
 	/*
 	 * if (search == null || search == "") { swal({ type : "warning", title : "",
@@ -936,7 +938,7 @@ function searchBo() {
 		+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC=" + ssC
 		+ "&name=" + name + "&model=" + model + "&supplier=" + supplier + "&itemNo=" + itemNo +
 		"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo=" + paymentOrderNo
-		+ "&customer=" + customer  + "&sailesInvoiceNo=" + sailesInvoiceNo+ "&pname=" + pnames;
+		+ "&customer=" + customer  + "&sailesInvoiceNo=" + sailesInvoiceNo+ "&pname=" + pnames +"&mysign=" +mysign + "&othersign=" +othersign;
 //  ++ "&projectName=" + projectName
 }
 
