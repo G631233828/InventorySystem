@@ -630,7 +630,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 							in.put("t5", num);
 							in.put("t6", dj);
 							in.put("t7", Common.isEmpty(st.getStock().getUnit()) ? "" : st.getStock().getUnit().getName());
-							in.put("t8", Common.isEmpty(st.getPurchaseInvoiceNo()) ? "" : st.getPurchaseInvoiceNo());
+							in.put("t8", Common.isEmpty(st.getStock().getItemNo()) ? "" : st.getStock().getItemNo());
 							in.put("t9",  Common.isEmpty(st.getStock().getSupplier()) ? "": st.getStock().getSupplier().getName());
 							in.put("t10", num * dj);
 							in.put("t11", Common.isEmpty(st.getPname()) ? "" : st.getPname().getName());
@@ -665,7 +665,8 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 							Map<String, Object> out = new HashMap<>();
 							Double num = Common.isNotEmpty(st.getNum()) ? st.getNum() : 0.0;
 							Double dj = Common.isNotEmpty(st.getStock().getPrice()) ? Double.parseDouble(st.getStock().getPrice()) : 0.0;
-							
+							out.put("ta", Common.isEmpty(stock.getArea()) ? "" : stock.getArea().getName());
+							out.put("b", Common.isEmpty(st.getPname()) ? "" : st.getPname().getName());
 							out.put("t1", Common.isEmpty(st.getStock().getName()) ? "" : st.getStock().getName());
 							out.put("t2", Common.isEmpty(st.getStock().getModel()) ? "" : st.getStock().getModel());
 							out.put("t3", Common.isEmpty(st.getStock().getPrice()) ? "" : st.getStock().getPrice());
