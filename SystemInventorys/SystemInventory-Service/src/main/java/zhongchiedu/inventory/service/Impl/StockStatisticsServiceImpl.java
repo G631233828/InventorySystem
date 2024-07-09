@@ -617,56 +617,92 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				if (st.getStock() != null) {
 					if (stock.getId().equals(st.getStock().getId())) {
 						if (st.isInOrOut()) {
+							
+							Double num = Common.isNotEmpty(st.getNum()) ? st.getNum() : 0.0;
+							Double dj = Common.isNotEmpty(st.getStock().getPrice()) ? Double.parseDouble(st.getStock().getPrice()) : 0.0;
+						
 							// 入库统计
 							Map<String, Object> in = new HashMap<>();
-							in.put("itemNo", Common.isEmpty(stock.getItemNo()) ? "" : stock.getItemNo());
-							in.put("area", Common.isEmpty(stock.getArea()) ? "" : stock.getArea().getName());
-							in.put("projectName", Common.isEmpty(st.getProjectName()) ? "" : st.getProjectName());
-							in.put("stockName", Common.isEmpty(st.getStock().getName()) ? "" : st.getStock().getName());
-							in.put("modelName",
-									Common.isEmpty(st.getStock().getModel()) ? "" : st.getStock().getModel());
-							in.put("price", Common.isEmpty(st.getStock().getPrice()) ? "" : st.getStock().getPrice());
-							in.put("inprice", Common.isEmpty(st.getInprice()) ? "" : st.getInprice());
-							in.put("description", Common.isEmpty(st.getDescription()) ? "" : st.getDescription());
-							in.put("unit",
-									Common.isEmpty(st.getStock().getUnit()) ? "" : st.getStock().getUnit().getName());
-							in.put("depotTime", st.getStorageTime());
-							in.put("num", st.getNum());
-							in.put("purchaseInvoiceNo",
-									Common.isEmpty(st.getPurchaseInvoiceNo()) ? "" : st.getPurchaseInvoiceNo());
-
-							in.put("newItemNo", Common.isEmpty(st.getNewItemNo()) ? "" : st.getNewItemNo());
-							in.put("paymentOrderNo",
-									Common.isEmpty(st.getPaymentOrderNo()) ? "" : st.getPaymentOrderNo());
-							in.put("supplier", Common.isEmpty(st.getStock().getSupplier()) ? ""
-									: st.getStock().getSupplier().getName());
-							in.put("purchaseInvoiceDate",
-									Common.isEmpty(st.getPurchaseInvoiceDate()) ? "" : st.getPurchaseInvoiceDate());
+							in.put("t1", Common.isEmpty(stock.getArea()) ? "" : stock.getArea().getName());
+							in.put("t2", Common.isEmpty(st.getStock().getName()) ? "" : st.getStock().getName());
+							in.put("t3", Common.isEmpty(st.getStock().getModel()) ? "" : st.getStock().getModel());
+							in.put("t4", st.getStorageTime());
+							in.put("t5", num);
+							in.put("t6", dj);
+							in.put("t7", Common.isEmpty(st.getStock().getUnit()) ? "" : st.getStock().getUnit().getName());
+							in.put("t8", Common.isEmpty(st.getPurchaseInvoiceNo()) ? "" : st.getPurchaseInvoiceNo());
+							in.put("t9",  Common.isEmpty(st.getStock().getSupplier()) ? "": st.getStock().getSupplier().getName());
+							in.put("t10", num * dj);
+							in.put("t11", Common.isEmpty(st.getPname()) ? "" : st.getPname().getName());
+							in.put("t12", st.getDescription());
+							in.put("t13", Common.isEmpty(st.getUser()) ? "" : st.getUser().getUserName());
+							
+							
+//							in.put("area", Common.isEmpty(stock.getArea()) ? "" : stock.getArea().getName());
+//							in.put("projectName", Common.isEmpty(st.getProjectName()) ? "" : st.getProjectName());
+//							in.put("stockName", Common.isEmpty(st.getStock().getName()) ? "" : st.getStock().getName());
+//							in.put("modelName",
+//									Common.isEmpty(st.getStock().getModel()) ? "" : st.getStock().getModel());
+//							in.put("price", Common.isEmpty(st.getStock().getPrice()) ? "" : st.getStock().getPrice());
+//							in.put("inprice", Common.isEmpty(st.getInprice()) ? "" : st.getInprice());
+//							in.put("description", Common.isEmpty(st.getDescription()) ? "" : st.getDescription());
+//							in.put("unit",
+//									Common.isEmpty(st.getStock().getUnit()) ? "" : st.getStock().getUnit().getName());
+//							in.put("depotTime", st.getStorageTime());
+//							in.put("num", st.getNum());
+//							in.put("purchaseInvoiceNo",
+//									Common.isEmpty(st.getPurchaseInvoiceNo()) ? "" : st.getPurchaseInvoiceNo());
+//
+//							in.put("newItemNo", Common.isEmpty(st.getNewItemNo()) ? "" : st.getNewItemNo());
+//							in.put("paymentOrderNo",
+//									Common.isEmpty(st.getPaymentOrderNo()) ? "" : st.getPaymentOrderNo());
+//							in.put("supplier", Common.isEmpty(st.getStock().getSupplier()) ? ""
+//									: st.getStock().getSupplier().getName());
+//							in.put("purchaseInvoiceDate",
+//									Common.isEmpty(st.getPurchaseInvoiceDate()) ? "" : st.getPurchaseInvoiceDate());
 							inlist.add(in);
 						} else {
 							Map<String, Object> out = new HashMap<>();
-							out.put("itemNo", Common.isEmpty(stock.getItemNo()) ? "" : stock.getItemNo());
-							out.put("area", Common.isEmpty(stock.getArea()) ? "" : stock.getArea().getName());
-							out.put("projectName", Common.isEmpty(st.getProjectName()) ? "" : st.getProjectName());
-							out.put("stockName",
-									Common.isEmpty(st.getStock().getName()) ? "" : st.getStock().getName());
-							out.put("modelName",
-									Common.isEmpty(st.getStock().getModel()) ? "" : st.getStock().getModel());
-							out.put("price", Common.isEmpty(st.getStock().getPrice()) ? "" : st.getStock().getPrice());
-							out.put("unit",
-									Common.isEmpty(st.getStock().getUnit()) ? "" : st.getStock().getUnit().getName());
-							out.put("depotTime", st.getDepotTime());
-							out.put("num", st.getNum());
-							out.put("sailesInvoiceNo",
-									Common.isEmpty(st.getSailesInvoiceNo()) ? "" : st.getSailesInvoiceNo());
-							out.put("sailPrice", Common.isEmpty(st.getSailPrice()) ? "" : st.getSailPrice());
-							out.put("sailesInvoiceDate",
-									Common.isEmpty(st.getSailesInvoiceDate()) ? "" : st.getSailesInvoiceDate());
-							out.put("receiptNo", Common.isEmpty(st.getReceiptNo()) ? "" : st.getReceiptNo());
-							out.put("customer", Common.isEmpty(st.getCustomer()) ? "" : st.getCustomer());
-							out.put("purchaseInvoiceDate",
-									Common.isEmpty(st.getPurchaseInvoiceDate()) ? "" : st.getPurchaseInvoiceDate());
-							out.put("description", Common.isEmpty(st.getDescription()) ? "" : st.getDescription());
+							Double num = Common.isNotEmpty(st.getNum()) ? st.getNum() : 0.0;
+							Double dj = Common.isNotEmpty(st.getStock().getPrice()) ? Double.parseDouble(st.getStock().getPrice()) : 0.0;
+							
+							out.put("t1", Common.isEmpty(st.getStock().getName()) ? "" : st.getStock().getName());
+							out.put("t2", Common.isEmpty(st.getStock().getModel()) ? "" : st.getStock().getModel());
+							out.put("t3", Common.isEmpty(st.getStock().getPrice()) ? "" : st.getStock().getPrice());
+							out.put("t4", st.getDepotTime());
+							out.put("t5", num);
+							out.put("t6", Common.isEmpty(st.getStock().getUnit()) ? "" : st.getStock().getUnit().getName());
+							out.put("t7",num * dj);
+							out.put("t8", Common.isEmpty(st.getNewCustomer()) ? "" : st.getNewCustomer().getName());
+							out.put("t9",  Common.isEmpty(st.getStock().getSupplier()) ? "": st.getStock().getSupplier().getName());
+							out.put("t10", Common.isEmpty(st.getUser().getUserName()) ? "" : st.getUser().getUserName());
+							out.put("t11", Common.isEmpty(st.getPname().getPm()) ? "" : st.getPname().getPm());;
+							out.put("t12", st.getAccepter());
+							out.put("t13",st.getDescription());
+							out.put("t14",Common.isEmpty(st.getSign())?"未签名":"已签名");
+							out.put("t15",Common.isEmpty(st.getOthersign())?"未签名":"已签名");
+//							out.put("itemNo", Common.isEmpty(stock.getItemNo()) ? "" : stock.getItemNo());
+//							out.put("area", Common.isEmpty(stock.getArea()) ? "" : stock.getArea().getName());
+//							out.put("projectName", Common.isEmpty(st.getProjectName()) ? "" : st.getProjectName());
+//							out.put("stockName",
+//									Common.isEmpty(st.getStock().getName()) ? "" : st.getStock().getName());
+//							out.put("modelName",
+//									Common.isEmpty(st.getStock().getModel()) ? "" : st.getStock().getModel());
+//							out.put("price", Common.isEmpty(st.getStock().getPrice()) ? "" : st.getStock().getPrice());
+//							out.put("unit",
+//									Common.isEmpty(st.getStock().getUnit()) ? "" : st.getStock().getUnit().getName());
+//							out.put("depotTime", st.getDepotTime());
+//							out.put("num", st.getNum());
+//							out.put("sailesInvoiceNo",
+//									Common.isEmpty(st.getSailesInvoiceNo()) ? "" : st.getSailesInvoiceNo());
+//							out.put("sailPrice", Common.isEmpty(st.getSailPrice()) ? "" : st.getSailPrice());
+//							out.put("sailesInvoiceDate",
+//									Common.isEmpty(st.getSailesInvoiceDate()) ? "" : st.getSailesInvoiceDate());
+//							out.put("receiptNo", Common.isEmpty(st.getReceiptNo()) ? "" : st.getReceiptNo());
+//							out.put("customer", Common.isEmpty(st.getCustomer()) ? "" : st.getCustomer());
+//							out.put("purchaseInvoiceDate",
+//									Common.isEmpty(st.getPurchaseInvoiceDate()) ? "" : st.getPurchaseInvoiceDate());
+//							out.put("description", Common.isEmpty(st.getDescription()) ? "" : st.getDescription());
 							outlist.add(out);
 
 						}
@@ -1981,7 +2017,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			in.put("t7", dj);
 			in.put("t8", allprice);
 			in.put("t9", Common.isNotEmpty(st.getStock().getUnit()) ? st.getStock().getUnit().getName() : "");
-			in.put("t10", Common.isNotEmpty(st.getPname()) ? st.getPname().getPm() : "");
+			in.put("t10", Common.isNotEmpty(st.getPname().getPm()) ? st.getPname().getPm() : "");
 			in.put("t11", Common.isNotEmpty(st.getNewCustomer()) ? st.getNewCustomer().getName() : "");
 			in.put("t12", Common.isNotEmpty(st.getAccepter()) ? st.getAccepter() : "");
 			in.put("t13", Common.isNotEmpty(st.getPname()) ? st.getPname().getAssistant() : "");
