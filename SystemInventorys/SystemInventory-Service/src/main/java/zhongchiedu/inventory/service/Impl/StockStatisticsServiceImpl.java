@@ -1313,6 +1313,9 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				String projectname = Common.isNotEmpty(stock.getPname()) ? stock.getPname().getName() : "";
 				String customer = Common.isNotEmpty(stock.getNewCustomer()) ? stock.getNewCustomer().getName() : "";
 				String accepter = Common.isNotEmpty(stock.getAccepter()) ? stock.getAccepter() : "";
+				projectname=projectname.replaceAll("[\\/:*?\"<>|]", "@");
+				customer=customer.replaceAll("[\\/:*?\"<>|]", "@");
+				accepter=accepter.replaceAll("[\\/:*?\"<>|]", "@");
 //				if (stock.getOutboundOrder() != null) {
 				File outputFile = new File(path + "-" + projectname + "-" + customer + "-" + accepter + ".png");
 				MatrixToImageWriter.writeToFile(bitMatrix, format, outputFile);
