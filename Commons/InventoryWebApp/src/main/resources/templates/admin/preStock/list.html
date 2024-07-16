@@ -325,6 +325,7 @@
 													th:style="${#lists.contains(listColums,'ssC')}?'':'display:none;'">分类</th>
 												<th class="numeric supplier"
 													th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'">供应商</th>
+												<th class="numeric">备注</th>
 												<th class="numeric">操作</th>
 											</tr>
 										</thead>
@@ -407,6 +408,7 @@
 													<td class="numeric supplier"
 														th:id="|supplier_${stock?.id}|"
 														th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'">[[${stock?.supplier?.name}]]</td>
+													<td class="numeric" >[[${stock?.description}]]</td>
 													<td class="numeric"><shiro:hasPermission
 															name="preStock:in">
 															<button class="btn btn-primary btn-xs"
@@ -484,6 +486,8 @@
 													th:style="${#lists.contains(listColums,'ssC')}?'':'display:none;'"></th>
 												<th class="numeric supplier"
 													th:style="${#lists.contains(listColums,'supplier')}?'':'display:none;'"></th>
+												<th class="numeric "
+													></th>
 												<th class="numeric"></th>
 
 											</tr>
