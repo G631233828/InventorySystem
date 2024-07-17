@@ -1925,8 +1925,10 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			squery.addCriteria(Criteria.where("name").regex(requestBo.getCustomer(), "i"));
 			List<NewCustomer> customerList = this.newCustomerService.find(squery, NewCustomer.class);
 			if (!customerList.isEmpty()) {
-				ca.orOperator(Criteria.where("newCustomer.$id").in(customerList.stream()
+				query=query.addCriteria(Criteria.where("newCustomer.$id").in(customerList.stream()
 						.map(newCustomer -> new ObjectId(newCustomer.getId())).collect(Collectors.toList())));
+//				ca.orOperator(Criteria.where("newCustomer.$id").in(customerList.stream()
+//						.map(newCustomer -> new ObjectId(newCustomer.getId())).collect(Collectors.toList())));
 
 			}
 		}
