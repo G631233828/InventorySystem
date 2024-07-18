@@ -1912,6 +1912,9 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		if (Common.isNotEmpty(requestBo.getProjectName())) {
 			query = query.addCriteria(Criteria.where("projectName").regex(requestBo.getProjectName(), "i"));
 		}
+		if (Common.isNotEmpty(requestBo.getAccepter())) {
+			query = query.addCriteria(Criteria.where("accepter").regex(requestBo.getAccepter(), "i"));
+		}
 		if (Common.isNotEmpty(requestBo.getEntryName())) {
 			String[] sas = requestBo.getEntryName().split(",");
 			query = query.addCriteria(Criteria.where("pname.$id")
