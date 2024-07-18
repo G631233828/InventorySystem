@@ -555,22 +555,22 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 						}
 					}
 				}
-				if (Common.isNotEmpty(stock)) {
-					if (Common.isNotEmpty(ssC))
-						stock.setSystemClassification(ssC);
-					long newnum = this.updatePreStock(stock, importPreStock.getEstimatedInventoryQuantity());
-					error += "<span class='entypo-attention'></span>该设备预库存已经存在，预库存数量将会叠加<b>&nbsp;&nbsp;"
-							+ stock.getName() + "&nbsp;&nbsp;</b>，预库存量为" + newnum + "！&nbsp&nbsp</b></br>";
-					// 设备已存在
-//					error += "<span class='entypo-attention'></span>该设备预库存已经存在，设备名称<b>&nbsp;&nbsp;" + stock.getName()
-//							+ "&nbsp;&nbsp;</b>，第<b>&nbsp&nbsp" + (i + 1) + "请手动去修改该条信息！&nbsp&nbsp</b></br>";
-					continue;
-				} else {
-					// 添加新设备
-//					this.insert(importPreStock);
-					list.add(importPreStock);// 导入数据放入list中
-				}
-
+//				if (Common.isNotEmpty(stock)) {
+//					if (Common.isNotEmpty(ssC))
+//						stock.setSystemClassification(ssC);
+//					long newnum = this.updatePreStock(stock, importPreStock.getEstimatedInventoryQuantity());
+//					error += "<span class='entypo-attention'></span>该设备预库存已经存在，预库存数量将会叠加<b>&nbsp;&nbsp;"
+//							+ stock.getName() + "&nbsp;&nbsp;</b>，预库存量为" + newnum + "！&nbsp&nbsp</b></br>";
+//					// 设备已存在
+////					error += "<span class='entypo-attention'></span>该设备预库存已经存在，设备名称<b>&nbsp;&nbsp;" + stock.getName()
+////							+ "&nbsp;&nbsp;</b>，第<b>&nbsp&nbsp" + (i + 1) + "请手动去修改该条信息！&nbsp&nbsp</b></br>";
+//					continue;
+//				} else {
+//					// 添加新设备
+////					this.insert(importPreStock);
+//					list.add(importPreStock);// 导入数据放入list中
+//				}
+				list.add(importPreStock);// 导入数据放入list中
 				// 捕捉批量导入过程中遇到的错误，记录错误行数继续执行下去
 			} catch (Exception e) {
 				log.debug("导入文件过程中出现错误第" + (i + 1) + "行出现错误" + e);
