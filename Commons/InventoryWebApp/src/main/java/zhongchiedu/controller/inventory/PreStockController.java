@@ -624,6 +624,7 @@ public class PreStockController {
 											   @RequestParam(value = "purchaseInvoiceDate", defaultValue = "null") String purchaseInvoiceDate,
 											   @RequestParam(value = "itemNo", defaultValue = "null") String itemNo,
 											   @RequestParam(value = "pname.id",required = false,defaultValue = "null")String pnameId,
+											   @RequestParam(value = "description",required = false,defaultValue = "")String description,
 											   @RequestParam(value = "supplier.id",required = false,defaultValue = "null")String supplierId
 
 	) {
@@ -644,7 +645,7 @@ public class PreStockController {
 		}
 
 		User user = (User) session.getAttribute(Contents.USER_SESSION);
-		this.preStockService.updateStockStatistics(stockid,itemNo,pnameId,supplierId);
+		this.preStockService.updateStockStatistics(stockid,itemNo,pnameId,supplierId,description);
 		return new BasicDataResult(200, "修改统计数据成功", "");
 
 	}

@@ -990,7 +990,7 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 	}
 
 	@Override
-	public void updateStockStatistics(String ids, String itemNo, String pnameId, String supplierId) {
+	public void updateStockStatistics(String ids, String itemNo, String pnameId, String supplierId,String description) {
 		List<String> array = Arrays.asList(ids.split(","));
 		String pname = null;
 		Supplier supplier = null;
@@ -1012,6 +1012,9 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 			}
 			if (Common.isNotEmpty(supplier)) {
 				preStock.setSupplier(supplier);
+			}
+			if (Common.isNotEmpty(description)) {
+				preStock.setDescription(description);
 			}
 //			stockStatistics.setEditFinanceTime(Common.fromDateH());
 //			stockStatistics.setFinanceUser(user);

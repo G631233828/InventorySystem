@@ -423,7 +423,7 @@ function batchEditprestockForm() {
 
 
 	var itemNo = $("#_it6").val();//采购付款申请单编码(新)
-	// var description = 	$("#_it8").val();//备注
+	 var description = 	$("#_it7").val();//备注
 	// alert(newItemNo)
 	$.ajax({
 		dataType: "json",
@@ -444,9 +444,9 @@ function batchEditprestockForm() {
 					if(suppliertext!=""){
 						$("#supplier_"+this.value).text(suppliertext);
 					}
-					// if(description!=""){
-					// 	$("#description_"+this.value).text(description);
-					// }
+					 if(description!=""){
+					 	$("#description_"+this.value).text(description);
+					}
 				});
 
 				jqueryAlert({

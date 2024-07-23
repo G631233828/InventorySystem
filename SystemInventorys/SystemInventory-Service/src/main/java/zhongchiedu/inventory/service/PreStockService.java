@@ -38,7 +38,7 @@ public interface PreStockService extends GeneralService<PreStock> {
 
 	public List<PreStock> findStocksByIds(List ids);
 
-	public void updateStockStatistics(String ids,String itemNo,String pnameId,String supplierId);
+	public void updateStockStatistics(String ids,String itemNo,String pnameId,String supplierId,String description);
 
 	public BasicDataResult ajaxgetRepletes(String name,String areaId,String model,String supplierId,String entryName);
 }
