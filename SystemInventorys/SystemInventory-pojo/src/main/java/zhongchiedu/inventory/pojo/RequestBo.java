@@ -52,6 +52,8 @@ public class RequestBo {
     private String mysign;// 签名 1.已签名 2未签名
 
     private String othersign;//复核签名1.已签名 2未签名
+
+    private String accepter;//领料人
     public  boolean isNotEmpty(Object s) {
         if (null == s || "".equals(s) || "".equals(String.valueOf(s).trim())
                 || "null".equalsIgnoreCase(String.valueOf(s))) {

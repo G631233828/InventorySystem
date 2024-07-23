@@ -293,6 +293,11 @@
                         <td class="numeric">销售发票号</td>
                         <td class="numeric" onclick="return selectColumn('sssailesInvoiceNo');"><input type="checkbox" th:checked="${#lists.contains(listColums,'sssailesInvoiceNo')}?'checked':'false'" id="ch_sssailesInvoiceNo"></td>
                     </tr> -->
+
+                  <tr>
+      <td class="numeric">领料人</td>
+      <td class="numeric" onclick="return selectColumn('ssaccepter');"><input type="checkbox" th:checked="${#lists.contains(listColums,'ssaccepter')}?'checked':'false'" id="ch_ssaccepter"></td>
+  </tr>
                     </tbody>
                 </table>
 

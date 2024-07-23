@@ -229,6 +229,14 @@
 												class="form-control" name="customer" placeholder=""
 												type="text" th:value="${requestBo?.customer}">
 										</div>
+
+										<div id="ssaccepter" class="ssaccepter showin-b"
+											 th:style="${#lists.contains(listColums,'ssaccepter')}?'':'display:none;'">
+											<label class="control-label text-muted">领料人：</label> <input
+												class="form-control" name="accepter" placeholder=""
+												type="text" th:value="${requestBo?.accepter}">
+										</div>
+
 									</div>
 
 									<div class="col-sm-12 form-inline" style="margin-bottom: 10px;">
