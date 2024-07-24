@@ -330,12 +330,13 @@
 
 
 							</div>
-							<shiro:hasPermission name="stockStatistics:edit">
 								<div class="body-nest" id="showStockStatistics">
+							<shiro:hasPermission name="stockStatistics:edit">
 									<button class="btn btn-primary btn-sm"
 										onclick="return editStockStatistics()">
 										<i class="entypo-search"> </i> 批量编辑
 									</button>
+									</shiro:hasPermission>
 									<shiro:hasPermission name="stockStatistics:confirm">
 									<button class="btn btn-primary btn-sm"
 										onclick="return confirms()">
@@ -369,7 +370,7 @@
 									</button> 
 
 								</div>
-							</shiro:hasPermission>
+							
 
 
 							<section id="flip-scroll">
