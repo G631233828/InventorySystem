@@ -116,6 +116,12 @@
 									</th:block>
 
 
+									<shiro:hasPermission name="pickUpApplication:edit">
+										<button class="btn btn-primary btn-sm"
+											onclick="return batchedit()">
+											<i class="entypo-search"> </i> 批量编辑
+										</button>
+									</shiro:hasPermission>
 
 
 								</div>
@@ -154,59 +160,56 @@
 											<option th:value="3" th:selected="${session.pickstatus}==3">部分出库</option>
 
 
-										</select>
-										
-										<select multiple style="width:300px;"
+										</select> <select multiple style="width: 300px;"
 											class="filter-status form-control selectpicker" id="pnameid"
 											data-live-search="true" data-max-options="1" title="选择项目名称">
 											<option th:selected="${session.selectpname}==${pname?.id}"
 												th:each="pname:${pnames}" th:value="${pname?.id}"
 												th:text="${pname?.name}"></option>
-										</select> 
-										
-										<select multiple
-											class="filter-status form-control selectpicker" id="customerid"
-											data-live-search="true" data-max-options="1" title="选择客户">
-											<option th:selected="${session.selectcustomer}==${customer.id}"
+										</select> <select multiple
+											class="filter-status form-control selectpicker"
+											id="customerid" data-live-search="true" data-max-options="1"
+											title="选择客户">
+											<option
+												th:selected="${session.selectcustomer}==${customer.id}"
 												th:each="customer:${customers}" th:value="${customer?.id}"
 												th:text="${customer?.name}"></option>
-										</select> 
-										
-								<!-- 		<select multiple
+										</select>
+
+										<!-- 		<select multiple
 											class="filter-status form-control selectpicker" id="stockid"
 											data-live-search="true" data-max-options="1" title="选择设备名称">
 											<option th:selected="${session.stockid}==${stock?.id}" 
 												th:each="stock:${stocklists}" th:value="${stock?.id}"
 												th:text="|${stock?.name}(${stock?.supplier?.name})|"></option>
 										</select>  -->
-										
+
 										<select multiple
 											class="filter-status form-control selectpicker" id="modelid"
 											data-live-search="true" data-max-options="1" title="选择设备型号">
 											<option th:selected="${session.modelid}==${stock?.id}"
 												th:each="stock:${stocklists}" th:value="${stock?.id}"
 												th:text="|${stock?.name}-${stock?.model}-(${stock?.supplier?.name})|"></option>
-										</select>
-
-										<select multiple
-												class="filter-status form-control selectpicker" id="publisherid"
-												data-live-search="true" data-max-options="1" title="选择发布人">
+										</select> <select multiple
+											class="filter-status form-control selectpicker"
+											id="publisherid" data-live-search="true" data-max-options="1"
+											title="选择发布人">
 											<option th:selected="${session.publisherid}==${pbr?.id}"
-													th:each="pbr:${publishers}" th:value="${pbr?.id}"
-													th:text="${pbr?.userName}"></option>
-										</select>
-
-										<select class="filter-status form-control" id="pageSize"
+												th:each="pbr:${publishers}" th:value="${pbr?.id}"
+												th:text="${pbr?.userName}"></option>
+										</select> <select class="filter-status form-control" id="pageSize"
 											onchange="return searchVal()">
 											<option value="10" th:selected="${session.prepageSize == 10}">10
+											
 											<option value="20" th:selected="${session.prepageSize == 20}">20
+											
 											<option value="50" th:selected="${session.prepageSize == 50}">50
+											
 											<option value="100"
 												th:selected="${session.prepageSize == 100}">100
-												
-										</select> 
-										
-										
+										</select>
+
+
 										<button class="btn btn-default btn-sm"
 											onclick="return searchVal()">
 											<i class="entypo-search"> </i> 搜索
@@ -239,11 +242,11 @@
 														for="checkall"></label>
 												</div>
 											</th>
-											<th class="numeric" style="width:200px;">项目</th>
-											<th class="numeric" style="width:200px;">客户</th>
+											<th class="numeric" style="width: 200px;">项目</th>
+											<th class="numeric" style="width: 200px;">客户</th>
 											<th class="numeric">区域</th>
 											<th class="numeric">设备</th>
-											<th class="numeric" style="width:200px;">型号</th>
+											<th class="numeric" style="width: 200px;">型号</th>
 											<th class="numeric">领料人</th>
 											<th class="numeric">预出数</th>
 											<th class="numeric">实出数</th>
@@ -251,6 +254,7 @@
 											<th class="numeric" th:if="${session.pickstatus}==2">处理人</th>
 											<th class="numeric" th:if="${session.pickstatus}==1">预计取货时间</th>
 											<th class="numeric">库存状态</th>
+											<th class="numeric">备注</th>
 											<th class="numeric">操作</th>
 										</tr>
 									</thead>
@@ -282,6 +286,7 @@
 													th:text="${#dates.format(pickupApplication.pickUpTime,'yyyy-MM-dd hh:mm')}"></td>
 												<td class="numeric"
 													th:text="${pickupApplication?.status == 1?'待出库':pickupApplication?.status == 2?'已出库':'部分出库'}"></td>
+												<td class="numeric" th:id="|description_${pickupApplication?.id}|">[[${pickupApplication?.description}]]</td>
 												<td class="numeric"><shiro:hasPermission
 														name="pickUpApplication:out">
 														<button class="btn btn-primary btn-xs"
@@ -332,10 +337,10 @@
 										<div class="col-md-6">
 											<ul class="pagination pagination-split pull-right"
 												style="margin-top: 0px;">
-												
-												  <li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a                            
-                                                   th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/pickUpApplications(pageNo=1,pageSize=${session.pickpageSize},stockid=${session.stockid},modelid=${session.modelid},customerid=${session.selectcustomer},pnameid=${session.selectpname},status=${session.pickstatus},searchArea=${session.picksearchArea})}">首页</a>
-                                            </li>
+
+												<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
+													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/pickUpApplications(pageNo=1,pageSize=${session.pickpageSize},stockid=${session.stockid},modelid=${session.modelid},customerid=${session.selectcustomer},pnameid=${session.selectpname},status=${session.pickstatus},searchArea=${session.picksearchArea})}">首页</a>
+												</li>
 												<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
 													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/pickUpApplications(pageNo=${pageList.upPage},pageSize=${session.pickpageSize},stockid=${session.stockid},modelid=${session.modelid},customerid=${session.selectcustomer},pnameid=${session.selectpname},status=${session.pickstatus},searchArea=${session.picksearchArea})}">上一页</a>
 												</li>
@@ -348,11 +353,10 @@
 													<a
 													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/pickUpApplications(pageNo=${pageList.nextPage},pageSize=${session.pickpageSize},stockid=${session.stockid},modelid=${session.modelid},customerid=${session.selectcustomer},pnameid=${session.selectpname},status=${session.pickstatus},searchArea=${session.picksearchArea})}">下一页</a>
 												</li>
-											  <li><input class="form-control" id="searchN" style="width: 60px;display: inline-block;"  type="number" placeholder=""  />
-											  
-											  <a href="javascript:void(0);" style="float:right;"  onclick=" topage()" >跳转</a>
-											  
-                                            </li>
+												<li><input class="form-control" id="searchN"
+													style="width: 60px; display: inline-block;" type="number"
+													placeholder="" /> <a href="javascript:void(0);"
+													style="float: right;" onclick=" topage()">跳转</a></li>
 												<li
 													th:class="${pageList.pageNo eq pageList.totalPage || pageList.totalPage == 0}?disabled:''">
 													<a
@@ -381,7 +385,7 @@
 		<div th:replace="public/public::myModal"></div>
 		<div th:replace="admin/pickUpApplication/batch::mybatch"></div>
 		<div th:replace="admin/pickUpApplication/batchAdd::mybatchAdd"></div>
-
+			<div th:replace="admin/pickUpApplication/batchedit::edit"></div>
 	</div>
 	<!--  END OF PAPER WRAP -->
 	<!-- 右侧隐藏菜单start -->
@@ -400,15 +404,14 @@
 		type="text/javascript"></script>
 	<script type="text/javascript"
 		th:src="@{/plugs/prettyfile/bootstrap-prettyfile.js}"></script>
-<script th:src="@{/assets/js/select/bootstrap-select.js}"
-        type="text/javascript"></script>
+	<script th:src="@{/assets/js/select/bootstrap-select.js}"
+		type="text/javascript"></script>
 
-<script type="text/javascript" th:inline="javascript">
+	<script type="text/javascript" th:inline="javascript">
 
 /* <![CDATA[ */
 function topage(){
 	
-alert(123)
    
 var searchNValue = $("#searchN").val(); // 读取input的值
 

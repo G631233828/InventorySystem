@@ -347,6 +347,98 @@ $.ajax({
 }
 
 
+function getitem(o) {
+
+	$("#_"+o).val('')
+	$("#"+o).toggle();
+
+}
+
+
+function batchedit() {
+
+	var a = $("input[name='ids']:checked").length;
+	if (a == 0) {
+		swal({
+			type: "warning",
+			title: "",
+			text: "批量修改库存统计信息至少选择一项!!",
+		});
+
+	} else {
+
+		$("#editForm").modal('show');
+
+		var batchids = "";
+		var id = $("input[name='ids']:checked");
+		var str = "";
+		$(id).each(function() {
+			str += this.value + ",";
+		});
+		if (str != "") {
+			batchids = str.substring(0, str.length - 1);
+		}
+		$("#stockid").val(batchids);
+	}
+
+}
+
+
+
+
+function batchEditForm() {
+	var a = $("input[name='item']:checked").length;
+	if (a == 0) {
+		swal({
+			type: "warning",
+			title: "",
+			text: "批量修改预库存信息至少选择一项!!",
+		});
+
+	}
+	 var description = 	$("#_it7").val();//备注
+	// alert(newItemNo)
+	$.ajax({
+		dataType: "json",
+		type: "POST",
+		url: getRootPath() + "/pickUpApplication/batchEdit",
+		data: $("#batchStockStatisticsForm").serialize(),
+		success: function(data) {
+			if(data.status == 200){
+				var batchids = "";
+				var id = $("input[name='ids']:checked");
+				$(id).each(function() {
+		
+					 if(description!=""){
+					 	$("#description_"+this.value).text(description);
+					}
+				});
+
+				jqueryAlert({
+					'icon': getRootPath() + '/plugs/alert/img/right.png',
+					'content': data.msg,
+					'closeTime': 2000,
+				})
+				$("#editForm").modal('hide');
+
+
+			}else{
+				jqueryAlert({
+					'icon': getRootPath() + '/plugs/alert/img/error.png',
+					'content': data.msg,
+					'closeTime': 2000,
+				})
+
+			}
+
+
+		}
+	});
+
+
+}
+
+
 
 
 

@@ -21,6 +21,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.bson.types.ObjectId;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -740,6 +741,38 @@ public class PickUpApplicationController {
 		}
 		return new BasicDataResult().build(200, "出库成功", errorMsg);
 	}
+	
+	
+	
+	
+	
+	
+	@RequestMapping(value = "/pickUpApplication/batchEdit", method = RequestMethod.POST)
+	@ResponseBody
+	public BasicDataResult batchPaymentOrderNo(HttpSession session,
+											   @RequestParam(value = "stockid", defaultValue = "") String stockid,
+											   @RequestParam(value = "description",required = false,defaultValue = "")String description
+	) {
+		List<String> array = Arrays.asList(stockid.split(","));
+		for (String id : array) {
+			PickUpApplication pickUpApplication = this.pickUpApplicationService.findOneById(id, PickUpApplication.class);
+			
+			
+			PickUpApplication p = new PickUpApplication();
+			BeanUtils.copyProperties(pickUpApplication, p);
+			p.setDescription(description);
+			this.pickUpApplicationService.saveOrUpdate(p);
+		}
+		
+		return new BasicDataResult(200, "修改数据成功", "");
+
+	}
+	
+	
+	
+	
+	
+	
 	
 	
 	
