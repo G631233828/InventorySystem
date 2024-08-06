@@ -214,7 +214,7 @@
 											<div class="form-group">
 												<label class="col-lg-1 control-label">计量单位：</label>
 												<div class="col-lg-6">
-													<select id="unit" name="unit.id" class="form-control">
+													<select id="unit" name="unit.id" class="form-control" required="required"> 
 														<option value="">---请选择设备计量单位(选填)---</option>
 														<option
 															th:selected="${stock!=null && stock?.unit !=null}?${stock?.unit?.id}==${unit?.id}"

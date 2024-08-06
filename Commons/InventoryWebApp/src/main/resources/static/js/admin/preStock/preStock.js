@@ -9,6 +9,9 @@ $().ready(function() {
 			name : {
 				required : true,
 			},
+			"unit.id" : {
+				required : true,
+			},
 			// entryName:{
 			// 	required : true,
 			// 	remote : {
@@ -51,6 +54,9 @@ $().ready(function() {
 				required : a + "请输入设备名称",
 			},
 			// entryName : {
+			"unit.id":{
+				required :a+"请选择计量单位",
+			},
 			// 	required : a + "请输入项目名称",
 			// 	remote : a + "不存在该项目，请先添加！"
 			// },
