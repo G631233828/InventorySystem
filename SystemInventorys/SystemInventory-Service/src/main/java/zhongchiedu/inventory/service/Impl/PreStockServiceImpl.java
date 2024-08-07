@@ -474,9 +474,14 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 				if (Common.isNotEmpty(unitName)) {
 					// 根据单位查找
 					unit = this.unitService.findByName(unitName);
-
+					if(Common.isEmpty(unit)) {
+						error += "<span class='entypo-attention'></span>导入文件过程中，第<b>&nbsp&nbsp" + (i + 1)
+								+ "行</b>出现不存在的单位，请先去单位管理中添加！&nbsp&nbsp</br>";
+						continue;
+					}
+					importPreStock.setUnit(unit);
 				}
-				importPreStock.setUnit(unit);
+			
 				String supplierName = resultexcel[i][j + 5].trim();// 供应商名称
 
 				if (Common.isEmpty(supplierName)) {
