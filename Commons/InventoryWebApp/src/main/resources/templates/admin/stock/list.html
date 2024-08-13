@@ -234,8 +234,8 @@
                                 <div class="col-sm-7 form-inline">
                                     <select class="filter-status form-control" id="stockType">
                                         <option value="1" th:selected="${session.stockType == 1}">有库存
-                                        <option value="2" th:selected="${session.pageSize == 2}">无库存
-                                          <option value="3" th:selected="${session.pageSize == 3}">所有
+                                        <option value="2" th:selected="${session.stockType == 2}">无库存
+                                          <option value="3" th:selected="${session.stockType == 3}">所有
                                     </select>
                                      <select class="filter-status form-control" id="pageSize">
                                         <option value="10" th:selected="${session.pageSize == 10}">10

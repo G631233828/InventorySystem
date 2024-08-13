@@ -654,11 +654,13 @@ function pageS(pageNo, size, totalpage, Bo) {
 	var supplier = returnEmpty(bo.supplier);
 	var entryName = returnEmpty(bo.entryName);
 	var itemNo = returnEmpty(bo.itemNo);
+	var stockType=returnEmpty(bo.stockType);
 	// var purchaseInvoiceNo=returnEmpty(bo.purchaseInvoiceNo);
 	// var purchaseInvoiceDate=returnEmpty(bo.purchaseInvoiceDate);
 	// var paymentOrderNo=returnEmpty(bo.paymentOrderNo);
 	window.location.href = "stocks?pageNo=" + pageNo + "&pageSize=" + size + "&ssC=" + ssC
-		+ "&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo + "&searchArea=" + area;
+		+ "&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo + "&searchArea=" + area
+	+"&stockType=" + stockType;
 }
 
 
