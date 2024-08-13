@@ -1663,7 +1663,11 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			// 期初库存+入库-出库
 			BigDecimal qmnum = qcnum.add(e).subtract(d);
 
-			BigDecimal qmzj = dj.multiply(qcnum).setScale(2, BigDecimal.ROUND_HALF_UP);
+			//期末总价  期初库存+入库数量-出库数量
+	
+			BigDecimal qmzj = dj.multiply(qmnum).setScale(2, BigDecimal.ROUND_HALF_UP);
+			
+			
 //			BigDecimal qmzj =zj.add(a).subtract(outpriceall);//期末总价
 //			BigDecimal qmdj = new BigDecimal(0);
 //			if(qmnum>0) {

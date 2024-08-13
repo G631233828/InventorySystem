@@ -746,12 +746,12 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 	@Override
 	public Stock findByName(String areaName, String name, String model, String entryName) {
-		Area area = this.areaService.findByName(areaName);
+		//Area area = this.areaService.findByName(areaName);
 
 		Query query = new Query();
-		if (Common.isNotEmpty(area.getId())) {
-			query.addCriteria(Criteria.where("area.$id").is(new ObjectId(area.getId())));
-		}
+//		if (Common.isNotEmpty(area.getId())) {
+//			query.addCriteria(Criteria.where("area.$id").is(new ObjectId(area.getId())));
+//		}
 
 		query.addCriteria(Criteria.where("name").is(name));
 		query.addCriteria(Criteria.where("model").is(Common.escapeExprSpecialWord(model)));
@@ -774,6 +774,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	 */
 	@Override
 	public Stock findByNameSupplier(String areaName, String name, String model, String supplierName) {
+		
 		// 获取areaid信息
 		Area area = this.areaService.findByName(areaName);
 		Supplier supplier = this.supplierService.findByName(supplierName);
