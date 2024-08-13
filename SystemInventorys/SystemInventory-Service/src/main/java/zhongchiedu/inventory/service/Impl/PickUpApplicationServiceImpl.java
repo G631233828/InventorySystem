@@ -408,7 +408,7 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 					pname = this.pnameService.findByNameAndItemid(projname, pitemid);
 					if (Common.isEmpty(pname)) {
 						error += "<span class='entypo-attention'></span>导入文件过程中无法找到项目名称和编号，请核实后在导入<b>&nbsp;&nbsp;"
-								+ customerName + "&nbsp;&nbsp;</b>，第<b>&nbsp&nbsp" + (i + 1)
+								+ projname + "&nbsp;&nbsp;</b>，第<b>&nbsp&nbsp" + (i + 1)
 								+ "请手动去修改该条信息！&nbsp&nbsp</b></br>";
 						continue;
 					}
