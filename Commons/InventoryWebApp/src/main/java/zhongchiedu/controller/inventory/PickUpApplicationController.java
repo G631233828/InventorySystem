@@ -11,6 +11,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -26,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -99,6 +101,9 @@ public class PickUpApplicationController {
 	private @Autowired PnameService pnameService;
 
 	private @Autowired NewCustomerService newCustomerService;
+	
+	
+	private @Autowired RedisTemplate redisTemplate;
 
 	@Value("${templateId3}")
 	private String templateId3;
@@ -120,25 +125,79 @@ public class PickUpApplicationController {
 			@RequestParam(value = "searchArea", defaultValue = "") String searchArea,
 			@ModelAttribute("errorMsg") String errorMsg) {
 
+		
+		
+//		Set<String> set = (Set<String>) this.redisTemplate.opsForValue().get("projectNames");
+//		if (Common.isNotEmpty(set)) {
+//			return set;
+//		}
+//		List<StockStatistics> findAllStockStatics = this.stockStatisticsService.findAllStockStatics();
+//		for (StockStatistics stocks : findAllStockStatics) {
+//			if (Common.isNotEmpty(stocks.getProjectName())) {
+//				projects.add(stocks.getProjectName());
+//			}
+//		}
+//		this.redisTemplate.opsForValue().set("projectNames", projects);
+		
 		Pagination<PickUpApplication> pagination = this.pickUpApplicationService.findpagination(pageNo, pageSize,
 				 searchArea, status,pnameid,customerid,stockid,modelid,publisherid);
 		
-		List<Pname> findAllName = this.pnameService.findAllName(false);
-		model.addAttribute("pnames", findAllName);
+		List<Pname> pnames = (List<Pname>) this.redisTemplate.opsForValue().get("allpname");
+		if (Common.isNotEmpty(pnames)) {
+			model.addAttribute("pnames", pnames);
+		}else {
+			List<Pname> findAllName = this.pnameService.findAllName(false);
+			model.addAttribute("pnames", findAllName);
+			this.redisTemplate.opsForValue().set("allpname", findAllName);
+			this.redisTemplate.expire("allpname", 20, TimeUnit.MINUTES);
+		}
+		
+		List<NewCustomer> customers = (List<NewCustomer>) this.redisTemplate.opsForValue().get("allcustomer");
+		if (Common.isNotEmpty(customers)) {
+			model.addAttribute("customers", customers);
+		}else {
+			// 获取到所有客户
+			List<NewCustomer> findAllCustomer = this.newCustomerService.findAllCustomer(false);
+			model.addAttribute("customers", findAllCustomer);
+			this.redisTemplate.opsForValue().set("allcustomer", findAllCustomer);
+			this.redisTemplate.expire("allcustomer", 20, TimeUnit.MINUTES);
+		}
+		
+		
+		
 	
-		// 获取到所有客户
-		List<NewCustomer> findAllCustomer = this.newCustomerService.findAllCustomer(false);
-		model.addAttribute("customers", findAllCustomer);
-
+	
 		Query query=new Query();
 		query.addCriteria(Criteria.where("cardId").is("publisher"));
 		List<User> users=userService.find(query,User.class);
 		model.addAttribute("publishers",users);
 		
-		List<PickUpApplication> findAllPickUpApplication = this.pickUpApplicationService.findAllPickUpApplication(false, null);
+//		List<PickUpApplication> findAllPickUpApplication = this.pickUpApplicationService.findAllPickUpApplication(false, null);
+//		
+//		Set<Stock> stocklists = findAllPickUpApplication.stream().map(PickUpApplication::getStock).collect(Collectors.toCollection(LinkedHashSet::new));
+//		model.addAttribute("stocklists", stocklists);
 		
-		Set<Stock> stocklists = findAllPickUpApplication.stream().map(PickUpApplication::getStock).collect(Collectors.toCollection(LinkedHashSet::new));
-		model.addAttribute("stocklists", stocklists);
+		
+		Set<Stock> redisstock = (Set<Stock>) this.redisTemplate.opsForValue().get("stocklists");
+		if (Common.isNotEmpty(redisstock)) {
+			model.addAttribute("stocklists", redisstock);
+		}else {
+			// 获取到所有客户
+			List<PickUpApplication> findAllPickUpApplication = this.pickUpApplicationService.findAllPickUpApplication(false, null);
+			
+			Set<Stock> stocklists = findAllPickUpApplication.stream().map(PickUpApplication::getStock).collect(Collectors.toCollection(LinkedHashSet::new));
+			model.addAttribute("stocklists", stocklists);
+			this.redisTemplate.opsForValue().set("stocklists", stocklists);
+			this.redisTemplate.expire("stocklists", 20, TimeUnit.MINUTES);
+		}
+		
+		
+		
+		
+		
+		
+		
+		
 		
 //		Collection<Stock> stocks = findAllPickUpApplication.stream()
 //	                .map(PickUpApplication::getStock) // 获取每个PickUpApplication中的Stock对象
@@ -153,6 +212,13 @@ public class PickUpApplicationController {
 
 		List<Area> areas = this.areaService.findAllArea(false);
 		model.addAttribute("areas", areas);
+		
+		
+		
+		
+		
+		
+		
 		model.addAttribute("errorImport", errorImport);
 		model.addAttribute("pickpageSize", pageSize);
 		model.addAttribute("picksearchArea", searchArea);
