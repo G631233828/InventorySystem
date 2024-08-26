@@ -1146,6 +1146,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		// 字段绑定
 		if (Common.isNotEmpty(preStock)) {
 			stockStatistics.setUser(preStock.getHandler());// 操作人
+			stockStatistics.setPublisher(preStock.getPublisher());
 			stockStatistics.setPreStock(true);// 预入库方式入库
 			stockStatistics.setInOrOut(true);
 			stockStatistics.setPreStockId(preStock.getId());
@@ -1285,6 +1286,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		// 字段绑定
 		if (Common.isNotEmpty(pickUpApplication)) {
 			stockStatistics.setUser(pickUpApplication.getHandler());// 操作人
+			stockStatistics.setPublisher(pickUpApplication.getPublisher());
 			stockStatistics.setInOrOut(false);
 			stockStatistics.setNum(pickUpApplication.getNum());// 设置实际出库数量
 			stockStatistics.setProjectName(pickUpApplication.getProjectName());

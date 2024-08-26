@@ -128,5 +128,8 @@ public class StockStatistics extends GeneralBean<StockStatistics> {
 	private Boolean confirm = false; //是否确认
 	
 	private boolean byRevoke = false;//通过撤销来出入库
+	
+	@DBRef
+	private User publisher;//发布人
 
 }
