@@ -28,6 +28,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
@@ -1275,10 +1276,35 @@ public class Common {
 	    }
 
 	 
+	    public static boolean isDateTimeInCurrentMonth(String dateTimeStr) {
+	        // 定义日期时间格式
+	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+	        
+	        // 解析字符串为LocalDateTime
+	        LocalDateTime dateTime = LocalDateTime.parse(dateTimeStr, formatter);
+	        
+	        // 获取当前日期的YearMonth
+	        YearMonth currentYearMonth = YearMonth.now();
+	        
+	        // 将LocalDateTime转换为LocalDate，然后获取其YearMonth
+	        LocalDate date = dateTime.toLocalDate();
+	        YearMonth dateTimeYearMonth = YearMonth.from(date);
+	        
+	        // 比较两个YearMonth是否相同
+	        return currentYearMonth.equals(dateTimeYearMonth);
+	    } 
+	    
+	    
+	    
+	    
+	    
 	
 	
 
 	public static void main(String[] args) throws Exception {
+		
+		String date = "2024-11-13 23:59:59";
+	System.out.println(isDateTimeInCurrentMonth(date));
 //		List<String> file = new ArrayList<String>();
 //		file.add("E:/fescar-server-0.4.2.zip");
 //		file.add("E:/内网穿透工具.7z");
@@ -1325,8 +1351,8 @@ public class Common {
 //        // 输出结果
 //        System.out.println("上个月最后一天的日期字符串: " + lastDayOfPreviousMonthString);
 		
-		boolean integer = isInteger("2.01f");
-		System.out.println(integer);
+//		boolean integer = isInteger("2.01f");
+//		System.out.println(integer);
 
 		
 	}

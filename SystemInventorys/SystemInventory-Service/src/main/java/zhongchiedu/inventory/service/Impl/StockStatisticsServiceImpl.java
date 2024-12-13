@@ -1486,11 +1486,11 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	public Workbook newExport2(HttpServletRequest request, RequestBo requestBo) {
 		// Query query=newQueryByRequestBo(requestBo);
 		Query query = new Query();
-
+		String end= "";
 		if (Common.isNotEmpty(requestBo.getStart()) && Common.isNotEmpty(requestBo.getEnd())) {
 
-			String end = requestBo.getEnd();
-			end = end + " 23:59:59";
+//			String end = requestBo.getEnd();
+			end = requestBo.getEnd() + " 23:59:59";
 
 			Criteria ca = new Criteria();
 			ca.orOperator(Criteria.where("storageTime").gte(requestBo.getStart()).lte(end),
@@ -1518,17 +1518,44 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		Map<String, List<StockStatistics>> map = new HashMap<String, List<StockStatistics>>();
 
 		// 获取到所有库存的设备信息
-		List<Stock> findAllStock = this.stockService.findAllStock();
+		//判断查询的是当月还是前面月份的 如果是当月的直接查询所有库存，如果是查询之前月份的直接调用查询月末记录数据
+		List<Stock> findAllStock = new ArrayList<Stock>();
+		if(Common.isDateTimeInCurrentMonth(end)) {
+			findAllStock = this.stockService.findAllStock();
+			List<StockStatistics> list2 = findAllStock.stream().map(stock -> {
+				StockStatistics st = new StockStatistics();
+				st.setNewNum(0);
+				st.setNum(0);
+				st.setStock(stock);
+				return st;
+			}).collect(Collectors.toList());
 
-		List<StockStatistics> list2 = findAllStock.stream().map(stock -> {
-			StockStatistics st = new StockStatistics();
-			st.setNewNum(0);
-			st.setNum(0);
-			st.setStock(stock);
-			return st;
-		}).collect(Collectors.toList());
+			list.addAll(list2);
+		}else {
+			findAllStock = this.stockService.findAllStock();
+			List<StockStatistics> list2 = findMonthEndStatisticsByDate.stream().map(stock -> {
+				StockStatistics st = new StockStatistics();
+				st.setNewNum(stock.getMonthEndStockNum());
+				st.setNum(0);
+				st.setStock(stock.getStock());
+				return st;
+			}).collect(Collectors.toList());
 
-		list.addAll(list2);
+			list.addAll(list2);
+		}
+		
+		
+		
+		
+//		List<StockStatistics> list2 = findAllStock.stream().map(stock -> {
+//			StockStatistics st = new StockStatistics();
+//			st.setNewNum(0);
+//			st.setNum(0);
+//			st.setStock(stock);
+//			return st;
+//		}).collect(Collectors.toList());
+//
+//		list.addAll(list2);
 
 		// 在库存统计中获取遍历所有设备
 		for (StockStatistics st : list) {
