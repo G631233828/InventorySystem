@@ -643,7 +643,7 @@
 																<button class="btn btn-primary btn-xs btcancle"
 																	id="revoke" th:id="${stockStatistics?.id}"
 																	th:name="|cx_${stockStatistics?.id}|"
-																	th:onclick="${stockStatistics.storageTime!=null}?|return revokein('${stockStatistics?.id}')|:|return revoke('${stockStatistics?.id}')|">
+																	th:onclick="${stockStatistics.storageTime!=null}?|return revokein('${stockStatistics?.id}','${stockStatistics.storageTime}')|:|return revoke('${stockStatistics?.id}','${stockStatistics?.depotTime}')|">
 																	<i class="fa fa-edit"> </i>撤销
 																</button>
 															</shiro:hasPermission>

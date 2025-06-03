@@ -133,7 +133,7 @@ function searchVal() {
 	 * "", text : "查询内容不能为空!!", }); return ; }
 	 */
 	window.location.href = "stockStatisticss?pageSize=" + pageSize + "&search="
-		+ search + "&start=" + start + "&end=" + end + "&type=" + type + "&searchArea=" + searchArea + "&searchAgent=" + searchAgent + "&revoke=" + revoke + "&confirm=" + confirm + "&ssC=" + ssC+ "&pname=" + pnames;
+		+ search + "&start=" + start + "&end=" + end + "&type=" + type + "&searchArea=" + searchArea + "&searchAgent=" + searchAgent + "&revoke=" + revoke + "&confirm=" + confirm + "&ssC=" + ssC + "&pname=" + pnames;
 }
 // function searchSize() {
 //	
@@ -223,8 +223,8 @@ function toJD() {
 	})
 	window.location.href = "stockStatistics/toJD?&searchArea=" + area + "&type="
 		+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC=" + ssC
-		+ "&name=" + name + "&model=" + model + "&supplier=" + supplier +  + "&itemNo=" + itemNo +
-		"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo=" + paymentOrderNo+ "&pname=" + pnames;
+		+ "&name=" + name + "&model=" + model + "&supplier=" + supplier + + "&itemNo=" + itemNo +
+		"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo=" + paymentOrderNo + "&pname=" + pnames;
 
 }
 
@@ -288,9 +288,9 @@ function toExportNew() {
 	})
 	window.location.href = "stockStatistics/exportNew?&searchArea=" + area + "&type="
 		+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC=" + ssC
-		+ "&name=" + name + "&model=" + model + "&supplier=" + supplier +  + "&itemNo=" + itemNo +
+		+ "&name=" + name + "&model=" + model + "&supplier=" + supplier + + "&itemNo=" + itemNo +
 		"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo=" + paymentOrderNo
-		+ "&customer=" + customer + "&projectName=" + projectName+ "&pname=" + pnames;
+		+ "&customer=" + customer + "&projectName=" + projectName + "&pname=" + pnames;
 
 }
 
@@ -376,8 +376,27 @@ function outboundOrder(o) {
 //}
 
 
+function isCrossMonth(targetDate) {
+	const now = new Date(); // 当前日期
+	const target = new Date(targetDate); // 目标日期
 
-function revoke(o) {
+	const yearDiff = now.getFullYear() - target.getFullYear();
+	const monthDiff = now.getMonth() - target.getMonth();
+
+	// 年份不同，或月份差绝对值≥1
+	return yearDiff !== 0 || Math.abs(monthDiff) >= 1;
+}
+
+function revoke(o, o2) {
+
+	if (isCrossMonth(o2)) {
+		jqueryAlert({
+			'content': '只能撤销当月数据'
+		})
+		return;
+	}
+
+
 	var M = {
 
 	}
@@ -397,9 +416,9 @@ function revoke(o) {
 					dataType: 'json',
 					success: function(data) {
 						if (data.status == 200) {
-							$("#revokeNum_"+o).text(data.data.revokeNum);
-							$("#newNum_"+o).text(data.data.newNum);
-							$("#outNum_"+o).text(data.data.num);
+							$("#revokeNum_" + o).text(data.data.revokeNum);
+							$("#newNum_" + o).text(data.data.newNum);
+							$("#outNum_" + o).text(data.data.num);
 							$("#revoke" + o).css("color", "red");
 							$("#revoke" + o).text("已撤销");
 							$("#outbound" + o).hide();
@@ -438,18 +457,18 @@ function revoke(o) {
 								$.ajax({
 									type: 'GET',
 									url: 'stockStatistics/revoke',
-									data: "id=" + o+"&num="+num,
+									data: "id=" + o + "&num=" + num,
 									dataType: 'json',
 									success: function(data) {
 										if (data.status == 200) {
-												$("#revokeNum_"+o).text(data.data.revokeNum);
-												$("#newNum_"+o).text(data.data.newNum);
-												$("#outNum_"+o).text(data.data.num);
-												if(data.data.num<=0){
+											$("#revokeNum_" + o).text(data.data.revokeNum);
+											$("#newNum_" + o).text(data.data.newNum);
+											$("#outNum_" + o).text(data.data.num);
+											if (data.data.num <= 0) {
 												$("#confirm" + o).css("display", "none");
 												$("#" + o).css("display", "none");
-												}
-												
+											}
+
 											$("#revoke" + o).css("color", "red");
 											$("#revoke" + o).text("已撤销");
 											$("#outbound" + o).hide();
@@ -462,7 +481,7 @@ function revoke(o) {
 												'content': data.msg
 											})
 										} else {
-										//	M.dialog5.close();
+											//	M.dialog5.close();
 											//$(".alert-content input").remove()
 											jqueryAlert({
 												'content': data.msg
@@ -499,7 +518,15 @@ function revoke(o) {
 
 
 //撤销入库
-function revokein(o) {
+function revokein(o,o2) {
+
+	if (isCrossMonth(o2)) {
+		jqueryAlert({
+			'content': '只能撤销当月数据'
+		})
+		return;
+	}
+
 
 	var M = {
 
@@ -541,7 +568,7 @@ function revokein(o) {
 
 
 			},
-			
+
 			'取消': function() {
 				M.dialog3.close();
 			},
@@ -788,7 +815,7 @@ function confirms() {
 									$("#qrcode" + o).hide();
 									$("#ckcode" + o).hide();
 									var a = 'cx_' + o;
-									var b =  'cwx_' + o;
+									var b = 'cwx_' + o;
 									$("button[name=" + a + "]").hide();
 									$("button[name=" + b + "]").hide();
 									$("#confirm" + o).addClass("danger")
@@ -858,9 +885,9 @@ function searchbyN(size, totalpage, Bo) {
 		// var userId=returnEmpty(bo.userId);
 		window.location.href = "stockStatisticss?pageNo=" + N + "&pageSize=" + size + "&searchArea=" + area + "&type="
 			+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC=" + ssC
-			+ "&name=" + name + "&model=" + model + "&supplier=" + supplier +  + "&itemNo=" + itemNo +
+			+ "&name=" + name + "&model=" + model + "&supplier=" + supplier + + "&itemNo=" + itemNo +
 			"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo=" + paymentOrderNo
-			+ "&customer=" + customer + "&projectName=" + projectName+ "&pname=" + pnames;
+			+ "&customer=" + customer + "&projectName=" + projectName + "&pname=" + pnames;
 
 	}
 
@@ -883,7 +910,7 @@ function pageS(pageNo, size, totalpage, Bo) {
 	//var entryName = returnEmpty(bo.entryName);
 	var itemNo = returnEmpty(bo.itemNo);
 	var purchaseInvoiceNo = returnEmpty(bo.purchaseInvoiceNo);
-	var purchaseInvoiceDate =  returnEmpty(bo.purchaseInvoiceDate);
+	var purchaseInvoiceDate = returnEmpty(bo.purchaseInvoiceDate);
 	var paymentOrderNo = returnEmpty(bo.paymentOrderNo);
 	var type = returnEmpty(bo.type);
 	var start = returnEmpty(bo.start);
@@ -903,7 +930,7 @@ function pageS(pageNo, size, totalpage, Bo) {
 	// 	"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo=" + paymentOrderNo
 	// 	+ "&customer=" + customer + "&projectName=" + projectName + "&sailesInvoiceNo=" + sailesInvoiceNo+ "&pname=" + pname;
 	var url = `stockStatisticss?pageNo=${encodeURIComponent(pageNo)}&pageSize=${encodeURIComponent(size)}&searchArea=${encodeURIComponent(area)}&type=${encodeURIComponent(type)}&start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}&revoke=${encodeURIComponent(revoke)}&confirm=${encodeURIComponent(confirm)}&userId=&ssC=${encodeURIComponent(ssC)}&name=${encodeURIComponent(name)}&model=${encodeURIComponent(model)}&supplier=${encodeURIComponent(supplier)}&itemNo=${encodeURIComponent(itemNo)}&purchaseInvoiceNo=${encodeURIComponent(purchaseInvoiceNo)}&purchaseInvoiceDate=${encodeURIComponent(purchaseInvoiceDate)}&paymentOrderNo=${encodeURIComponent(paymentOrderNo)}&customer=${encodeURIComponent(customer)}&projectName=${encodeURIComponent(projectName)}&sailesInvoiceNo=${encodeURIComponent(sailesInvoiceNo)}&pname=${encodeURIComponent(pname)}`;
-	window.location.href = url ;
+	window.location.href = url;
 }
 
 function searchBo() {
@@ -929,7 +956,7 @@ function searchBo() {
 	var pnames = $("#pnames").val();
 	var mysign = $("#mysign").val();
 	var othersign = $("#myothersign").val();
-	var accepter=$('[name="accepter"]').val();
+	var accepter = $('[name="accepter"]').val();
 	// var userId=$('[name="userId"]').val();
 	/*
 	 * if (search == null || search == "") { swal({ type : "warning", title : "",
@@ -939,8 +966,8 @@ function searchBo() {
 		+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC=" + ssC
 		+ "&name=" + name + "&model=" + model + "&supplier=" + supplier + "&itemNo=" + itemNo +
 		"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo=" + paymentOrderNo
-		+ "&customer=" + customer  + "&sailesInvoiceNo=" + sailesInvoiceNo+ "&pname=" + pnames +"&mysign=" +mysign + "&othersign=" +othersign + "&accepter=" +accepter;
-//  ++ "&projectName=" + projectName
+		+ "&customer=" + customer + "&sailesInvoiceNo=" + sailesInvoiceNo + "&pname=" + pnames + "&mysign=" + mysign + "&othersign=" + othersign + "&accepter=" + accepter;
+	//  ++ "&projectName=" + projectName
 }
 
 
@@ -965,7 +992,7 @@ function projectStockStatistics() {
 		'content': "正在导出请稍等...",
 		'closeTime': 5000,
 	})
-	window.location.href = "stockStatistics/exportProjectStockStatistics?"+"start=" + start + "&end=" + end ;
+	window.location.href = "stockStatistics/exportProjectStockStatistics?" + "start=" + start + "&end=" + end;
 
 }
 
