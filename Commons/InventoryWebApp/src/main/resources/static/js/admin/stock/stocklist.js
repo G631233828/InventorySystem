@@ -715,6 +715,33 @@ function dosubmit(e) {
 }
 
 
+function editStocks() {
+	var a = $("input[name='ids']:checked").length;
+	if (a == 0) {
+		swal({
+			type: "warning",
+			title: "",
+			text: "批量修改库存信息至少选择一项!!",
+		});
+
+	} else {
+
+		$("#editStock").modal('show');
+
+		var batchids = "";
+		var id = $("input[name='ids']:checked");
+		var str = "";
+		$(id).each(function() {
+			str += this.value + ",";
+		});
+		if (str != "") {
+			batchids = str.substring(0, str.length - 1);
+		}
+		$("#editstockid").val(batchids);
+	}
+
+}
+
 
 
 

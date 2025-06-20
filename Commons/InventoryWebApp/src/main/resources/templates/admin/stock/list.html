@@ -88,6 +88,10 @@
                                                 onclick="return toeditPage('','stock')">
                                             <i class="fa fa-edit"> </i>编辑
                                         </button>
+                                        <button class="btn btn-primary btn-sm"
+										onclick="return editStocks()">
+										<i class="entypo-search"> </i> 批量编辑
+									</button>
                                     </shiro:hasPermission>
 
                                     <shiro:hasPermission name="stock:delete">
@@ -358,7 +362,7 @@
                                                         th:for="${stock.id}"></label>
                                                 </div>
                                             </td>
-                                            <td class="numeric area" id="area"
+                                            <td class="numeric area" th:id="|area_${stock?.id}|"
                                                 th:style="${#lists.contains(listColums,'area')}?'':'display:none;'">
                                                 [[${stock?.area?.name}]]
                                             </td>
@@ -655,6 +659,7 @@
     <div th:replace="admin/stock/out::mystockStatistics2"></div>
     <div th:replace="admin/stock/batchout::mystockbatchout"></div>
     <div th:replace="admin/stock/batchpaymentorderno::myPaymentOrderNo"></div>
+    <div th:replace="admin/stock/batcheditstock::editStock"></div>
 </div>
 <!-- 引入stocklist.js -->
 <script type="text/javascript" th:inline="javascript"
@@ -667,6 +672,8 @@
         th:src="@{/js/admin/stock/batchout.js}"></script>
 <script type="text/javascript" th:inline="javascript"
         th:src="@{/js/admin/stock/batchpaymentorderno.js}"></script>
+<script type="text/javascript" th:inline="javascript"
+		th:src="@{/js/admin/stock/batcheditstock.js}"></script>
 <!--  END OF PAPER WRAP -->
 <script type="text/javascript"
         th:src="@{/plugs/prettyfile/bootstrap-prettyfile.js}"></script>

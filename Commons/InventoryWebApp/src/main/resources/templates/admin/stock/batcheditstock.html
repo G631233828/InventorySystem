@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<!-- saved from url=(0052)http://getbootstrap.com/docs/4.0/examples/dashboard/ -->
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<body>
+
+
+
+	<!-- 信息提示 -->
+	<div aria-labelledby="myLargeModalLabel" role="dialog" tabindex="-1"
+		class="modal fade bs-example-modal-lg" style="display: none;"
+		th:fragment="editStock" id="editStock">
+
+		<div class="modal-dialog modal-lg"
+			style="margin-top: 10%; width: 700px;">
+			<div class="modal-content">
+
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">×</button>
+					<h4>批量修改库存信息</h4>
+				</div>
+				<div class="content-wrap">
+
+					<div class="body-nest" id="Blank_Page_Content">
+						<div class="row">
+							<!-- edit form column -->
+							<div class="col-md-12 personal-info">
+
+								<form class="form-horizontal" enctype="multipart/form-data"
+									id="batchStockForm">
+									
+
+									
+											<div class="form-group" id="areaform">
+												<label class="col-lg-2 control-label">区域：</label>
+												<div class="col-lg-6">
+
+													<select id="batcharea" name="area.id" class="form-control"
+														required="required" onchange="return getgoodsStorages()">
+														<option value="">---请选择区域---</option>
+														<option
+															th:selected="${stock!=null && stock?.area !=null}?${stock?.area?.id}==${area?.id}"
+															th:each="area:${areas}" th:value="${area?.id}"
+															th:text="${area?.name}"></option>
+													</select>
+												</div>
+											</div>
+								
+									
+									
+									<input name="editstockid" type="hidden" value="" id="editstockid">
+									
+									<div class="form-group">
+										<label class="col-lg-12 control-label"></label>
+										<div class="col-md-10">
+										</div>
+										
+										<div class="col-md-2">
+											<button type="button" onclick="return batchEditStockForm()" class="btn btn-success">修改</button>
+
+										</div>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+
+
+				</div>
+
+
+
+			</div>
+
+		</div>
+	</div>
+</body>
+
+</html>

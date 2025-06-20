@@ -820,5 +820,35 @@ public class StockController {
 	
 		return new BasicDataResult(400, "修改数据失败", "");
 	}
+	
+	@RequestMapping(value = "/stock/batchEditStock", method = RequestMethod.POST)
+	@ResponseBody
+	public BasicDataResult batchEditStock(HttpSession session,
+			@RequestParam(value = "", defaultValue = "") String editstockid,
+		Stock stock) {
+		
+		try {
+			Arrays.stream( editstockid.split(",")).collect(Collectors.toList()).forEach(id->{
+				Stock getstock = stockService.findOneById(id,Stock.class);
+				getstock.setArea(stock.getArea());
+				this.stockService.save(getstock);
+			});
+		}catch (Exception e) {
+			return new BasicDataResult(400, "修改数据失败","");
+		}
+		 
+		 
+		return new BasicDataResult(200, "修改数据成功", "");
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 }
