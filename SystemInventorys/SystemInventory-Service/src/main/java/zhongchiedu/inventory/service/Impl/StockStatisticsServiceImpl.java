@@ -1161,7 +1161,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		// 通过项目id 客户id 领料人来获取数据 new
 		// 根据单号获取所有出库数据
 		List<StockStatistics> stockStatisticsList = this.findStockStatisticsToCreateQrcode(stockStatistics.getPname(),
-				stockStatistics.getNewCustomer(), stockStatistics.getAccepter());
+				stockStatistics.getNewCustomer(), stockStatistics.getAccepter(),stockStatistics.getDepotTime());
 
 		for (int i = 0; i < stockStatisticsList.size(); i++) {
 			stock = new HashMap<>();
@@ -1350,7 +1350,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		// 通过出库统计中 项目id 客户id 领料人 来获取所有出库统计作为一个出库二维码
 
 		List<StockStatistics> sts = this.findStockStatisticsToCreateQrcode(stockStatistics.getPname(),
-				stockStatistics.getNewCustomer(), stockStatistics.getAccepter());
+				stockStatistics.getNewCustomer(), stockStatistics.getAccepter(),null);
 
 		sts.forEach(o -> {
 			this.createStockStatisticsQrCode(o.getId());
@@ -1368,7 +1368,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 //		String outboundOrder = stockStatistics.getOutboundOrder();
 //		List<StockStatistics> st = this.findByoutboundOrder(outboundOrder);
 		List<StockStatistics> findStockStatisticsToCreateQrcode = this.findStockStatisticsToCreateQrcode(st.getPname(),
-				st.getNewCustomer(), st.getAccepter());
+				st.getNewCustomer(), st.getAccepter(),null);
 
 		Map<Object, Object> map = new HashMap<>();
 		map.put("personInCharge", Common.isNotEmpty(st.getPname()) ? st.getPname().getPm() : "");
@@ -2014,7 +2014,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	 */
 	@Override
 	public List<StockStatistics> findStockStatisticsToCreateQrcode(Pname pname, NewCustomer newcustomer,
-			String accepter) {
+			String accepter,String depotTime) {
 
 		Query query = new Query();
 		query.addCriteria(Criteria.where("revoke").is(false));
@@ -2028,6 +2028,18 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		}
 		if (Common.isNotEmpty(accepter)) {
 			query.addCriteria(Criteria.where("accepter").is(accepter));
+		}
+		if(Common.isNotEmpty(depotTime)) {
+			try {
+				String dateYMD = Common.getDateYMD(depotTime);
+				query.addCriteria(Criteria.where("depotTime").regex(dateYMD));
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			
+			
 		}
 
 		return this.find(query, StockStatistics.class);

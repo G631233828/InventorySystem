@@ -60,7 +60,7 @@ public interface StockStatisticsService extends GeneralService<StockStatistics> 
 	public  void updateStockStatistics(String ids,Double inprice,String purchaseInvoiceNo,String receiptNo,String paymentOrderNo,String sailesInvoiceNo,
 									   String sailesInvoiceDate,User user,String purchaseInvoiceDate,Double sailPrice,String newItemNo,String description);
 	
-	public List<StockStatistics> findStockStatisticsToCreateQrcode(Pname pname,NewCustomer newcustomer,String accepter);
+	public List<StockStatistics> findStockStatisticsToCreateQrcode(Pname pname,NewCustomer newcustomer,String accepter,String depotTime);
 	
 	
 }

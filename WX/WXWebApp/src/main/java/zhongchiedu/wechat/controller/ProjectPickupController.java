@@ -168,7 +168,7 @@ public class ProjectPickupController {
 			//old 通过订单号查询
 //			List<StockStatistics> list = this.stockStatisticsService.findByoutboundOrder(stock.getOutboundOrder());
 
-			List<StockStatistics> list = this.stockStatisticsService.findStockStatisticsToCreateQrcode(stock.getPname(), stock.getNewCustomer(), stock.getAccepter());
+			List<StockStatistics> list = this.stockStatisticsService.findStockStatisticsToCreateQrcode(stock.getPname(), stock.getNewCustomer(), stock.getAccepter(),null);
 			model.addAttribute("list", list);
 			
 			path="general/batchOutSuccess";
@@ -177,7 +177,7 @@ public class ProjectPickupController {
 		if(Common.isNotEmpty(stock.getMysign())) {
 			model.addAttribute("sign",stock.getMysign());
 		}
-		List<StockStatistics> list = this.stockStatisticsService.findStockStatisticsToCreateQrcode(stock.getPname(), stock.getNewCustomer(), stock.getAccepter());
+		List<StockStatistics> list = this.stockStatisticsService.findStockStatisticsToCreateQrcode(stock.getPname(), stock.getNewCustomer(), stock.getAccepter(),null);
 		model.addAttribute("list", list);
 			model.addAttribute("stock", stock);
 
@@ -226,7 +226,7 @@ public class ProjectPickupController {
 		model.addAttribute("wXUserInfo", wXUserInfo);
 		model.addAttribute("map", map);
 	//	List<StockStatistics> list = this.stockStatisticsService.findByoutboundOrder(map.get("outboundOrder").toString());
-		List<StockStatistics> list =  this.stockStatisticsService.findStockStatisticsToCreateQrcode((Pname)map.get("pName"), (NewCustomer)map.get("newCustomer"), map.get("accepter").toString());
+		List<StockStatistics> list =  this.stockStatisticsService.findStockStatisticsToCreateQrcode((Pname)map.get("pName"), (NewCustomer)map.get("newCustomer"), map.get("accepter").toString(),null);
 		model.addAttribute("list", list);
 		
 		return "/general/batchOutSuccess";
