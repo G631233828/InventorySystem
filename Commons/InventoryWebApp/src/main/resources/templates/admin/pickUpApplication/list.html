@@ -250,9 +250,11 @@
 											<th class="numeric">领料人</th>
 											<th class="numeric">预出数</th>
 											<th class="numeric">实出数</th>
+											<th class="numeric">单位</th>
 											<th class="numeric">发布人</th>
 											<th class="numeric" th:if="${session.pickstatus}==2">处理人</th>
 											<th class="numeric" th:if="${session.pickstatus}==1">预计取货时间</th>
+											<th class="numeric">录入时间</th>
 											<th class="numeric">库存状态</th>
 											<th class="numeric">备注</th>
 											<th class="numeric">操作</th>
@@ -280,10 +282,13 @@
 												<td class="numeric">[[${pickupApplication?.accepter}]]</td>
 												<td class="numeric">[[${pickupApplication?.estimatedIssueQuantity}]]</td>
 												<td class="numeric">[[${pickupApplication?.actualIssueQuantity}]]</td>
+												<td class="numeric">[[${pickupApplication?.stock?.unit?.name}]]</td>
 												<td class="numeric">[[${pickupApplication?.publisher?.userName}]]</td>
 												<td class="numeric" th:if="${session.pickstatus}==2">[[${pickupApplication?.handler?.userName}]]</td>
 												<td class="numeric" th:if="${session.pickstatus}==1"
 													th:text="${#dates.format(pickupApplication.pickUpTime,'yyyy-MM-dd hh:mm')}"></td>
+												<td class="numeric createTime"
+														th:text="${#dates.format(pickupApplication?.createTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
 												<td class="numeric"
 													th:text="${pickupApplication?.status == 1?'待出库':pickupApplication?.status == 2?'已出库':'部分出库'}"></td>
 												<td class="numeric" th:id="|description_${pickupApplication?.id}|">[[${pickupApplication?.description}]]</td>

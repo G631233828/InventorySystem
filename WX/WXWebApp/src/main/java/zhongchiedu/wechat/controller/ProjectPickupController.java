@@ -168,7 +168,7 @@ public class ProjectPickupController {
 			//old 通过订单号查询
 //			List<StockStatistics> list = this.stockStatisticsService.findByoutboundOrder(stock.getOutboundOrder());
 
-			List<StockStatistics> list = this.stockStatisticsService.findStockStatisticsToCreateQrcode(stock.getPname(), stock.getNewCustomer(), stock.getAccepter(),null);
+			List<StockStatistics> list = this.stockStatisticsService.findStockStatisticsToCreateQrcode(stock.getPname(), stock.getNewCustomer(), stock.getAccepter(),stock.getDepotTime());
 			model.addAttribute("list", list);
 			
 			path="general/batchOutSuccess";
@@ -177,7 +177,7 @@ public class ProjectPickupController {
 		if(Common.isNotEmpty(stock.getMysign())) {
 			model.addAttribute("sign",stock.getMysign());
 		}
-		List<StockStatistics> list = this.stockStatisticsService.findStockStatisticsToCreateQrcode(stock.getPname(), stock.getNewCustomer(), stock.getAccepter(),null);
+		List<StockStatistics> list = this.stockStatisticsService.findStockStatisticsToCreateQrcode(stock.getPname(), stock.getNewCustomer(), stock.getAccepter(),stock.getDepotTime());
 		model.addAttribute("list", list);
 			model.addAttribute("stock", stock);
 

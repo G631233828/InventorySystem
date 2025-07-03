@@ -1350,7 +1350,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		// 通过出库统计中 项目id 客户id 领料人 来获取所有出库统计作为一个出库二维码
 
 		List<StockStatistics> sts = this.findStockStatisticsToCreateQrcode(stockStatistics.getPname(),
-				stockStatistics.getNewCustomer(), stockStatistics.getAccepter(),null);
+				stockStatistics.getNewCustomer(), stockStatistics.getAccepter(),stockStatistics.getDepotTime());
 
 		sts.forEach(o -> {
 			this.createStockStatisticsQrCode(o.getId());
