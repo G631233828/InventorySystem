@@ -236,10 +236,18 @@ function getpname() {
 		url: getRootPath() + "/pName/ajaxgetPname",
 		data: "id=" + $("#number-multiple1").val(),
 		success: function(data) {
-
+ 		$("#projectManager").html('');
 			if (data.status == 200) {
 				var pname = data.data;
-				$("#projectManager").val(pname.pm);
+			var nameArray = pname.pm.split("/");
+            // 遍历数组生成下拉选项
+            $.each(nameArray, function(index, value){
+                $("#projectManager").append(
+                    $("<option></option>").val(value).text(value)
+                );
+            });
+				
+				//$("#projectManager").val(pname.pm);
 				$("#projectAssistant").val(pname.assistant);
 			} else {
 				jqueryAlert({

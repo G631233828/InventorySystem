@@ -545,7 +545,7 @@
 														th:style="${#lists.contains(listColums,'revokeNum')}?'':'display:none;'">[[${stockStatistics?.revokeNum}]]</td>
 													<td class="numeric personInCharge" id="personInCharge"
 														th:style="${#lists.contains(listColums,'personInCharge')}?'':'display:none;'"
-														th:text="${stockStatistics?.pname?.pm != null}?${stockStatistics?.pname?.pm}:'--------'"></td>
+														th:text="${stockStatistics?.pname?.pm != null}?${stockStatistics?.personInCharge}:'--------'"></td>
 													<!-- <td class="numeric projectName" id="projectName"
 														th:style="${#lists.contains(listColums,'projectName')}?'':'display:none;'"
 														th:text="${stockStatistics.projectName != null}?${stockStatistics?.projectName}:'--------'"></td> -->

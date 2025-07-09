@@ -1250,7 +1250,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				query.addCriteria(Criteria.where("area.$id").is(new ObjectId(areaId)));
 			}
 			if (Common.isNotEmpty(model)) {
-				query.addCriteria(Criteria.where("model").is(Common.escapeExprSpecialWord(model)));
+				query.addCriteria(Criteria.where("model").is(model));
 			}
 			if (Common.isNotEmpty(supplieId)) {
 				query.addCriteria(Criteria.where("supplier.$id").is(new ObjectId(supplieId)));

@@ -136,14 +136,7 @@
 											</div>
 
 																		
-										<!-- <div class="form-group">
-												<label class="col-lg-1 control-label">负责人：</label>
-												<div class="col-lg-6">
-													<input class="form-control" id="personInCharge"
-														placeholder="请输入负责人" name="personInCharge"
-														th:value="${pickUpApplication?.personInCharge}">
-												</div>
-										</div>	 -->
+						
 										 
 								<!-- 
 											<div class="form-group">
@@ -173,13 +166,22 @@
 												</div>
 											</div>
 											
-											<div class="form-group" id="modelform">
+															<div class="form-group">
+												<label class="col-lg-1 control-label">项目经理：</label>
+												<div class="col-lg-6" >
+												<select id="projectManager" name="personInCharge" class="form-control">
+														<option th:if="${pickUpApplication?.personInCharge !=null}" th:value="${pickUpApplication?.personInCharge}">[[${pickUpApplication?.personInCharge}]]</option>
+													</select>
+												</div>
+										</div>	
+											
+										<!-- 	<div class="form-group" id="modelform">
 												<label class="col-lg-1 control-label">项目经理：</label>
 												<div class="col-lg-6">
 													<input class="form-control" id="projectManager"  readonly="readonly"
 														th:value="${pickUpApplication?.pname?.pm}">
 												</div>
-											</div>
+											</div> -->
 											
 											<div class="form-group" id="modelform">
 												<label class="col-lg-1 control-label">项目助理：</label>

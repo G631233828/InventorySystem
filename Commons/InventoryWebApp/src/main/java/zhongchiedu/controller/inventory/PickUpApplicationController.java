@@ -370,6 +370,9 @@ public class PickUpApplicationController {
 		}
 		User suser = (User) session.getAttribute(Contents.USER_SESSION);
 		pickUpApplication.setHandler(suser);
+		pickUpApplication.setPersonInCharge(getpickUpApplication.getPersonInCharge());
+		pickUpApplication.setNewCustomer(getpickUpApplication.getNewCustomer());
+		pickUpApplication.setPname(getpickUpApplication.getPname());
 		BasicDataResult pickUpApplicationToStock = this.stockService.pickUpApplicationToStock(pickUpApplication);
 
 		if (pickUpApplicationToStock.getStatus() == 200) {
@@ -595,7 +598,7 @@ public class PickUpApplicationController {
 	@ResponseBody
 //	@RequiresPermissions(value = {"stockStatistics:out","stockStatistics:yout","pickUpApplication:out"},logical = Logical.OR)
 	@SystemControllerLog(description = "批量预出库")
-	public BasicDataResult batchOut(String batchid, String batchnum, String batchdescription, String pname,
+	public BasicDataResult batchOut(String batchid, String batchnum, String batchdescription, String pname,String personInCharge,
 			String newCustomer, String accepter, HttpSession session) {
 
 		String[] ids = batchid.split(",");
@@ -633,7 +636,7 @@ public class PickUpApplicationController {
 			NewCustomer c = new NewCustomer();
 			c.setId(newCustomer);
 			pick.setNewCustomer(c);
-//			pick.setPersonInCharge(batchpersonInCharge);
+			pick.setPersonInCharge(personInCharge);
 			pick.setEstimatedIssueQuantity(Long.valueOf(batchnumList.get(i)));
 //			pick.setCustomer(batchcustomer);
 //			pick.setProjectName(batchprojectName);

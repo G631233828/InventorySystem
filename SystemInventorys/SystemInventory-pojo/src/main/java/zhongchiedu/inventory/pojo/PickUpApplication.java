@@ -36,7 +36,6 @@ public class PickUpApplication extends GeneralBean<PickUpApplication> {
 	private String pickUpPerson;//取件人
 	private String pickUpPhone;//取件人联系电话
 	
-	//弃用
 	private String personInCharge;//负责人
 	//弃用
 	private String projectName;//项目名称

@@ -151,8 +151,17 @@ function getpname() {
 		success: function(data) {
 
 			if (data.status == 200) {
+					$("#projectManager").html('');
 				var pname = data.data;
-				$("#projectManager").val(pname.pm);
+			 var nameArray = pname.pm.split("/");
+            // 遍历数组生成下拉选项
+            $.each(nameArray, function(index, value){
+                $("#projectManager").append(
+                    $("<option></option>").val(value).text(value)
+                );
+            });
+				
+				//$("#projectManager").val(pname.pm);
 				$("#projectAssistant").val(pname.assistant);
 			} else {
 				jqueryAlert({

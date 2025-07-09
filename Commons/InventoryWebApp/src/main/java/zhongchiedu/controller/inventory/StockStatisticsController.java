@@ -169,7 +169,7 @@ public class StockStatisticsController {
 	@ResponseBody
 //	@RequiresPermissions(value = {"stockStatistics:out","stockStatistics:yout"},logical = Logical.OR)
 	@SystemControllerLog(description = "设备出库")
-	public BasicDataResult batchOut(String batchid, String batchnum, String batchdescription,
+	public BasicDataResult batchOut(String batchid, String batchnum, String batchdescription,String personInCharge,
 			String pname, String newCustomer, String accepter, HttpSession session) {
 
 		String[] ids = batchid.split(",");
@@ -201,7 +201,7 @@ public class StockStatisticsController {
 			st.setStock(stock);
 			st.setNum(Long.valueOf(batchnumList.get(i)));
 			st.setAccepter(accepter);
-//			st.setPersonInCharge(batchpersonInCharge);
+			st.setPersonInCharge(personInCharge);
 //			st.setProjectName(batchprojectName);
 //			st.setCustomer(batchcustomer);
 			Pname p = new Pname();

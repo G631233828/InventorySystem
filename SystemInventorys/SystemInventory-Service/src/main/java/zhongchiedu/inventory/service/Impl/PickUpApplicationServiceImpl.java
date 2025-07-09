@@ -422,6 +422,18 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 					continue;
 				}
 				importPickup.setAccepter(accepter);
+				
+				String personInCharge = resultexcel[i][j + 9].trim();// 项目经理
+				
+				boolean exists = Arrays.stream(pname.getPm().split("/")).anyMatch(personInCharge::equals);
+				if(!exists) {
+						error += "<span class='entypo-attention'></span>导入文件过程中未在项目中找到该项目经理，第<b>&nbsp&nbsp" + (i + 1)
+								+ "行"+personInCharge +"&nbsp&nbsp请手动去修改该条信息！&nbsp&nbsp</b></br>";
+						continue;
+				}
+				
+				importPickup.setPersonInCharge(personInCharge);
+				
 				importPickup.setStatus(1);
 				User suser = (User) session.getAttribute(Contents.USER_SESSION);
 				importPickup.setPublisher(suser);
@@ -464,5 +476,6 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		return this.find(query, PickUpApplication.class);
 	}
+	
 
 }
