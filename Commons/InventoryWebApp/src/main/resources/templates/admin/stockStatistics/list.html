@@ -543,9 +543,18 @@
 													<td class="numeric revokeNum"
 														th:id="|revokeNum_${stockStatistics?.id}|"
 														th:style="${#lists.contains(listColums,'revokeNum')}?'':'display:none;'">[[${stockStatistics?.revokeNum}]]</td>
-													<td class="numeric personInCharge" id="personInCharge"
+													<th:block th:if="${stockStatistics?.storageTime != null}">
+													<td class="numeric personInCharge" id="personInCharge" 
+														th:style="${#lists.contains(listColums,'personInCharge')}?'':'display:none;'"></td>
+													</th:block>
+													<th:block th:if="${stockStatistics?.storageTime == null}">
+													<td class="numeric personInCharge" id="personInCharge" 
 														th:style="${#lists.contains(listColums,'personInCharge')}?'':'display:none;'"
-														th:text="${stockStatistics?.pname?.pm != null}?${stockStatistics?.personInCharge}:'--------'"></td>
+														th:text="${stockStatistics?.personInCharge == null}?${stockStatistics?.pname?.pm}:${stockStatistics?.personInCharge}"></td>
+													</th:block>
+													
+														
+														
 													<!-- <td class="numeric projectName" id="projectName"
 														th:style="${#lists.contains(listColums,'projectName')}?'':'display:none;'"
 														th:text="${stockStatistics.projectName != null}?${stockStatistics?.projectName}:'--------'"></td> -->

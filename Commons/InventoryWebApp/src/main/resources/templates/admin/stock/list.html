@@ -256,7 +256,7 @@
                                                 th:text="${sC?.name}"></option>
                                     </select>
                                     <select multiple class="filter-status form-control selectpicker" id="searchArea"
-                                            data-max-options="10" title="选择区域">
+                                            data-max-options="50" title="选择区域">
                                         <option th:selected="${requestBo?.searchArea}==${area?.id}"
                                                 th:each="area:${areas}" th:value="${area?.id}"
                                                 th:text="${area?.name}"></option>
