@@ -420,6 +420,7 @@ function toExportTJ(Bo) {
 	var supplier = returnEmpty(bo.supplier);
 	var entryName = returnEmpty(bo.entryName);
 	var itemNo = returnEmpty(bo.itemNo);
+	var stockType=document.getElementById('stockType').value;
 	jqueryAlert({
 		'icon': getRootPath() + '/plugs/alert/img/right.png',
 		'content': "正在导出请稍等...",
@@ -428,7 +429,7 @@ function toExportTJ(Bo) {
 	var areaId = $("#searchArea").val();
 	var searchAgent = $("#agent").val();
 	window.location.href = "stock/exportTJ?&ssC=" + ssC
-		+ "&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo + "&searchArea=" + area;
+		+ "&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo + "&searchArea=" + area + "&stockType="+stockType;
 
 
 }
