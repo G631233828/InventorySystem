@@ -62,7 +62,17 @@ function toExport() {
 
 }
 
+function Export() {
+	jqueryAlert({
+		'icon': getRootPath() + '/plugs/alert/img/right.png',
+		'content': "正在导出请稍等...",
+		'closeTime': 5000,
+	})
 
+	window.location.href = "pickUpApplication/export";
+
+
+}
 
 
 
