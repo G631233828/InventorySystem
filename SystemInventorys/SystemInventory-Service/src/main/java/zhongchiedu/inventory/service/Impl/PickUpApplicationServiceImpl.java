@@ -2,6 +2,7 @@ package zhongchiedu.inventory.service.Impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -487,7 +488,7 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 	 * @return
 	 */
 	@Override
-	public Workbook export(HttpServletRequest request) {
+	public Workbook export(HttpServletRequest request) throws ParseException {
 		Query query=new Query();
 		List<Integer> l = new ArrayList();
 		l.add(1);
@@ -512,7 +513,7 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 			in.put("unit",Common.isEmpty(pick.getStock().getUnit())?"":pick.getStock().getUnit().getName());
 			in.put("userName",Common.isEmpty(pick.getPublisher())?"":pick.getPublisher().getUserName());
 			in.put("status",pick.getStatus() == 1?"待出库":pick.getStatus() == 2? "已出库":"部分出库");
-			in.put("createTime",pick.getCreateTime());
+			in.put("createTime",Common.getDateYMDHM(pick.getCreateTime()));
 			in.put("description",Common.isEmpty(pick.getDescription())?"":pick.getDescription());
 			arrayList.add(in);
 		}

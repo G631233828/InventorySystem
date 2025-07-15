@@ -1,5 +1,6 @@
 package zhongchiedu.inventory.service;
 
+import java.text.ParseException;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,6 +39,6 @@ public interface PickUpApplicationService extends GeneralService<PickUpApplicati
 
 	public List<PickUpApplication> getbatchByids(List ids);
 
-	public Workbook export(HttpServletRequest request);
+	public Workbook export(HttpServletRequest request) throws ParseException;
 	
 }
