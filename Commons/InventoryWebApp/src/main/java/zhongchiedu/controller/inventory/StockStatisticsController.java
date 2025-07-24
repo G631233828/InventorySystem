@@ -509,8 +509,7 @@ public class StockStatisticsController {
 					+ stockStatistics.getQrCode().getQrcode().getSavePath()
 					+ stockStatistics.getQrCode().getQrcode().getOriginalName();
 			FileOperateUtil.downloadbyFilePath(request, response,
-					stockStatistics.getPname().getName()+"-"+ stockStatistics.getNewCustomer().getName()+"-"+stockStatistics.getAccepter()
-//							+ stockStatistics.getOutboundOrder()
+					stockStatistics.getQrCode().getName()
 							+ stockStatistics.getQrCode().getQrcode().getExtension(),
 					contentType, new File(downLoadPath));
 		} catch (Exception e) {

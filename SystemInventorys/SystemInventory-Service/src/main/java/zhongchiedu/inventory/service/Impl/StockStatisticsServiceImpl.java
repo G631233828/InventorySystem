@@ -1281,8 +1281,10 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 	public QrCode createStockStatisticsQrCode(String stockStatisticsId) {
 		StockStatistics stock = null;
+		String time = "";
 		if (Common.isNotEmpty(stockStatisticsId)) {
 			stock = this.findOneById(stockStatisticsId, StockStatistics.class);
+			time=stock.getDepotTime().replaceAll(":", "");
 			if (stock.getQrCode() != null) {
 				// 判断二维码是否存在，不存在则重新创建
 				String downLoadPath = stock.getQrCode().getQrcode().getDir()
@@ -1317,13 +1319,13 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				customer=customer.replaceAll("[\\/:*?\"<>|]", "@");
 				accepter=accepter.replaceAll("[\\/:*?\"<>|]", "@");
 //				if (stock.getOutboundOrder() != null) {
-				File outputFile = new File(path + "-" + projectname + "-" + customer + "-" + accepter + ".png");
+				File outputFile = new File(path + "-" + projectname + "-" + customer + "-" + accepter +time+ ".png");
 				MatrixToImageWriter.writeToFile(bitMatrix, format, outputFile);
 				// 保存图片信息
 				MultiMedia saveQrCode = this.multiMediaService.saveQrCode(outputFile, dir, qrcodepath, "PHOTO");
 				qrcode.setQrcode(saveQrCode);
 				qrcode.setPath(urlpath);
-				qrcode.setName(projectname + customer);
+				qrcode.setName(projectname + customer+time);
 				qrcode.setType("STOCKSTATISTICS");
 				this.qrCodeServce.insert(qrcode);
 				stock.setQrCode(qrcode);
@@ -2030,15 +2032,14 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			query.addCriteria(Criteria.where("accepter").is(accepter));
 		}
 		if(Common.isNotEmpty(depotTime)) {
-			try {
-				String dateYMD = Common.getDateYMD(depotTime);
-				query.addCriteria(Criteria.where("depotTime").regex(dateYMD));
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-			
+//			try {
+//				String dateYMD = Common.getDateYMD(depotTime);
+//				query.addCriteria(Criteria.where("depotTime").regex(dateYMD));
+//			} catch (ParseException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+				query.addCriteria(Criteria.where("depotTime").is(depotTime));
 			
 		}
 
