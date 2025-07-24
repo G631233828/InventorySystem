@@ -1003,6 +1003,17 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		query = this.findByRequestBo(bo, query);
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		query.with(new Sort(new Order(Direction.DESC, "createTime")));
+		Integer stocktype=bo.getStockType();
+		if (stocktype != null) {
+			if (stocktype == 1) {
+				// 当 stocktype 为 1 时，查询 inventory > 0 的数据
+				query.addCriteria(Criteria.where("inventory").gt(0L));
+			} else if (stocktype == 2) {
+				// 当 stocktype 为 2 时，查询 inventory = 0 的数据
+				query.addCriteria(Criteria.where("inventory").is(0L));
+			}
+			// 当 stocktype 为 3 或其他值时，不添加关于 inventory 的查询条件，即查询所有情况
+		}
 		List<Stock> list = this.find(query, Stock.class);
 
 		Map<String, List<Stock>> stocks = list.stream().collect(Collectors.groupingBy(stock -> fetchGroupKey(stock)));

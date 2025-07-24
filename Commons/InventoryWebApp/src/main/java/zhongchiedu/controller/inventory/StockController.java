@@ -497,11 +497,14 @@ public class StockController {
 	public void exportStockTJ(HttpServletResponse response,
 //							@RequestParam(value = "areaId", defaultValue = "") String areaId,
 //							  @RequestParam(value = "searchAgent", defaultValue = "") String searchAgent,
-			@ModelAttribute RequestBo bo) {
+			@ModelAttribute RequestBo bo,@RequestParam(value = "stockType", defaultValue = "") Integer stockType) {
 		try {
 			response.setContentType("application/vnd.ms-excel");
 			String name = Common.fromDateYM() + "库存报表TJ";
 			String fileName = new String((name).getBytes("gb2312"), "ISO8859-1");
+
+			System.out.println("stocktype是:"+stockType);
+			bo.setStockType(stockType);
 			HSSFWorkbook wb = this.stockService.exportTJ(name, bo);
 			response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xls");
 			OutputStream ouputStream = response.getOutputStream();

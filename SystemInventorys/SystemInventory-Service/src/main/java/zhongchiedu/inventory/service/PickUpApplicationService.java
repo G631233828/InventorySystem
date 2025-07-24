@@ -1,5 +1,6 @@
 package zhongchiedu.inventory.service;
 
+import java.text.ParseException;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -7,6 +8,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 
+import org.apache.poi.ss.usermodel.Workbook;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralService;
@@ -36,5 +38,7 @@ public interface PickUpApplicationService extends GeneralService<PickUpApplicati
 	public ProcessInfo findproInfo(HttpServletRequest request);
 
 	public List<PickUpApplication> getbatchByids(List ids);
+
+	public Workbook export(HttpServletRequest request) throws ParseException;
 	
 }

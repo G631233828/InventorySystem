@@ -2,6 +2,7 @@ package zhongchiedu.inventory.service.Impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -15,6 +16,9 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import cn.afterturn.easypoi.excel.ExcelExportUtil;
+import cn.afterturn.easypoi.excel.entity.TemplateExportParams;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.bson.types.ObjectId;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -476,6 +480,58 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		return this.find(query, PickUpApplication.class);
 	}
-	
+
+
+	/**
+	 * 导出预出库excel
+	 * @param request
+	 * @return
+	 */
+	@Override
+	public Workbook export(HttpServletRequest request) throws ParseException {
+		Query query=new Query();
+		List<Integer> l = new ArrayList();
+		l.add(1);
+		l.add(3);
+		query.addCriteria(Criteria.where("status").in(l));
+		query.addCriteria(Criteria.where("isDisable").is(false));
+		query.addCriteria(Criteria.where("isDelete").is(false));
+		List<PickUpApplication> pickUpApplicationList=this.find(query, PickUpApplication.class);
+		Map<String, Object> dataMap = new HashMap<>();
+		List<Map<String, Object>> arrayList = new ArrayList<>();
+		for (PickUpApplication pick:pickUpApplicationList){
+			Map<String, Object> in = new HashMap<>();
+			in.put("area",Common.isEmpty(pick.getArea())?" ":pick.getArea().getName());
+			in.put("customer",Common.isEmpty(pick.getNewCustomer())?"":pick.getNewCustomer().getName());
+			in.put("pname",Common.isEmpty(pick.getPname())?" ":pick.getPname().getName());
+			in.put("stockname",Common.isEmpty(pick.getStock())?"":pick.getStock().getName());
+			in.put("stockmodel",Common.isEmpty(pick.getStock())?"":pick.getStock().getModel());
+			in.put("accepter",Common.isEmpty(pick.getAccepter())?"":pick.getAccepter());
+			in.put("personInCharge",Common.isEmpty(pick.getPersonInCharge())?"":pick.getPersonInCharge());
+			in.put("estimatedIssueQuantity",Common.isEmpty(pick.getEstimatedIssueQuantity())?"":pick.getEstimatedIssueQuantity());
+			in.put("actualIssueQuantity",Common.isEmpty(pick.getActualIssueQuantity())?"":pick.getActualIssueQuantity());
+			in.put("unit",Common.isEmpty(pick.getStock().getUnit())?"":pick.getStock().getUnit().getName());
+			in.put("userName",Common.isEmpty(pick.getPublisher())?"":pick.getPublisher().getUserName());
+			in.put("status",pick.getStatus() == 1?"待出库":pick.getStatus() == 2? "已出库":"部分出库");
+			in.put("createTime",Common.getDateYMDHM(pick.getCreateTime()));
+			in.put("description",Common.isEmpty(pick.getDescription())?"":pick.getDescription());
+			arrayList.add(in);
+		}
+		String ctxPath = request.getServletContext().getRealPath("/WEB-INF/Templates/");
+		String fileName = "预出库模板.xlsx";
+		TemplateExportParams params = new TemplateExportParams(ctxPath + fileName, true);
+		Workbook doc = null;
+		dataMap.put("in",arrayList);
+		try {
+			doc = ExcelExportUtil.exportExcel(params, dataMap);
+//							WordUtil.exportWord(ctxPath+fileName, dataMap);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		return doc;
+	}
+
 
 }

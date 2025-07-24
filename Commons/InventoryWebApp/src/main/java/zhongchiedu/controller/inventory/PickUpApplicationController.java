@@ -1,5 +1,6 @@
 package zhongchiedu.controller.inventory;
 
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.bson.types.ObjectId;
@@ -51,13 +53,7 @@ import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.general.pojo.User;
 import zhongchiedu.general.service.UserService;
-import zhongchiedu.inventory.pojo.Area;
-import zhongchiedu.inventory.pojo.InventoryRole;
-import zhongchiedu.inventory.pojo.NewCustomer;
-import zhongchiedu.inventory.pojo.PickUpApplication;
-import zhongchiedu.inventory.pojo.Pname;
-import zhongchiedu.inventory.pojo.Stock;
-import zhongchiedu.inventory.pojo.StockStatistics;
+import zhongchiedu.inventory.pojo.*;
 import zhongchiedu.inventory.service.InventoryRoleService;
 import zhongchiedu.inventory.service.NewCustomerService;
 import zhongchiedu.inventory.service.PickUpApplicationService;
@@ -836,10 +832,22 @@ public class PickUpApplicationController {
 		return new BasicDataResult(200, "修改数据成功", "");
 
 	}
-	
-	
-	
-	
+
+
+
+	@RequestMapping(value = "/pickUpApplication/export")
+	public void exportpreStock(HttpServletResponse response,HttpServletRequest request)  throws Exception{
+		String exportName = Common.fromDateYMD() + "预出库表";
+		response.setContentType("application/vnd.ms-excel");
+		String fileName = new String((exportName).getBytes("gb2312"), "ISO8859-1");
+		response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xlsx");
+		Workbook newExport = this.pickUpApplicationService.export(request);
+		OutputStream out = response.getOutputStream();
+		newExport.write(out);
+		out.flush();
+		out.close();
+
+	}
 	
 	
 	
