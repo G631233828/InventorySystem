@@ -424,6 +424,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				newnum = oldnum + num;
 				stock.setInventory(newnum);
 				stock.setIsDelete(false);
+				stock.setUpdateTime(new Date());
 				this.stockService.save(stock);
 				return newnum;
 			} else {

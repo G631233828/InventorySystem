@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFFont;
@@ -248,7 +249,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				query.addCriteria(Criteria.where("inventory").is(0));
 			}
 
-			query.with(new Sort(new Order(Direction.DESC, "createTime")));
+			query.with(new Sort(new Order(Direction.DESC, "updateTime")));
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, Stock.class);
 			if (pagination == null)
 				pagination = new Pagination<Stock>();
@@ -1196,6 +1197,9 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			if (Common.isNotEmpty(preStock.getSystemClassification())
 					&& Common.isEmpty(stock.getSystemClassification())) {
 				stock.setSystemClassification(preStock.getSystemClassification());
+			}
+			if(StringUtils.isBlank(stock.getPrice())){
+				stock.setPrice(preStock.getPrice());
 			}
 			this.saveOrUpdate(stock);
 		} // 这一步是将库存管理中 分类没设置的库存 设置 为预库存的 分类。

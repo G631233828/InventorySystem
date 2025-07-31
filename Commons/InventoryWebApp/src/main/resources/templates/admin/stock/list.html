@@ -393,12 +393,20 @@
                                             <td class="numeric goodsStorage" id="goodsStorage"
                                                 th:style="${#lists.contains(listColums,'goodsStorage')}?'':'display:none;'"
                                                 th:text="|${stock?.goodsStorage?.shelfNumber}${stock?.goodsStorage?.shelflevel==''?'':'/'}${stock?.goodsStorage?.shelflevel}|"></td>
-                                            <td class="numeric price" 
-                                            th:id="|price_${stock?.id}|"
-                                            th:ondblclick="|return change('${stock?.id}','price')|"
+<!--                                            <td class="numeric price"-->
+<!--                                            th:id="|price_${stock?.id}|"-->
+<!--                                            th:ondblclick="|return change('${stock?.id}','price')|"-->
+<!--                                                th:style="${#lists.contains(listColums,'price')}?'':'display:none;'">-->
+<!--                                                [[${stock?.price}]]-->
+<!--                                            </td>-->
+
+                                            <td class="numeric price"
+                                                th:id="|price_${stock?.id}|"
                                                 th:style="${#lists.contains(listColums,'price')}?'':'display:none;'">
                                                 [[${stock?.price}]]
                                             </td>
+
+
                                      <!--        <td class="numeric agent" id="agent"
                                                 th:style="${#lists.contains(listColums,'agent')}?'':'display:none;'">
                                                 <label
