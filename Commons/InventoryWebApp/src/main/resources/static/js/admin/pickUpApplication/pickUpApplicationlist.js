@@ -9,12 +9,13 @@ function searchVal() {
 	var stockid = $("#stockid").val();
 	var modelid = $("#modelid").val();
 	var searchModel =  $("#searchModel").val();
+	var searchStock =  $("#searchStock").val();
 	var publisherid=$("#publisherid").val();
 	/*
 	 * if (search == null || search == "") { swal({ type : "warning", title : "",
 	 * text : "查询内容不能为空!!", }); return ; }
 	 */
-	window.location.href = "pickUpApplications?pageSize=" + pageSize + "&searchArea=" + searchArea + "&pnameid=" + pnameid + "&status=" + status+ "&customerid=" + customerid+ "&stockid=" + stockid+ "&modelid=" + modelid +"&publisherid=" +publisherid+ "&searchModel=" + searchModel;
+	window.location.href = "pickUpApplications?pageSize=" + pageSize + "&searchArea=" + searchArea + "&pnameid=" + pnameid + "&status=" + status+ "&customerid=" + customerid+ "&stockid=" + stockid+ "&modelid=" + modelid +"&publisherid=" +publisherid+ "&searchModel=" + searchModel+ "&searchStock=" + searchStock;
 
 }
 

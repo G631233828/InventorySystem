@@ -17,7 +17,7 @@ import zhongchiedu.inventory.pojo.ProcessInfo;
 
 public interface PickUpApplicationService extends GeneralService<PickUpApplication> {
 	
-	public Pagination<PickUpApplication> findpagination(Integer pageNo,Integer pageSize,String searchArea,String status,String pnameid,String customerid,String stockid,String modelid,String publisherid,String searchModel);
+	public Pagination<PickUpApplication> findpagination(Integer pageNo,Integer pageSize,String searchArea,String status,String pnameid,String customerid,String stockid,String modelid,String publisherid,String searchModel,String searchStock);
 	
 	public void saveOrUpdate(PickUpApplication stock);
 	

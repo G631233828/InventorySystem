@@ -120,6 +120,7 @@ public class PickUpApplicationController {
 			@ModelAttribute("errorImport") String errorImport,
 			@RequestParam(value = "searchArea", defaultValue = "") String searchArea,
 			@RequestParam(value = "searchModel", defaultValue = "") String searchModel,
+			@RequestParam(value = "searchStock", defaultValue = "") String searchStock,
 			@ModelAttribute("errorMsg") String errorMsg) {
 
 		
@@ -137,7 +138,7 @@ public class PickUpApplicationController {
 //		this.redisTemplate.opsForValue().set("projectNames", projects);
 		
 		Pagination<PickUpApplication> pagination = this.pickUpApplicationService.findpagination(pageNo, pageSize,
-				 searchArea, status,pnameid,customerid,stockid,modelid,publisherid,searchModel);
+				 searchArea, status,pnameid,customerid,stockid,modelid,publisherid,searchModel,searchStock);
 		
 		List<Pname> pnames = (List<Pname>) this.redisTemplate.opsForValue().get("allpname");
 		if (Common.isNotEmpty(pnames)) {
@@ -227,6 +228,7 @@ public class PickUpApplicationController {
 		session.setAttribute("modelid", modelid);
 		session.setAttribute("searchArea", searchArea);
 		session.setAttribute("searchModel", searchModel);
+		session.setAttribute("searchStock", searchStock);
 		session.setAttribute("pickpageNo", pageNo);
 		session.setAttribute("pickpageSize", pageSize);
 		session.setAttribute("picksearchArea", searchArea);

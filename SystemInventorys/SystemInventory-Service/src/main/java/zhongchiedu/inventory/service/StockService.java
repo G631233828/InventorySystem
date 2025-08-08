@@ -76,6 +76,8 @@ public interface StockService extends GeneralService<Stock> {
 	public List<Stock> findAllStock();//获取所有的库存设备
 	
 	public List<ObjectId> findByModelName(String model);
+
+	public List<ObjectId> findByStockName(String searchStock);
 	
 	
 	
