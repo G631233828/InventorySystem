@@ -187,13 +187,18 @@
 												th:text="|${stock?.name}(${stock?.supplier?.name})|"></option>
 										</select>  -->
 
-										<select multiple
+								<!-- 		<select multiple
 											class="filter-status form-control selectpicker" id="modelid"
 											data-live-search="true" data-max-options="1" title="选择设备型号">
 											<option th:selected="${session.modelid}==${stock?.id}"
 												th:each="stock:${stocklists}" th:value="${stock?.id}"
 												th:text="|${stock?.name}-${stock?.model}-(${stock?.supplier?.name})|"></option>
-										</select> <select multiple
+										</select>  -->
+										
+                                    <input class="form-control" name="searchModel" placeholder="设备型号" id="searchModel"
+                                           type="text" th:value="${session.searchModel}">
+										
+										<select multiple
 											class="filter-status form-control selectpicker"
 											id="publisherid" data-live-search="true" data-max-options="1"
 											title="选择发布人">
@@ -349,19 +354,19 @@
 												style="margin-top: 0px;">
 
 												<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
-													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/pickUpApplications(pageNo=1,pageSize=${session.pickpageSize},stockid=${session.stockid},modelid=${session.modelid},customerid=${session.selectcustomer},pnameid=${session.selectpname},status=${session.pickstatus},searchArea=${session.picksearchArea})}">首页</a>
+													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/pickUpApplications(pageNo=1,pageSize=${session.pickpageSize},stockid=${session.stockid},modelid=${session.modelid},customerid=${session.selectcustomer},pnameid=${session.selectpname},status=${session.pickstatus},searchArea=${session.picksearchArea},searchModel=${session.searchModel})}">首页</a>
 												</li>
 												<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
-													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/pickUpApplications(pageNo=${pageList.upPage},pageSize=${session.pickpageSize},stockid=${session.stockid},modelid=${session.modelid},customerid=${session.selectcustomer},pnameid=${session.selectpname},status=${session.pickstatus},searchArea=${session.picksearchArea})}">上一页</a>
+													th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/pickUpApplications(pageNo=${pageList.upPage},pageSize=${session.pickpageSize},stockid=${session.stockid},modelid=${session.modelid},customerid=${session.selectcustomer},pnameid=${session.selectpname},status=${session.pickstatus},searchArea=${session.picksearchArea},searchModel=${session.searchModel})}">上一页</a>
 												</li>
 												<li th:each="page:${pageList.navigatepageNums}"
 													th:class="${page  == pageList.pageNo}?active:''"><a
-													th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/pickUpApplications(pageNo=${page},pageSize=${session.pickpageSize},stockid=${session.stockid},modelid=${session.modelid},customerid=${session.selectcustomer},pnameid=${session.selectpname},status=${session.pickstatus},searchArea=${session.picksearchArea})}">[[${page}]]</a>
+													th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/pickUpApplications(pageNo=${page},pageSize=${session.pickpageSize},stockid=${session.stockid},modelid=${session.modelid},customerid=${session.selectcustomer},pnameid=${session.selectpname},status=${session.pickstatus},searchArea=${session.picksearchArea},searchModel=${session.searchModel})}">[[${page}]]</a>
 												</li>
 												<li
 													th:class="${pageList.pageNo eq pageList.totalPage || pageList.totalPage == 0}?disabled:''">
 													<a
-													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/pickUpApplications(pageNo=${pageList.nextPage},pageSize=${session.pickpageSize},stockid=${session.stockid},modelid=${session.modelid},customerid=${session.selectcustomer},pnameid=${session.selectpname},status=${session.pickstatus},searchArea=${session.picksearchArea})}">下一页</a>
+													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/pickUpApplications(pageNo=${pageList.nextPage},pageSize=${session.pickpageSize},stockid=${session.stockid},modelid=${session.modelid},customerid=${session.selectcustomer},pnameid=${session.selectpname},status=${session.pickstatus},searchArea=${session.picksearchArea},searchModel=${session.searchModel})}">下一页</a>
 												</li>
 												<li><input class="form-control" id="searchN"
 													style="width: 60px; display: inline-block;" type="number"
@@ -370,7 +375,7 @@
 												<li
 													th:class="${pageList.pageNo eq pageList.totalPage || pageList.totalPage == 0}?disabled:''">
 													<a
-													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/pickUpApplications(pageNo=${pageList.totalPage},pageSize=${session.pickpageSize},stockid=${session.stockid},modelid=${session.modelid},customerid=${session.selectcustomer},pnameid=${session.selectpname},status=${session.pickstatus},searchArea=${session.picksearchArea})}">尾页</a>
+													th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/pickUpApplications(pageNo=${pageList.totalPage},pageSize=${session.pickpageSize},stockid=${session.stockid},modelid=${session.modelid},customerid=${session.selectcustomer},pnameid=${session.selectpname},status=${session.pickstatus},searchArea=${session.picksearchArea},searchModel=${session.searchModel})}">尾页</a>
 												</li>
 											</ul>
 										</div>
@@ -435,10 +440,10 @@ if(searchNValue !=""){
      var pnameid = [[${session.selectpname}]];
      var status = [[${session.pickstatus}]];
      var searchArea = [[${session.picksearchArea}]];
+     var searchModel = [[${session.searchModel}]];
 
      // 构建URL
-     var url = getRootPath()+"/pickUpApplications?pageNo=" + pageNo + "&pageSize=" + pageSize + "&stockid=" + stockid + "&modelid=" + modelid + "&customerid=" + customerid + "&pnameid=" + pnameid + "&status=" + status + "&searchArea=" + searchArea;
-alert(url)
+     var url = getRootPath()+"/pickUpApplications?pageNo=" + pageNo + "&pageSize=" + pageSize + "&stockid=" + stockid + "&modelid=" + modelid + "&customerid=" + customerid + "&pnameid=" + pnameid + "&status=" + status + "&searchArea=" + searchArea+ "&searchModel=" + searchModel;
      // 重定向到新的URL
      window.location.href = url;
 }

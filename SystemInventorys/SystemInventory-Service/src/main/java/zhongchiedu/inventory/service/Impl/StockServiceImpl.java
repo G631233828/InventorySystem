@@ -1488,6 +1488,21 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		return this.find(query, Stock.class);
 	}
 
-
-	
+	@Override
+	public List<ObjectId> findByModelName(String model) {
+		
+		Query query = new Query();
+		query.addCriteria(Criteria.where("isDelete").is(false));
+		query.addCriteria(Criteria.where("isDisable").is(false));
+		if(Common.isNotEmpty(model)) {
+			query.addCriteria(Criteria.where("model").regex(model));
+		}
+		
+		 return this.find(query, Stock.class)
+	               .stream()
+	               .map(Stock::getId)
+	               .map(ObjectId::new)  // 将String ID转换为ObjectId
+	               .collect(Collectors.toList());
+		
+	}
 }

@@ -73,9 +73,19 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 	@Override
 	@SystemServiceLog(description = "获取所有待出库信息")
 	public Pagination<PickUpApplication> findpagination(Integer pageNo, Integer pageSize, String searchArea,
-			String status, String pnameid, String customerid, String stockid, String modelid,String publisherid) {
+			String status, String pnameid, String customerid, String stockid, String modelid,String publisherid,String searchModel) {
 		// 分页查询数据
 		Pagination<PickUpApplication> pagination = null;
+		List<ObjectId> modelIds = new ArrayList<>();
+		
+		if(Common.isNotEmpty(searchModel)) {
+			
+			modelIds = this.stockService.findByModelName(searchModel);
+		}
+		
+		
+		
+		
 		try {
 			Query query = new Query();
 
@@ -107,8 +117,9 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 			if (Common.isNotEmpty(stockid)) {
 				orCriteriaList.add(Criteria.where("stock.$id").is(new ObjectId(stockid)));
 			}
-			if (Common.isNotEmpty(modelid)) {
-				orCriteriaList.add(Criteria.where("stock.$id").is(new ObjectId(modelid)));
+			if (modelIds.size()>0) {
+				orCriteriaList.add(Criteria.where("stock.$id").in(modelIds));
+//				orCriteriaList.add(Criteria.where("stock.$id").is(new ObjectId(modelid)));
 			}
 
 			if (!orCriteriaList.isEmpty()) {

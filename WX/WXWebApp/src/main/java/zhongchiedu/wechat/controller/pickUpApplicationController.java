@@ -111,7 +111,7 @@ public class pickUpApplicationController {
 			@RequestParam(value = "search", defaultValue = "") String search,
 			@RequestParam(value = "status", defaultValue = "1") String status,
 			@ModelAttribute("errorMsg") String errorMsg) {
-		Pagination<PickUpApplication> pagination = this.pickUpApplicationService.findpagination(pageNo, pageSize, "", "", "", "", status, "","");
+		Pagination<PickUpApplication> pagination = this.pickUpApplicationService.findpagination(pageNo, pageSize, "", "", "", "", status, "","","");
 		model.addAttribute("pageList", pagination);
 
 		model.addAttribute("pageSize", pageSize);

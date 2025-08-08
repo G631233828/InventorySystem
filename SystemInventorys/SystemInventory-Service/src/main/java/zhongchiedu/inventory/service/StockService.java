@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.bson.types.ObjectId;
 
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.framework.pagination.Pagination;
@@ -74,6 +75,7 @@ public interface StockService extends GeneralService<Stock> {
 	
 	public List<Stock> findAllStock();//获取所有的库存设备
 	
+	public List<ObjectId> findByModelName(String model);
 	
 	
 	
