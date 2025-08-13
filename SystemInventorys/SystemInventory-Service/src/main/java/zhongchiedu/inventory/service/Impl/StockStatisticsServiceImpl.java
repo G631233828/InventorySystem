@@ -1371,7 +1371,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 //		String outboundOrder = stockStatistics.getOutboundOrder();
 //		List<StockStatistics> st = this.findByoutboundOrder(outboundOrder);
 		List<StockStatistics> findStockStatisticsToCreateQrcode = this.findStockStatisticsToCreateQrcode(st.getPname(),
-				st.getNewCustomer(), st.getAccepter(),null);
+				st.getNewCustomer(), st.getAccepter(),st.getDepotTime());
 
 		Map<Object, Object> map = new HashMap<>();
 		map.put("personInCharge", Common.isNotEmpty(st.getPname()) ? st.getPname().getPm() : "");
