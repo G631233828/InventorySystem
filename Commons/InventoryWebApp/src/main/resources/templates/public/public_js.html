@@ -319,6 +319,16 @@
 			}
 			
 			$(document).ready(function() {
+				
+				 jQuery.validator.addMethod("decimalMaxTwo", function(value, element) {
+			            // 允许为空（如果同时需要必填，可配合required规则）
+			            if (value === "") return true;
+			            
+			            // 正则表达式验证：允许整数，或者小数点后1-2位的小数
+			            var regex = /^-?\d+(\.\d{1,2})?$/;
+			            return regex.test(value);
+			        }, "小数点后最多只能有两位数字");
+				 
 			    // 选择所有具有btn和btn-success类的提交按钮
 			    $('button.btn.btn-success[type="submit"]').on('click', function(e) {
 			        // 允许表单的默认提交行为
@@ -341,6 +351,7 @@
 			        // $(this).off('click'); // 但这通常不是必要的，因为表单可能已经刷新或导航到另一个页面
 			    });
 			});
+		
 			
 		</script>
 	</div>

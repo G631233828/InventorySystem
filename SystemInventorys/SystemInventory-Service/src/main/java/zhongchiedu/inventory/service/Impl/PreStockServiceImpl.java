@@ -454,7 +454,7 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 				
 				boolean num = Common.isInteger(n);
 				if (num) {
-					importPreStock.setEstimatedInventoryQuantity(Integer.valueOf(n));// 预备入库的数量
+					importPreStock.setEstimatedInventoryQuantity(Double.valueOf(n));// 预备入库的数量
 				} else {
 					error += "<span class='entypo-attention'></span>导入文件过程中出现不合法的金额<b>&nbsp;&nbsp;" + n
 							+ "&nbsp;&nbsp;</b>，第<b>&nbsp&nbsp" + (i + 1) + "行请手动去修改该条信息！&nbsp&nbsp</b></br>";
@@ -607,9 +607,9 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 	 * @param num
 	 * @return
 	 */
-	private long updatePreStock(PreStock stock, long num) {
+	private Double updatePreStock(PreStock stock, Double num) {
 		lock.lock();
-		long newnum = 0;
+		Double newnum = 0.0;
 		try {
 			newnum = stock.getEstimatedInventoryQuantity() + num;
 			stock.setEstimatedInventoryQuantity(newnum);

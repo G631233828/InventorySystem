@@ -292,8 +292,8 @@
 												<td class="numeric">[[${pickupApplication?.stock?.model}]]</td>
 												<td class="numeric">[[${pickupApplication?.accepter}]]</td>
 												<td class="numeric">[[${pickupApplication?.personInCharge}]]</td>
-												<td class="numeric">[[${pickupApplication?.estimatedIssueQuantity}]]</td>
-												<td class="numeric">[[${pickupApplication?.actualIssueQuantity}]]</td>
+												<td class="numeric">[[${#numbers.formatDecimal(pickupApplication?.estimatedIssueQuantity, 1, 'COMMA', 2, 'POINT')}]]</td>
+												<td class="numeric">[[${#numbers.formatDecimal(pickupApplication?.actualIssueQuantity, 1, 'COMMA', 2, 'POINT')}]]</td>
 												<td class="numeric">[[${pickupApplication?.stock?.unit?.name}]]</td>
 												<td class="numeric">[[${pickupApplication?.publisher?.userName}]]</td>
 												<td class="numeric" th:if="${session.pickstatus}==2">[[${pickupApplication?.handler?.userName}]]</td>

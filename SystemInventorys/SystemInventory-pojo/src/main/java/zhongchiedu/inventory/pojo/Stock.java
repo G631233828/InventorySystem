@@ -45,10 +45,10 @@ public class Stock extends GeneralBean<Stock> {
 	private String maintenance;// 维保
 	@DBRef
 	private Supplier supplier;// 供应商
-	private long inventory = 0; // 库存量
+	private Double  inventory = 0.0; // 库存量
 
 	@Transient
-	private long remainingNum;// 剩余库存
+	private Double remainingNum;// 剩余库存
 
 	private boolean receivables = false;// 项目应收款
 	@DBRef
@@ -74,7 +74,7 @@ public class Stock extends GeneralBean<Stock> {
 	// 添加代理商品标记
 	private boolean agent;// 是否代理商品 false 非代理商品 true代理商品
 	@Transient
-	private long stocknum;// 导入库存数量 不会将这个数据放入数据库
+	private Double stocknum;// 导入库存数量 不会将这个数据放入数据库
 
 	@Override
 	public boolean equals(Object o) {

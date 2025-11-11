@@ -40,17 +40,17 @@ public class StockStatistics extends GeneralBean<StockStatistics> {
 	private Stock stock; //绑定库存商品
 	private String storageTime;//入库时间
 	private String depotTime;//出库时间
-	private long num;//出库、入库数量
-	private long newNum;//当前库存
+	private Double num;//出库、入库数量
+	private Double newNum;//当前库存
 	@Transient
-	private long remainingNum;//剩余库存
+	private Double remainingNum;//剩余库存
 	@DBRef
 	private Companys company;//绑定企业
 	@DBRef
 	private User user;//操作人
 	private boolean revoke = false; //是否可撤销
 	private boolean inOrOut;//入库还是出库
-	private long revokeNum;//撤销数量，默认为全部，撤销数量不能大于入库或者出库数量
+	private Double revokeNum;//撤销数量，默认为全部，撤销数量不能大于入库或者出库数量
 	
 	private String personInCharge;//责任人
 	private String projectName;   //项目名

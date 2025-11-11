@@ -75,14 +75,16 @@ $()
 							num: {
 								required: true,
 								number: true,
-								digits: true
+								//digits: true
+								decimalMaxTwo : true
 							}
 						},
 						messages: {
 							num: {
 								required: a + "请输入出库数量！",
 								number: a + "请输入一个合法的数字！",
-								digits: a + "请输入整数！"
+								//digits: a + "请输入整数！"
+								decimalMaxTwo : a + "小数点后面最多只能输入2位"
 							}
 						}
 

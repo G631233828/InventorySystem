@@ -320,7 +320,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	@Override
 	@SystemServiceLog(description = "库存出库入库")
 	public BasicDataResult inOrOutstockStatistics(StockStatistics stockStatistics, User user) {
-		long num = 0;
+		Double num = 0.0;
 		if (stockStatistics.isRevoke()) {
 			num = stockStatistics.getNum();// 获取到撤销数量
 			// 如果撤销数量为0 说明是撤销全部
@@ -333,25 +333,27 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				return BasicDataResult.build(400, "操作的数据有误！", null);
 			}
 		}
+		//对num进行小数点四舍五入
+		num = Math.round(num * 100) / 100.0;
 
 		String id = stockStatistics.getStock().getId();// 获取库存设备id
 		Stock stock = this.stockService.findOneById(id, Stock.class);
 
 		if (stock != null) {
 
-			long ycknum = 0;
-			long acnum = 0;
+			Double ycknum = 0.0;
+			Double acnum = 0.0;
 			if (!stockStatistics.isPreStock() && !stockStatistics.isInOrOut()) {
 				if (!stockStatistics.isYck()) {
 					List<PickUpApplication> pickUpApplication = this.pickUpApplicationService
 							.findPickUpApplicationsByStockId(stock.getId());
 					ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity)
-							.reduce((long) 0, Long::sum);
+							.reduce((double) 0, Double::sum);
 
-					acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((long) 0,
-							Long::sum);
+					acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((double) 0,
+							Double::sum);
 
-					ycknum = ycknum - acnum;
+					ycknum =  Math.round((ycknum - acnum) * 100) / 100.0 ;
 
 					if (stock.getInventory() - ycknum - num < 0) {
 						// 出货数量不够
@@ -369,7 +371,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			if (stockStatistics.isInOrOut()) {
 				// true == 入库
 				// 更新库存中的库存
-				long newNum = this.updateStock(stock, num, true);
+				Double newNum = this.updateStock(stock, num, true);
 				stockStatistics.setStorageTime(Common.fromDateH());
 				stockStatistics.setNewNum(newNum);
 				stockStatistics.setRemainingNum(newNum - ycknum);
@@ -379,8 +381,8 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			} else {
 
 				// 出库
-				long newNum = this.updateStock(stock, num, false);
-				if (newNum == -1) {
+				Double newNum = this.updateStock(stock,num, false);
+				if (newNum == -1.0) {
 					// 出货数量不够
 					return BasicDataResult.build(400, "货物库存数量不足", null);
 				}
@@ -406,6 +408,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 		lockinsert.lock();
 		try {
+			stockStatistics.setNum(Math.round(stockStatistics.getNum() * 100) / 100.0);
 			this.insert(stockStatistics);
 		} finally {
 			lockinsert.unlock();
@@ -414,14 +417,14 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	}
 
 	@SystemServiceLog(description = "更新库存信息")
-	public long updateStock(Stock stock, long num, boolean inOrOut) {
+	public Double updateStock(Stock stock, Double num, boolean inOrOut) {
 		lock.lock();
-		long oldnum = stock.getInventory();
-		long newnum = 0;
+		Double oldnum = stock.getInventory();
+		Double newnum = 0.0;
 		try {
 			if (inOrOut) {
 				// 入库
-				newnum = oldnum + num;
+				newnum =  Math.round((oldnum + num) * 100) / 100.0;
 				stock.setInventory(newnum);
 				stock.setIsDelete(false);
 				stock.setUpdateTime(new Date());
@@ -430,9 +433,9 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			} else {
 				// 出库
 				if ((oldnum - num) < 0) {
-					return -1;
+					return -1.0;
 				}
-				newnum = oldnum - num;
+				newnum = Math.round((oldnum - num) * 100) / 100.0; 
 				stock.setInventory(newnum);
 				stock.setIsDelete(false);
 				this.stockService.save(stock);
@@ -445,18 +448,18 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	}
 
 	@SystemServiceLog(description = "撤销预入库信息")
-	public long updatePreStock(Stock stock, long num, boolean inOrOut, StockStatistics st) {
+	public Double updatePreStock(Stock stock, Double num, boolean inOrOut, StockStatistics st) {
 		lock.lock();
-		long oldnum = stock.getInventory();
-		long newnum = 0;
+		Double oldnum = stock.getInventory();
+		Double newnum = 0.0;
 		try {
 			// 撤销入库
 			if ((oldnum - num) < 0) {
-				return -1;
+				return -1.0;
 			}
 			if (st.isPreStock()) {
 				PreStock preStock = preStockService.findOneById(st.getPreStockId(), PreStock.class);
-				long renum = preStock.getActualReceiptQuantity() - num;
+				Double renum = preStock.getActualReceiptQuantity() - num;
 				preStock.setActualReceiptQuantity(renum);
 				preStock.setStatus(1);
 				this.preStockService.save(preStock);
@@ -475,7 +478,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 	@Override
 	@SystemServiceLog(description = "撤销库存信息")
-	public BasicDataResult revoke(String id, long num, User user) {
+	public BasicDataResult revoke(String id, Double num, User user) {
 		StockStatistics st = this.findOneById(id, StockStatistics.class);
 		if (st.isRevoke()) {
 			return BasicDataResult.build(400, "该信息已经撤销，不能重复撤销", null);
@@ -498,7 +501,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			return BasicDataResult.build(400, "未能获取到设备信息", null);
 		}
 
-		long newNum = 0L;
+		Double newNum = 0.0;
 		if (Common.isNotEmpty(st.getStorageTime())) {
 			// 撤销入库
 			st.setDescription("<label style=\"color:red\">来源：撤销入库</label>");
@@ -913,7 +916,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		return PinyinTool.getPinYinHeadChar(newStr);
 	}
 
-	public BigDecimal devide(Double price, long num1) {
+	public BigDecimal devide(Double price, Double num1) {
 		if (Common.isEmpty(price)) {
 			return new BigDecimal(0);
 		}
@@ -1527,8 +1530,8 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			findAllStock = this.stockService.findAllStock();
 			List<StockStatistics> list2 = findAllStock.stream().map(stock -> {
 				StockStatistics st = new StockStatistics();
-				st.setNewNum(0);
-				st.setNum(0);
+				st.setNewNum(0.0);
+				st.setNum(0.0);
 				st.setStock(stock);
 				return st;
 			}).collect(Collectors.toList());
@@ -1539,7 +1542,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			List<StockStatistics> list2 = findMonthEndStatisticsByDate.stream().map(stock -> {
 				StockStatistics st = new StockStatistics();
 				st.setNewNum(stock.getMonthEndStockNum());
-				st.setNum(0);
+				st.setNum(0.0);
 				st.setStock(stock.getStock());
 				return st;
 			}).collect(Collectors.toList());
@@ -1864,7 +1867,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 			// 期末库存数量 单价 金额
 			StockStatistics gsend = entry.getValue().get(0);
-			long qmnum = 0;// 期初库存
+			Double qmnum = 0.0;// 期初库存
 //			long qmdj =0;//单价
 //			long qmzj =0;//总金额
 

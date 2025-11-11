@@ -526,23 +526,23 @@
 													<td class="numeric inNum"
 														th:id="|inNum_${stockStatistics?.id}|"
 														th:style="${#lists.contains(listColums,'inNum')}?'':'display:none;'"
-														th:text="${stockStatistics.storageTime != null}?${stockStatistics?.num}:'--------'"></td>
+														th:text="${stockStatistics.storageTime != null}?${#numbers.formatDecimal(stockStatistics?.num, 1, 'COMMA', 2, 'POINT')}:'--------'"></td>
 													<td class="numeric depotTime" id="depotTime"
 														th:style="${#lists.contains(listColums,'depotTime')}?'':'display:none;'"
 														th:text="${stockStatistics.depotTime!=null}?${stockStatistics?.depotTime}:'--------'"></td>
 													<td class="numeric outNum"
 														th:id="|outNum_${stockStatistics?.id}|"
 														th:style="${#lists.contains(listColums,'outNum')}?'':'display:none;'"
-														th:text="${stockStatistics.depotTime != null}?${stockStatistics?.num}:'--------'"></td>
+														th:text="${stockStatistics.depotTime != null}?${#numbers.formatDecimal(stockStatistics?.num, 1, 'COMMA', 2, 'POINT')}:'--------'"></td>
 													<td class="numeric newNum"
 														th:id="|newNum_${stockStatistics?.id}|"
-														th:style="${#lists.contains(listColums,'newNum')}?'':'display:none;'">[[${stockStatistics?.newNum}]]</td>
+														th:style="${#lists.contains(listColums,'newNum')}?'':'display:none;'">[[${#numbers.formatDecimal(stockStatistics?.newNum, 1, 'COMMA', 2, 'POINT')}]]</td>
 													<td class="numeric unit" id="unit"
 														th:style="${#lists.contains(listColums,'unit')}?'':'display:none;'">
 														[[${stockStatistics?.stock?.unit?.name}]]</td>
 													<td class="numeric revokeNum"
 														th:id="|revokeNum_${stockStatistics?.id}|"
-														th:style="${#lists.contains(listColums,'revokeNum')}?'':'display:none;'">[[${stockStatistics?.revokeNum}]]</td>
+														th:style="${#lists.contains(listColums,'revokeNum')}?'':'display:none;'">[[${#numbers.formatDecimal(stockStatistics?.revokeNum, 1, 'COMMA', 2, 'POINT')}]]</td>
 													<th:block th:if="${stockStatistics?.storageTime != null}">
 													<td class="numeric personInCharge" id="personInCharge" 
 														th:style="${#lists.contains(listColums,'personInCharge')}?'':'display:none;'"></td>
@@ -745,13 +745,13 @@
 													<th class="numeric storageTime"
 														th:style="${#lists.contains(listColums,'storageTime')}?'':'display:none;'"></th>
 													<th class="numeric inNum" id="inNumHJ"
-														th:style="${#lists.contains(listColums,'inNum')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![inOrOut?num:0])}]]</th>
+														th:style="${#lists.contains(listColums,'inNum')}?'':'display:none;'">[[${#numbers.formatDecimal(#aggregates.sum(pageList?.datas.![inOrOut?num:0]), 1, 'COMMA', 2, 'POINT')}]]</th>
 													<th class="numeric depotTime"
 														th:style="${#lists.contains(listColums,'depotTime')}?'':'display:none;'"></th>
 													<th class="numeric outNum" id="outNumHJ"
-														th:style="${#lists.contains(listColums,'outNum')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![inOrOut?0:num])}]]</th>
+														th:style="${#lists.contains(listColums,'outNum')}?'':'display:none;'">[[${#numbers.formatDecimal(#aggregates.sum(pageList?.datas.![inOrOut?num:0]), 1, 'COMMA', 2, 'POINT')}]]</th>
 													<th class="numeric newNum"
-														th:style="${#lists.contains(listColums,'newNum')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![newNum==null?0:newNum])}]]</th>
+														th:style="${#lists.contains(listColums,'newNum')}?'':'display:none;'">[[${#numbers.formatDecimal(#aggregates.sum(pageList?.datas.![newNum==null?0:newNum]), 1, 'COMMA', 2, 'POINT')}]]</th>
 													<th class="numeric unit"
 														th:style="${#lists.contains(listColums,'unit')}?'':'display:none;'"></th>
 													<th class="numeric revokeNum"

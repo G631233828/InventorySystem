@@ -28,7 +28,7 @@ public class ProjectPickup extends GeneralBean<ProjectPickup> {
 	private String model;// 取货设备型号
 	private String username;// 取货人姓名
 	private String phone;// 取货人手机号
-	private Integer num;// 取货数量
+	private Double num;// 取货数量
 	
 	private String entryName;// 项目名称
 	private String itemNo;// 项目编号

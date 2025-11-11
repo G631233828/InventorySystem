@@ -356,10 +356,10 @@ public class PickUpApplicationController {
 		PickUpApplication getpickUpApplication = this.pickUpApplicationService.findOneById(pickUpApplication.getId(),
 				PickUpApplication.class);
 
-		long estimatedIssueQuantity = getpickUpApplication.getEstimatedIssueQuantity();// 预计出库数量
-		long actualIssueQuantity = getpickUpApplication.getActualIssueQuantity();// 实际出库数量
+		Double estimatedIssueQuantity = getpickUpApplication.getEstimatedIssueQuantity()!=null?getpickUpApplication.getEstimatedIssueQuantity():0.0;// 预计出库数量
+		Double actualIssueQuantity = getpickUpApplication.getActualIssueQuantity()!=null?getpickUpApplication.getActualIssueQuantity():0.0;// 实际出库数量
 
-		long newNum = estimatedIssueQuantity - actualIssueQuantity;
+		Double newNum = estimatedIssueQuantity - actualIssueQuantity;
 		if (pickUpApplication.getNum() > newNum) {
 			return new BasicDataResult().build(400, "出库数量不能超过剩余数量！", "出库数量不能超过剩余数量");
 		}
@@ -396,7 +396,7 @@ public class PickUpApplicationController {
 			map.put("first", "设备出库提醒！");
 			map.put("keyword1", getpickUpApplication.getStock().getName());
 			map.put("keyword2", String.valueOf(pickUpApplication.getActualIssueQuantity()));
-			map.put("keyword3", getpickUpApplication.getNewCustomer().getName());
+			map.put("keyword3",getpickUpApplication.getNewCustomer()!=null? getpickUpApplication.getNewCustomer().getName():"");
 			map.put("keyword4", getpickUpApplication.getPname().getPm());
 			map.put("remark", "设备出库已完成");
 			users.stream().filter(user -> Common.isEmpty(user.getOpenId())).forEach(user -> {
@@ -556,14 +556,20 @@ public class PickUpApplicationController {
 	@ResponseBody
 	public BasicDataResult checkStockNum(String stockId, String num,String pickId) {
 		
-		long self= 0L;
+		Double self= 0.0;
 		if (Common.isEmpty(stockId)) {
 			return new BasicDataResult().build(400, "未能获取出库设备信息", "");
 		}
 		if (Common.isEmpty(num)) {
 			return new BasicDataResult().build(400, "未能获取到出库数量", "");
 		}
-		long getnum = Long.valueOf(num);
+		
+		boolean isnum = Common.isValidDecimal(num);
+		if (!isnum) {
+			return new BasicDataResult(400, "请输入有效的出库数量，小数点只支持2位！", "");
+		}
+		
+		Double getnum = Double.valueOf(num);
 		
 		if(Common.isNotEmpty(pickId)) {
 			PickUpApplication self_ = this.pickUpApplicationService.findOneById(pickId, PickUpApplication.class);
@@ -580,10 +586,10 @@ public class PickUpApplicationController {
 
 		List<PickUpApplication> pickUpApplication = this.pickUpApplicationService
 				.findPickUpApplicationsByStockId(stock.getId());
-		long ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0,
-				Long::sum);
-		long acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((long) 0,
-				Long::sum);
+		Double ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((double) 0,
+				Double::sum);
+		Double acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((double) 0,
+				Double::sum);
 
 		
 		if (getnum > (stock.getInventory() - (ycknum- self - acnum))) {
@@ -637,7 +643,7 @@ public class PickUpApplicationController {
 			c.setId(newCustomer);
 			pick.setNewCustomer(c);
 			pick.setPersonInCharge(personInCharge);
-			pick.setEstimatedIssueQuantity(Long.valueOf(batchnumList.get(i)));
+			pick.setEstimatedIssueQuantity(Double.valueOf(batchnumList.get(i)));
 //			pick.setCustomer(batchcustomer);
 //			pick.setProjectName(batchprojectName);
 			pick.setDescription(batchdescription);
@@ -745,7 +751,7 @@ public class PickUpApplicationController {
 		}
 		StringBuilder errorMsg = new StringBuilder("");
 		for (int i = 0; i < batchidList.size(); i++) {
-			Integer num = Integer.valueOf(batchnumList.get(i));
+			Double num = Double.valueOf(batchnumList.get(i));
 
 			PickUpApplication getpickUpApplication = this.pickUpApplicationService.findOneById(batchidList.get(i),
 					PickUpApplication.class);
@@ -755,10 +761,10 @@ public class PickUpApplicationController {
 //				return new BasicDataResult().build(400, "出库数量有误！", "出库数量有误！");
 			}
 
-			long estimatedIssueQuantity = getpickUpApplication.getEstimatedIssueQuantity();// 预计出库数量
-			long actualIssueQuantity = getpickUpApplication.getActualIssueQuantity();// 实际出库数量
+			Double estimatedIssueQuantity = getpickUpApplication.getEstimatedIssueQuantity();// 预计出库数量
+			Double actualIssueQuantity = getpickUpApplication.getActualIssueQuantity();// 实际出库数量
 
-			long newNum = estimatedIssueQuantity - actualIssueQuantity;
+			Double newNum = estimatedIssueQuantity - actualIssueQuantity;
 			if (num > newNum) {
 				errorMsg.append("批量出库：" + getpickUpApplication.getStock().getName() + "出库数量不能超过剩余数量<BR/>");
 				 continue;

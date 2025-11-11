@@ -428,13 +428,13 @@
                                                 th:id="|inventory_${stock?.id}|"
                                                 th:style="${#lists.contains(listColums,'inventory')}?'':'display:none;'">
                                                 <label
-                                                        th:style="${stock?.inventory > 5}?'color:green':${stock?.inventory == 0?'color:red':'color:blue'}">[[${stock?.inventory}]]</label>
+                                                        th:style="${stock?.inventory > 5}?'color:green':${stock?.inventory == 0?'color:red':'color:blue'}">[[${#numbers.formatDecimal(stock?.inventory, 1, 'COMMA', 2, 'POINT')}]]</label>
                                             </td>
                                               <td class="numeric remainingNum"
                                                 th:id="|remainingNum_${stock?.id}|"
                                                 th:style="${#lists.contains(listColums,'remainingNum')}?'':'display:none;'">
                                                 <label
-                                                        th:style="${stock?.remainingNum > 5}?'color:green':${stock?.remainingNum == 0?'color:red':'color:blue'}">[[${stock?.remainingNum}]]</label>
+                                                        th:style="${stock?.remainingNum > 5}?'color:green':${stock?.remainingNum == 0?'color:red':'color:blue'}">[[${#numbers.formatDecimal(stock?.remainingNum, 1, 'COMMA', 2, 'POINT')}]]</label>
                                             </td>
                                        <!--      <td class="numeric email" id="email"
                                                 th:style="${#lists.contains(listColums,'email')}?'':'display:none;'">

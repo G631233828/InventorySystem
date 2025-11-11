@@ -224,51 +224,57 @@ function batchImput() {
 *
 */
 function batchAdd() {
-
-	var batchids = "";
-	var id = $("input[name='ids']:checked");
-	var str = "";
-	$(id).each(function() {
-		str += this.value + ",";
-	});
-	if (str != "") {
-		batchids = str.substring(0, str.length - 1);
-	}
-	$.ajax({
-		type: 'POST',
-		url: 'pickUpApplication/getbatch',
-		data: "id=" + batchids,
-		dataType: 'json',
-		success: function(data) {
-			if (data.status == 200) {
-				var stocklist = "";
-				$.each(data.data, function(index, item) {
-					stocklist += ` <tr id=stock_` + item.id + `>
-                               <td class="numeric">`+ item.stock.name + `</td>
-                               <td class="numeric">`+ item.stock.model + `</td>
-                               <td class="numeric">`+ item.accepter + `</td>
-                               <td class="numeric">`+ item.estimatedIssueQuantity + `</td>
-                               <td class="numeric">`+ item.actualIssueQuantity + `</td>
-                               <td class="numeric">
-							   <input type="hidden" name="batchid" value="`+ item.id + `"> 
-                               <input type="text" value="`+ (item.estimatedIssueQuantity - item.actualIssueQuantity) + `" onblur="return setpickUpNum('`+ item.id + `','` + item.estimatedIssueQuantity + `','` + item.actualIssueQuantity + `')"  class="form-control stockval batchout" id=pickupnum_` + item.id + `   name="batchnum" >
-                               </td>
-                               <td class="numeric">
-                               <button class="btn " type="button" onclick="return deleteStock('`+ item.id + `')" > <i  class="fa fa-trash-o"> </i>
-							  </button>
-                                </td>  </tr>`
-				});
-				$("#pickuplist").html(stocklist)
-				$("#mybatchAdd").modal('show');
-			} else {
-				jqueryAlert({
-					'icon': getRootPath() + '/plugs/alert/img/error.png',
-					'content': data.msg,
-					'closeTime': 2000,
-				})
-			}
-		}
-	})
+    var batchids = "";
+    var id = $("input[name='ids']:checked");
+    var str = "";
+    $(id).each(function() {
+        str += this.value + ",";
+    });
+    if (str != "") {
+        batchids = str.substring(0, str.length - 1);
+    }
+    $.ajax({
+        type: 'POST',
+        url: 'pickUpApplication/getbatch',
+        data: "id=" + batchids,
+        dataType: 'json',
+        success: function(data) {
+            if (data.status == 200) {
+                var stocklist = "";
+                $.each(data.data, function(index, item) {
+                    // 处理 actualIssueQuantity 为 null 的情况，默认设为 0
+                    const actualQty = item.actualIssueQuantity === null ? 0 : item.actualIssueQuantity;
+                    // 计算差值（确保用处理后的值）
+                    const diff = item.estimatedIssueQuantity - actualQty;
+                    
+                    stocklist += ` <tr id=stock_` + item.id + `>
+                                   <td class="numeric">`+ item.stock.name + `</td>
+                                   <td class="numeric">`+ item.stock.model + `</td>
+                                   <td class="numeric">`+ item.accepter + `</td>
+                                   <td class="numeric">`+ item.estimatedIssueQuantity + `</td>
+                                   <!-- 显示 actualIssueQuantity 时处理为两位小数 -->
+                                   <td class="numeric">`+ actualQty.toFixed(2) + `</td>
+                                   <td class="numeric">
+                                   <input type="hidden" name="batchid" value="`+ item.id + `"> 
+                                   <!-- 差值保留两位小数 -->
+                                   <input type="text" value="`+ diff.toFixed(2) + `" onblur="return setpickUpNum('`+ item.id + `','` + item.estimatedIssueQuantity + `','` + actualQty + `')"  class="form-control stockval batchout" id=pickupnum_` + item.id + `   name="batchnum" >
+                                   </td>
+                                   <td class="numeric">
+                                   <button class="btn " type="button" onclick="return deleteStock('`+ item.id + `')" > <i  class="fa fa-trash-o"> </i>
+                                  </button>
+                                    </td>  </tr>`;
+                });
+                $("#pickuplist").html(stocklist);
+                $("#mybatchAdd").modal('show');
+            } else {
+                jqueryAlert({
+                    'icon': getRootPath() + '/plugs/alert/img/error.png',
+                    'content': data.msg,
+                    'closeTime': 2000,
+                });
+            }
+        }
+    });
 }
 
 
@@ -283,51 +289,49 @@ function deleteStock(o) {
 
 
 //校验库存
-function setpickUpNum(o, o2,o3) {
+function setpickUpNum(o, o2, o3) {
+    // 获取输入框元素（避免重复查询DOM）
+    const $input = $(`#pickupnum_${o}`);
+    // 获取并转换输入值
+    const val = Number($input.val());
+    // 转换参数为数字
+    const numO2 = Number(o2);
+    const numO3 = Number(o3);
+    // 最大允许值（预出库与实际出库的差值）
+    const maxVal = numO2 - numO3;
 
-	//获取到输入的值
-	var val = Number($("#pickupnum_" + o).val());
-	 o2 = Number(o2);
-	o3 = Number(o3)
-	var pattern = /^\d+$/;
-	if (pattern.test(val)) {
-	} else {
-		jqueryAlert({
-			'icon': getRootPath() + '/plugs/alert/img/error.png',
-			'content': '输入的值有误',
-			'closeTime': 2000,
-		})
-		$("#pickupnum_" + o).val('')
-		return;
-	}
+    // 校验输入是否为有效数字（包括整数和两位小数）
+    const decimalPattern = /^\d+(\.\d{1,2})?$/;
+    if (!decimalPattern.test($input.val().trim())) {
+        showErrorMsg($input, '请输入有效的数字（最多保留两位小数）');
+        return;
+    }
 
+    // 校验数值是否大于0
+    if (val <= 0) {
+        showErrorMsg($input, '输入值必须大于0');
+        return;
+    }
 
+    // 校验数值是否超过最大值
+    if (val > maxVal) {
+        showErrorMsg($input, `实际出库值不能大于${maxVal.toFixed(2)}`);
+        return;
+    }
 
-	if (val <= 0) {
-		jqueryAlert({
-			'icon': getRootPath() + '/plugs/alert/img/error.png',
-			'content': '输入的值有误',
-			'closeTime': 2000,
-		})
-		$("#pickupnum_" + o).val('')
-		return;
-	}
-	if (val > (o2-o3)) {
-		jqueryAlert({
-			'icon': getRootPath() + '/plugs/alert/img/error.png',
-			'content': '实际出库值不能大于预出库值',
-			'closeTime': 2000,
-		})
-		$("#pickupnum_" + o).val('')
-		return;
-	}
-
-
-
-
-
+    // 若所有校验通过，可在此处添加后续逻辑（如保留两位小数显示）
+    $input.val(val.toFixed(2));
 }
 
+// 提取错误提示共用方法，减少重复代码
+function showErrorMsg($input, message) {
+    jqueryAlert({
+        'icon': getRootPath() + '/plugs/alert/img/error.png',
+        'content': message,
+        'closeTime': 2000,
+    });
+    $input.val('').focus(); // 清空并聚焦，方便重新输入
+}
 
 
 

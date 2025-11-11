@@ -353,15 +353,15 @@
 													<td class="numeric unit"
 														th:style="${#lists.contains(listColums,'unit')}?'':'display:none;'">[[${stock?.unit?.name}]]</td>
 													<td class="numeric esquantity"
-														th:style="${#lists.contains(listColums,'esquantity')}?'':'display:none;'">[[${stock?.estimatedInventoryQuantity}]]</td>
+														th:style="${#lists.contains(listColums,'esquantity')}?'':'display:none;'">[[${#numbers.formatDecimal(stock?.estimatedInventoryQuantity, 1, 'COMMA', 2, 'POINT')}]]</td>
 													<td class="numeric acquantity"
 														th:id="|acquantity_${stock?.id}|"
 														th:style="${#lists.contains(listColums,'acquantity')}?'':'display:none;'">
-														[[${stock?.actualReceiptQuantity}]]</td>
+														[[${#numbers.formatDecimal(stock?.actualReceiptQuantity, 1, 'COMMA', 2, 'POINT')}]]</td>
 													<td class="numeric eaquantity"
 														th:id="|eaquantity_${stock?.id}|"
 														th:style="${#lists.contains(listColums,'eaquantity')}?'':'display:none;'">
-														[[${stock?.estimatedInventoryQuantity}-${stock?.actualReceiptQuantity}]]
+														[[${#numbers.formatDecimal(stock?.estimatedInventoryQuantity-stock?.actualReceiptQuantity, 1, 'COMMA', 2, 'POINT')}]]
 													</td>
 													<td class="numeric price"
 														th:style="${#lists.contains(listColums,'price')}?'':'display:none;'">[[${stock?.price}]]</td>
@@ -456,9 +456,9 @@
 												<th class="numeric unit"
 													th:style="${#lists.contains(listColums,'unit')}?'':'display:none;'"></th>
 												<th class="numeric esquantity"
-													th:style="${#lists.contains(listColums,'esquantity')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![estimatedInventoryQuantity==null?0:estimatedInventoryQuantity])}]]</th>
+													th:style="${#lists.contains(listColums,'esquantity')}?'':'display:none;'">[[${#numbers.formatDecimal(#aggregates.sum(pageList?.datas.![estimatedInventoryQuantity==null?0:estimatedInventoryQuantity]), 1, 'COMMA', 2, 'POINT')}]]</th>
 												<th class="numeric acquantity"
-													th:style="${#lists.contains(listColums,'acquantity')}?'':'display:none;'">[[${#aggregates.sum(pageList?.datas.![actualReceiptQuantity==null?0:actualReceiptQuantity])}]]</th>
+													th:style="${#lists.contains(listColums,'acquantity')}?'':'display:none;'">[[${#numbers.formatDecimal(#aggregates.sum(pageList?.datas.![actualReceiptQuantity==null?0:actualReceiptQuantity]), 1, 'COMMA', 2, 'POINT')}]]</th>
 												<th class="numeric eaquantity"
 													th:style="${#lists.contains(listColums,'eaquantity')}?'':'display:none;'"></th>
 													<th class="numeric price"

@@ -38,10 +38,12 @@ $().ready(function() {
 				required : true
 			},
 			estimatedInventoryQuantity : {
-				required : true
+				required : true,
+				decimalMaxTwo : true
 			},
 			actualReceiptQuantity : {
 				required : true,
+				decimalMaxTwo : true,
 				min: 1
 			},
 			
@@ -64,11 +66,14 @@ $().ready(function() {
 				required : a + "导入文件不能为空！"
 			},
 			estimatedInventoryQuantity : { 
-				required : a + "请输入预计入库数量！"
+				required : a + "请输入预计入库数量！",
+				decimalMaxTwo : a + "小数点后面最多只能输入2位"
 			},
 			actualReceiptQuantity : { 
 				required : a + "请输入实际入库数量！",
-				min : a+ "请输入正确的实际入库数量！"
+				min : a+ "请输入正确的实际入库数量！",
+				decimalMaxTwo : a + "小数点后面最多只能输入2位"
+				
 			},
 		},
 		success: function(form) {

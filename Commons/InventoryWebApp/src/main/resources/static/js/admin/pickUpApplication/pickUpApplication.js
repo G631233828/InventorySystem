@@ -1,26 +1,40 @@
 $().ready(function() {
-	 // 假设出库数量和实际出库数量的输入框的 name 属性分别为 "stockQuantity" 和 "actualOutbound"
-    var stockQuantityElement = $("[name='estimatedIssueQuantity']");
-    var actualOutboundElement = $("[name='actualIssueQuantity']");
+	// 假设出库数量和实际出库数量的输入框的 name 属性分别为 "stockQuantity" 和 "actualOutbound"
+var stockQuantityElement = $("[name='estimatedIssueQuantity']");
+var actualOutboundElement = $("[name='actualIssueQuantity']");
 
-    // 定义一个新的验证规则：lessThanRemaining
-    jQuery.validator.addMethod("lessThanRemaining", function(value, element) {
-        // 确保出库数量和实际出库数量都已经输入且为数字
-        var stockQuantity = parseFloat(stockQuantityElement.val());
-        var actualOutbound = parseFloat(actualOutboundElement.val());
+// 定义一个工具函数：安全转换为数字（空值/非数字默认返回0）
+function toNumber(value) {
+    // 处理空字符串或null
+    if (value === null || value === undefined || value.trim() === '') {
+        return 0;
+    }
+    // 尝试转换为数字，失败则返回0
+    const num = parseFloat(value);
+    return isNaN(num) ? 0 : num;
+}
 
-        if (isNaN(stockQuantity) || isNaN(actualOutbound)) {
-            return false; // 如果任何一个不是数字，验证失败
-        }
+// 定义验证规则：lessThanRemaining（支持小数，处理空值/NaN）
+jQuery.validator.addMethod("lessThanRemaining", function(value, element) {
+    // 转换输入值为数字（当前验证的输入框的值）
+    const currentValue = toNumber(value);
+    
+    // 转换出库数量和实际出库数量（处理空值和非数字）
+    const stockQuantity = toNumber(stockQuantityElement.val());
+    const actualOutbound = toNumber(actualOutboundElement.val());
 
-        // 计算剩余数量
-        var remaining = stockQuantity - actualOutbound;
+    // 计算剩余数量（保留小数精度，避免浮点数计算误差）
+    const remaining = Number((stockQuantity - actualOutbound).toFixed(6)); // 临时保留6位小数减少误差
 
-        // 验证输入的数字是否小于剩余数量
-        return value <= remaining;
-    }, "输入的数字必须小于剩余数量。");
-	
-
+    // 验证规则：当前值必须 <= 剩余数量，且当前值必须为非负数
+    return currentValue >= 0 && currentValue <= remaining;
+}, function(params, element) {
+    // 动态生成错误信息，显示实际剩余数量（保留2位小数）
+    const stockQuantity = toNumber(stockQuantityElement.val());
+    const actualOutbound = toNumber(actualOutboundElement.val());
+    const remaining = Number((stockQuantity - actualOutbound).toFixed(2));
+    return `输入的数字必须小于等于剩余数量（${remaining}）`;
+});
 
 
 	$("#commentForm").validate();
@@ -134,6 +148,7 @@ $().ready(function() {
 				url: getRootPath() + "/pickUpApplicationAdd",
 				data: $("#pickUpApplicationAddForm").serialize(),
 				success: function(data) {
+				console.log(data)
 				
 					if (data.status == 200) {
 						// 判断是否已存在，如果已存在则直接显示

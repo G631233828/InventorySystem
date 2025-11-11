@@ -257,7 +257,7 @@ public class PreStockController {
 	@PutMapping("/preStockAdd")
 	@RequiresPermissions(value = "preStock:in")
 	@SystemControllerLog(description = "预库存添加至库存")
-	public String addPreStockAdd(@ModelAttribute("preStock") PreStock preStock, @ModelAttribute("num")Long num, HttpSession session,RedirectAttributes attr)
+	public String addPreStockAdd(@ModelAttribute("preStock") PreStock preStock, @ModelAttribute("num")Double num, HttpSession session,RedirectAttributes attr)
 			throws UnsupportedEncodingException {
 		
 		Integer pageNo = (Integer) session.getAttribute("prepageNo");
@@ -566,14 +566,14 @@ public class PreStockController {
 									@RequestParam(value = "num", defaultValue = "") String num) {
 		if(Common.isNotEmpty(id)) {
 
-			boolean isnum = StringUtils.isNumeric(num);
+			boolean isnum = Common.isValidDecimal(num);
 			if(!isnum) {
-				return new BasicDataResult(400, "请输入合法的数字！", "");
+				return new BasicDataResult(400, "请输入有效的出库数量，小数点只支持2位！！", "");
 			}
 			//根据id获取库存商品
 			PreStock stock = this.preStockService.findOneById(id, PreStock.class);
-			Long eaqu=stock.getEstimatedInventoryQuantity()-stock.getActualReceiptQuantity();
-			if(eaqu<Long.valueOf(num)) {
+			Double eaqu=stock.getEstimatedInventoryQuantity()-stock.getActualReceiptQuantity();
+			if(eaqu<Double.valueOf(num)) {
 				return new BasicDataResult(400, "入库数量大于库存数量，请检查！", "");
 			}
 			return new BasicDataResult(200, "库存无误！", "");
@@ -601,9 +601,9 @@ public class PreStockController {
 			PreStock stock=new PreStock();
 			stock.setId(preStock.getId());
 			stock.setEstimatedInventoryQuantity(preStock.getEstimatedInventoryQuantity());
-			Long actnum=preStock.getActualReceiptQuantity();//之前入库的数量
-			stock.setActualReceiptQuantity(actnum+Long.valueOf(batchnumList.get(i)));
-			preStock.setActualReceiptQuantity(Long.valueOf(batchnumList.get(i)));
+			Double actnum=preStock.getActualReceiptQuantity();//之前入库的数量
+			stock.setActualReceiptQuantity(actnum+Double.valueOf(batchnumList.get(i)));
+			preStock.setActualReceiptQuantity(Double.valueOf(batchnumList.get(i)));
 			this.stockService.preStockToStock(preStock,actnum);
 			list.add(stock);
 		}

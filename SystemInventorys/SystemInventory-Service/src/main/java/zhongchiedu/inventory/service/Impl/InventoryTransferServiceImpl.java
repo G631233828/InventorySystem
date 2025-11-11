@@ -213,7 +213,7 @@ public class InventoryTransferServiceImpl extends GeneralServiceImpl<InventoryTr
 							+ "行请手动去修改该条信息！&nbsp&nbsp</b></br>";
 					continue;
 				}	
-				importInventoryTransfer.setTransferQuantity(Long.valueOf(transferQuantity));
+				importInventoryTransfer.setTransferQuantity(Double.valueOf(transferQuantity));
 				
 				String price = resultexcel[i][j + 4].trim();
 				if (Common.isNotEmpty(price)) {

@@ -45,9 +45,9 @@ public class PreStock extends GeneralBean<PreStock> {
 	@DBRef
 	private Area area;
 
-	private long estimatedInventoryQuantity;// 预计库存数量
+	private Double estimatedInventoryQuantity = 0.0;// 预计库存数量
 
-	private long actualReceiptQuantity;// 实际入库数量
+	private Double actualReceiptQuantity = 0.0;// 实际入库数量
 	
 //	private long receiptQuantity=0;//已入库数量
 	

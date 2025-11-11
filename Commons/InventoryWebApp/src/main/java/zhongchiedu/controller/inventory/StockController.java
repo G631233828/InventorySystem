@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -126,10 +127,27 @@ public class StockController {
 		datas.stream().map(stock -> {
 			List<PickUpApplication> pickUpApplication = this.pickUpApplicationService
 					.findPickUpApplicationsByStockId(stock.getId());
-			long num = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0,
-					Long::sum);
-			long acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((long) 0,
-					Long::sum);
+		
+//			Double num = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((double) 0,
+//					Double::sum);
+//			Double acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((double) 0,
+//					Double::sum);
+			// 计算预计数量总和（过滤null元素和null结果）
+			Double num = pickUpApplication.stream()
+			        // 过滤集合中的null对象
+			        .filter(Objects::nonNull)
+			        // 映射为数量，并过滤null结果
+			        .map(PickUpApplication::getEstimatedIssueQuantity)
+			        .filter(Objects::nonNull)
+			        // 累加（初始值0.0，避免空流时返回null）
+			        .reduce(0.0, Double::sum);
+
+			// 计算实际数量总和（同理）
+			Double acnum = pickUpApplication.stream()
+			        .filter(Objects::nonNull)
+			        .map(PickUpApplication::getActualIssueQuantity)
+			        .filter(Objects::nonNull)
+			        .reduce(0.0, Double::sum);
 			stock.setRemainingNum(stock.getInventory() - (num - acnum));
 			return stock;
 		}).collect(Collectors.toList());
@@ -191,6 +209,9 @@ public class StockController {
 
 		List<SystemClassification> ssCs = this.ssCService.findAllSystemClassification(false);
 		model.addAttribute("ssCs", ssCs);
+		
+		List<Pname> pnames = this.pnameService.findAllName(false);
+		model.addAttribute("pnames", pnames);
 
 		return "admin/stock/add";
 	}
@@ -678,10 +699,10 @@ public class StockController {
 				stock.setId(s.getId());
 				List<PickUpApplication> pickUpApplication = this.pickUpApplicationService
 						.findPickUpApplicationsByStockId(s.getId());
-				long num = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0,
-						Long::sum);
-				long acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((long) 0,
-						Long::sum);
+				Double num = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((double) 0,
+						Double::sum);
+				Double acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((double) 0,
+						Double::sum);
 				stock.setRemainingNum(stock.getInventory() - (num - acnum));
 				liststock.add(stock);
 			});
@@ -724,21 +745,20 @@ public class StockController {
 	public BasicDataResult checkNum(HttpSession session, @RequestParam(value = "id", defaultValue = "") String id,
 			@RequestParam(value = "num", defaultValue = "") String num) {
 		if (Common.isNotEmpty(id)) {
-
-			boolean isnum = StringUtils.isNumeric(num);
+			boolean isnum = Common.isValidDecimal(num);
 			if (!isnum) {
-				return new BasicDataResult(400, "请输入合法的数字！", "");
+				return new BasicDataResult(400, "请输入有效的出库数量，小数点只支持2位！", "");
 			}
 			// 根据id获取库存商品
 			Stock stock = this.stockService.findOneById(id, Stock.class);
 			List<PickUpApplication> pickUpApplication = this.pickUpApplicationService
 					.findPickUpApplicationsByStockId(id);
-			long ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0,
-					Long::sum);
-			long acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((long) 0,
-					Long::sum);
+			Double ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((double) 0,
+					Double::sum);
+			Double acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((double) 0,
+					Double::sum);
 
-			if ((stock.getInventory() - (ycknum - acnum)) < Long.valueOf(num)) {
+			if ((stock.getInventory() - (ycknum - acnum)) < Double.valueOf(num)) {
 				return new BasicDataResult(400, "出库数量大于库存数量，请检查！", "");
 			}
 			return new BasicDataResult(200, "库存无误！", "");

@@ -48,11 +48,11 @@ public class PickUpApplication extends GeneralBean<PickUpApplication> {
 	@DBRef
 	private Pname pname;			//项目名称
 		
-	private long estimatedIssueQuantity;// 预计出库数量
+	private Double estimatedIssueQuantity;// 预计出库数量
 
-	private long actualIssueQuantity;// 实际出库数量
+	private Double actualIssueQuantity;// 实际出库数量
 	
-	private long num;//出库数量
+	private Double num;//出库数量
 	
 	
 	private int status =1;//状态    1.待出库状态  2.已出库   3.部分出库

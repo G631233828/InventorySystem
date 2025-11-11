@@ -111,13 +111,14 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			if (Common.isNotEmpty(stock.getId())) {
 				// update
 				Stock ed = this.findOneById(stock.getId(), Stock.class);
-				stock.setInventory(ed.getInventory());
+				stock.setInventory(Math.round(ed.getInventory() * 100) / 100.0);
 				stock.setUpdateTime(new Date());
 				BeanUtils.copyProperties(stock, ed);
 				this.save(stock);
 			} else {
 				// insert
 				stock.setUpdateTime(new Date());
+				stock.setInventory(Math.round(stock.getInventory() * 100) / 100.0);
 				this.insert(stock);
 			}
 		}
@@ -539,7 +540,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				importStock.setBrand(brand);
 
 				// 新添加了入库数量
-				importStock.setStocknum(Long.valueOf(resultexcel[i][j + 4].trim()));
+				importStock.setStocknum(Double.valueOf(resultexcel[i][j + 4].trim()));
 
 				String n = resultexcel[i][j + 5].trim().replaceAll(" ", "");
 //				String c=resultexcel[i][j + 5];
@@ -803,10 +804,10 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	public BasicDataResult findOneById(String id) {
 
 		List<PickUpApplication> pickUpApplication = this.pickUpApplicationService.findPickUpApplicationsByStockId(id);
-		long ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0,
-				Long::sum);
-		long acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((long) 0,
-				Long::sum);
+		Double ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((double) 0,
+				Double::sum);
+		Double acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((double) 0,
+				Double::sum);
 
 		Stock getstock = new Stock();
 		Stock stock = this.findOneById(id, Stock.class);
@@ -1008,10 +1009,10 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		if (stocktype != null) {
 			if (stocktype == 1) {
 				// 当 stocktype 为 1 时，查询 inventory > 0 的数据
-				query.addCriteria(Criteria.where("inventory").gt(0L));
+				query.addCriteria(Criteria.where("inventory").gt(0.0));
 			} else if (stocktype == 2) {
 				// 当 stocktype 为 2 时，查询 inventory = 0 的数据
-				query.addCriteria(Criteria.where("inventory").is(0L));
+				query.addCriteria(Criteria.where("inventory").is(0.0));
 			}
 			// 当 stocktype 为 3 或其他值时，不添加关于 inventory 的查询条件，即查询所有情况
 		}
@@ -1022,7 +1023,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		for (String key : stocks.keySet()) {
 			// 区域，设备名称和型号相同的库存量总和
 			if (Common.isNotEmpty(key)) {
-				Long sums = stocks.get(key).stream().mapToLong(Stock::getInventory).sum();
+				Double sums = stocks.get(key).stream().mapToDouble(Stock::getInventory).sum();
 				String[] ss = key.split("<<");
 				String area = ss[0];
 				String name = ss[1];
@@ -1148,7 +1149,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	 * @param actnum   预库存的实际已经入库的数量
 	 */
 	@Override
-	public void preStockToStock(PreStock preStock, long actnum) {
+	public void preStockToStock(PreStock preStock, Double actnum) {
 		String areaId = preStock.getArea().getId();
 		String name = preStock.getName();
 		String model = preStock.getModel();
@@ -1234,9 +1235,9 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 		// 修改预库存状态
 		// 预入库
-		long estimatedInventoryQuantity = preStock.getEstimatedInventoryQuantity();
+		Double estimatedInventoryQuantity = preStock.getEstimatedInventoryQuantity();
 		// 实际入库=之前入库的加现在入库的
-		long actualReceiptQuantity = actnum + preStock.getActualReceiptQuantity();
+		Double actualReceiptQuantity = actnum + preStock.getActualReceiptQuantity();
 
 //		if (estimatedInventoryQuantity >= actualReceiptQuantity) {
 //			preStock.setStatus(2);
@@ -1287,11 +1288,11 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 //		List<PickUpApplication> pickUpApplicationlist = this.pickUpApplicationService.findPickUpApplicationsByStockId(stock.getId());
 //		long ycknum = pickUpApplicationlist.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0,Long::sum);
 
-		long inventory = stock.getInventory();// 获取库存数量
-		if (inventory <= 0) {
+		Double inventory = stock.getInventory();// 获取库存数量
+		if (inventory <= 0.0) {
 			return new BasicDataResult().build(400, "库存数量不足", null);
 		}
-		long num = pickUpApplication.getNum();
+		Double num = pickUpApplication.getNum();
 		if (num > inventory) {
 			return new BasicDataResult().build(400, "库存数量不足,剩余库存:" + inventory, null);
 		}
@@ -1315,9 +1316,9 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			stockStatistics.setStock(stock);
 		}
 		// 总出库数量 = 实际出库数量 + num
-		long allNum = pickUpApplication.getActualIssueQuantity() + pickUpApplication.getNum();
+		Double allNum = (pickUpApplication.getActualIssueQuantity()!=null? pickUpApplication.getActualIssueQuantity():0.0) + pickUpApplication.getNum();
 		// 如果总出库数量等于预出库数量 设置状态为2
-		if (allNum == pickUpApplication.getEstimatedIssueQuantity()) {
+		if (allNum.equals(pickUpApplication.getEstimatedIssueQuantity())) {
 			// 出库完成修改出库状态
 			pickUpApplication.setStatus(2);
 		} else if (allNum < pickUpApplication.getEstimatedIssueQuantity()) {
@@ -1326,9 +1327,10 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 		pickUpApplication.setActualIssueQuantity(allNum);
 		this.pickUpApplicationService.saveOrUpdate(pickUpApplication);
+		BasicDataResult res =this.stockStatisticsService.inOrOutstockStatistics(stockStatistics, pickUpApplication.getHandler());
 
-		return this.stockStatisticsService.inOrOutstockStatistics(stockStatistics, pickUpApplication.getHandler());
 
+		return res;
 	}
 
 	@Value("${qrcode.weburl}")
@@ -1436,7 +1438,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			ed.setCreateTime(new Date());
 			ed.setId(null);
 			ed.setQrCode(null);
-			ed.setInventory(0);
+			ed.setInventory(0.0);
 			ed.setUpdateTime(new Date());
 			ed.setPublisher(user);// 发布人
 			Stock stock = new Stock();
@@ -1466,7 +1468,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		if ("1".equals(type)) {
 			// 获取所有二维码
 		} else if ("2".equals(type)) {
-			query.addCriteria(Criteria.where("inventory").gt(0));
+			query.addCriteria(Criteria.where("inventory").gt(0.0));
 		}
 
 		List<Stock> list = this.find(query, Stock.class);
@@ -1484,7 +1486,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		Query query = new Query();
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		query.addCriteria(Criteria.where("isDisable").is(false));
-		query.addCriteria(Criteria.where("inventory").gt(0));
+		query.addCriteria(Criteria.where("inventory").gt(0.0));
 		return this.find(query, Stock.class);
 	}
 

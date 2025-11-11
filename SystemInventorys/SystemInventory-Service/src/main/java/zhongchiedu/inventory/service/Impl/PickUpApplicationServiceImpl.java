@@ -391,9 +391,9 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 					continue;
 				}
 
-				boolean num = Common.isInteger(n);
+				boolean num = Common.isValidDecimal(n);
 				if (num) {
-					importPickup.setEstimatedIssueQuantity(Long.valueOf(n));
+					importPickup.setEstimatedIssueQuantity(Double.valueOf(n));
 				} else {
 					error += "<span class='entypo-attention'></span>导入文件过程中出现不合法的预出库数量<b>&nbsp;&nbsp;" + n
 							+ "&nbsp;&nbsp;</b>，第<b>&nbsp&nbsp" + (i + 1) + "请手动去修改该条信息！&nbsp&nbsp</b></br>";
@@ -401,12 +401,12 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 				}
 				// 检查库存数量 以及预出库中的数量 做比较
 				List<PickUpApplication> checkpickUpApplication = this.findPickUpApplicationsByStockId(stock.getId());
-				long ycknum = checkpickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity)
-						.reduce((long) 0, Long::sum);
-				long acnum = checkpickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity)
-						.reduce((long) 0, Long::sum);
+				Double ycknum = checkpickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity)
+						.reduce((double) 0, Double::sum);
+				Double acnum = checkpickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity)
+						.reduce((double) 0, Double::sum);
 
-				if (Long.valueOf(n) > (stock.getInventory() - (ycknum - acnum))) {
+				if (Double.valueOf(n) > (stock.getInventory() - (ycknum - acnum))) {
 					error += "<span class='entypo-attention'></span>导入文件过程中第<b>&nbsp&nbsp" + (i + 1)
 							+ "行出现库存数量不足<b>&nbsp;&nbsp;当前剩余可出库数量"
 							+ String.valueOf(stock.getInventory() - (ycknum - acnum))

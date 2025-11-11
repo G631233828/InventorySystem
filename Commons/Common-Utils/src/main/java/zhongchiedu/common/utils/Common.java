@@ -1296,6 +1296,24 @@ public class Common {
 	    
 	    
 	    
+	    // 正则表达式：匹配整数或最多两位小数
+	    private static final String REGEX = "^\\d+(\\.\\d{1,2})?$";
+	    // 编译正则表达式
+	    private static final Pattern PATTERN = Pattern.compile(REGEX);
+	    
+	    /**
+	     * 验证输入字符串是否为有效数字格式（最多两位小数）
+	     * @param input 需要验证的字符串
+	     * @return 符合格式返回true，否则返回false
+	     */
+	    public static boolean isValidDecimal(String input) {
+	        if (input == null) {
+	            return false;
+	        }
+	        return PATTERN.matcher(input).matches();
+	    }   
+	    
+	    
 	    
 	    
 	
@@ -1354,6 +1372,25 @@ public class Common {
 //		boolean integer = isInteger("2.01f");
 //		System.out.println(integer);
 
+	
+	  String[] testInputs = {
+	            "123",       // 有效整数
+	            "123.45",    // 有效两位小数
+	            "123.4",     // 有效一位小数
+	            "0.99",      // 有效小数
+	            "1000.00",   // 有效两位小数
+	            "123.",      // 无效：小数点后无数字
+	            ".45",       // 无效：小数点前无数字
+	            "123.456",   // 无效：超过两位小数
+	            "abc",      // 无效：非数字字符
+	            "12.3.4"    // 无效：多个小数点
+	        };
+	        
+	        // 遍历测试用例并输出验证结果
+	        for (String input : testInputs) {
+	            boolean isValid = isValidDecimal(input);
+	            System.out.println("输入 \"" + input + "\" 是否有效: " + isValid);
+	        }
 		
 	}
 

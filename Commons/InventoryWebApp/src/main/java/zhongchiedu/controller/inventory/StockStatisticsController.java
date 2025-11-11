@@ -199,7 +199,7 @@ public class StockStatisticsController {
 			Stock stock = this.stockService.findOneById(batchidList.get(i), Stock.class);
 			StockStatistics st = new StockStatistics();
 			st.setStock(stock);
-			st.setNum(Long.valueOf(batchnumList.get(i)));
+			st.setNum(Double.valueOf(batchnumList.get(i)));
 			st.setAccepter(accepter);
 			st.setPersonInCharge(personInCharge);
 //			st.setProjectName(batchprojectName);
@@ -217,8 +217,8 @@ public class StockStatisticsController {
 			StockStatistics statics = (StockStatistics) r.getData();
 
 			List<PickUpApplication> pickUpApplication = this.pickUpApplicationService.findPickUpApplicationsByStockId(stock.getId());
-			long ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((long) 0,Long::sum);
-			long acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((long) 0,Long::sum);
+			Double ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((double) 0,Double::sum);
+			Double acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((double) 0,Double::sum);
 			
 			
 			StockStatistics s = new StockStatistics();
@@ -254,7 +254,7 @@ public class StockStatisticsController {
 //	@RequiresPermissions(value = "stockStatistics:revoke")
 	public BasicDataResult revoke(@RequestParam(value = "", defaultValue = "") String id,@RequestParam(value = "num", defaultValue = "0") String num,HttpSession session) {
 		User user = (User) session.getAttribute(Contents.USER_SESSION);
-		return this.stockStatisticsService.revoke(id,Integer.valueOf(num),user);
+		return this.stockStatisticsService.revoke(id,Double.valueOf(num),user);
 	}
 
 	@RequestMapping(value = "/stockStatistics/confirm", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")

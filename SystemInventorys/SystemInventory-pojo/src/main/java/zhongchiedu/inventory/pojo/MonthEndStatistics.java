@@ -26,7 +26,7 @@ public class MonthEndStatistics   extends GeneralBean<MonthEndStatistics>{/**
 	@DBRef 
 	private Stock stock;
 	
-	private Long monthEndStockNum;//月末库存数量
+	private Double monthEndStockNum;//月末库存数量
 	
 	private String stockName;//设备名称
 	
