@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -176,19 +177,19 @@ public class PickUpApplicationController {
 //		model.addAttribute("stocklists", stocklists);
 		
 		
-		Set<Stock> redisstock = (Set<Stock>) this.redisTemplate.opsForValue().get("stocklists");
-		if (Common.isNotEmpty(redisstock)) {
-			model.addAttribute("stocklists", redisstock);
-		}else {
-			// 获取到所有客户
-			List<PickUpApplication> findAllPickUpApplication = this.pickUpApplicationService.findAllPickUpApplication(false, null);
-			
-			Set<Stock> stocklists = findAllPickUpApplication.stream().map(PickUpApplication::getStock).collect(Collectors.toCollection(LinkedHashSet::new));
-			model.addAttribute("stocklists", stocklists);
-			this.redisTemplate.opsForValue().set("stocklists", stocklists);
-			this.redisTemplate.expire("stocklists", 20, TimeUnit.MINUTES);
-		}
-		
+//		Set<Stock> redisstock = (Set<Stock>) this.redisTemplate.opsForValue().get("stocklists");
+//		if (Common.isNotEmpty(redisstock)) {
+//			model.addAttribute("stocklists", redisstock);
+//		}else {
+//			// 获取到所有客户
+//			List<PickUpApplication> findAllPickUpApplication = this.pickUpApplicationService.findAllPickUpApplication(false, null);
+//			
+//			Set<Stock> stocklists = findAllPickUpApplication.stream().map(PickUpApplication::getStock).collect(Collectors.toCollection(LinkedHashSet::new));
+//			model.addAttribute("stocklists", stocklists);
+//			this.redisTemplate.opsForValue().set("stocklists", stocklists);
+//			this.redisTemplate.expire("stocklists", 20, TimeUnit.MINUTES);
+//		}
+//		
 		
 		
 		
@@ -586,10 +587,25 @@ public class PickUpApplicationController {
 
 		List<PickUpApplication> pickUpApplication = this.pickUpApplicationService
 				.findPickUpApplicationsByStockId(stock.getId());
-		Double ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((double) 0,
-				Double::sum);
-		Double acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((double) 0,
-				Double::sum);
+//		Double ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((double) 0,
+//				Double::sum);
+		
+		Double ycknum = pickUpApplication.stream()
+		        // 过滤集合中的null对象
+		        .filter(Objects::nonNull)
+		        // 映射为数量，并过滤null结果
+		        .map(PickUpApplication::getEstimatedIssueQuantity)
+		        .filter(Objects::nonNull)
+		        // 累加（初始值0.0，避免空流时返回null）
+		        .reduce(0.0, Double::sum);
+		
+//		Double acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((double) 0,
+//				Double::sum);
+		Double acnum = pickUpApplication.stream()
+		        .filter(Objects::nonNull)
+		        .map(PickUpApplication::getActualIssueQuantity)
+		        .filter(Objects::nonNull)
+		        .reduce(0.0, Double::sum);
 
 		
 		if (getnum > (stock.getInventory() - (ycknum- self - acnum))) {

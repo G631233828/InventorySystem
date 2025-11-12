@@ -63,10 +63,10 @@ function batchOut(o) {
 					stocklist += ` <tr id=stock_` + item.id + `>
                                <td class="numeric">`+ item.name + `</td>
                                <td class="numeric">`+ item.model + `</td>
-                               <td class="numeric">`+ item.remainingNum + `</td>
+                               <td class="numeric">`+ (item.remainingNum).toFixed(2) + `</td>
                                <td class="numeric">
 							   <input type="hidden" name="batchid" value="`+ item.id + `"> 
-                               <input type="text" onblur="return setStockNum('`+ item.id + `')"  value="` + item.remainingNum + `" class="form-control stockval batchout" id=stocknum_` + item.id + `   name="batchnum" >
+                               <input type="text" onblur="return setStockNum('`+ item.id + `')"  value="` + (item.remainingNum).toFixed(2) + `" class="form-control stockval batchout" id=stocknum_` + item.id + `   name="batchnum" >
                                </td>
                                <td class="numeric">
                                <button class="btn " type="button" onclick="return deleteStock('`+ item.id + `')" > <i  class="fa fa-trash-o">移除 </i>
@@ -147,7 +147,7 @@ function showStockStatistics(o) {
 				$("#stockId").val(stockid);
 				$("#stockName").text(name);
 				$("#description").text(description);
-				$("#loadinventory").text(inventory + "  " + unit);
+				$("#loadinventory").text(inventory.toFixed(2) + "  " + unit);
 
 			}
 		}
@@ -182,7 +182,7 @@ function showStockStatistics2(o) {
 				$("#stockIdOut").val(stockid);
 				$("#descriptionOut").text(description);
 				$("#stockNameOut").text(name);
-				$("#loadinventoryOut").text(inventory + "  " + unit);
+				$("#loadinventoryOut").text(inventory.toFixed(2) + "  " + unit);
 
 			}
 		}
@@ -337,6 +337,7 @@ function showSupplier(o) {
 
 function searchBo() {
 	var searchArea = $("#searchArea").val();
+	var stockArea = $("#stockArea").val();
 	var pageSize = $("#pageSize").val();
 	var stockType = $("#stockType").val();
 	var name = $('[name="name"]').val();
@@ -353,7 +354,7 @@ function searchBo() {
 	 * text : "查询内容不能为空!!", }); return ; }
 	 */
 	window.location.href = "stocks?pageSize=" + pageSize + "&ssC=" + ssC
-		+ "&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo + "&searchArea=" + searchArea + "&stockType=" + stockType;
+		+ "&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo + "&searchArea=" + searchArea + "&stockType=" + stockType+ "&stockArea=" + stockArea;
 
 }
 
@@ -656,12 +657,13 @@ function pageS(pageNo, size, totalpage, Bo) {
 	var entryName = returnEmpty(bo.entryName);
 	var itemNo = returnEmpty(bo.itemNo);
 	var stockType=returnEmpty(bo.stockType);
+	var stockArea=returnEmpty(bo.stockArea);
 	// var purchaseInvoiceNo=returnEmpty(bo.purchaseInvoiceNo);
 	// var purchaseInvoiceDate=returnEmpty(bo.purchaseInvoiceDate);
 	// var paymentOrderNo=returnEmpty(bo.paymentOrderNo);
 	window.location.href = "stocks?pageNo=" + pageNo + "&pageSize=" + size + "&ssC=" + ssC
 		+ "&name=" + name + "&model=" + model + "&supplier=" + supplier + "&entryName=" + entryName + "&itemNo=" + itemNo + "&searchArea=" + area
-	+"&stockType=" + stockType;
+	+"&stockType=" + stockType+"&stockArea=" + stockArea;
 }
 
 

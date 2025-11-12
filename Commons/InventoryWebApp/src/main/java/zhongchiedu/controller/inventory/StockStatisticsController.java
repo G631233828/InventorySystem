@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -217,8 +218,25 @@ public class StockStatisticsController {
 			StockStatistics statics = (StockStatistics) r.getData();
 
 			List<PickUpApplication> pickUpApplication = this.pickUpApplicationService.findPickUpApplicationsByStockId(stock.getId());
-			Double ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((double) 0,Double::sum);
-			Double acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((double) 0,Double::sum);
+			
+//			Double ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((double) 0,Double::sum);
+//			Double acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((double) 0,Double::sum);
+			
+			Double ycknum = pickUpApplication.stream()
+			        // 过滤集合中的null对象
+			        .filter(Objects::nonNull)
+			        // 映射为数量，并过滤null结果
+			        .map(PickUpApplication::getEstimatedIssueQuantity)
+			        .filter(Objects::nonNull)
+			        // 累加（初始值0.0，避免空流时返回null）
+			        .reduce(0.0, Double::sum);
+			
+			Double acnum = pickUpApplication.stream()
+			        .filter(Objects::nonNull)
+			        .map(PickUpApplication::getActualIssueQuantity)
+			        .filter(Objects::nonNull)
+			        .reduce(0.0, Double::sum);
+			
 			
 			
 			StockStatistics s = new StockStatistics();

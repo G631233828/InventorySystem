@@ -236,6 +236,14 @@
                                 </div>
 
                                 <div class="col-sm-7 form-inline">
+                                
+                                
+                                    <select class="filter-status form-control" id="stockArea">
+                                        <option value="0" th:selected="${session.stockArea == 0}">所有区
+                                        <option value="1" th:selected="${session.stockArea == 1}">只看浦东
+                                        <option value="2" th:selected="${session.stockArea == 2}">只看奉贤
+                                    </select>
+                                
                                     <select class="filter-status form-control" id="stockType">
                                         <option value="1" th:selected="${session.stockType == 1}">有库存
                                         <option value="2" th:selected="${session.stockType == 2}">无库存

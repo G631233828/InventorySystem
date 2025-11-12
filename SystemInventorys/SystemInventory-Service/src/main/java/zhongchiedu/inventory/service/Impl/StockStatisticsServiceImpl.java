@@ -347,12 +347,29 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				if (!stockStatistics.isYck()) {
 					List<PickUpApplication> pickUpApplication = this.pickUpApplicationService
 							.findPickUpApplicationsByStockId(stock.getId());
-					ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity)
-							.reduce((double) 0, Double::sum);
+					
+//					ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity)
+//							.reduce((double) 0, Double::sum);
+//
+//					acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((double) 0,
+//							Double::sum);
+					
+					 ycknum = pickUpApplication.stream()
+					        // 过滤集合中的null对象
+					        .filter(Objects::nonNull)
+					        // 映射为数量，并过滤null结果
+					        .map(PickUpApplication::getEstimatedIssueQuantity)
+					        .filter(Objects::nonNull)
+					        // 累加（初始值0.0，避免空流时返回null）
+					        .reduce(0.0, Double::sum);
+					
+					 acnum = pickUpApplication.stream()
+					        .filter(Objects::nonNull)
+					        .map(PickUpApplication::getActualIssueQuantity)
+					        .filter(Objects::nonNull)
+					        .reduce(0.0, Double::sum);
 
-					acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((double) 0,
-							Double::sum);
-
+					
 					ycknum =  Math.round((ycknum - acnum) * 100) / 100.0 ;
 
 					if (stock.getInventory() - ycknum - num < 0) {

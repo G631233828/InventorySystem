@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -261,7 +262,9 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		return pagination;
 
 	}
-
+	
+	
+	//stockArea  0 所有区域 1 浦东 2 奉贤
 	public Query findByRequestBo(RequestBo requestBo, Query query) {
 		Criteria ca = new Criteria();
 //		query.addCriteria(Criteria.where("isDelete").is(false));
@@ -280,11 +283,38 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			query = query.addCriteria(Criteria.where("systemClassification.$id")
 					.in(Arrays.stream(ssCs).map(str -> new ObjectId(str)).collect(Collectors.toList())));
 		}
+		
+		List listsearchAreaId = new ArrayList<>();
+		
 		if (Common.isNotEmpty(requestBo.getSearchArea())) {
 			String[] sas = requestBo.getSearchArea().split(",");
-			query = query.addCriteria(Criteria.where("area.$id")
-					.in(Arrays.stream(sas).map(str -> new ObjectId(str)).collect(Collectors.toList())));
+			
+			listsearchAreaId = Arrays.stream(sas).map(str-> new ObjectId(str)).collect(Collectors.toList());
+			
+//			query = query.addCriteria(Criteria.where("area.$id")
+//					.in(Arrays.stream(sas).map(str -> new ObjectId(str)).collect(Collectors.toList())));
 		}
+		
+		
+		List findIdsByName=new ArrayList<>();
+		if(requestBo.getStockArea()>0) {
+			//针对区域的数据
+			switch (requestBo.getStockArea()) {
+			case 1:
+				findIdsByName = this.areaService.findIdsByName("浦东");
+				 break;
+			case 2:
+				findIdsByName = this.areaService.findIdsByName("奉贤");
+			default:
+				break;
+			}
+		}
+		
+		listsearchAreaId.addAll(findIdsByName);
+		if(listsearchAreaId.size()>0) {
+			query = query.addCriteria(Criteria.where("area.$id").in(listsearchAreaId));
+		}
+		
 
 		if (Common.isNotEmpty(requestBo.getSupplier())) {
 			Query squery = new Query();
@@ -804,10 +834,28 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 	public BasicDataResult findOneById(String id) {
 
 		List<PickUpApplication> pickUpApplication = this.pickUpApplicationService.findPickUpApplicationsByStockId(id);
-		Double ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((double) 0,
-				Double::sum);
-		Double acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((double) 0,
-				Double::sum);
+		
+//		Double ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((double) 0,
+//				Double::sum);
+//		Double acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((double) 0,
+//				Double::sum);
+		
+		Double ycknum = pickUpApplication.stream()
+			        // 过滤集合中的null对象
+			        .filter(Objects::nonNull)
+			        // 映射为数量，并过滤null结果
+			        .map(PickUpApplication::getEstimatedIssueQuantity)
+			        .filter(Objects::nonNull)
+			        // 累加（初始值0.0，避免空流时返回null）
+			        .reduce(0.0, Double::sum);
+			
+		Double acnum = pickUpApplication.stream()
+			        .filter(Objects::nonNull)
+			        .map(PickUpApplication::getActualIssueQuantity)
+			        .filter(Objects::nonNull)
+			        .reduce(0.0, Double::sum);
+		
+		
 
 		Stock getstock = new Stock();
 		Stock stock = this.findOneById(id, Stock.class);

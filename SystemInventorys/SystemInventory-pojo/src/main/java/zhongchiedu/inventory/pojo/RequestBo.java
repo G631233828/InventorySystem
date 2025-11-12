@@ -34,6 +34,8 @@ public class RequestBo {
 
     private String searchArea;//区域选择
 
+    private int stockArea;//区域选择
+    
     private String  ssC;//分类
 
     private String id;//

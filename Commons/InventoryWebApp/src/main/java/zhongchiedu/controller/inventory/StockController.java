@@ -160,7 +160,8 @@ public class StockController {
 		session.setAttribute("pageNo", pageNo);
 		session.setAttribute("pageSize", pageSize);
 		session.setAttribute("search", search);
-		session.setAttribute("stockType", stockType);
+		session.setAttribute("stockType", requestBo.getStockType());
+		session.setAttribute("stockArea", requestBo.getStockArea());
 //		session.setAttribute("searchArea", searchArea);
 		session.setAttribute("searchAgent", searchAgent);
 //		session.setAttribute("ssC",ssC);
@@ -699,10 +700,29 @@ public class StockController {
 				stock.setId(s.getId());
 				List<PickUpApplication> pickUpApplication = this.pickUpApplicationService
 						.findPickUpApplicationsByStockId(s.getId());
-				Double num = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((double) 0,
-						Double::sum);
-				Double acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((double) 0,
-						Double::sum);
+//				Double num = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((double) 0,
+//						Double::sum);
+//				Double acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((double) 0,
+//						Double::sum);
+				
+				Double num = pickUpApplication.stream()
+				        // 过滤集合中的null对象
+				        .filter(Objects::nonNull)
+				        // 映射为数量，并过滤null结果
+				        .map(PickUpApplication::getEstimatedIssueQuantity)
+				        .filter(Objects::nonNull)
+				        // 累加（初始值0.0，避免空流时返回null）
+				        .reduce(0.0, Double::sum);
+				
+				Double acnum = pickUpApplication.stream()
+				        .filter(Objects::nonNull)
+				        .map(PickUpApplication::getActualIssueQuantity)
+				        .filter(Objects::nonNull)
+				        .reduce(0.0, Double::sum);
+				
+				
+				
+				
 				stock.setRemainingNum(stock.getInventory() - (num - acnum));
 				liststock.add(stock);
 			});
@@ -753,10 +773,24 @@ public class StockController {
 			Stock stock = this.stockService.findOneById(id, Stock.class);
 			List<PickUpApplication> pickUpApplication = this.pickUpApplicationService
 					.findPickUpApplicationsByStockId(id);
-			Double ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((double) 0,
-					Double::sum);
-			Double acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((double) 0,
-					Double::sum);
+//			Double ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity).reduce((double) 0,
+//					Double::sum);
+//			Double acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((double) 0,
+//					Double::sum);
+			Double ycknum = pickUpApplication.stream()
+			        // 过滤集合中的null对象
+			        .filter(Objects::nonNull)
+			        // 映射为数量，并过滤null结果
+			        .map(PickUpApplication::getEstimatedIssueQuantity)
+			        .filter(Objects::nonNull)
+			        // 累加（初始值0.0，避免空流时返回null）
+			        .reduce(0.0, Double::sum);
+			
+			Double acnum = pickUpApplication.stream()
+			        .filter(Objects::nonNull)
+			        .map(PickUpApplication::getActualIssueQuantity)
+			        .filter(Objects::nonNull)
+			        .reduce(0.0, Double::sum);
 
 			if ((stock.getInventory() - (ycknum - acnum)) < Double.valueOf(num)) {
 				return new BasicDataResult(400, "出库数量大于库存数量，请检查！", "");

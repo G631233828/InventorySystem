@@ -22,14 +22,14 @@ function batchFormSubmit() {
 						}
 						if (remainingNum > 5) {
 							$("#remainingNum_" + item.id).css("color", "green");
-						} else if (remainingNum == 0) {
+						} else if (remainingNum <= 0) {
 							$("#remainingNum_" + item.id).css("color", "red");
 						} else {
 							$("#remainingNum_" + item.id).css("color", "blue");
 						}
 
 						$("#inventory_" + item.id).text(newInventory);
-						$("#remainingNum_" + item.id).text(remainingNum);
+						$("#remainingNum_" + item.id).text(remainingNum.toFixed(2));
 					});
 					jqueryAlert({
 						'icon': getRootPath() + '/plugs/alert/img/right.png',
