@@ -29,21 +29,21 @@ $()
 												var id = $("#stockIdOut").val();
 												if (newInventory > 5) {
 													$("#inventory_" + id).css("color", "green");
-												} else if (newInventory == 0) {
+												} else if (newInventory <= 0) {
 													$("#inventory_" + id).css("color", "red");
 												} else {
 													$("#inventory_" + id).css("color", "blue");
 												}
 												if (remainingNum > 5) {
 													$("#remainingNum_" + id).css("color", "green");
-												} else if (remainingNum == 0) {
+												} else if (remainingNum <=0) {
 													$("#remainingNum_" + id).css("color", "red");
 												} else {
 													$("#remainingNum_" + id).css("color", "blue");
 												}
 
-												$("#inventory_" + id).text(newInventory);
-												$("#remainingNum_" + id).text(remainingNum);
+												$("#inventory_" + id).text(newInventory.toFixed(2));
+												$("#remainingNum_" + id).text(remainingNum.toFixed(2));
 
 
 												$("#mystockStatistics2").modal('hide');
