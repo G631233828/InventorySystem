@@ -382,7 +382,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 //			stock.setDescription(stockStatistics.getDescription());
 			stockStatistics.setUser(user);
-			stockStatistics.setRevoke(false);
+			stockStatistics.setRevoke(stockStatistics.isRevoke());
 			stockStatistics.setArea(stock.getArea());
 			stockStatistics.setAgent(stock.isAgent());
 			if (stockStatistics.isInOrOut()) {
@@ -504,7 +504,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		if (st.getStock() == null) {
 			return BasicDataResult.build(400, "未能获取到设备信息", null);
 		}
-		if (num == 0) {
+		if (num <=0.0) {
 			num = st.getNum();
 		}
 
@@ -558,7 +558,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			// 更新统计
 			st.setRevoke((st.getNum() - num) <= 0);
 			st.setNum(st.getNum() - num);
-			st.setRevokeNum(st.getRevokeNum() + num);
+			st.setRevokeNum(num);
 //			st.setDepotTime(Common.fromDateH());
 			st.setNewNum(newst.getNewNum());
 

@@ -449,7 +449,7 @@ function revoke(o, o2) {
 						'确定': function() {
 
 							var num = $("#fh").val();
-							var pattern = /^[1-9]\d*$/;
+							var pattern = /^(0|[1-9]\d*)(\.\d{2})?$/;
 							var flag = pattern.test(num);
 							if (flag) {
 
