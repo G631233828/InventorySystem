@@ -213,22 +213,22 @@ public class LoginController {
 	@RequestMapping(value="/toindex")
 	@SystemControllerLog(description = "用户登陆成功")
 	public String toindex(Model model){
-		//今日出库
-		List<StockStatistics> out = this.stockStatisticsService.findAllByDate(Common.fromDateYMD(), false);
-		//今日入库
-		List<StockStatistics> in = this.stockStatisticsService.findAllByDate(Common.fromDateYMD(), true);
-		//低库存
-		List<Stock> low = this.stockService.findLowStock(3);
-		//预入库
-		List<PreStock> findAllPreStockByStatus = this.preStockServiceImpl.findAllPreStockByStatus(false, 1);
-		//预出库
-		List<PickUpApplication> findAllPickUpApplicationByStatus = this.pickUpApplicationService.findAllPickUpApplicationByStatus(false, 1);
-		
-		model.addAttribute("out", out);
-		model.addAttribute("in", in);
-		model.addAttribute("low", low);
-		model.addAttribute("preStocks", findAllPreStockByStatus);
-		model.addAttribute("pickUpApplication", findAllPickUpApplicationByStatus);
+//		//今日出库
+//		List<StockStatistics> out = this.stockStatisticsService.findAllByDate(Common.fromDateYMD(), false);
+//		//今日入库
+//		List<StockStatistics> in = this.stockStatisticsService.findAllByDate(Common.fromDateYMD(), true);
+//		//低库存
+//		List<Stock> low = this.stockService.findLowStock(3);
+//		//预入库
+//		List<PreStock> findAllPreStockByStatus = this.preStockServiceImpl.findAllPreStockByStatus(false, 1);
+//		//预出库
+//		List<PickUpApplication> findAllPickUpApplicationByStatus = this.pickUpApplicationService.findAllPickUpApplicationByStatus(false, 1);
+//		
+//		model.addAttribute("out", out);
+//		model.addAttribute("in", in);
+//		model.addAttribute("low", low);
+//		model.addAttribute("preStocks", findAllPreStockByStatus);
+//		model.addAttribute("pickUpApplication", findAllPickUpApplicationByStatus);
 		return "index";
 	}
 	

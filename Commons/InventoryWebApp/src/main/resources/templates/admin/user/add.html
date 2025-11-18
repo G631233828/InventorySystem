@@ -11,7 +11,8 @@ canvas#canvas4 {
 }
 </style>
 <link rel="shortcut icon" th:href="@{/assets/ico/minus.png}">
-<link th:href="@{/plugs/bootstrap-fileinput/css/fileinput.css}" media="all" rel="stylesheet" type="text/css" />
+<link th:href="@{/plugs/bootstrap-fileinput/css/fileinput.css}"
+	media="all" rel="stylesheet" type="text/css" />
 
 
 </head>
@@ -73,14 +74,17 @@ canvas#canvas4 {
 										<!-- left column -->
 										<div class="col-md-3">
 											<div class="text-center">
-											 	<img th:src="${user?.photograph}!=null?${user?.photograph?.savePath }+'/'+${user?.photograph?.generateName }:'assets/img/150.png'" id="myImg" width="150px"
-													height="150px" class="avatar img-circle" alt="avatar"> 
+												<img
+													th:src="${user?.photograph}!=null?${user?.photograph?.savePath }+'/'+${user?.photograph?.generateName }:'assets/img/150.png'"
+													id="myImg" width="150px" height="150px"
+													class="avatar img-circle" alt="avatar">
 												<h6>头像上传</h6>
 
 												<div class="form-group">
 													<input id="headImg" type="file" name="file" multiple="true">
 												</div>
-													 <input name="oldheadImg" id="oldheadImg" th:value="${user?.photograph?.id}" style="display: none;" > 
+												<input name="oldheadImg" id="oldheadImg"
+													th:value="${user?.photograph?.id}" style="display: none;">
 											</div>
 										</div>
 
@@ -175,6 +179,23 @@ canvas#canvas4 {
 																th:each="role:${roleList}">
 														</select>
 													</div>
+												</div>
+											</div>
+
+											<div class="form-group">
+												<label class="col-lg-3 control-label">区域：</label>
+												<div class="col-lg-8">
+													<ul style="list-style: none; padding: 0; margin: 0;">
+														<li style="display: inline-block; margin-right: 20px;">
+															<input type="checkbox" name="region" class="numeric"
+															th:checked="${user?.region != null and #lists.contains(user.region, '浦东')}"
+															value="浦东">浦东
+														</li>
+														<li style="display: inline-block;"><input
+														th:checked="${user?.region != null and #lists.contains(user.region, '奉贤')}"
+															type="checkbox" name="region" class="numeric" value="奉贤">奉贤
+														</li>
+													</ul>
 												</div>
 											</div>
 

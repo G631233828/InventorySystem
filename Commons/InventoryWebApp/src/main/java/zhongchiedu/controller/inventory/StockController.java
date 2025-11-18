@@ -7,6 +7,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -104,9 +105,56 @@ public class StockController {
 			@RequestParam(value = "stockType", defaultValue = "1") Integer stockType,
 //			@RequestParam(value = "ssC", defaultValue = "") String ssC,
 			@ModelAttribute RequestBo requestBo) throws JsonProcessingException {
-		// 区域
+		User user = (User) session.getAttribute(Contents.USER_SESSION);
+//		List<String> regionList = user.getRegion();
+//		
+//		// 区域
+//		List<Area> areas = this.areaService.findAllArea(false);
+//		List<Area> matchedAreas = new ArrayList<>();
+//		
+//		
+//		if (regionList != null && !regionList.isEmpty() && areas != null) {
+//		    // 转为HashSet提升查找效率
+//		    Set<String> regionSet = new HashSet<>(regionList);
+//		    for (Area area : areas) {
+//		        if (area.getName() != null && regionSet.contains(area.getName())) {
+//		            matchedAreas.add(area);
+//		        }
+//		    }
+//		}
+		List<String> regionList = user.getRegion();
 		List<Area> areas = this.areaService.findAllArea(false);
-		model.addAttribute("areas", areas);
+		List<Area> matchedAreas = new ArrayList<>();
+
+		// 非空判断：避免空指针异常
+		if (regionList != null && !regionList.isEmpty() && areas != null && !areas.isEmpty()) {
+		    // 遍历所有区域
+		    for (Area area : areas) {
+		        String areaName = area.getName();
+		        // 跳过名称为null的区域
+		        if (areaName == null) {
+		            continue;
+		        }
+		        // 检查当前区域名称是否包含regionList中的任意一个前缀
+		        boolean isMatched = regionList.stream()
+		                // 过滤掉region为null的情况（避免空指针）
+		                .filter(region -> region != null)
+		                // 判断区域名称是否包含当前region
+		                .anyMatch(region -> areaName.contains(region));
+		        
+		        // 如果匹配到，加入结果集
+		        if (isMatched) {
+		            matchedAreas.add(area);
+		        }
+		    }
+		}
+
+		// 后续使用 matchedAreas 处理结果
+
+		// 后续可使用 matchedAreas 处理匹配结果
+		model.addAttribute("areas", matchedAreas);
+		
+		
 		List<NewCustomer> customers = this.newCustomerService.findAllCustomer(false);
 		model.addAttribute("customers", customers);
 		List<Pname> pnames = this.pnameService.findAllName(false);
@@ -120,6 +168,17 @@ public class StockController {
 
 		model.addAttribute("errorImport", errorImport);
 //		Pagination<Stock> pagination = this.stockService.findpagination(pageNo, pageSize, search, searchArea,searchAgent,ssC);
+		// 假设 user.getRegion() 返回的是 List<String>
+		if (regionList != null && !regionList.isEmpty()) {
+		    // 用逗号拼接列表元素为字符串（例如：["浦东", "奉贤"] → "浦东,奉贤"）
+		   // String searchArea = String.join(",", regionList);
+		    requestBo.setStockArea(regionList);
+		} else {
+		    // 处理空列表的情况（如赋值空字符串）
+		    requestBo.setStockArea(null);
+		}
+		
+		
 		Pagination<Stock> pagination = this.stockService.findpagination(pageNo, pageSize, requestBo);
 
 		List<Stock> datas = pagination.getDatas();
@@ -153,7 +212,7 @@ public class StockController {
 		}).collect(Collectors.toList());
 
 		model.addAttribute("pageList", pagination);
-		User user = (User) session.getAttribute(Contents.USER_SESSION);
+	
 		List<String> listColums = this.columnService.findColumns("stock", user.getId());
 		model.addAttribute("listColums", listColums);
 

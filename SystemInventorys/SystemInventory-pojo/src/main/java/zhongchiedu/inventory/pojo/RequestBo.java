@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -34,7 +35,7 @@ public class RequestBo {
 
     private String searchArea;//区域选择
 
-    private int stockArea;//区域选择
+    private List<String> stockArea;//区域选择
     
     private String  ssC;//分类
 

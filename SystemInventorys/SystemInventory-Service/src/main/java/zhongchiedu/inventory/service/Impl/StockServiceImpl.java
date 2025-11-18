@@ -239,6 +239,11 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		Pagination<Stock> pagination = null;
 		try {
 			Query query = new Query();
+			if(requestBo.getStockArea()==null) {
+				query.addCriteria(Criteria.where("inventory").is(-999));
+				return this.findPaginationByQuery(query, pageNo, pageSize, Stock.class);
+			}
+			
 			if (Common.isNotEmpty(requestBo.getItemNo())) {
 				query = query.addCriteria(Criteria.where("itemNo").regex(requestBo.getItemNo(), "i"));
 			}
@@ -253,6 +258,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 
 			query.with(new Sort(new Order(Direction.DESC, "updateTime")));
 			pagination = this.findPaginationByQuery(query, pageNo, pageSize, Stock.class);
+			
 			if (pagination == null)
 				pagination = new Pagination<Stock>();
 			return pagination;
@@ -297,22 +303,38 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		
 		
 		List findIdsByName=new ArrayList<>();
-		if(requestBo.getStockArea()>0) {
-			//针对区域的数据
-			switch (requestBo.getStockArea()) {
-			case 1:
-				findIdsByName = this.areaService.findIdsByName("浦东");
-				 break;
-			case 2:
-				findIdsByName = this.areaService.findIdsByName("奉贤");
-			default:
-				break;
-			}
+		
+
+		// 获取区域列表
+		List<String> stockAreas = requestBo.getStockArea();
+		// 非空判断（避免空指针）
+		if (stockAreas != null && !stockAreas.isEmpty()) {
+		    // 遍历所有区域
+		    for (String area : stockAreas) {
+		        // 调用服务获取当前区域的ID，并添加到集合中
+		        // 假设findIdsByName是List类型，且areaService.findIdsByName返回的也是List
+		        findIdsByName.addAll(this.areaService.findIdsByName(area));
+		    }
 		}
 		
-		listsearchAreaId.addAll(findIdsByName);
+//		if(requestBo.getStockArea()!="") {
+//			//针对区域的数据
+//			switch (requestBo.getStockArea()) {
+//			case "浦东":
+//				findIdsByName = this.areaService.findIdsByName("浦东");
+//				 break;
+//			case "奉贤":
+//				findIdsByName = this.areaService.findIdsByName("奉贤");
+//			default:
+//				break;
+//			}
+//		}
+//		listsearchAreaId.addAll(findIdsByName);
 		if(listsearchAreaId.size()>0) {
 			query = query.addCriteria(Criteria.where("area.$id").in(listsearchAreaId));
+		}else {
+			query = query.addCriteria(Criteria.where("area.$id").in(findIdsByName));
+			
 		}
 		
 

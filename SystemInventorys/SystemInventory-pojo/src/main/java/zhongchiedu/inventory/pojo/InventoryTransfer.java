@@ -35,7 +35,7 @@ public class InventoryTransfer extends GeneralBean<InventoryTransfer>{
 	private String scope;// 使用范围
 	
 	private String price;// 单价
-	private long  transferQuantity; // 库存中转数量
+	private Double  transferQuantity; // 库存中转数量
 	
 	private String inventoryTransferDate;//库存流转日期
 	

@@ -777,8 +777,8 @@ public class PickUpApplicationController {
 //				return new BasicDataResult().build(400, "出库数量有误！", "出库数量有误！");
 			}
 
-			Double estimatedIssueQuantity = getpickUpApplication.getEstimatedIssueQuantity();// 预计出库数量
-			Double actualIssueQuantity = getpickUpApplication.getActualIssueQuantity();// 实际出库数量
+			Double estimatedIssueQuantity = getpickUpApplication.getEstimatedIssueQuantity()==null?0.0:getpickUpApplication.getEstimatedIssueQuantity();// 预计出库数量
+			Double actualIssueQuantity = getpickUpApplication.getActualIssueQuantity()==null?0.0:getpickUpApplication.getActualIssueQuantity();// 实际出库数量
 
 			Double newNum = estimatedIssueQuantity - actualIssueQuantity;
 			if (num > newNum) {

@@ -40,6 +40,8 @@ public class User extends GeneralBean<User> {
 	
 	private String openId;//用户openId
 	
+	private List region; // 浦东  奉贤
+	
 
 	
 }
