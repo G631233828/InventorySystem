@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>设备报修系统</title>
+  <!-- 引入Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 引入Font Awesome -->
+<!--   <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet"> -->
+  <!-- 引入微信JS-SDK -->
+  <script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
+  
+  <!-- 配置Tailwind -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#1677ff',
+            secondary: '#0E4DA4',
+            light: '#E8F3FF',
+            gray: {
+              100: '#F5F7FA',
+              200: '#E5E6EB',
+              300: '#C9CDD4',
+              400: '#86909C',
+              500: '#4E5969',
+              600: '#272E3B',
+            }
+          },
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+          },
+        },
+      }
+    }
+  </script>
+  
+  <style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .form-input-focus {
+        @apply border-primary ring-1 ring-primary;
+      }
+      .wechat-shadow {
+        @apply shadow-[0_1px_2px_rgba(0,0,0,0.1)];
+      }
+    }
+  </style>
+</head>
+
+<body class="bg-gray-100 font-sans text-gray-600 min-h-screen">
+  <!-- 顶部导航栏 -->
+  <header class="bg-primary text-white py-4 px-5 sticky top-0 z-50 wechat-shadow">
+    <div class="flex justify-between items-center">
+      <span class="text-lg font-medium">设备报修</span>
+      <button id="helpBtn" class="text-white opacity-80 hover:opacity-100 transition-opacity">
+        <i class="fa fa-question-circle"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- 主内容区 -->
+  <main class="container mx-auto px-4 py-5 max-w-md">
+    <form id="repairForm" class="space-y-4">
+      <!-- 学校信息 -->
+      <div class="bg-white rounded-lg p-4 wechat-shadow">
+        <h2 class="text-gray-500 text-sm mb-3 flex items-center">
+          <i class="fa fa-building-o mr-2 text-primary"></i>学校信息
+        </h2>
+        
+        <div class="space-y-3">
+          <!-- 学校名称 -->
+          <div>
+            <label for="schoolName" class="block text-sm text-gray-500 mb-1">学校名称 <span class="text-red-500">*</span></label>
+            <input type="text" id="schoolName" name="schoolName" 
+                  class="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:form-input-focus transition-all text-gray-600"
+                  placeholder="请输入学校名称" required>
+          </div>
+          
+          <!-- 校区 -->
+          <div>
+            <label for="campus" class="block text-sm text-gray-500 mb-1">校区 <span class="text-red-500">*</span></label>
+            <input type="text" id="campus" name="campus" 
+                  class="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:form-input-focus transition-all text-gray-600"
+                  placeholder="请输入校区名称" required>
+          </div>
+          
+          <!-- 学校地址 -->
+          <div>
+            <label for="schoolAddress" class="block text-sm text-gray-500 mb-1">学校地址 <span class="text-red-500">*</span></label>
+            <div class="relative">
+              <input type="text" id="schoolAddress" name="schoolAddress" 
+                    class="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:form-input-focus transition-all text-gray-600"
+                    placeholder="请输入地址或点击定位" required>
+              <button type="button" id="locationBtn" class="absolute right-3 top-1/2 -translate-y-1/2 text-primary">
+                <i class="fa fa-map-marker"></i>
+              </button>
+            </div>
+          </div>
+          
+          <!-- 报修教室 -->
+          <div>
+            <label for="reportClassroomRepair" class="block text-sm text-gray-500 mb-1">报修教室 <span class="text-red-500">*</span></label>
+            <input type="text" id="reportClassroomRepair" name="reportClassroomRepair" 
+                  class="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:form-input-focus transition-all text-gray-600"
+                  placeholder="请输入具体教室，如：一号楼302" required>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 报修人信息 -->
+      <div class="bg-white rounded-lg p-4 wechat-shadow">
+        <h2 class="text-gray-500 text-sm mb-3 flex items-center">
+          <i class="fa fa-user-o mr-2 text-primary"></i>报修人信息
+        </h2>
+        
+        <div class="space-y-3">
+          <!-- 报修人姓名 -->
+          <div>
+            <label for="userName" class="block text-sm text-gray-500 mb-1">报修人姓名 <span class="text-red-500">*</span></label>
+            <input type="text" id="userName" name="userName" 
+                  class="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:form-input-focus transition-all text-gray-600"
+                  placeholder="请输入您的姓名" required>
+          </div>
+          
+          <!-- 联系电话 -->
+          <div>
+            <label for="contactNumber" class="block text-sm text-gray-500 mb-1">联系电话 <span class="text-red-500">*</span></label>
+            <input type="tel" id="contactNumber" name="contactNumber" 
+                  class="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:form-input-focus transition-all text-gray-600"
+                  placeholder="请输入您的联系电话" required>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 故障信息 -->
+      <div class="bg-white rounded-lg p-4 wechat-shadow">
+        <h2 class="text-gray-500 text-sm mb-3 flex items-center">
+          <i class="fa fa-wrench mr-2 text-primary"></i>故障信息
+        </h2>
+        
+        <div class="space-y-3">
+          <!-- 报修设备 -->
+          <div>
+            <label for="equipmentRepair" class="block text-sm text-gray-500 mb-1">报修设备 <span class="text-red-500">*</span></label>
+            <input type="text" id="equipmentRepair" name="equipmentRepair" 
+                  class="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:form-input-focus transition-all text-gray-600"
+                  placeholder="请输入报修设备名称" required>
+          </div>
+          
+          <!-- 故障信息 -->
+          <div>
+            <label for="faultInformation" class="block text-sm text-gray-500 mb-1">故障详情 <span class="text-red-500">*</span></label>
+            <textarea id="faultInformation" name="faultInformation" rows="4"
+                      class="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:form-input-focus transition-all text-gray-600 resize-none"
+                      placeholder="请详细描述设备故障情况..." required></textarea>
+            <div class="flex justify-end text-xs text-gray-400 mt-1">
+              <span id="charCount">0/500</span>
+            </div>
+          </div>
+          
+          <!-- 紧急程度 -->
+          <div>
+            <label class="block text-sm text-gray-500 mb-1">紧急程度 <span class="text-red-500">*</span></label>
+            <div class="grid grid-cols-3 gap-2">
+              <label class="urgency-label relative">
+                <input type="radio" name="urgencyLevel" value="一般" class="sr-only" checked>
+                <span class="block text-center px-3 py-2 border border-gray-200 rounded-md cursor-pointer transition-all hover:border-primary urgency-option">一般</span>
+                <i class="fa fa-check-circle absolute hidden text-primary urgency-check"></i>
+              </label>
+              <label class="urgency-label relative">
+                <input type="radio" name="urgencyLevel" value="紧急" class="sr-only">
+                <span class="block text-center px-3 py-2 border border-gray-200 rounded-md cursor-pointer transition-all hover:border-primary urgency-option">紧急</span>
+                <i class="fa fa-check-circle absolute hidden text-primary urgency-check"></i>
+              </label>
+              <label class="urgency-label relative">
+                <input type="radio" name="urgencyLevel" value="非常紧急" class="sr-only">
+                <span class="block text-center px-3 py-2 border border-gray-200 rounded-md cursor-pointer transition-all hover:border-primary urgency-option">非常紧急</span>
+                <i class="fa fa-check-circle absolute hidden text-primary urgency-check"></i>
+              </label>
+            </div>
+          </div>
+          
+          <!-- 期望上门时间 -->
+          <div>
+            <label for="expectedVisitTime" class="block text-sm text-gray-500 mb-1">期望上门时间 <span class="text-red-500">*</span></label>
+            <input type="datetime-local" id="expectedVisitTime" name="expectedVisitTime" 
+                  class="w-full px-3 py-2 border border-gray-200 rounded-md focus:outline-none focus:form-input-focus transition-all text-gray-600"
+                  required>
+          </div>
+          
+          <!-- 故障照片 -->
+          <div>
+            <label class="block text-sm text-gray-500 mb-1">故障设备照片</label>
+            <div class="flex flex-wrap gap-3">
+              <!-- 上传按钮 -->
+              <div id="uploadContainer" class="w-20 h-20 border-2 border-dashed border-gray-200 rounded-md flex flex-col items-center justify-center text-gray-400 cursor-pointer hover:border-primary hover:text-primary transition-all">
+                <i class="fa fa-camera text-xl mb-1"></i>
+                <span class="text-xs">添加照片</span>
+                <input type="file" id="photoUpload" accept="image/*" multiple class="hidden">
+              </div>
+              
+              <!-- 照片预览区域 -->
+              <div id="photoPreviewContainer" class="flex flex-wrap gap-3"></div>
+            </div>
+            <p class="text-xs text-gray-400 mt-2">最多上传5张照片，帮助维修人员更好了解情况</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 提交按钮 -->
+      <button type="submit" class="w-full bg-primary hover:bg-secondary text-white font-medium py-3 px-4 rounded-md transition-colors duration-300 flex items-center justify-center">
+        <i class="fa fa-paper-plane mr-2"></i>提交报修
+      </button>
+      
+      <!-- 提示信息 -->
+      <p class="text-xs text-gray-400 text-center mt-2">
+        提交后，工作人员将尽快与您联系
+      </p>
+    </form>
+  </main>
+  
+  <!-- 底部提示 -->
+  <footer class="bg-white py-4 mt-6 wechat-shadow">
+    <div class="text-center text-xs text-gray-400">
+      <p>© 2023 设备报修系统 版权所有</p>
+    </div>
+  </footer>
+  
+  <!-- 帮助弹窗 -->
+  <div id="helpModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-lg max-w-md w-full max-h-[80vh] overflow-y-auto">
+      <div class="p-4 border-b border-gray-200 flex justify-between items-center">
+        <h3 class="font-medium text-gray-600">报修帮助</h3>
+        <button id="closeHelpBtn" class="text-gray-400 hover:text-gray-600">
+          <i class="fa fa-times"></i>
+        </button>
+      </div>
+      <div class="p-4 space-y-3 text-sm">
+        <p><strong>1. 如何使用定位功能？</strong></p>
+        <p>点击地址输入框右侧的定位图标，系统将获取您的当前位置并自动填充地址信息。</p>
+        
+        <p><strong>2. 照片上传有什么要求？</strong></p>
+        <p>支持JPG、PNG格式，每张照片大小不超过5MB，最多可上传5张。</p>
+        
+        <p><strong>3. 提交后如何查看进度？</strong></p>
+        <p>报修提交后，可在公众号菜单栏"我的报修"中查看处理进度。</p>
+        
+        <p><strong>4. 紧急程度如何选择？</strong></p>
+        <p>- 一般：不影响基本使用，可在24-48小时内处理</p>
+        <p>- 紧急：影响正常使用，需在12-24小时内处理</p>
+        <p>- 非常紧急：严重影响使用，需在4-12小时内处理</p>
+        
+        <p><strong>5. 校区和教室信息如何填写？</strong></p>
+        <p>请填写准确的校区名称和教室编号，例如"东校区 3号教学楼205教室"，以便维修人员快速定位。</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- 成功提示弹窗 -->
+  <div id="successToast" class="fixed top-20 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-5 py-3 rounded-full text-sm flex items-center opacity-0 transition-opacity duration-300 z-50">
+    <i class="fa fa-check-circle mr-2"></i>
+    <span>报修提交成功！</span>
+  </div>
+
+  <script>
+    // 微信JS-SDK初始化配置
+    function initWechatSDK() {
+      // 实际项目中需要通过后端接口获取签名等配置信息
+      const config = {
+        debug: false, // 调试模式，发布时改为false
+        appId: '', // 你的公众号appId，需要从后端获取
+        timestamp: '', // 时间戳，需要从后端获取
+        nonceStr: '', // 随机字符串，需要从后端获取
+        signature: '', // 签名，需要从后端获取
+        jsApiList: ['getLocation'] // 需要使用的JS接口列表
+      };
+
+      wx.config(config);
+
+      wx.ready(function() {
+        console.log('微信JS-SDK初始化成功');
+      });
+
+      wx.error(function(res) {
+        console.error('微信JS-SDK初始化失败:', res);
+        showToast('微信功能初始化失败，请刷新页面重试');
+      });
+    }
+
+    // 页面加载完成后初始化微信SDK
+    document.addEventListener('DOMContentLoaded', function() {
+      initWechatSDK();
+      
+      // 设置默认日期时间（当前时间往后推1小时）
+      const now = new Date();
+      now.setHours(now.getHours() + 1);
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      
+      const defaultDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+      document.getElementById('expectedVisitTime').value = defaultDateTime;
+    });
+
+    // 字符计数功能
+    const faultInfoTextarea = document.getElementById('faultInformation');
+    const charCountSpan = document.getElementById('charCount');
+    
+    faultInfoTextarea.addEventListener('input', function() {
+      const count = this.value.length;
+      charCountSpan.textContent = `${count}/500`;
+      
+      if (count > 500) {
+        this.value = this.value.substring(0, 500);
+        charCountSpan.textContent = '500/500';
+        charCountSpan.classList.add('text-red-500');
+      } else {
+        charCountSpan.classList.remove('text-red-500');
+      }
+    });
+    
+    // 紧急程度选择
+    const urgencyLabels = document.querySelectorAll('.urgency-label');
+    
+    urgencyLabels.forEach(label => {
+      const input = label.querySelector('input');
+      const option = label.querySelector('.urgency-option');
+      const checkIcon = label.querySelector('.urgency-check');
+      
+      // 初始化选中状态
+      if (input.checked) {
+        option.classList.add('border-primary', 'bg-light');
+        checkIcon.classList.remove('hidden');
+        checkIcon.classList.add('block', 'bottom-1', 'right-1');
+      }
+      
+      label.addEventListener('click', () => {
+        // 重置所有选项
+        document.querySelectorAll('.urgency-option').forEach(opt => {
+          opt.classList.remove('border-primary', 'bg-light');
+        });
+        document.querySelectorAll('.urgency-check').forEach(icon => {
+          icon.classList.add('hidden');
+          icon.classList.remove('block', 'bottom-1', 'right-1');
+        });
+        
+        // 设置当前选项为选中状态
+        input.checked = true;
+        option.classList.add('border-primary', 'bg-light');
+        checkIcon.classList.remove('hidden');
+        checkIcon.classList.add('block', 'bottom-1', 'right-1');
+      });
+    });
+    
+    // 照片上传预览
+    const uploadContainer = document.getElementById('uploadContainer');
+    const photoUpload = document.getElementById('photoUpload');
+    const photoPreviewContainer = document.getElementById('photoPreviewContainer');
+    let photoCount = 0;
+    
+    uploadContainer.addEventListener('click', () => {
+      if (photoCount < 5) {
+        photoUpload.click();
+      } else {
+        showToast('最多只能上传5张照片');
+      }
+    });
+    
+    photoUpload.addEventListener('change', handleFileSelect);
+    
+    function handleFileSelect(e) {
+      const files = e.target.files;
+      if (!files.length) return;
+      
+      // 限制最多5张照片
+      const maxToAdd = 5 - photoCount;
+      const filesToProcess = Array.from(files).slice(0, maxToAdd);
+      
+      filesToProcess.forEach(file => {
+        if (!file.type.match('image.*')) {
+          showToast('请上传图片文件');
+          return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          // 创建预览元素
+          const previewDiv = document.createElement('div');
+          previewDiv.className = 'w-20 h-20 rounded-md overflow-hidden relative wechat-shadow group';
+          previewDiv.dataset.index = photoCount;
+          
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          img.className = 'w-full h-full object-cover';
+          
+          const deleteBtn = document.createElement('button');
+          deleteBtn.type = 'button';
+          deleteBtn.className = 'absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity';
+          deleteBtn.innerHTML = '<i class="fa fa-trash text-white"></i>';
+          
+          deleteBtn.addEventListener('click', () => {
+            previewDiv.remove();
+            photoCount--;
+            // 重置file input，否则相同文件无法再次上传
+            photoUpload.value = '';
+          });
+          
+          previewDiv.appendChild(img);
+          previewDiv.appendChild(deleteBtn);
+          photoPreviewContainer.appendChild(previewDiv);
+          photoCount++;
+        };
+        reader.readAsDataURL(file);
+      });
+      
+      // 重置file input，否则相同文件无法再次上传
+      photoUpload.value = '';
+    }
+    
+    // 微信定位功能实现
+    const locationBtn = document.getElementById('locationBtn');
+    const schoolAddressInput = document.getElementById('schoolAddress');
+    
+    locationBtn.addEventListener('click', () => {
+      // 检查是否在微信环境中
+      if (typeof wx === 'undefined') {
+        showToast('请在微信中打开以使用定位功能');
+        return;
+      }
+      
+      showToast('正在获取位置...');
+      
+      // 调用微信JS-SDK的getLocation接口
+      wx.getLocation({
+        type: 'gcj02', // 默认为wgs84的gps坐标，如果要返回直接给openLocation用的火星坐标，可传入'gcj02'
+        success: function(res) {
+          const latitude = res.latitude; // 纬度，浮点数，范围为90 ~ -90
+          const longitude = res.longitude; // 经度，浮点数，范围为180 ~ -180。
+          
+          // 使用腾讯地图API将经纬度转换为地址
+          getAddressFromCoordinates(latitude, longitude);
+        },
+        fail: function(res) {
+          console.error('获取位置失败:', res);
+          showToast('获取位置失败，请允许定位权限或手动输入地址');
+        }
+      });
+    });
+    
+    // 将经纬度转换为具体地址（使用腾讯地图API）
+    function getAddressFromCoordinates(latitude, longitude) {
+      // 创建script标签引入腾讯地图API
+      const script = document.createElement('script');
+      script.src = `https://apis.map.qq.com/ws/geocoder/v1/?location=${latitude},${longitude}&key=YOUR_TENCENT_MAP_KEY&output=jsonp&callback=handleAddressResult`;
+      document.body.appendChild(script);
+    }
+    
+    // 处理地址解析结果
+    window.handleAddressResult = function(result) {
+      if (result.status === 0) {
+        const address = result.result.address;
+        schoolAddressInput.value = address;
+        showToast('定位成功');
+      } else {
+        showToast('地址解析失败，请手动输入');
+      }
+      
+      // 移除临时创建的script标签
+      const scripts = document.querySelectorAll('script[src*="apis.map.qq.com"]');
+      scripts.forEach(script => script.remove());
+    };
+    
+    // 表单提交
+    const repairForm = document.getElementById('repairForm');
+    
+    repairForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      // 在实际项目中，这里应该有表单验证和数据提交逻辑
+      const formData = new FormData(this);
+      
+      // 模拟提交成功
+      showSuccessToast();
+      
+      // 重置表单
+      setTimeout(() => {
+        this.reset();
+        photoPreviewContainer.innerHTML = '';
+        photoCount = 0;
+        charCountSpan.textContent = '0/500';
+        
+        // 重置紧急程度选中状态
+        document.querySelectorAll('.urgency-option').forEach((opt, index) => {
+          opt.classList.remove('border-primary', 'bg-light');
+          if (index === 0) {
+            opt.classList.add('border-primary', 'bg-light');
+            document.querySelectorAll('.urgency-check')[index].classList.remove('hidden');
+            document.querySelectorAll('.urgency-check')[index].classList.add('block', 'bottom-1', 'right-1');
+            document.querySelectorAll('.urgency-label input')[index].checked = true;
+          } else {
+            document.querySelectorAll('.urgency-check')[index].classList.add('hidden');
+            document.querySelectorAll('.urgency-check')[index].classList.remove('block', 'bottom-1', 'right-1');
+            document.querySelectorAll('.urgency-label input')[index].checked = false;
+          }
+        });
+      }, 1500);
+    });
+    
+    // 帮助弹窗
+    const helpBtn = document.getElementById('helpBtn');
+    const closeHelpBtn = document.getElementById('closeHelpBtn');
+    const helpModal = document.getElementById('helpModal');
+    
+    helpBtn.addEventListener('click', () => {
+      helpModal.classList.remove('hidden');
+      helpModal.classList.add('flex');
+    });
+    
+    closeHelpBtn.addEventListener('click', () => {
+      helpModal.classList.add('hidden');
+      helpModal.classList.remove('flex');
+    });
+    
+    // 点击弹窗外部关闭
+    helpModal.addEventListener('click', (e) => {
+      if (e.target === helpModal) {
+        helpModal.classList.add('hidden');
+        helpModal.classList.remove('flex');
+      }
+    });
+    
+    // 提示框功能
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.className = 'fixed top-20 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-5 py-2 rounded-full text-sm opacity-0 transition-opacity duration-300 z-50';
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      
+      // 显示
+      setTimeout(() => {
+        toast.classList.add('opacity-100');
+      }, 10);
+      
+      // 隐藏
+      setTimeout(() => {
+        toast.classList.remove('opacity-100');
+        setTimeout(() => {
+          document.body.removeChild(toast);
+        }, 300);
+      }, 2000);
+    }
+    
+    // 成功提示
+    function showSuccessToast() {
+      const successToast = document.getElementById('successToast');
+      successToast.classList.add('opacity-100');
+      
+      setTimeout(() => {
+        successToast.classList.remove('opacity-100');
+      }, 2000);
+    }
+  </script>
+</body>
+</html>

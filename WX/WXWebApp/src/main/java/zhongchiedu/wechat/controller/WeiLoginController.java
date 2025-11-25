@@ -20,8 +20,10 @@ import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,10 +59,10 @@ public class WeiLoginController {
 	private WxMpProperties wxMpProperties;
 
 	@Value("${wx.mp.configs[0].appId}")
-	private String appid;
+	private String appId;
 	@Value("${wx.mp.configs[0].secret}")
 	private String secret;
-	
+
 
 	/**
 	 * 登陆授权
@@ -94,7 +96,6 @@ public class WeiLoginController {
 		}
 		// 通过code获取微信相关信息
 
-		
 		WxOAuth2Service oAuth2Service = this.wxMpService.getOAuth2Service();
 		WxOAuth2AccessToken accessToken = oAuth2Service.getAccessToken(code);
 //		WxMpOAuth2AccessToken oauth2getAccessToken = wxMpService.oauth2getAccessToken(code);
@@ -108,7 +109,7 @@ public class WeiLoginController {
 			return "redirect:login";
 		}
 		UsernamePasswordToken token = new UsernamePasswordToken(user.getAccountName(), user.getPassWord());
-		
+
 		// 登陆成功
 //		UsernamePasswordToken token = new UsernamePasswordToken("admin", "111111");
 		Subject subject = SecurityUtils.getSubject();
@@ -127,6 +128,7 @@ public class WeiLoginController {
 
 	}
 
+	
 	@PostMapping(value = "tologin")
 	public String tologin(HttpSession session, String username, String password, String openId,
 			RedirectAttributes attr) {
@@ -154,12 +156,12 @@ public class WeiLoginController {
 			subject.login(token);
 			User user = this.userService.findUserByAccountName(username);
 			System.out.println(openId);
-			//更新openId
-			if(Common.isNotEmpty(openId)) {
+			// 更新openId
+			if (Common.isNotEmpty(openId)) {
 				System.out.println("更新openId");
 				this.userService.updateUserAddOpenId(user.getId(), openId);
 			}
-			
+
 			if (subject.isAuthenticated()) {
 				return "redirect:index";
 			} else {
@@ -222,9 +224,41 @@ public class WeiLoginController {
 		String token = wx.getAccessToken();
 		System.out.println(token);
 	}
+	
+	
+//	@GetMapping("/getWxJsSdkConfig")
+//	public ResponseEntity<?> getWxJsSdkConfig(HttpServletRequest request) {
+//		// 1. 获取当前页面URL（需与微信签名时使用的URL一致，不包含#及后面内容）
+//		String url = request.getHeader("Referer");
+//		if (url.contains("#")) {
+//			url = url.split("#")[0];
+//		}
+//
+//		// 2. 调用微信API获取access_token和jsapi_ticket（需缓存，避免频繁调用）
+//		String accessToken = wxService.getAccessToken();
+//		String jsapiTicket = wxService.getJsapiTicket(accessToken);
+//
+//		// 3. 生成签名（遵循微信JS-SDK签名算法）
+//		String nonceStr = UUID.randomUUID().toString().replace("-", "");
+//		long timestamp = System.currentTimeMillis() / 1000;
+//		String signature = WxJsSdkUtil.generateSignature(jsapiTicket, nonceStr, timestamp, url);
+//
+//		// 4. 返回配置给前端
+//		Map<String, Object> config = new HashMap<>();
+//		config.put("appId", appId);
+//		config.put("nonceStr", nonceStr);
+//		config.put("timestamp", timestamp);
+//		config.put("signature", signature);
+//
+//		return ResponseEntity.ok(config);
+//	}
+
+	
+	
+	
 
 	@ResponseBody
-	@PostMapping("/getWxConfig")
+	@GetMapping("/getWxConfig")
 	public Map getWxConfig() {
 		Map map = new HashMap();
 		// 生成签名 随机字符串等
@@ -235,17 +269,17 @@ public class WeiLoginController {
 			String jsapiTicket = wxMpService.getJsapiTicket();
 			// System.out.println(accessToken);
 			System.out.println(jsapiTicket);
-			String url = server_url + "/WXWebApp/wechat/stock";
+			String url = server_url + "/WXWebApp/wechat/repair";
 			// 5、将参数排序并拼接字符串
 			String str = "jsapi_ticket=" + jsapiTicket + "&noncestr=" + noncestr + "&timestamp=" + timestamp + "&url="
 					+ url;
 			System.out.println("str" + str);
 			String signature = SHA1.gen(str);
 			System.out.println("signature" + signature);
-			map.put("noncestr", noncestr);
+			map.put("nonceStr", noncestr);
 			map.put("timestamp", timestamp);
 			map.put("signature", signature);
-			map.put("appId", appid);
+			map.put("appId", appId);
 
 		} catch (WxErrorException e) {
 			e.printStackTrace();

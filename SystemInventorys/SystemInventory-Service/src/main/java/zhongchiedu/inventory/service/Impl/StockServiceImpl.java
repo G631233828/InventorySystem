@@ -332,7 +332,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 //		listsearchAreaId.addAll(findIdsByName);
 		if(listsearchAreaId.size()>0) {
 			query = query.addCriteria(Criteria.where("area.$id").in(listsearchAreaId));
-		}else {
+		}else if(findIdsByName.size()>0) {
 			query = query.addCriteria(Criteria.where("area.$id").in(findIdsByName));
 			
 		}

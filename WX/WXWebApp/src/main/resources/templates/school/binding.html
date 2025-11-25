@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>微信绑定</title>
+    <!-- 替换为 BootCDN 的 Font Awesome 链接 -->
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"> 
+    <script type="text/javascript" th:src="@{/assets/js/tailwindcs-3.4.17.js}"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4 font-sans">
+    <div class="w-full max-w-md bg-white rounded-xl shadow-md overflow-hidden">
+        <div class="bg-blue-500 text-white p-6 text-center">
+            <i class="fa fa-mobile-phone text-5xl"></i>
+            <h1 class="mt-2 text-2xl font-bold">微信账号绑定</h1>
+            <p class="mt-1 text-blue-100">请填写您的真实信息信息完成绑定，填写完成无法修改！</p>
+        </div>
+
+        <div class="p-6">
+            <form id="bindingForm">
+                <!-- openId 隐藏域 -->
+                <input type="hidden" id="openId" name="openId" th:value="${openId}">
+
+ 				 <div class="mb-6">
+                    <label for="personnelType" class="block text-gray-700 text-sm font-bold mb-2">用户类型</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fa fa-id-card-o"></i>
+                        </span>
+                        <!-- 加 change 事件监听用户类型变化 -->
+                        <select id="personnelType" name="personnelType" onchange="handleUserTypeChange()"
+                                class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all appearance-none bg-white">
+                            <option value="" disabled selected>请选择用户类型</option>
+                            <option value="1">维修人员</option>
+                            <option value="2">调度人员</option>
+                        </select>
+                        <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+                            <i class="fa fa-chevron-down"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- 所属施工队：加 id 用于控制显示/隐藏 -->
+                <div id="teamContainer" class="mb-4 hidden">
+                    <label for="team" class="block text-gray-700 text-sm font-bold mb-2">所属施工队</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fa fa-users"></i>
+                        </span>
+                        <select id="team" name="team"
+                                class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all appearance-none bg-white">
+                            <option value="" disabled selected>请选择所属施工队</option>
+                            <!-- 修复多余空选项 -->
+                            <option value="唐贤兴">唐贤兴</option>
+                            <option value="朱远敏">朱远敏</option>
+                            <option value="梁磊">梁磊</option>
+                            <option value="危玉全">危玉全</option>
+                            <option value="王正凯">王正凯</option>
+                            <option value="罗华贵">罗华贵</option>
+                            <option value="谢金亮">谢金亮</option>
+                            <option value="杨杨">杨杨</option>
+                        </select>
+                        <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+                            <i class="fa fa-chevron-down"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="name" class="block text-gray-700 text-sm font-bold mb-2">姓名</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fa fa-user"></i>
+                        </span>
+                        <input type="text" id="name" name="name" placeholder="请输入您的姓名"
+                               class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="contactNumber" class="block text-gray-700 text-sm font-bold mb-2">联系电话</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                            <i class="fa fa-phone"></i>
+                        </span>
+                        <input type="tel" id="contactNumber" name="contactNumber" placeholder="请输入您的联系电话"
+                               class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                    </div>
+                </div>
+
+             
+
+                <button type="submit" id="submitBtn"
+                        class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center">
+                    <span>确认绑定</span>
+                    <i class="fa fa-arrow-right ml-2"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 成功提示框 -->
+    <div id="successToast" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-green-500 text-white px-8 py-4 rounded-lg shadow-lg flex items-center z-50 opacity-0 transition-opacity duration-300 pointer-events-none">
+        <i class="fa fa-check-circle text-2xl mr-3"></i>
+        <span>绑定成功！</span>
+    </div>
+
+    <script>
+        // 关键改动1：用户类型变化时，控制施工队下拉框显示/隐藏
+        function handleUserTypeChange() {
+            const userType = document.getElementById('personnelType').value;
+            const teamContainer = document.getElementById('teamContainer');
+            const teamSelect = document.getElementById('team');
+            
+            if (userType === '1') { // 维修人员：显示并清空选中值（避免残留）
+                teamContainer.classList.remove('hidden');
+                teamSelect.value = ''; // 重置选择
+            } else if (userType === '2') { // 调度人员：隐藏并清空值（避免提交无效数据）
+                teamContainer.classList.add('hidden');
+                teamSelect.value = ''; // 清空值，防止后端校验报错
+            } else { // 未选择用户类型：隐藏
+                teamContainer.classList.add('hidden');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const bindingForm = document.getElementById('bindingForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const successToast = document.getElementById('successToast');
+
+            bindingForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const userType = document.getElementById('personnelType').value;
+                const team = document.getElementById('team').value;
+                const name = document.getElementById('name').value.trim();
+                const contactNumber = document.getElementById('contactNumber').value.trim();
+                const personnelType = document.getElementById('personnelType').value;
+
+                // 关键改动2：条件校验施工队（仅维修人员需要）
+                if (userType === '1' && !team) {
+                    showToast('请选择所属施工队', 'error');
+                    return;
+                }
+                if (!name) {
+                    showToast('请输入姓名', 'error');
+                    return;
+                }
+                if (!contactNumber) {
+                    showToast('请输入联系电话', 'error');
+                    return;
+                }
+                if (!personnelType) {
+                    showToast('请选择用户类型', 'error');
+                    return;
+                }
+
+                // 构造请求数据（调度人员自动忽略team字段，或传空字符串）
+                const formData = {
+                    openId: document.getElementById('openId').value,
+                    name: name,
+                    contactNumber: contactNumber,
+                    personnelType: parseInt(personnelType)
+                };
+                // 仅维修人员添加team字段
+                if (userType === '1') {
+                    formData.team = team;
+                }
+
+                // 提交按钮加载状态
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i> 绑定中...';
+
+                // 发送绑定请求（修复路径：用绝对路径或正确相对路径，避免404）
+                fetch('../wechatrp/wxBinding', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error('网络错误');
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.status === 200) {
+                        successToast.style.opacity = '1';
+                        setTimeout(() => {
+                            successToast.style.opacity = '0';
+                            window.location.href = data.redirectUrl; // 跳转
+                        }, 1500);
+                    } else {
+                        showToast(data.msg || '绑定失败', 'error');
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<span>确认绑定</span><i class="fa fa-arrow-right ml-2"></i>';
+                    }
+                })
+                .catch(error => {
+                    console.error('绑定请求失败:', error);
+                    showToast('网络异常，请稍后重试', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<span>确认绑定</span><i class="fa fa-arrow-right ml-2"></i>';
+                });
+            });
+
+            // 提示框函数
+            function showToast(message, type) {
+                const toast = document.createElement('div');
+                toast.className = `fixed top-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg flex items-center z-50 transition-all duration-300 ${type === 'error' ? 'bg-red-500' : 'bg-green-500'} text-white`;
+                toast.innerHTML = `<i class="fa fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'} mr-2"></i>${message}`;
+                document.body.appendChild(toast);
+                setTimeout(() => { toast.style.top = '1rem'; }, 10);
+                setTimeout(() => {
+                    toast.style.top = '-5rem';
+                    setTimeout(() => { document.body.removeChild(toast); }, 300);
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>

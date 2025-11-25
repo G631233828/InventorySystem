@@ -17,6 +17,8 @@ import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import at.pollux.thymeleaf.shiro.dialect.ShiroDialect;
+import zhongchiedu.wechat.compent.WeChatFilter;
+//import zhongchiedu.wechat.compent.WeChatFilter;
 import zhongchiedu.wechat.compent.WeiWebHandlerInterceptor;
 
 
@@ -53,6 +55,10 @@ public class MVCConfig extends WebMvcConfigurerAdapter {
 		return new WeiWebHandlerInterceptor();
 	}
 	
+	@Bean
+	public WeChatFilter weChatFilter() {
+		return new WeChatFilter();
+	}
 
 	/**
 	 * shiro 界面整合 thymeleaf
@@ -71,7 +77,8 @@ public class MVCConfig extends WebMvcConfigurerAdapter {
 		WebMvcConfigurerAdapter adapter = new WebMvcConfigurerAdapter() {
 			@Override
 			public void addViewControllers(ViewControllerRegistry registry) {
-				registry.addViewController("/").setViewName("/wechat/weChatAuth");
+				registry.addViewController("/wechat").setViewName("/wechat/weChatAuth");
+				registry.addViewController("/wechatrp").setViewName("/wechatrp/repairlist");
 			}
 
 
@@ -80,7 +87,8 @@ public class MVCConfig extends WebMvcConfigurerAdapter {
 			@Override
 			public void addInterceptors(InterceptorRegistry registry) {
 				//registry.addInterceptor(sessionInterceptor()).addPathPatterns("/**").excludePathPatterns("/index.html","/user/login");
-				registry.addInterceptor(weiWebHandlerInterceptor()).addPathPatterns("/**").excludePathPatterns("/wechat/weChatAuth","/wechat/cargoFromStorage/**","/wechat/batchOut/**");
+				 registry.addInterceptor(weiWebHandlerInterceptor()).addPathPatterns("/wechat").excludePathPatterns("/wechat/weChatAuth","/wechat/cargoFromStorage/**","/wechat/batchOut/**");
+				// registry.addInterceptor(weChatFilter()).addPathPatterns("/wechatrp"); // 仅拦截需要强制微信访问的接口
 			}
 			
 		};

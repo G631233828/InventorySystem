@@ -18,71 +18,68 @@ import org.springframework.web.multipart.MultipartFile;
 
 import lombok.extern.slf4j.Slf4j;
 import zhongchiedu.common.utils.Common;
+import zhongchiedu.common.utils.enums.PersonnelType;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralServiceImpl;
 import zhongchiedu.general.pojo.MultiMedia;
 import zhongchiedu.general.service.Impl.MultiMediaServiceImpl;
 import zhongchiedu.inventory.pojo.Brand;
 import zhongchiedu.inventory.pojo.GoodsStorage;
+import zhongchiedu.inventory.pojo.WxBinding;
 import zhongchiedu.inventory.pojo.WxRepair;
+import zhongchiedu.inventory.service.WxBindingService;
 import zhongchiedu.inventory.service.WxRepairService;
 
 @Service
 @Slf4j
-public class WxRepairServiceImpl extends GeneralServiceImpl<WxRepair> implements WxRepairService{
+public class WxBindingServiceImpl extends GeneralServiceImpl<WxBinding> implements WxBindingService {
 	
-	@Autowired
-	private MultiMediaServiceImpl multiMediaSerice;
-	
-	@Override
-	public Pagination<WxRepair> findpagination(Integer pageNo, Integer pageSize) {
-		// 分页查询数据
-				Pagination<WxRepair> pagination = null;
-				try {
-					Query query = new Query();
 
-					query.addCriteria(Criteria.where("isDelete").is(false));
-					query.with(new Sort(new Order(Direction.DESC, "createTime")));
-					pagination = this.findPaginationByQuery(query, pageNo, pageSize, WxRepair.class);
-					if (pagination == null)
-						pagination = new Pagination<WxRepair>();
-					return pagination;
-				} catch (Exception e) {
-					log.info("查询所有报修信息失败——————————》" + e.toString());
-					e.printStackTrace();
-				}
-				return pagination;
+	@Override
+	public Pagination<WxBinding> findpagination(Integer pageNo, Integer pageSize) {
+		// 分页查询数据
+		Pagination<WxBinding> pagination = null;
+		try {
+			Query query = new Query();
+
+			query.addCriteria(Criteria.where("isDelete").is(false));
+			query.with(new Sort(new Order(Direction.DESC, "createTime")));
+			pagination = this.findPaginationByQuery(query, pageNo, pageSize, WxBinding.class);
+			if (pagination == null)
+				pagination = new Pagination<WxBinding>();
+			return pagination;
+		} catch (Exception e) {
+			log.info("查询所有绑定信息——————————》" + e.toString());
+			e.printStackTrace();
+		}
+		return pagination;
 	}
 
 	@Override
-	public void saveOrUpdate(WxRepair wxRepair, MultipartFile[] photos, String imgPath, String dir) {
-		
-		List<MultiMedia> uploadPictures = this.multiMediaSerice.uploadPictures(photos, dir, imgPath, "WXREPAIR");
-		if(uploadPictures.size()>0) {
-			wxRepair.setPhotos(uploadPictures);
-		}
-		
-		if (Common.isNotEmpty(wxRepair)) {
-			if (Common.isNotEmpty(wxRepair.getId())) {
+	public void saveOrUpdate(WxBinding wxBinding) {
+
+		if (Common.isNotEmpty(wxBinding)) {
+			if (Common.isNotEmpty(wxBinding.getId())) {
 				// update
-				WxRepair ed = this.findOneById(wxRepair.getId(), WxRepair.class);
-				BeanUtils.copyProperties(wxRepair, ed);
-				this.save(wxRepair);
+				WxBinding ed = this.findOneById(wxBinding.getId(), WxBinding.class);
+				BeanUtils.copyProperties(wxBinding, ed);
+				this.save(wxBinding);
 			} else {
 				// insert
-				this.insert(wxRepair);
+				this.insert(wxBinding);
 			}
 		}
 	}
-	
+
 	private Lock lock = new ReentrantLock();
+
 	@Override
 	public String delete(String id) {
 		try {
 			lock.lock();
 			List<String> ids = Arrays.asList(id.split(","));
 			for (String edid : ids) {
-				WxRepair de = this.findOneById(edid, WxRepair.class);
+				WxBinding de = this.findOneById(edid, WxBinding.class);
 				de.setIsDelete(true);
 				this.save(de);
 			}
@@ -96,14 +93,22 @@ public class WxRepairServiceImpl extends GeneralServiceImpl<WxRepair> implements
 	}
 
 	@Override
-	public List<WxRepair> findWxRepairByOpenId(String openId) {
+	public WxBinding findWxBindingByOpenId(String openId) {
 		Query query = new Query();
 		query.addCriteria(Criteria.where("isDelete").is(false));
+		query.addCriteria(Criteria.where("isDisable").is(false));
 		query.with(new Sort(new Order(Direction.DESC, "createTime")));
 		query.addCriteria(Criteria.where("openId").is(openId));
-		return this.find(query, WxRepair.class);
+		return this.findOneByQuery(query, WxBinding.class);
 	}
 
-
+	@Override
+	public List<WxBinding> findBindingsByPersonnelType(PersonnelType p) {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("isDelete").is(false));
+		query.addCriteria(Criteria.where("isDisable").is(false));
+		query.addCriteria(Criteria.where("PersonnelType").is(p.getCode()));
+		return this.find(query, WxBinding.class);
+	}
 
 }

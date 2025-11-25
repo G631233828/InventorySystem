@@ -8,17 +8,18 @@ import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralService;
 import zhongchiedu.inventory.pojo.Brand;
 import zhongchiedu.inventory.pojo.WxRepair;
+import zhongchiedu.inventory.pojo.WxReporter;
 
-public interface WxRepairService extends GeneralService<WxRepair> {
+public interface WxReporterService extends GeneralService<WxReporter> {
 	
 
-	public Pagination<WxRepair> findpagination(Integer pageNo,Integer pageSize);
+	public Pagination<WxReporter> findpagination(Integer pageNo,Integer pageSize);
 	
-	public void saveOrUpdate(WxRepair wxRepair, MultipartFile[] photos, String imgPath, String dir);
+	public WxReporter saveOrUpdate(WxReporter w);
 	
 	public String delete(String id);
 	
-	public List<WxRepair> findWxRepairByOpenId(String openId);
+	public WxReporter findWxReporterByOpenId(String openId);
 	
 	
 	

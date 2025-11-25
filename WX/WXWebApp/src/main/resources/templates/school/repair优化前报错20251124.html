@@ -4,16 +4,11 @@
   <meta charset="UTF-8">
   <title>设备报修系统</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  
-  <!-- 外部资源引入 -->
-<!--   <script src="https://cdn.tailwindcss.com"></script> -->
+  <!-- 引入外部资源 -->
+  <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-  <script type="text/javascript" th:src="@{/assets/js/tailwindcs-3.4.17.js}"></script>
-
   
-  
-  
-  <!-- Tailwind配置 -->
+  <!-- Tailwind 配置 -->
   <script>
     tailwind.config = {
       theme: {
@@ -24,18 +19,40 @@
             accent: '#F59E0B',
             danger: '#EF4444',
             neutral: '#6B7280'
-          }
-        }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
       }
     }
   </script>
   
-  <!-- 自定义样式 -->
   <style type="text/tailwindcss">
     @layer utilities {
-      .content-auto { content-visibility: auto; }
-      .form-input-focus { @apply focus:ring-2 focus:ring-primary/50 focus:border-primary focus:outline-none; }
-      .shadow-soft { box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05); }
+      .content-auto {
+        content-visibility: auto;
+      }
+      .form-input-focus {
+        @apply focus:ring-2 focus:ring-primary/50 focus:border-primary focus:outline-none;
+      }
+      .animate-float {
+        animation: float 3s ease-in-out infinite;
+      }
+      .shadow-soft {
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+      }
+    }
+    
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0px); }
+    }
+    html {
+      touch-action: manipulation; /* 禁用双击缩放 */
+      -ms-text-size-adjust: 100%; /* IE禁止文本缩放 */
+      -webkit-text-size-adjust: 100%; /* Safari禁止文本缩放 */
     }
   </style>
 </head>
@@ -60,36 +77,40 @@
    
       <!-- 报修表单 -->
       <form id="repairForm" enctype="multipart/form-data" class="space-y-5">
-        <!-- 隐藏域传递openid -->
+        <!-- 隐藏域传递 openid -->
         <input type="hidden" th:value="${openId}" id="openId" name="openId">
         
         <!-- 学校名称 -->
         <div class="form-group">
           <label for="schoolName" class="block text-sm font-medium text-gray-700 mb-1">学校名称 <span class="text-danger">*</span></label>
-          <input type="text" id="schoolName" name="schoolName" th:value="${wxReporter?.schoolName}"
+          <input type="text" id="schoolName" name="schoolName" 
                  class="w-full px-4 py-2 border border-gray-300 rounded-lg form-input-focus transition-all"
                  placeholder="请输入学校名称" required>
         </div>
         
-        <!-- 学校地址（百度地图定位） -->
+        <!-- 学校地址（百度定位+可拖动标记+实时更新） -->
         <div class="form-group">
           <label for="schoolAddress" class="block text-sm font-medium text-gray-700 mb-1">学校地址 <span class="text-danger">*</span></label>
+          <!-- 用flex布局实现输入框和按钮并排 -->
           <div class="flex gap-3">
-            <input type="text" id="schoolAddress" name="schoolAddress" th:value="${wxReporter?.schoolAddress}"
+            <input type="text" id="schoolAddress" name="schoolAddress" 
                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg form-input-focus transition-all"
                    placeholder="点击右侧图标获取地址，或手动输入" required>
+            <!-- 外部定位按钮：只显示图标，调整尺寸和样式 -->
             <button type="button" id="locateBtn" 
                     class="w-10 h-10 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center">
               <i class="fa fa-map-marker"></i>
             </button>
           </div>
+          <!-- iOS微信定位特别提示 -->
           <p id="iosWechatTip" class="text-xs text-accent mt-1 hidden">
             <i class="fa fa-info-circle mr-1"></i> iOS微信用户请确保已允许定位权限（微信→我→设置→隐私→定位服务→允许"微信"定位）
           </p>
           <p id="locationStatus" class="text-xs text-neutral mt-1 hidden"></p>
           
-          <!-- 小地图容器 -->
+          <!-- 小地图容器（默认隐藏） -->
           <div id="mapContainer" class="mt-3 rounded-lg overflow-hidden border border-gray-200 hidden relative" style="touch-action: none;">
+            <!-- 地图顶部控制区 (已优化布局) -->
             <div class="absolute top-3 left-3 right-3 z-10 flex justify-between items-center gap-2">
               <div id="bracketedAddressDisplay" class="flex-1 bg-white/90 backdrop-blur-sm text-primary px-3 py-1.5 rounded-lg text-sm font-medium shadow-sm truncate">
                 <i class="fa fa-map-pin mr-1"></i><span id="bracketedAddressText">获取位置中...</span>
@@ -98,7 +119,11 @@
                 <i class="fa fa-check mr-1"></i> 确认位置
               </button>
             </div>
+            
+            <!-- 地图显示区域 -->
             <div id="miniMap" class="w-full h-64"></div>
+            
+            <!-- 地图操作提示信息 -->
             <div class="bg-gray-50 p-3 text-xs text-gray-500 space-y-1">
               <div><i class="fa fa-search-plus mr-1"></i> 滚轮/双指缩放地图</div>
               <div><i class="fa fa-hand-pointer-o mr-1"></i> 长按并拖动红色标记到精确位置</div>
@@ -110,31 +135,31 @@
         <!-- 校区 -->
         <div class="form-group">
           <label for="campus" class="block text-sm font-medium text-gray-700 mb-1">校区 <span class="text-danger">*</span></label>
-          <input type="text" id="campus" name="campus" th:value="${wxReporter?.campus}"
+          <input type="text" id="campus" name="campus" 
                  class="w-full px-4 py-2 border border-gray-300 rounded-lg form-input-focus transition-all"
                  placeholder="请输入校区名称" required>
         </div>
         
         <!-- 报修人信息 -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <!-- 报修人 -->
           <div class="form-group">
             <label for="userName" class="block text-sm font-medium text-gray-700 mb-1">报修人 <span class="text-danger">*</span></label>
-            <input type="text" id="userName" name="userName" th:value="${wxReporter?.userName}"
+            <input type="text" id="userName" name="userName" 
                    class="w-full px-4 py-2 border border-gray-300 rounded-lg form-input-focus transition-all"
-                   placeholder="请输入您的姓名" required>
+                 placeholder="请输入您的姓名" required>
           </div>
+          
+          <!-- 联系电话 -->
           <div class="form-group">
             <label for="contactNumber" class="block text-sm font-medium text-gray-700 mb-1">联系电话 <span class="text-danger">*</span></label>
-            <input type="tel" id="contactNumber" name="contactNumber" th:value="${wxReporter?.contactNumber}"
+            <input type="tel" id="contactNumber" name="contactNumber" 
                    class="w-full px-4 py-2 border border-gray-300 rounded-lg form-input-focus transition-all"
-                   placeholder="请输入手机号或座机号" required>
-            <p id="contactNumberError" class="text-xs text-danger mt-1 hidden">
-              <i class="fa fa-exclamation-circle mr-1"></i> 请输入有效的手机号或座机号
-            </p>
+                 placeholder="请输入您的联系电话" required pattern="1[3-9]\d{9}">
           </div>
         </div>
         
-        <!-- 报修教室 -->
+        <!-- 报修教室（非必填） -->
         <div class="form-group">
           <label for="reportClassroomRepair" class="block text-sm font-medium text-gray-700 mb-1">报修教室</label>
           <input type="text" id="reportClassroomRepair" name="reportClassroomRepair" 
@@ -142,7 +167,7 @@
                  placeholder="请输入具体教室位置（选填）">
         </div>
         
-        <!-- 报修设备 -->
+        <!-- 报修设备（非必填） -->
         <div class="form-group">
           <label for="equipmentRepair" class="block text-sm font-medium text-gray-700 mb-1">报修设备</label>
           <input type="text" id="equipmentRepair" name="equipmentRepair" 
@@ -174,14 +199,14 @@
                   <i class="fa fa-cloud-upload text-2xl"></i>
                 </div>
                 <p class="text-gray-600">点击上传或拖放图片到此处</p>
-                <p class="text-xs text-neutral">支持JPG、PNG格式，最多5张，单张不超过5MB</p>
+                <p class="text-xs text-neutral">支持JPG、PNG格式，最多5张</p>
               </div>
             </label>
           </div>
           
           <!-- 图片预览区 -->
           <div id="previewContainer" class="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 hidden">
-            <!-- 图片预览动态添加 -->
+            <!-- 图片预览将动态添加到这里 -->
           </div>
         </div>
         
@@ -196,6 +221,7 @@
                 <div class="text-sm font-medium">一般</div>
               </div>
             </label>
+            
             <label class="relative cursor-pointer">
               <input type="radio" name="urgencyLevel" value="紧急" class="sr-only peer">
               <div class="border border-gray-300 rounded-lg p-4 text-center peer-checked:border-accent peer-checked:bg-accent/5 transition-all">
@@ -203,6 +229,7 @@
                 <div class="text-sm font-medium">紧急</div>
               </div>
             </label>
+            
             <label class="relative cursor-pointer">
               <input type="radio" name="urgencyLevel" value="非常紧急" class="sr-only peer">
               <div class="border border-gray-300 rounded-lg p-4 text-center peer-checked:border-danger peer-checked:bg-danger/5 transition-all">
@@ -256,17 +283,23 @@
     <span>报修信息提交成功！</span>
   </div>
 
-  <!-- 核心JS -->
+  <!-- 引入百度地图2D基础版（异步加载） -->
   <script>
-    // 全局变量
+    if (typeof BMap === 'undefined') {
+      const script = document.createElement('script');
+      script.src = "https://api.map.baidu.com/api?v=2.0&ak=O1etBmdvVAYUTTR3S3nZz2l0S4br8v4p&callback=initBaiduMap";
+      script.async = true;
+      document.head.appendChild(script);
+    }
+  </script>
+  
+  <script>
     let map = null;
     let marker = null;
     let BMap = null;
     let geocoder = null;
     let isiOSWechat = false;
-    let mapLoaded = false;
     
-    // DOM元素缓存
     const repairForm = document.getElementById('repairForm');
     const locateBtn = document.getElementById('locateBtn');
     const schoolAddress = document.getElementById('schoolAddress');
@@ -282,62 +315,41 @@
     const mapContainer = document.getElementById('mapContainer');
     const confirmLocationBtn = document.getElementById('confirmLocationBtn');
     const bracketedAddressText = document.getElementById('bracketedAddressText');
-    const contactNumberInput = document.getElementById('contactNumber');
-    const contactNumberError = document.getElementById('contactNumberError');
     
-    // 页面加载完成初始化
     document.addEventListener('DOMContentLoaded', () => {
-      initFormBasic();
-      setTimeout(() => {
-        initEnvCheck();
-        checkLocationPermission();
-      }, 800);
-    });
-    
-    /**
-     * 初始化表单基础功能
-     */
-    function initFormBasic() {
-      // 设置默认日期（明天早上9点）
+      initEnvCheck();
+      
       const now = new Date();
       now.setDate(now.getDate() + 1);
-      now.setHours(9, 0, 0);
+      now.setHours(9, 0, 0); // 设置为明天早上9点
       const formattedDateTime = now.toISOString().slice(0, 16);
       document.getElementById('expectedVisitTime').value = formattedDateTime;
       
-      // 字符计数
-      faultInformation.addEventListener('input', () => {
-        let length = faultInformation.value.length;
-        if (length > 500) {
-          faultInformation.value = faultInformation.value.substring(0, 500);
-          length = 500;
-        }
-        charCount.textContent = `${length}/500`;
-        charCount.classList.toggle('text-danger', length > 500);
-      });
-
-      // 联系电话实时验证
-      contactNumberInput.addEventListener('input', function() {
-        const value = this.value.trim();
-        if (!value) {
-          contactNumberError.classList.add('hidden');
-          this.classList.remove('border-danger');
-          this.classList.add('border-gray-300');
-          return;
-        }
-        const phoneRegex = /^(1[3-9]\d{9}|0\d{2,3}[- ]?\d{7,8}|\d{10,12})$/;
-        if (phoneRegex.test(value)) {
-          contactNumberError.classList.add('hidden');
-          this.classList.remove('border-danger');
-          this.classList.add('border-gray-300');
+      checkLocationPermission();
+      
+      confirmLocationBtn.addEventListener('click', () => {
+        mapContainer.classList.add('hidden');
+        const addressValue = schoolAddress.value.trim();
+        if (addressValue) {
+            showLocationStatus(`位置已确认: <strong>${addressValue}</strong>`, 'success');
         } else {
-          contactNumberError.classList.remove('hidden');
-          this.classList.remove('border-gray-300');
-          this.classList.add('border-danger');
+            showLocationStatus('位置已确认，但地址为空', 'success');
+        }
+        resetLocateButton();
+      });
+      
+      faultInformation.addEventListener('input', () => {
+        const length = faultInformation.value.length;
+        charCount.textContent = `${length}/500`;
+        if (length > 500) {
+          charCount.classList.add('text-danger');
+          faultInformation.value = faultInformation.value.substring(0, 500);
+          charCount.textContent = '500/500';
+        } else {
+          charCount.classList.remove('text-danger');
         }
       });
       
-      // 帮助弹窗
       helpBtn.addEventListener('click', () => {
         helpModal.classList.remove('hidden');
         helpModal.classList.add('flex');
@@ -350,24 +362,21 @@
         if (e.target === helpModal) closeHelpModal();
       });
       
-      // 确认位置按钮
-      confirmLocationBtn.addEventListener('click', () => {
-        mapContainer.classList.add('hidden');
-        const addressValue = schoolAddress.value.trim();
-        showLocationStatus(
-          addressValue ? `位置已确认: <strong>${addressValue}</strong>` : '位置已确认，但地址为空', 
-          'success'
-        );
-        resetLocateButton();
+      window.addEventListener('scroll', () => {
+        const header = document.querySelector('header');
+        header.classList.toggle('shadow', window.scrollY > 10);
       });
       
-      // 表单提交
-      repairForm.addEventListener('submit', handleFormSubmit);
-    }
+      document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && (e.key === '+' || e.key === '-')) {
+          e.preventDefault();
+        }
+        if ((e.ctrlKey || e.metaKey) && e.key === '0') {
+          e.preventDefault();
+        }
+      });
+    });
     
-    /**
-     * 环境检测
-     */
     function initEnvCheck() {
       const ua = navigator.userAgent.toLowerCase();
       isiOSWechat = /iphone|ipad|ipod/.test(ua) && /micromessenger/.test(ua);
@@ -379,16 +388,25 @@
       }
     }
     
-    /**
-     * 定位权限检查
-     */
+    function initBaiduMap() {
+      BMap = window.BMap;
+      if (BMap) {
+        console.log('百度地图2D基础版加载成功');
+        geocoder = new BMap.Geocoder();
+      } else {
+        console.error('百度地图加载失败');
+        showLocationStatus('地图加载失败，建议手动输入地址', 'error');
+      }
+    }
+    
     function checkLocationPermission() {
       if (navigator.permissions && navigator.permissions.query) {
         navigator.permissions.query({ name: 'geolocation' }).then(result => {
           if (result.state === 'denied') {
-            const tip = isiOSWechat 
-              ? '定位权限已被拒绝，请在微信设置中开启（微信→我→设置→隐私→定位服务）' 
-              : '定位权限已被拒绝，请在浏览器设置中开启';
+            let tip = '定位权限已被拒绝，请在浏览器设置中开启';
+            if (isiOSWechat) {
+              tip = '定位权限已被拒绝，请在微信设置中开启（微信→我→设置→隐私→定位服务）';
+            }
             showLocationStatus(tip, 'error');
           }
           result.addEventListener('change', () => {
@@ -402,79 +420,25 @@
       }
     }
     
-    /**
-     * 动态加载百度地图SDK
-     */
-    function loadMapScript() {
-      return new Promise((resolve, reject) => {
-        if (window.BMap) {
-          resolve();
-          return;
-        }
-        if (document.querySelector('script[src*="api.map.baidu.com"]')) {
-          const checkLoaded = setInterval(() => {
-            if (window.BMap) {
-              clearInterval(checkLoaded);
-              resolve();
-            }
-          }, 100);
-          setTimeout(() => {
-            clearInterval(checkLoaded);
-            reject(new Error('地图加载超时'));
-          }, 10000);
-          return;
-        }
-        const script = document.createElement('script');
-        script.src = 'https://api.map.baidu.com/api?v=2.0&ak=O1etBmdvVAYUTTR3S3nZz2l0S4br8v4p&callback=initBaiduMap';
-        script.async = true;
-        script.defer = true;
-        window.initBaiduMap = () => {
-          BMap = window.BMap;
-          geocoder = new BMap.Geocoder();
-          resolve();
-        };
-        script.onerror = () => reject(new Error('地图加载失败'));
-        document.head.appendChild(script);
-      });
-    }
-    
-    /**
-     * 定位按钮点击事件
-     */
-    locateBtn.addEventListener('click', async () => {
+    locateBtn.addEventListener('click', () => {
       if (isiOSWechat && window.location.protocol !== 'https:') {
         showLocationStatus('iOS微信要求HTTPS环境才能定位，请切换到HTTPS访问', 'error');
         return;
       }
       
-      if (!mapLoaded) {
-        showLocationStatus('正在加载地图，请稍候...', 'info');
-        bracketedAddressText.textContent = '地图加载中...';
-        try {
-          await loadMapScript();
-          mapLoaded = true;
-        } catch (error) {
-          showLocationStatus(`地图加载失败：${error.message}，请手动输入地址`, 'error');
-          resetLocateButton();
-          return;
-        }
+      if (!BMap || !geocoder) {
+        showLocationStatus('地图加载失败，请手动输入地址', 'error');
+        return;
       }
       
-      startLocation();
-    });
-    
-    /**
-     * 开始定位
-     */
-    function startLocation() {
       if (!navigator.geolocation) {
         showLocationStatus('您的浏览器不支持地理定位，请手动输入地址', 'error');
-        resetLocateButton();
         return;
       }
       
       showLocationStatus('正在获取当前位置...请允许定位权限', 'info');
-      bracketedAddressText.textContent = '定位中...';
+      bracketedAddressText.textContent = "定位中...";
+
       locateBtn.disabled = true;
       locateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
       
@@ -488,9 +452,7 @@
           let message = '';
           switch(error.code) {
             case error.PERMISSION_DENIED:
-              message = isiOSWechat 
-                ? '您拒绝了定位权限，请在微信设置中开启（微信→我→设置→隐私→定位服务）' 
-                : '您拒绝了定位权限，请在浏览器设置中开启';
+              message = isiOSWechat ? '您拒绝了定位权限，请在微信设置中开启（微信→我→设置→隐私→定位服务）' : '您拒绝了定位权限，请在浏览器设置中开启';
               break;
             case error.POSITION_UNAVAILABLE:
               message = '位置信息不可用，请手动输入地址或稍后重试';
@@ -503,21 +465,18 @@
               break;
           }
           showLocationStatus(message, 'error');
-          bracketedAddressText.textContent = '定位失败';
+          bracketedAddressText.textContent = "定位失败";
           resetLocateButton();
           initMiniMap(39.9042, 116.4074);
         },
         {
-          enableHighAccuracy: false,
-          timeout: isiOSWechat ? 15000 : 10000,
-          maximumAge: 300000
+          enableHighAccuracy: true,
+          timeout: isiOSWechat ? 30000 : 20000,
+          maximumAge: 0,
         }
       );
-    }
+    });
     
-    /**
-     * 通过百度地图逆地理编码获取地址
-     */
     function getAddressByBaidu(latitude, longitude) {
       const point = new BMap.Point(longitude, latitude);
       
@@ -525,13 +484,19 @@
         try {
           if (result && result.address) {
             let fullAddress = result.address;
-            let poiName = result.surroundingPois?.[0]?.title || result.poiList?.[0]?.name || '';
+            let poiName = "";
+            
+            if (result.surroundingPois && result.surroundingPois.length > 0) {
+              poiName = result.surroundingPois[0].title;
+            } else if (result.poiList && result.poiList.length > 0) {
+              poiName = result.poiList[0].name;
+            }
             
             if (poiName) {
               fullAddress += `（${poiName}）`;
               bracketedAddressText.textContent = poiName;
             } else {
-              bracketedAddressText.textContent = '未获取到具体位置';
+              bracketedAddressText.textContent = "未获取到具体位置";
             }
             
             schoolAddress.value = fullAddress;
@@ -543,7 +508,7 @@
         } catch (error) {
           console.error('百度逆地理编码异常:', error);
           showLocationStatus('地址解析失败，请手动输入', 'error');
-          bracketedAddressText.textContent = '地址解析失败';
+          bracketedAddressText.textContent = "地址解析失败";
           initMiniMap(latitude, longitude);
         } finally {
           resetLocateButton();
@@ -551,18 +516,17 @@
       });
     }
     
-    /**
-     * 后端解析地址（备选方案）
-     */
     function fetchAddressFromBackend(latitude, longitude) {
       showLocationStatus('正在尝试其他方式获取地址...', 'info');
-      bracketedAddressText.textContent = '获取中...';
+      bracketedAddressText.textContent = "获取中...";
 
       const params = new URLSearchParams();
       params.append('latitude', latitude);
       params.append('longitude', longitude);
       
-      fetch(`../wechatrp/geocode?${params.toString()}`, {
+      const requestUrl = `../wechatrp/geocode?${params.toString()}`;
+      
+      fetch(requestUrl, {
         method: 'GET',
         mode: 'cors',
         credentials: 'include'
@@ -593,9 +557,6 @@
       });
     }
     
-    /**
-     * 初始化小地图
-     */
     function initMiniMap(lat, lng) {
       if (!BMap || !geocoder) {
         showLocationStatus('地图加载失败，无法显示', 'error');
@@ -604,36 +565,72 @@
       
       mapContainer.classList.remove('hidden');
       
-      map = new BMap.Map("miniMap", { enableMapClick: false });
+      map = new BMap.Map("miniMap");
       const point = new BMap.Point(lng, lat);
-      map.centerAndZoom(point, 16);
+      
+      map.centerAndZoom(point, 18);
       map.enableScrollWheelZoom(true);
       map.enableDragging();
+      map.enableInertialDragging();
       
-      setTimeout(() => {
-        if (marker) map.removeOverlay(marker);
-        
-        marker = new BMap.Marker(point, {
-          draggable: true,
-          raiseOnDrag: true,
-        });
-        map.addOverlay(marker);
-        marker.setAnimation(BMAP_ANIMATION_DROP);
-        
-        marker.addEventListener('dragend', function(e) {
-          const newPoint = e.point;
-          geocoder.getLocation(newPoint, updateAddressByPoint);
-        });
-        
-        map.addEventListener('click', function(e) {
-          const clickPoint = e.point;
-          marker.setPosition(clickPoint);
-          map.panTo(clickPoint);
-          geocoder.getLocation(clickPoint, updateAddressByPoint);
-        });
-      }, 300);
+      if (marker) {
+        map.removeOverlay(marker);
+      }
       
-      if (isiOSWechat && !mapContainer.querySelector('.ios-wechat-tip')) {
+      marker = new BMap.Marker(point, {
+        draggable: true,
+        raiseOnDrag: true,
+      });
+      
+      map.addOverlay(marker);
+      marker.setAnimation(BMAP_ANIMATION_DROP);
+      
+      marker.addEventListener('dragend', function(e) {
+        const newPoint = e.point;
+        geocoder.getLocation(newPoint, function(result) {
+          if (result && result.address) {
+            let fullAddress = result.address;
+            let poiName = "";
+            if (result.surroundingPois && result.surroundingPois.length > 0) poiName = result.surroundingPois[0].title;
+            else if (result.poiList && result.poiList.length > 0) poiName = result.poiList[0].name;
+
+            if (poiName) fullAddress += `（${poiName}）`;
+            schoolAddress.value = fullAddress;
+            bracketedAddressText.textContent = poiName || "未获取到具体位置";
+            showLocationStatus('地址已更新，可继续调整或点击"确认位置"', 'info');
+          } else {
+            showLocationStatus('地址更新失败，请手动补充', 'error');
+            bracketedAddressText.textContent = "地址更新失败";
+          }
+        });
+      });
+      
+      map.addEventListener('click', function(e) {
+        const clickPoint = e.point;
+        marker.setPosition(clickPoint);
+        map.panTo(clickPoint);
+        geocoder.getLocation(clickPoint, function(result) {
+          if (result && result.address) {
+            let fullAddress = result.address;
+            let poiName = "";
+            if (result.surroundingPois && result.surroundingPois.length > 0) poiName = result.surroundingPois[0].title;
+            else if (result.poiList && result.poiList.length > 0) poiName = result.poiList[0].name;
+
+            if (poiName) fullAddress += `（${poiName}）`;
+            schoolAddress.value = fullAddress;
+            bracketedAddressText.textContent = poiName || "未获取到具体位置";
+            showLocationStatus('地址已更新，可继续调整或点击"确认位置"', 'info');
+          } else {
+            showLocationStatus('地址获取失败，请手动补充', 'error');
+            bracketedAddressText.textContent = "地址获取失败";
+          }
+        });
+      });
+      
+      if (isiOSWechat) {
+        const existingTip = mapContainer.querySelector('.ios-wechat-tip');
+        if (existingTip) existingTip.remove();
+        
         const iosTip = document.createElement('div');
         iosTip.className = 'ios-wechat-tip text-xs text-danger my-2 px-2 py-1 bg-danger/10 rounded';
         iosTip.innerHTML = '<i class="fa fa-info-circle mr-1"></i> iOS微信用户：若地图操作不流畅，请尝试缩小地图后再操作，或直接手动输入地址';
@@ -641,27 +638,6 @@
       }
     }
     
-    /**
-     * 根据坐标更新地址
-     */
-    function updateAddressByPoint(result) {
-      if (result && result.address) {
-        let fullAddress = result.address;
-        let poiName = result.surroundingPois?.[0]?.title || result.poiList?.[0]?.name || '';
-
-        if (poiName) fullAddress += `（${poiName}）`;
-        schoolAddress.value = fullAddress;
-        bracketedAddressText.textContent = poiName || "未获取到具体位置";
-        showLocationStatus('地址已更新，可继续调整或点击"确认位置"', 'info');
-      } else {
-        showLocationStatus('地址更新失败，请手动补充', 'error');
-        bracketedAddressText.textContent = "地址更新失败";
-      }
-    }
-    
-    /**
-     * 重置定位按钮状态
-     */
     function resetLocateButton() {
       try {
         locateBtn.disabled = false;
@@ -671,9 +647,6 @@
       }
     }
     
-    /**
-     * 显示定位状态提示
-     */
     function showLocationStatus(message, type) {
       locationStatus.classList.remove('hidden', 'text-success', 'text-danger', 'text-primary');
       
@@ -694,9 +667,6 @@
       locationStatus.classList.remove('hidden');
     }
     
-    /**
-     * 图片上传处理（优化预览逻辑）
-     */
     function handleFileSelect(event) {
       const files = event.target.files;
       if (!files || files.length === 0) return;
@@ -726,7 +696,6 @@
           return;
         }
         
-        // 先预览原始图片，后台异步压缩
         const reader = new FileReader();
         reader.onload = (e) => {
           const previewItem = document.createElement('div');
@@ -749,19 +718,14 @@
             }
           };
           
-          // 后台压缩图片（不影响预览）
-          compressImage(file).then(compressedBlob => {
-            const fileSize = (compressedBlob.size / 1024).toFixed(1);
-            const fileName = file.name.length > 8 ? `${file.name.substring(0, 8)}...` : file.name;
-            
-            const fileInfo = document.createElement('div');
-            fileInfo.className = 'absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs p-1 truncate';
-            fileInfo.textContent = `${fileName} (${fileSize}KB)`;
-            
-            previewItem.appendChild(fileInfo);
-          });
+          const fileInfo = document.createElement('div');
+          const fileSize = (file.size / 1024).toFixed(1);
+          const fileName = file.name.length > 8 ? `${file.name.substring(0, 8)}...` : file.name;
+          fileInfo.className = 'absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs p-1 truncate';
+          fileInfo.textContent = `${fileName} (${fileSize}KB)`;
           
           previewItem.appendChild(img);
+          previewItem.appendChild(fileInfo);
           previewItem.appendChild(deleteBtn);
           previewContainer.appendChild(previewItem);
         };
@@ -769,57 +733,8 @@
       });
     }
     
-    /**
-     * 图片压缩
-     */
-    function compressImage(file) {
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const img = new Image();
-          img.onload = () => {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            
-            let width = img.width;
-            let height = img.height;
-            if (width > 1000) {
-              const ratio = 1000 / width;
-              width = 1000;
-              height = height * ratio;
-            }
-            
-            canvas.width = width;
-            canvas.height = height;
-            
-            ctx.drawImage(img, 0, 0, width, height);
-            
-            canvas.toBlob(resolve, 'image/jpeg', 0.8);
-          };
-          img.src = e.target.result;
-        };
-        reader.readAsDataURL(file);
-      });
-    }
-    
-    /**
-     * 表单提交处理
-     */
-    function handleFormSubmit(e) {
+    repairForm.addEventListener('submit', (e) => {
       e.preventDefault();
-      
-      // 触发联系电话验证
-      contactNumberInput.dispatchEvent(new Event('input'));
-      if (!contactNumberError.classList.contains('hidden')) {
-        contactNumberInput.focus();
-        alert('请检查您输入的联系电话格式是否正确。');
-        return;
-      }
-      
-      // 格式化联系电话
-      const contactValue = contactNumberInput.value.trim();
-      const formattedContact = contactValue.replace(/\D/g, '');
-      contactNumberInput.value = formattedContact;
       
       const submitBtn = document.getElementById('submitBtn');
       submitBtn.disabled = true;
@@ -842,6 +757,7 @@
         if (data.status == 200) {
           showSuccessToast();
           
+          // 延迟1.5秒后跳转
           setTimeout(() => {
             window.location.href = '../wechatrp/repairlist';
           }, 1500);
@@ -858,11 +774,8 @@
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fa fa-paper-plane mr-2"></i> 提交报修';
       });
-    }
+    });
     
-    /**
-     * 显示成功提示
-     */
     function showSuccessToast() {
       successToast.classList.remove('hidden', 'opacity-0');
       successToast.classList.add('opacity-100');
@@ -876,24 +789,11 @@
       }, 3000);
     }
     
-    /**
-     * 关闭帮助弹窗
-     */
     function closeHelpModal() {
       helpModal.classList.remove('flex');
       helpModal.classList.add('hidden');
       document.body.style.overflow = '';
     }
-    
-    // 禁用微信浏览器默认缩放
-    document.addEventListener('keydown', function(e) {
-      if ((e.ctrlKey || e.metaKey) && (e.key === '+' || e.key === '-')) {
-        e.preventDefault();
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key === '0') {
-        e.preventDefault();
-      }
-    });
   </script>
 </body>
 </html>

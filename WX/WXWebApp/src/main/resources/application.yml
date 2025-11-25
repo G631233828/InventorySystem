@@ -9,8 +9,8 @@ wx:
         
    
 #    server-url: http://zhongchi.top
-    server-url: http://cored.zhongchiedu.com
-    #server-url: http://m7xm9x.natappfree.cc
+#    server-url: http://cored.zhongchiedu.com
+    server-url: https://r5tm53y8.xiaomy.net
 
 logging:
   level:
@@ -25,7 +25,8 @@ qrcode:
   height: 300
   width: 300
 #  weburl: http://zhongchi.top/WXWebApp/
-  weburl: http://cored.zhongchiedu.com/WXWebApp/
+#  weburl: http://cored.zhongchiedu.com/WXWebApp/
+  weburl: https://r5tm53y8.xiaomy.net/WXWebApp/
   format: png
   qrcodepath: upload/qrcode/
 upload:
@@ -39,6 +40,9 @@ templateId1: t65Pa8jI77ZTyyTX1LnPNgAYKo1sk8idfR72lbe0I10
 templateId2: usdpKAlc3Npb89SnYyQTOw4jVwyCCYFRSgYW1yR68Ek
 #出库成功通知
 templateId3: vr3-sgtGL2WrhwIU5MImE1vZulEdz2hmTuiBLeupY4Q
+
+#报修申请通知
+templateId4: ql3sGH0EZYZcaO7-dfjnHhAZVGkKPgn9PBeJjVU3lAs
 
 
 
