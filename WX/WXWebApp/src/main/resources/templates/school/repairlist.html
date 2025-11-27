@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>我的报修 - 设备报修系统</title>
+<meta name="viewport"
+	content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<!-- 引入外部资源 -->
+<link 	href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css"	rel="stylesheet">
+<script type="text/javascript" th:src="@{/assets/js/tailwindcs-3.4.17.js}"></script>
+
+<!-- Tailwind 配置 -->
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#3B82F6',    // 主色调：蓝色
+            secondary: '#10B981',  // 辅助色：绿色
+            accent: '#F59E0B',     // 强调色：橙色
+            danger: '#EF4444',     // 危险色：红色
+            neutral: '#6B7280',    // 中性色：灰色
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+
+<style type="text/tailwindcss">
+    @layer utilities {
+      .content-auto {
+        content-visibility: auto;
+      }
+      .form-input-focus {
+        @apply focus:ring-2 focus:ring-primary/50 focus:border-primary focus:outline-none;
+      }
+      .shadow-soft {
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+      .status-badge {
+        @apply text-xs font-semibold px-2.5 py-0.5 rounded-full;
+      }
+      .card-hover {
+        @apply transition-all duration-300 hover:shadow-md hover:-translate-y-0.5;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800 min-h-screen">
+	<!-- 顶部导航 -->
+	<header
+		class="bg-white shadow-sm fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+		<div
+			class="container mx-auto px-4 py-3 flex justify-between items-center">
+			<h1 class="text-lg font-bold text-primary flex items-center">
+				<i class="fa fa-wrench mr-2"></i>我的报修
+			</h1>
+			<div class="flex items-center space-x-4">
+				<div class="relative">
+					<button
+						class="flex items-center space-x-2 text-sm font-medium text-neutral hover:text-primary transition-colors">
+						<img
+							class="w-7 h-7 rounded-full object-cover border-2 border-primary/20"
+							th:src="${userInfo?.headImgUrl}" th:alt="${userInfo?.nickname}"
+							src="https://picsum.photos/id/1005/100/100" alt="默认头像">
+						<span th:text="${userInfo?.nickname}">微信用户</span> <i
+							class="fa fa-chevron-down text-xs"></i>
+					</button>
+				</div>
+			</div>
+		</div>
+	</header>
+
+	<!-- 主内容区 -->
+	<main class="container mx-auto px-4 pt-20 pb-6">
+		<!-- 页面标题和操作区 -->
+		<div class="mb-6 pt-4">
+			<div
+				class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+				<div>
+					<h2 class="text-xl font-bold text-gray-800">报修工单管理</h2>
+					<p class="text-gray-500 text-sm">查看和管理您的所有报修工单</p>
+				</div>
+				<a href="../wechatrp/repair"
+					class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-primary hover:bg-primary/90 transition-colors transform hover:scale-105">
+					<i class="fa fa-plus mr-2"></i> 发起新报修
+				</a>
+			</div>
+		</div>
+
+		<!-- 筛选和搜索区 -->
+	<!-- 	<div
+			class="bg-white p-4 rounded-lg shadow-soft mb-6 transform transition-all duration-300 hover:shadow-md">
+			<form id="filterForm" class="flex flex-col gap-4">
+				<div class="relative">
+					<div
+						class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+						<i class="fa fa-search text-gray-400"></i>
+					</div>
+					<input type="text" name="search" id="search"
+						class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:form-input-focus text-sm transition-all"
+						placeholder="搜索报修内容、设备名称、工单编号...">
+				</div>
+				<div class="flex flex-wrap gap-3">
+					<div class="flex-grow min-w-[200px]">
+						<select id="statusFilter" name="status"
+							class="block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white text-gray-700 focus:outline-none focus:form-input-focus appearance-none bg-no-repeat bg-right-center pr-8 text-sm transition-all">
+							<option value="">全部状态</option>
+							<option value="1">待处理</option>
+							<option value="2">已分配</option>
+							<option value="3">处理中</option>
+							<option value="4">已完成</option>
+							<option value="5">已取消</option>
+						</select>
+					</div>
+					<div class="flex-grow min-w-[200px]">
+						<select id="dateFilter" name="dateRange"
+							class="block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white text-gray-700 focus:outline-none focus:form-input-focus appearance-none bg-no-repeat bg-right-center pr-8 text-sm transition-all">
+							<option value="">全部时间</option>
+							<option value="today">今天</option>
+							<option value="week">本周</option>
+							<option value="month">本月</option>
+							<option value="quarter">本季度</option>
+							<option value="year">本年</option>
+						</select>
+					</div>
+					<button type="submit"
+						class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary/90 transition-colors whitespace-nowrap">
+						<i class="fa fa-filter mr-1"></i> 筛选
+					</button>
+					<button type="button" id="resetFilter"
+						class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors whitespace-nowrap">
+						<i class="fa fa-refresh mr-1"></i> 重置
+					</button>
+				</div>
+			</form>
+		</div> -->
+
+		<!-- 报修列表 - 动态遍历 -->
+		<div class="space-y-4" th:each="repair : ${repairList}">
+			<!-- 提前定义状态相关变量 -->
+			<div class="bg-white rounded-lg shadow-soft overflow-hidden card-hover"
+				th:with="statusEnum=${T(zhongchiedu.common.utils.enums.RepairStatus).fromCode(repair.status)},
+						progressWidth=${statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).PENDING ? '25%' : 
+										statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).ASSIGNED ? '40%' : 
+										statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).PROCESSING ? '70%' : 
+										statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).COMPLETED ? '100%' : '0%'},
+						progressColor=${statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).PENDING ? 'bg-yellow-500' : 
+										statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).ASSIGNED ? 'bg-blue-400' : 
+										statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).PROCESSING ? 'bg-blue-500' : 
+										statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).COMPLETED ? 'bg-green-500' : 'bg-gray-400'},
+						progressText=${statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).PENDING ? '待分配维修人员' : 
+										statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).ASSIGNED ? '已分配维修人员' : 
+										statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).PROCESSING ? '处理中' : 
+										statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).COMPLETED ? '已完成' : '已取消'}">
+				
+				<div class="p-4">
+					<div class="flex justify-between items-start mb-3">
+						<div>
+							<span class="text-xs font-medium text-gray-500">工单编号</span>
+							<p class="font-medium" th:text="${repair.workOrderNumber}">#WX20230601001</p>
+						</div>
+
+						<!-- 动态状态标签 -->
+						<span class="status-badge"
+							th:classappend="${statusEnum?.cssClass}"
+							th:text="${statusEnum?.description ?: '未知状态'}"> </span>
+					</div>
+
+					<div class="mb-3">
+						<span class="text-xs font-medium text-gray-500 block mb-1">报修内容</span>
+						<p class="text-sm line-clamp-2"
+							th:text="${repair.faultInformation}"></p>
+					</div>
+
+					<div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
+						<div>
+							<span class="text-xs font-medium text-gray-500 block mb-1">报修设备</span>
+							<p class="text-xs text-gray-500" th:text="${repair.equipmentRepair}"></p>
+							<span class="text-xs font-medium text-gray-500 block mb-1">设备位置</span>
+							<p class="text-xs text-gray-500" th:text="${repair.reportClassroomRepair}"></p>
+						</div>
+						<div>
+							<span class="text-xs font-medium text-gray-500 block mb-1">提交时间</span>
+							<p class="text-sm"
+								th:text="${repair.createTime != null ? #dates.format(repair.createTime ,'yyyy-MM-dd') : '暂无时间'}">
+							</p>
+							<p class="text-xs text-gray-500"
+								th:text="${repair.createTime != null ? #dates.format(repair.createTime, 'HH:mm') : ''}">
+							</p>
+						</div>
+						<div>
+							<span class="text-xs font-medium text-gray-500 block mb-1">优先级</span>
+							<p class="text-sm flex items-center">
+								<i class="fa fa-exclamation-circle"
+									th:classappend="${repair.urgencyLevel == '一般' ? 'text-gray-400' : repair.urgencyLevel == '紧急' ? 'text-orange-500' : 'text-red-500'}"></i>
+								<span th:text="${repair.urgencyLevel}">中</span>
+							</p>
+						</div>
+						<div th:if="${repair.worker != null}">
+							<span class="text-xs font-medium text-gray-500 block mb-1">处理人员</span>
+							<p class="text-xs text-gray-500" th:text="${repair.worker.name}"></p>
+						</div>
+					</div>
+					
+					<!-- 简化的处理进度条 -->
+					<div>
+						<span class="text-xs font-medium text-gray-500 block mb-1">处理进度</span>
+						<div class="w-full bg-gray-200 rounded-full h-2">
+							<div class="h-2 rounded-full"
+								th:classappend="${progressColor}"
+								th:style="'width: ' + ${progressWidth}"></div>
+						</div>
+						<p class="text-xs text-gray-500 mt-1" th:text="${progressText}">
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- 空状态提示 -->
+		<div id="emptyState"
+			class="py-16 flex flex-col items-center justify-center text-center"
+			th:if="${repairList == null or repairList.isEmpty()}">
+			<div
+				class="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4">
+				<i class="fa fa-file-text-o text-4xl"></i>
+			</div>
+			<h3 class="text-xl font-bold text-gray-800 mb-2">暂无报修工单</h3>
+			<p class="text-gray-500 max-w-md mb-6">您还没有提交任何报修工单，点击下方按钮发起您的第一个报修。</p>
+			<a href="../wechatrp/repair"
+				class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-primary hover:bg-primary/90 transition-colors">
+				<i class="fa fa-plus mr-2"></i> 发起新报修
+			</a>
+		</div>
+	</main>
+
+	<!-- JavaScript -->
+	<script>
+    // 处理筛选表单提交
+    document.getElementById('filterForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const searchTerm = document.getElementById('search').value;
+      const status = document.getElementById('statusFilter').value;
+      const dateRange = document.getElementById('dateFilter').value;
+      
+      console.log('搜索:', searchTerm);
+      console.log('状态:', status);
+      console.log('日期范围:', dateRange);
+      
+      alert(`正在搜索: "${searchTerm}", 状态: "${status || '全部'}", 日期范围: "${dateRange || '全部'}"`);
+      
+      const items = document.querySelectorAll('.card-hover');
+      const hasFilter = searchTerm || status || dateRange;
+      
+      items.forEach((item, index) => {
+        if (hasFilter && index >= 2) {
+          item.classList.add('hidden');
+        } else {
+          item.classList.remove('hidden');
+        }
+      });
+      
+      const emptyState = document.getElementById('emptyState');
+      const isAllHidden = Array.from(items).every(item => item.classList.contains('hidden'));
+      if (hasFilter && items.length > 0 && isAllHidden) {
+        emptyState.classList.remove('hidden');
+      } else {
+        emptyState.classList.add('hidden');
+      }
+    });
+
+    // 重置筛选
+    document.getElementById('resetFilter').addEventListener('click', function() {
+      document.getElementById('filterForm').reset();
+      document.getElementById('filterForm').dispatchEvent(new Event('submit'));
+    });
+
+    // 即时筛选
+    document.getElementById('statusFilter').addEventListener('change', function() {
+      this.form.dispatchEvent(new Event('submit'));
+    });
+
+    document.getElementById('dateFilter').addEventListener('change', function() {
+      this.form.dispatchEvent(new Event('submit'));
+    });
+
+    // 导航栏滚动效果
+    window.addEventListener('scroll', function() {
+      const header = document.querySelector('header');
+      if (window.scrollY > 10) {
+        header.classList.add('shadow');
+        header.classList.add('py-2');
+        header.classList.remove('py-3');
+      } else {
+        header.classList.remove('shadow');
+        header.classList.add('py-3');
+        header.classList.remove('py-2');
+      }
+    });
+  </script>
+</body>
+</html>

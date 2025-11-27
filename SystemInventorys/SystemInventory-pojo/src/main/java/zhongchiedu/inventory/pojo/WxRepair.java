@@ -29,9 +29,22 @@ public class WxRepair extends GeneralBean<WxRepair> {
 	private List<MultiMedia> photos;//故障设备照片
 	private String urgencyLevel;//紧急程度
 	private String expectedVisitTime;//期望上门时间
-	private Integer status;//维修状态  1.待处理 2.处理中 3.已完成  4.已取消
+	private Integer status;//维修状态  1.待处理 2.已分配 3.处理中 4.已完成 5.已取消
 	@DBRef
-	private WxReporter wxReporter;
+	private WxReporter wxReporter; //报修人信息保存
+	
+	@DBRef
+	private WxBinding worker;//绑定维修人员
+	
+	
+	@DBRef
+	private List<MultiMedia> repairPhotos;//完成维修照片
+	
+	private String repairContent;//维修内容
+	
+	
+	
+	
 	
 
 }

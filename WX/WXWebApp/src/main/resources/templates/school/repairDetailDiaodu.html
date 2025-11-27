@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>报修单详情</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        .detail-card {
+            border-radius: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .detail-item {
+            border-bottom: 1px solid #f0f0f0;
+            padding: 1rem 0;
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .value {
+            color: #333;
+        }
+
+        /* 状态标签样式 */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            gap: 0.25rem;
+        }
+        
+        /* 模态框样式 */
+        #imageModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1050;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            touch-action: none;
+        }
+
+        /* 大图样式 */
+        #modalImage {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            transition: transform 0.2s ease-out;
+            touch-action: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform-origin: center center;
+            cursor: zoom-in; /* 鼠标悬停提示可缩放 */
+        }
+        #modalImage.zoomed {
+            cursor: zoom-out; /* 放大后提示可缩小 */
+        }
+
+        /* 维修完成提示样式 */
+        .completed-tip {
+            text-align: center;
+            padding: 1rem;
+            background-color: #f0fdf4;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen p-4">
+    <div class="max-w-md mx-auto bg-white detail-card p-6"
+         th:with="statusEnum=${T(zhongchiedu.common.utils.enums.RepairStatus).fromCode(repair.status)}">
+        <!-- 状态显示 -->
+        <div class="flex justify-between items-start mb-6">
+            <h1 class="text-xl font-bold text-gray-800">报修单详情</h1>
+
+            <!-- 动态状态标签 -->
+            <span class="status-badge"
+                  th:classappend="${statusEnum?.cssClass}"
+                  th:text="${statusEnum?.description ?: '未知状态'}">
+                <i th:if="${statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).PENDING}" class="fa fa-clock-o"></i>
+                <i th:if="${statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).PROCESSING}" class="fa fa-cog fa-spin"></i>
+                <i th:if="${statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).COMPLETED}" class="fa fa-check"></i>
+                <i th:if="${statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).CANCELLED}" class="fa fa-times"></i>
+            </span>
+        </div>
+
+        <div class="detail-item">
+            <div class="label flex items-center">
+                <i class="fa fa-file-text-o mr-2 text-blue-500"></i>工单号
+            </div>
+            <div class="value font-mono" th:text="${repair.workOrderNumber}"></div>
+        </div>
+
+        <div class="detail-item">
+            <div class="label flex items-center">
+                <i class="fa fa-building-o mr-2 text-blue-500"></i>学校信息
+            </div>
+            <div class="value">
+                <p th:text="${repair.wxReporter.schoolName} + ' - ' + ${repair.wxReporter.campus}"></p>
+                <p th:text="${repair.wxReporter.schoolAddress}" class="text-sm text-gray-500"></p>
+            </div>
+        </div>
+
+        <div class="detail-item">
+            <div class="label flex items-center">
+                <i class="fa fa-user-o mr-2 text-blue-500"></i>报修人信息
+            </div>
+            <div class="value">
+                <p th:text="${repair.wxReporter.userName}"></p>
+                <p th:text="${repair.wxReporter.contactNumber}" class="text-sm text-gray-500"></p>
+            </div>
+        </div>
+
+        <div class="detail-item">
+            <div class="label flex items-center">
+                <i class="fa fa-wrench mr-2 text-blue-500"></i>故障信息
+            </div>
+            <div class="value">
+                <p th:text="'设备类型：' + ${repair.equipmentRepair}"></p>
+                <p th:text="'故障描述：' + ${repair.faultInformation}" class="text-sm text-gray-500"></p>
+            </div>
+        </div>
+
+        <div class="detail-item">
+            <div class="label flex items-center">
+                <i class="fa fa-exclamation-triangle mr-2 text-blue-500"></i>紧急程度
+            </div>
+            <div class="value" th:text="${repair.urgencyLevel}"></div>
+        </div>
+
+        <div class="detail-item">
+            <div class="label flex items-center">
+                <i class="fa fa-calendar mr-2 text-blue-500"></i>期望时间
+            </div>
+            <div class="value" th:text="${repair.expectedVisitTime}"></div>
+        </div>
+
+        <div class="detail-item">
+            <div class="label flex items-center">
+                <i class="fa fa-clock-o mr-2 text-blue-500"></i>提交时间
+            </div>
+            <div class="value" th:text="${#dates.format(repair.createTime, 'yyyy-MM-dd HH:mm:ss')}"></div>
+        </div>
+
+        <!-- 故障图片展示 -->
+        <div th:if="${repair.photos != null and repair.photos.size() > 0}" class="detail-item">
+            <div class="label flex items-center">
+                <i class="fa fa-picture-o mr-2 text-blue-500"></i>故障图片
+            </div>
+            <div class="value grid grid-cols-3 gap-2 mt-2">
+                <img th:each="photo : ${repair.photos}" 
+                     th:src="|@{/}${photo.savePath}/${photo.generateName}|" 
+                     th:alt="'故障图片 ' + ${photoStat.index + 1}" 
+                     class="w-full h-24 object-cover rounded-md cursor-pointer hover:opacity-90 transition-opacity"
+                     th:onclick="|openModal('@{/}${photo.savePath}/${photo.generateName}')|">
+            </div>
+        </div>
+
+        <!-- 维修完成内容（仅已完成状态显示） -->
+        <div th:if="${statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).COMPLETED}">
+            <!-- 维修内容 -->
+            <div class="detail-item" th:if="${repair.repairContent != null and repair.repairContent != ''}">
+                <div class="label flex items-center">
+                    <i class="fa fa-file-text mr-2 text-green-500"></i>维修内容
+                </div>
+                <div class="value" th:text="${repair.repairContent}"></div>
+            </div>
+
+            <!-- 维修完成图片 -->
+            <div th:if="${repair.repairPhotos != null and repair.repairPhotos.size() > 0}" class="detail-item">
+                <div class="label flex items-center">
+                    <i class="fa fa-picture-o mr-2 text-green-500"></i>维修完成图片
+                </div>
+                <div class="value grid grid-cols-3 gap-2 mt-2">
+                    <img th:each="photo : ${repair.repairPhotos}" 
+                         th:src="|@{/}${photo.savePath}/${photo.generateName}|" 
+                         th:alt="'维修图片 ' + ${photoStat.index + 1}" 
+                         class="w-full h-24 object-cover rounded-md cursor-pointer hover:opacity-90 transition-opacity"
+                         th:onclick="|openModal('@{/}${photo.savePath}/${photo.generateName}')|">
+                </div>
+            </div>
+
+            <!-- 维修已完成提示 -->
+            <div class="completed-tip">
+                <i class="fa fa-check-circle text-green-500 mr-2"></i>
+                <span class="text-green-700 font-medium">维修已完成</span>
+            </div>
+        </div>
+
+        <!-- 分配处理按钮（仅待处理状态显示） -->
+        <a th:if="${statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).PENDING}"
+           th:href="@{/wechatrp/getSGD(repairId=${repair.id})}"
+           class="inline-flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-all duration-200 mt-4 w-full">
+            <i class="fa fa-user-plus mr-2"></i>分配处理
+        </a>
+    </div>
+
+    <!-- 图片放大模态框 -->
+    <div id="imageModal">
+        <span id="closeModal" class="absolute top-4 right-4 text-white text-4xl cursor-pointer hover:text-gray-300 transition-colors">&times;</span>
+        <div class="absolute bottom-5 left-0 right-0 text-center text-white text-sm opacity-70">
+            鼠标滚轮/双指缩放 | 单指拖动 | 点击图片重置
+        </div>
+        <img id="modalImage" src="" alt="放大的图片" onclick="resetZoom()">
+    </div>
+
+    <script>
+        // 页面加载动画
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.querySelector('.detail-card');
+            container.style.opacity = '0';
+            container.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                container.style.transition = 'all 0.5s cubic-bezier(0.25, 1, 0.5, 1)';
+                container.style.opacity = '1';
+                container.style.transform = 'translateY(0)';
+            }, 100);
+        });
+
+        // 模态框核心逻辑
+        const modal = document.getElementById("imageModal");
+        const modalImg = document.getElementById("modalImage");
+        let isDragging = false;
+        let startX, startY, initialX, initialY;
+        let scale = 1; // 初始缩放比例
+        let initialScale = 1; // 双指/滚轮缩放时的初始比例
+        let isPinching = false; // 是否正在进行双指缩放
+
+        // 打开模态框
+        function openModal(src) {
+            modal.style.display = "flex";
+            modalImg.src = src;
+            document.body.style.overflow = "hidden";
+            resetZoom(); // 重置缩放状态
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            modal.style.display = "none";
+            document.body.style.overflow = "auto";
+        }
+        
+        // 重置缩放（恢复到初始居中状态）
+        function resetZoom() {
+            scale = 1;
+            modalImg.classList.remove('zoomed');
+            modalImg.style.transform = `translate(-50%, -50%) scale(${scale})`;
+        }
+
+        // 双指距离计算
+        function getDistance(touch1, touch2) {
+            return Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY);
+        }
+        
+        // 解析transform中的位移值
+        function getTransformValues(transformString) {
+            if (!transformString) return { x: 0, y: 0 };
+            // 匹配两种情况：calc(-50% + Xpx) 或 直接 translate(Xpx, Ypx)
+            const calcMatch = transformString.match(/translate\(calc\(-50% \+ (\d+)px\), calc\(-50% \+ (\d+)px\)\)/);
+            if (calcMatch) {
+                return { x: parseInt(calcMatch[1]), y: parseInt(calcMatch[2]) };
+            }
+            const simpleMatch = transformString.match(/translate\(([^,]+)px, ([^)]+)px\)/);
+            if (simpleMatch) {
+                return { x: parseInt(simpleMatch[1]), y: parseInt(simpleMatch[2]) };
+            }
+            return { x: 0, y: 0 };
+        }
+
+        // 触摸开始事件（移动端）
+        modalImg.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            if (e.touches.length === 2) {
+                // 双指缩放
+                isPinching = true;
+                const touch1 = e.touches[0];
+                const touch2 = e.touches[1];
+                initialDistance = getDistance(touch1, touch2);
+                initialScale = scale;
+            } else if (e.touches.length === 1) {
+                // 单指拖动
+                isDragging = true;
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+                const transform = getTransformValues(modalImg.style.transform);
+                initialX = transform.x;
+                initialY = transform.y;
+            }
+        });
+
+        // 触摸移动事件（移动端）
+        modalImg.addEventListener('touchmove', function(e) {
+            e.preventDefault();
+            if (isPinching && e.touches.length === 2) {
+                // 双指缩放逻辑
+                const touch1 = e.touches[0];
+                const touch2 = e.touches[1];
+                const currentDistance = getDistance(touch1, touch2);
+                scale = Math.max(1, Math.min(initialScale * (currentDistance / initialDistance), 3)); // 限制缩放范围1-3倍
+                modalImg.classList.toggle('zoomed', scale > 1);
+                modalImg.style.transform = `translate(-50%, -50%) scale(${scale})`;
+            } else if (isDragging && e.touches.length === 1 && scale > 1) {
+                // 单指拖动逻辑（仅放大后允许）
+                const dx = e.touches[0].clientX - startX;
+                const dy = e.touches[0].clientY - startY;
+                modalImg.style.transform = `translate(calc(-50% + ${initialX + dx}px), calc(-50% + ${initialY + dy}px)) scale(${scale})`;
+            }
+        });
+
+        // 触摸结束事件（移动端）
+        modalImg.addEventListener('touchend', function() {
+            isDragging = false;
+            isPinching = false;
+        });
+
+        // 鼠标滚轮事件（电脑端）
+        modalImg.addEventListener('wheel', function(e) {
+            e.preventDefault();
+            // deltaY为负：向上滚动（放大）；为正：向下滚动（缩小）
+            const zoomStep = 0.1;
+            if (e.deltaY < 0) {
+                scale = Math.min(scale + zoomStep, 3); // 最大放大3倍
+            } else {
+                scale = Math.max(scale - zoomStep, 1); // 最小缩小到1倍（初始状态）
+            }
+            modalImg.classList.toggle('zoomed', scale > 1);
+            modalImg.style.transform = `translate(-50%, -50%) scale(${scale})`;
+        });
+
+        // 鼠标拖动事件（电脑端）
+        modalImg.addEventListener('mousedown', function(e) {
+            if (e.button === 0) { // 仅响应左键
+                isDragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                const transform = getTransformValues(modalImg.style.transform);
+                initialX = transform.x;
+                initialY = transform.y;
+                modalImg.style.cursor = 'grabbing';
+            }
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (isDragging && scale > 1) {
+                e.preventDefault();
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                modalImg.style.transform = `translate(calc(-50% + ${initialX + dx}px), calc(-50% + ${initialY + dy}px)) scale(${scale})`;
+            }
+        });
+
+        document.addEventListener('mouseup', function() {
+            if (isDragging) {
+                isDragging = false;
+                modalImg.style.cursor = scale > 1 ? 'zoom-out' : 'zoom-in';
+            }
+        });
+
+        // 事件监听
+        document.getElementById("closeModal").onclick = closeModal;
+        modal.onclick = function(event) {
+            if (event.target === modal) closeModal();
+        };
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && modal.style.display === 'flex') closeModal();
+        });
+    </script>
+</body>
+</html>

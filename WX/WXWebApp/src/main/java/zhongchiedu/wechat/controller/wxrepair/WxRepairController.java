@@ -11,6 +11,7 @@ import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -36,6 +37,7 @@ import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.Common;
 import zhongchiedu.common.utils.enums.PersonnelType;
 import zhongchiedu.common.utils.enums.RepairStatus;
+import zhongchiedu.general.pojo.MultiMedia;
 import zhongchiedu.inventory.pojo.WxBinding;
 import zhongchiedu.inventory.pojo.WxRepair;
 import zhongchiedu.inventory.pojo.WxReporter;
@@ -67,6 +69,7 @@ public class WxRepairController {
 
 	@Value("${upload-imgpath}")
 	private String imgPath;
+	
 	@Value("${upload-dir}")
 	private String dir;
 
@@ -81,6 +84,17 @@ public class WxRepairController {
 	@Autowired
 	private WxBindingService wxBindingService;
 
+	
+	/**
+	 *  教师访问的 repairlist  查看所有报修信息
+	 * @param request
+	 * @param model
+	 * @param session
+	 * @param status
+	 * @param dateRange
+	 * @param search
+	 * @return
+	 */
 	@GetMapping(value = "/repairlist")
 	public String repairlist(HttpServletRequest request, Model model, HttpSession session,
 			   @RequestParam(required = false) String status,
@@ -129,7 +143,7 @@ public class WxRepairController {
 	        // 如果是因为 code 无效（如刷新导致），则清除 session 并重定向
 	        if (((WxErrorException) e).getError().getErrorCode() == 40163) {
 	            session.invalidate(); // 清除无效的 session
-	            String redirect_uri = wxMpProperties.getServerUrl() + "/WXWebApp/wechatrp/repairlist";
+	            String redirect_uri = weburl + "/wechatrp/repairlist";
 	            return "redirect:" + redirect_uri; // 重定向到当前页面，会触发新的授权流程
 	        }
 	        e.printStackTrace();
@@ -296,7 +310,7 @@ public class WxRepairController {
 			wxRepair.setEquipmentRepair(equipmentRepair);
 			wxRepair.setFaultInformation(faultInformation);
 			wxRepair.setUrgencyLevel(urgencyLevel);
-			wxRepair.setExpectedVisitTime(expectedVisitTime);
+			wxRepair.setExpectedVisitTime(expectedVisitTime.replace("T", " "));
 
 			// 建议在这里设置一些默认值，比如创建时间和初始状态
 			wxRepair.setCreateTime(new Date());
@@ -312,11 +326,16 @@ public class WxRepairController {
 			List<WxBinding> findBindingsByPersonnelType = this.wxBindingService.findBindingsByPersonnelType(PersonnelType.DISPATCHER);//拿到所有调度人员
 			if(findBindingsByPersonnelType.size()>0) {
 				Map<String, String> map = new HashMap<>();
-				map.put("thing2", reporter.getSchoolName()+"校区："+reporter.getCampus());
-				map.put("thing3", reporter.getUserName());
+				map.put("thing2", Common.getOrDefault(reporter.getSchoolName(), "未知学校") + "校区：" + Common.getOrDefault(reporter.getCampus(), "未知校区"));
+				map.put("thing3", Common.getOrDefault(reporter.getUserName(), "未知报修人"));
 				map.put("time4", Common.getDateYMDHM(wxRepair.getCreateTime()));
-				map.put("thing5", wxRepair.getEquipmentRepair());
-				map.put("thing1", "紧急程度："+urgencyLevel);
+				map.put("thing5", Common.getOrDefault(wxRepair.getEquipmentRepair(), "未知设备类型"));
+				map.put("thing1", "紧急程度：" + Common.getOrDefault(urgencyLevel, "普通"));
+//				map.put("thing2", reporter.getSchoolName()+"校区："+reporter.getCampus());
+//				map.put("thing3", reporter.getUserName());
+//				map.put("time4", Common.getDateYMDHM(wxRepair.getCreateTime()));
+//				map.put("thing5", wxRepair.getEquipmentRepair());
+//				map.put("thing1", "紧急程度："+urgencyLevel);
 				//执行推送
 				findBindingsByPersonnelType.stream().filter(user -> Common.isNotEmpty(user.getOpenId())).forEach(user -> {
 					String sendWxMessage = this.wxMsgPush.sendWxMessage(templateId4, user.getOpenId(),
@@ -336,5 +355,73 @@ public class WxRepairController {
 			return new BasicDataResult().build(500, "服务器内部错误，提交失败", null);
 		}
 	}
+	
+	
+	
+	
+	@GetMapping(value = "/findWxRepairlist")
+	public String findWxRepairlist(HttpServletRequest request, Model model, HttpSession session) {
+	    try {
+	        // 1. 先从 session 中查找是否已经有 openId
+	        String openId = (String) session.getAttribute("openId");
+
+	        if (openId == null) {
+	            // 2. 如果 session 中没有，则说明是第一次请求，需要用 code 获取
+	            String code = request.getParameter("code");
+
+	            if (code == null) {
+	                // 如果连 code 都没有，说明是未授权的访问，重定向到授权页面
+	                String redirect_uri = weburl + "/wechatrp/operations_repairlist";
+	                return "redirect:https://open.weixin.qq.com/connect/oauth2/authorize?" + 
+	                       "appid=" + wxMpProperties.getConfigs().get(0).getAppId() + 
+	                       "&redirect_uri=" + URLEncoder.encode(redirect_uri, "UTF-8") + 
+	                       "&response_type=code&scope=snsapi_userinfo&state=STATE#wechat_redirect";
+	            }
+	            
+	            // 使用 code 调用微信接口获取 openId
+	            WxOAuth2Service oAuth2Service = this.wxMpService.getOAuth2Service();
+	            WxOAuth2AccessToken accessToken = oAuth2Service.getAccessToken(code);
+	            openId = accessToken.getOpenId();
+
+	            // 3. 将获取到的 openId 存入 session，以便后续请求使用
+	            session.setAttribute("openId", openId);
+	            
+	            // 可以顺便把用户信息也存入 session
+	            WxMpUser userInfo = wxMpService.getUserService().userInfo(openId);
+	            session.setAttribute("userInfo", userInfo);
+	        } else {
+	            // 4. 如果 session 中已经有 openId，说明是重复请求（如刷新），直接从 session 中获取
+	            System.out.println("openId 已存在于 session 中，直接使用: " + openId);
+	        }
+
+	           
+	        
+	        // 此时 openId 一定是有效的，可以安全地使用它来查询数据
+	        List<WxRepair> repairList = this.wxRepairService.findOperationsWxRepairByOpenId(openId);
+	        
+	        model.addAttribute("repairList", repairList);
+	        model.addAttribute("openId", openId);
+	        model.addAttribute("userInfo", session.getAttribute("userInfo"));
+
+	    } catch (WxErrorException | UnsupportedEncodingException e) {
+	        // 如果是因为 code 无效（如刷新导致），则清除 session 并重定向
+	        if (((WxErrorException) e).getError().getErrorCode() == 40163) {
+	            session.invalidate(); // 清除无效的 session
+	            String redirect_uri = weburl + "/wechatrp/operations_repairlist";
+	            return "redirect:" + redirect_uri; // 重定向到当前页面，会触发新的授权流程
+	        }
+	        e.printStackTrace();
+	        // 其他错误处理...
+	        return "error"; 
+	    }
+	    
+	    return "school/repairlist";
+	}
+
+	
+
+
+	
+	
 
 }

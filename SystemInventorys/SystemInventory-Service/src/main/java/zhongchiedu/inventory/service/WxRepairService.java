@@ -19,6 +19,14 @@ public interface WxRepairService extends GeneralService<WxRepair> {
 	public String delete(String id);
 	
 	public List<WxRepair> findWxRepairByOpenId(String openId);
+
+	public WxRepair assignWorkerToRepair(String repairId, String id);
+
+	public WxRepair confirmRepair(String repairId);
+
+	public List<WxRepair> findOperationsWxRepairByOpenId(String openId);
+
+	public boolean completeRepair(WxRepair wxRepair, MultipartFile[] repairPhotos, String imgPath, String dir);
 	
 	
 	

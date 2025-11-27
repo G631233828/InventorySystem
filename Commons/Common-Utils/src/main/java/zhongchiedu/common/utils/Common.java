@@ -48,6 +48,7 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Matcher;
@@ -1314,6 +1315,26 @@ public class Common {
 	    }   
 	    
 	    
+	    /**
+	     * 空值替换默认值（字符串专用）
+	     * @param str 原字符串
+	     * @param defaultValue 默认值
+	     * @return 非空返回原字符串，空返回默认值
+	     */
+	    public static String getOrDefault(String str, String defaultValue) {
+	        return isNotEmpty(str) ? str : defaultValue;
+	    }
+
+	    /**
+	     * 空值替换默认值（日期专用）
+	     * @param date 原日期
+	     * @param dateFormatFunc 日期格式化函数
+	     * @param defaultValue 默认值
+	     * @return 非空返回格式化后字符串，空返回默认值
+	     */
+	    public static String getDateOrDefault(Date date, Function<Date, String> dateFormatFunc, String defaultValue) {
+	        return date != null ? dateFormatFunc.apply(date) : defaultValue;
+	    } 
 	    
 	    
 	

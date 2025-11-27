@@ -11,19 +11,24 @@ public enum RepairStatus {
     PENDING(1, "待处理", "bg-yellow-100 text-yellow-800"),
 
     /**
+     * 已分配
+     */
+    ASSIGNED(2, "已分配", "bg-blue-100 text-blue-800"),
+
+    /**
      * 处理中
      */
-    PROCESSING(2, "处理中", "bg-blue-100 text-blue-800"),
+    PROCESSING(3, "处理中", "bg-blue-500 text-white"),
 
     /**
      * 已完成
      */
-    COMPLETED(3, "已完成", "bg-green-100 text-green-800"),
+    COMPLETED(4, "已完成", "bg-green-100 text-green-800"),
 
     /**
      * 已取消
      */
-    CANCELLED(4, "已取消", "bg-gray-100 text-gray-800");
+    CANCELLED(5, "已取消", "bg-gray-100 text-gray-800");
 
     private final int code;
     private final String description;
@@ -49,9 +54,7 @@ public enum RepairStatus {
         }
         return null; // 或者可以抛出一个异常，视业务需求而定
     }
-    
-    // --- Getters ---
-    
+
     public int getCode() {
         return code;
     }

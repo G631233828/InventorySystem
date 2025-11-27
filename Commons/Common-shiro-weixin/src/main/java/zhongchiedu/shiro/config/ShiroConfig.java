@@ -170,6 +170,7 @@ public class ShiroConfig {
 //		filterChainDefinitionMap.put("/wechatrp/repairlist/**", "anon");
 //		filterChainDefinitionMap.put("/wechatrp/geocode/**", "anon");
 //		filterChainDefinitionMap.put("/wechatrp/wxRepair/**", "anon");
+		filterChainDefinitionMap.put("/upload/**", "anon");//图片显示
 		filterChainDefinitionMap.put("/wechat/preStock/**", "anon");
 		filterChainDefinitionMap.put("/wechat/cargoFromStorage/**", "anon");
 		filterChainDefinitionMap.put("/wechat/batchOut/**", "anon");

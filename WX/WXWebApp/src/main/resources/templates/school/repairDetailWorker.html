@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>报修单详情</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        .detail-card {
+            border-radius: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .detail-item {
+            border-bottom: 1px solid #f0f0f0;
+            padding: 1rem 0;
+        }
+
+        .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .value {
+            color: #333;
+        }
+
+        /* 状态标签样式 */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            gap: 0.25rem;
+        }
+        
+        /* 模态框样式 */
+        #imageModal, #completeModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1050;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            touch-action: none;
+        }
+
+        /* 大图样式 */
+        #modalImage {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            transition: transform 0.2s ease-out;
+            touch-action: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform-origin: center center;
+            cursor: zoom-in; /* 鼠标悬停提示可缩放 */
+        }
+        #modalImage.zoomed {
+            cursor: zoom-out; /* 放大后提示可缩小 */
+        }
+
+        /* 维修完成弹窗样式 */
+        #completeModal {
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 2000; /* 确保高于其他模态框 */
+        }
+        .complete-modal-content {
+            background-color: white;
+            border-radius: 1rem;
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 2rem;
+            color: white;
+            cursor: pointer;
+        }
+        .upload-area {
+            border: 2px dashed #ddd;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .upload-area:hover {
+            border-color: #48bb78;
+            background-color: #f8fff9;
+        }
+        .preview-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        .preview-item {
+            position: relative;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            aspect-ratio: 1/1;
+        }
+        .preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .preview-remove {
+            position: absolute;
+            top: 0.25rem;
+            right: 0.25rem;
+            background-color: rgba(255, 0, 0, 0.8);
+            color: white;
+            border-radius: 50%;
+            width: 1.5rem;
+            height: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+        .repair-content {
+            margin-top: 1rem;
+        }
+        .repair-content textarea {
+            width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            min-height: 100px;
+            resize: vertical;
+        }
+        .submit-btn {
+            background-color: #48bb78;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            width: 100%;
+            font-size: 1rem;
+            margin-top: 1rem;
+        }
+        .submit-btn:disabled {
+            background-color: #a0aec0;
+            cursor: not-allowed;
+        }
+
+        /* 确认维修按钮样式 */
+        .confirm-repair-btn, .complete-repair-btn {
+            background-color: #48bb78;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            width: 100%;
+            font-size: 1rem;
+            margin-top: 6rem;
+        }
+        .confirm-repair-btn:hover, .complete-repair-btn:hover {
+            background-color: #38a169;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(72, 187, 120, 0.3);
+        }
+        .confirm-repair-btn:disabled, .complete-repair-btn:disabled {
+            background-color: #a0aec0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .complete-repair-btn {
+            background-color: #2563eb;
+        }
+        .complete-repair-btn:hover {
+            background-color: #1d4ed8;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen p-4">
+    <!-- 将statusEnum定义提升到外层容器，作用域覆盖所有子元素 -->
+    <div class="max-w-md mx-auto bg-white detail-card p-6"
+         th:with="statusEnum=${T(zhongchiedu.common.utils.enums.RepairStatus).fromCode(repair.status)}">
+        <!-- 状态显示 -->
+        <div class="flex justify-between items-start mb-6">
+            <h1 class="text-xl font-bold text-gray-800">报修单详情</h1>
+
+            <!-- 动态状态标签（使用外层的statusEnum） -->
+            <span class="status-badge"
+                  th:classappend="${statusEnum?.cssClass}"
+                  th:text="${statusEnum?.description ?: '未知状态'}">
+                <i th:if="${statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).PENDING}" class="fa fa-clock-o"></i>
+                <i th:if="${statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).ASSIGNED}" class="fa fa-user-check"></i>
+                <i th:if="${statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).PROCESSING}" class="fa fa-cog fa-spin"></i>
+                <i th:if="${statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).COMPLETED}" class="fa fa-check"></i>
+                <i th:if="${statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).CANCELLED}" class="fa fa-times"></i>
+            </span>
+        </div>
+
+        <div class="detail-item">
+            <div class="label flex items-center">
+                <i class="fa fa-file-text-o mr-2 text-blue-500"></i>工单号
+            </div>
+            <div class="value font-mono" th:text="${repair.workOrderNumber}"></div>
+        </div>
+
+        <div class="detail-item">
+            <div class="label flex items-center">
+                <i class="fa fa-building-o mr-2 text-blue-500"></i>学校信息
+            </div>
+            <div class="value">
+                <p th:text="${repair.wxReporter.schoolName} + ' - ' + ${repair.wxReporter.campus}"></p>
+                <p th:text="${repair.wxReporter.schoolAddress}" class="text-sm text-gray-500"></p>
+            </div>
+        </div>
+
+        <div class="detail-item">
+            <div class="label flex items-center">
+                <i class="fa fa-user-o mr-2 text-blue-500"></i>报修人信息
+            </div>
+            <div class="value">
+                <p th:text="${repair.wxReporter.userName}"></p>
+                <p th:text="${repair.wxReporter.contactNumber}" class="text-sm text-gray-500"></p>
+            </div>
+        </div>
+
+        <!-- 处理人员信息 -->
+        <div class="detail-item" th:if="${repair.worker!= null}">
+            <div class="label flex items-center">
+                <i class="fa fa-user-circle-o mr-2 text-green-500"></i>处理人员信息
+            </div>
+            <div class="value">
+                <p th:text="${repair.worker.name}"></p>
+                <p th:text="'所属团队：' + ${repair.worker.team}" class="text-sm text-gray-500" th:if="${repair.worker.team != null}"></p>
+                <p th:text="'联系电话：' + ${repair.worker.contactNumber}" class="text-sm text-gray-500" th:if="${repair.worker.contactNumber != null}"></p>
+                <!-- 调度人员标识 -->
+                <span th:if="${repair.worker.personnelType == 2}" class="inline-block mt-1 px-2 py-0.5 text-xs rounded-full bg-purple-100 text-purple-800">调度人员</span>
+            </div>
+        </div>
+
+        <div class="detail-item">
+            <div class="label flex items-center">
+                <i class="fa fa-wrench mr-2 text-blue-500"></i>故障信息
+            </div>
+            <div class="value">
+                <p th:text="'设备类型：' + ${repair.equipmentRepair}"></p>
+                <p th:text="'故障描述：' + ${repair.faultInformation}" class="text-sm text-gray-500"></p>
+            </div>
+        </div>
+
+        <div class="detail-item">
+            <div class="label flex items-center">
+                <i class="fa fa-exclamation-triangle mr-2 text-blue-500"></i>紧急程度
+            </div>
+            <div class="value" th:text="${repair.urgencyLevel}"></div>
+        </div>
+
+        <div class="detail-item">
+            <div class="label flex items-center">
+                <i class="fa fa-calendar mr-2 text-blue-500"></i>期望时间
+            </div>
+            <div class="value" th:text="${repair.expectedVisitTime}"></div>
+        </div>
+
+        <div class="detail-item">
+            <div class="label flex items-center">
+                <i class="fa fa-clock-o mr-2 text-blue-500"></i>提交时间
+            </div>
+            <div class="value" th:text="${#dates.format(repair.createTime, 'yyyy-MM-dd HH:mm:ss')}"></div>
+        </div>
+
+        <!-- 故障图片展示 -->
+        <div th:if="${repair.photos != null and repair.photos.size() > 0}" class="detail-item">
+            <div class="label flex items-center">
+                <i class="fa fa-picture-o mr-2 text-blue-500"></i>故障图片
+            </div>
+            <div class="value grid grid-cols-3 gap-2 mt-2">
+                <img th:each="photo : ${repair.photos}" 
+                     th:src="|@{/}${photo.savePath}/${photo.generateName}|" 
+                     th:alt="'故障图片 ' + ${photoStat.index + 1}" 
+                     class="w-full h-24 object-cover rounded-md cursor-pointer hover:opacity-90 transition-opacity"
+                     th:onclick="|openModal('@{/}${photo.savePath}/${photo.generateName}')|">
+            </div>
+        </div>
+        
+        <!-- 确认开始维修按钮（已分配状态） -->
+        <button class="confirm-repair-btn mt-6"
+                th:data-repair-id="${repair.id}"
+                th:if="${statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).ASSIGNED}"
+                id="confirmRepairBtn">
+            <i class="fa fa-play-circle mr-2"></i>确认开始维修
+        </button>
+
+        <!-- 维修完成按钮（处理中状态） -->
+        <button class="complete-repair-btn mt-6"
+                th:data-repair-id="${repair.id}"
+                th:if="${statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).PROCESSING}"
+                id="completeRepairBtn">
+            <i class="fa fa-check-circle mr-2"></i>维修完成
+        </button>
+
+        <!-- 其他状态提示 -->
+        <div class="text-center text-gray-500 text-sm mt-6 py-3"
+             th:if="${statusEnum != T(zhongchiedu.common.utils.enums.RepairStatus).ASSIGNED and statusEnum != T(zhongchiedu.common.utils.enums.RepairStatus).PROCESSING}">
+            <i th:if="${statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).COMPLETED}" class="fa fa-check mr-1"></i>
+            <i th:if="${statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).CANCELLED}" class="fa fa-times mr-1"></i>
+            <i th:if="${statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).PENDING}" class="fa fa-clock-o mr-1"></i>
+            <span th:text="${statusEnum?.description ?: '未知状态'} + '状态，无需操作'"></span>
+        </div>
+    </div>
+
+    <!-- 图片放大模态框 -->
+    <div id="imageModal">
+        <span id="closeModal" class="absolute top-4 right-4 text-white text-4xl cursor-pointer hover:text-gray-300 transition-colors">&times;</span>
+        <div class="absolute bottom-5 left-0 right-0 text-center text-white text-sm opacity-70">
+            鼠标滚轮/双指缩放 | 单指拖动 | 点击图片重置
+        </div>
+        <img id="modalImage" src="" alt="放大的故障图片" onclick="resetZoom()">
+    </div>
+
+    <!-- 维修完成弹窗 -->
+    <div id="completeModal">
+        <span class="modal-close" onclick="closeCompleteModal()">&times;</span>
+        <div class="complete-modal-content">
+            <h2 class="text-xl font-bold mb-4">提交维修完成信息</h2>
+            
+            <!-- 图片上传区域 -->
+            <div class="upload-section">
+                <div class="label mb-2">维修完成图片（至少3张）</div>
+                <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                    <input type="file" id="fileInput" accept="image/*" multiple style="display: none;" onchange="handleFileSelect(event)">
+                    <i class="fa fa-cloud-upload text-3xl text-gray-400 mb-2"></i>
+                    <p class="text-gray-500">点击或拖拽图片到此处上传</p>
+                    <p class="text-xs text-gray-400 mt-1">支持JPG、PNG格式，至少上传3张图片</p>
+                </div>
+                
+                <!-- 图片预览区域 -->
+                <div class="preview-container" id="previewContainer"></div>
+                <p id="uploadTip" class="text-red-500 text-sm mt-1 hidden">请至少上传3张图片</p>
+            </div>
+            
+            <!-- 维修内容 -->
+            <div class="repair-content">
+                <div class="label mb-2">维修内容描述（选填）</div>
+                <textarea id="repairContent" placeholder="请描述维修过程、更换配件等信息..."></textarea>
+            </div>
+            
+            <!-- 提交按钮 -->
+            <button class="submit-btn" id="submitCompleteBtn" disabled onclick="submitRepairComplete()">
+                <i class="fa fa-paper-plane mr-2"></i>提交维修完成
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // 页面加载动画及事件绑定
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.querySelector('.detail-card');
+            container.style.opacity = '0';
+            container.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                container.style.transition = 'all 0.5s cubic-bezier(0.25, 1, 0.5, 1)';
+                container.style.opacity = '1';
+                container.style.transform = 'translateY(0)';
+            }, 100);
+
+            // 绑定确认开始维修按钮事件
+            const confirmBtn = document.getElementById('confirmRepairBtn');
+            if (confirmBtn) {
+                confirmBtn.addEventListener('click', function() {
+                    confirmRepair(this);
+                });
+            }
+
+            // 绑定维修完成按钮事件
+            const completeBtn = document.getElementById('completeRepairBtn');
+            if (completeBtn) {
+                completeBtn.addEventListener('click', function() {
+                    const repairId = this.getAttribute('data-repair-id');
+                    openCompleteModal(repairId);
+                });
+            }
+        });
+
+        // 图片放大模态框核心逻辑
+        const modal = document.getElementById("imageModal");
+        const modalImg = document.getElementById("modalImage");
+        let isDragging = false;
+        let startX, startY, initialX, initialY;
+        let scale = 1;
+        let initialScale = 1;
+        let isPinching = false;
+
+        function openModal(src) {
+            modal.style.display = "flex";
+            modalImg.src = src;
+            document.body.style.overflow = "hidden";
+            resetZoom();
+        }
+
+        function closeModal() {
+            modal.style.display = "none";
+            document.body.style.overflow = "auto";
+        }
+        
+        function resetZoom() {
+            scale = 1;
+            modalImg.classList.remove('zoomed');
+            modalImg.style.transform = `translate(-50%, -50%) scale(${scale})`;
+        }
+
+        function getDistance(touch1, touch2) {
+            return Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY);
+        }
+        
+        function getTransformValues(transformString) {
+            if (!transformString) return { x: 0, y: 0 };
+            const calcMatch = transformString.match(/translate\(calc\(-50% \+ (\d+)px\), calc\(-50% \+ (\d+)px\)\)/);
+            if (calcMatch) {
+                return { x: parseInt(calcMatch[1]), y: parseInt(calcMatch[2]) };
+            }
+            const simpleMatch = transformString.match(/translate\(([^,]+)px, ([^)]+)px\)/);
+            if (simpleMatch) {
+                return { x: parseInt(simpleMatch[1]), y: parseInt(simpleMatch[2]) };
+            }
+            return { x: 0, y: 0 };
+        }
+
+        modalImg.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            if (e.touches.length === 2) {
+                isPinching = true;
+                const touch1 = e.touches[0];
+                const touch2 = e.touches[1];
+                initialDistance = getDistance(touch1, touch2);
+                initialScale = scale;
+            } else if (e.touches.length === 1) {
+                isDragging = true;
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY;
+                const transform = getTransformValues(modalImg.style.transform);
+                initialX = transform.x;
+                initialY = transform.y;
+            }
+        });
+
+        modalImg.addEventListener('touchmove', function(e) {
+            e.preventDefault();
+            if (isPinching && e.touches.length === 2) {
+                const touch1 = e.touches[0];
+                const touch2 = e.touches[1];
+                const currentDistance = getDistance(touch1, touch2);
+                scale = Math.max(1, Math.min(initialScale * (currentDistance / initialDistance), 3));
+                modalImg.classList.toggle('zoomed', scale > 1);
+                modalImg.style.transform = `translate(-50%, -50%) scale(${scale})`;
+            } else if (isDragging && e.touches.length === 1 && scale > 1) {
+                const dx = e.touches[0].clientX - startX;
+                const dy = e.touches[0].clientY - startY;
+                modalImg.style.transform = `translate(calc(-50% + ${initialX + dx}px), calc(-50% + ${initialY + dy}px)) scale(${scale})`;
+            }
+        });
+
+        modalImg.addEventListener('touchend', function() {
+            isDragging = false;
+            isPinching = false;
+        });
+
+        modalImg.addEventListener('wheel', function(e) {
+            e.preventDefault();
+            const zoomStep = 0.1;
+            if (e.deltaY < 0) {
+                scale = Math.min(scale + zoomStep, 3);
+            } else {
+                scale = Math.max(scale - zoomStep, 1);
+            }
+            modalImg.classList.toggle('zoomed', scale > 1);
+            modalImg.style.transform = `translate(-50%, -50%) scale(${scale})`;
+        });
+
+        modalImg.addEventListener('mousedown', function(e) {
+            if (e.button === 0) {
+                isDragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                const transform = getTransformValues(modalImg.style.transform);
+                initialX = transform.x;
+                initialY = transform.y;
+                modalImg.style.cursor = 'grabbing';
+            }
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (isDragging && scale > 1) {
+                e.preventDefault();
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                modalImg.style.transform = `translate(calc(-50% + ${initialX + dx}px), calc(-50% + ${initialY + dy}px)) scale(${scale})`;
+            }
+        });
+
+        document.addEventListener('mouseup', function() {
+            if (isDragging) {
+                isDragging = false;
+                modalImg.style.cursor = scale > 1 ? 'zoom-out' : 'zoom-in';
+            }
+        });
+
+        document.getElementById("closeModal").onclick = closeModal;
+        modal.onclick = function(event) {
+            if (event.target === modal) closeModal();
+        };
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && modal.style.display === 'flex') closeModal();
+        });
+
+        // 确认开始维修功能
+        function confirmRepair(btn) {
+            const repairId = btn.getAttribute('data-repair-id');
+            
+            if (confirm('确认开始处理该报修单吗？\n处理后状态将变为"处理中"')) {
+                // 禁用按钮防止重复点击
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>处理中...';
+                
+                // 构造请求参数
+                const formData = new URLSearchParams();
+                formData.append('repairId', repairId);
+                
+                // 发起请求（确保接口路径与后端一致）
+                fetch('../../wechatrp/confirmRepair', {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded', // 显式指定表单格式
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    credentials: 'include', // 携带Cookie保持会话
+                    body: formData
+                })
+                .then(response => {
+                    // 检查HTTP响应状态
+                    if (!response.ok) {
+                        throw new Error(`服务器响应错误：${response.status} ${response.statusText}`);
+                    }
+                    return response.json();
+                })
+                .then(result => {
+                    console.log('后端返回结果：', result);
+                    
+                    // 处理业务响应
+                    if (result.status === 200 || result.success) {
+                        alert('确认成功！已开始维修');
+                        window.location.reload();
+                    } else {
+                        throw new Error(result.msg || '操作失败，请重试');
+                    }
+                })
+                .catch(error => {
+                    console.error('请求异常详情：', error);
+                    alert(`提交失败：${error.message}\n请稍后重试或联系管理员`);
+                    
+                    // 恢复按钮状态
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="fa fa-play-circle mr-2"></i>确认开始维修';
+                });
+            }
+        }
+
+        // 维修完成弹窗相关
+        let repairId = null;
+        const uploadedFiles = [];
+        const previewContainer = document.getElementById('previewContainer');
+        const submitBtn = document.getElementById('submitCompleteBtn');
+        const uploadTip = document.getElementById('uploadTip');
+        const completeModal = document.getElementById('completeModal');
+
+        // 打开维修完成弹窗
+        function openCompleteModal(id) {
+            if (!id) {
+                console.error('报修单ID为空');
+                alert('参数错误，请刷新页面重试');
+                return;
+            }
+            
+            repairId = id;
+            
+            if (!completeModal) {
+                console.error('维修完成弹窗元素不存在');
+                alert('页面加载异常，请刷新重试');
+                return;
+            }
+            
+            // 重置表单
+            uploadedFiles.length = 0;
+            previewContainer.innerHTML = '';
+            document.getElementById('repairContent').value = '';
+            submitBtn.disabled = true;
+            uploadTip.classList.add('hidden');
+            
+            // 显示弹窗
+            completeModal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            
+            console.log('打开维修完成弹窗，ID：', repairId); // 调试日志
+        }
+
+        // 关闭维修完成弹窗
+        function closeCompleteModal() {
+            if (completeModal) {
+                completeModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        // 处理文件选择
+        function handleFileSelect(event) {
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                if (!file.type.startsWith('image/')) continue;
+                
+                // 检查是否已存在相同文件
+                const isDuplicate = uploadedFiles.some(item => item.name === file.name && item.size === file.size);
+                if (isDuplicate) continue;
+                
+                uploadedFiles.push(file);
+                
+                // 创建预览元素
+                const previewItem = document.createElement('div');
+                previewItem.className = 'preview-item';
+                previewItem.dataset.index = uploadedFiles.length - 1;
+                
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(file);
+                
+                const removeBtn = document.createElement('span');
+                removeBtn.className = 'preview-remove';
+                removeBtn.innerHTML = '&times;';
+                removeBtn.onclick = function() {
+                    const index = parseInt(this.parentElement.dataset.index);
+                    uploadedFiles.splice(index, 1);
+                    updatePreviews();
+                };
+                
+                previewItem.appendChild(img);
+                previewItem.appendChild(removeBtn);
+                previewContainer.appendChild(previewItem);
+            }
+            
+            // 更新提交按钮状态
+            updateSubmitButtonStatus();
+            
+            // 清空文件输入
+            document.getElementById('fileInput').value = '';
+        }
+
+        // 更新预览列表
+        function updatePreviews() {
+            previewContainer.innerHTML = '';
+            
+            uploadedFiles.forEach((file, index) => {
+                const previewItem = document.createElement('div');
+                previewItem.className = 'preview-item';
+                previewItem.dataset.index = index;
+                
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(file);
+                
+                const removeBtn = document.createElement('span');
+                removeBtn.className = 'preview-remove';
+                removeBtn.innerHTML = '&times;';
+                removeBtn.onclick = function() {
+                    const idx = parseInt(this.parentElement.dataset.index);
+                    uploadedFiles.splice(idx, 1);
+                    updatePreviews();
+                };
+                
+                previewItem.appendChild(img);
+                previewItem.appendChild(removeBtn);
+                previewContainer.appendChild(previewItem);
+            });
+            
+            // 更新提交按钮状态
+            updateSubmitButtonStatus();
+        }
+
+        // 更新提交按钮状态
+        function updateSubmitButtonStatus() {
+            if (uploadedFiles.length >= 3) {
+                submitBtn.disabled = false;
+                uploadTip.classList.add('hidden');
+            } else {
+                submitBtn.disabled = true;
+                uploadTip.classList.remove('hidden');
+            }
+        }
+
+        // 提交维修完成信息
+        function submitRepairComplete() {
+            if (uploadedFiles.length < 3) {
+                uploadTip.classList.remove('hidden');
+                return;
+            }
+            
+            const repairContent = document.getElementById('repairContent').value;
+            
+            // 创建FormData
+            const formData = new FormData();
+            formData.append('repairId', repairId);
+            formData.append('repairContent', repairContent);
+            
+            // 添加图片文件
+            uploadedFiles.forEach((file, index) => {
+                formData.append('repairPhotos', file);
+            });
+            
+            // 禁用提交按钮
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>提交中...';
+            
+            // 发起请求
+            fetch('../../wechatrp/completeRepair', {
+                method: 'POST',
+                mode: 'cors',
+                credentials: 'include',
+                body: formData // FormData会自动设置正确的Content-Type
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`服务器响应错误：${response.status} ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(result => {
+                if (result.status === 200 || result.success) {
+                    alert('维修完成提交成功！');
+                    window.location.reload();
+                } else {
+                    throw new Error(result.msg || '提交失败，请重试');
+                }
+            })
+            .catch(error => {
+                console.error('提交异常详情：', error);
+                alert(`提交失败：${error.message}\n请稍后重试或联系管理员`);
+                
+                // 恢复按钮状态
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa fa-paper-plane mr-2"></i>提交维修完成';
+            });
+        }
+
+        // 支持拖拽上传
+        const uploadArea = document.getElementById('uploadArea');
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#48bb78';
+            uploadArea.style.backgroundColor = '#f8fff9';
+        });
+
+        uploadArea.addEventListener('dragleave', function() {
+            uploadArea.style.borderColor = '#ddd';
+            uploadArea.style.backgroundColor = 'transparent';
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.style.borderColor = '#ddd';
+            uploadArea.style.backgroundColor = 'transparent';
+            
+            const files = e.dataTransfer.files;
+            if (files && files.length > 0) {
+                // 创建一个新的事件对象
+                const event = new Event('change');
+                Object.defineProperty(event, 'target', {
+                    value: { files: files }
+                });
+                handleFileSelect(event);
+            }
+        });
+
+        // 关闭弹窗快捷键
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && completeModal && completeModal.style.display === 'flex') {
+                closeCompleteModal();
+            }
+        });
+
+        // 点击弹窗外区域关闭
+        completeModal.addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeCompleteModal();
+            }
+        });
+    </script>
+</body>
+</html>

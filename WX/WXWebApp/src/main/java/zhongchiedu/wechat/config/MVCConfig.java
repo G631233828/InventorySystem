@@ -2,12 +2,14 @@ package zhongchiedu.wechat.config;
 
 
 
+import java.io.File;
 import java.util.Collections;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.SessionTrackingMode;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.ServletContextInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,7 +19,6 @@ import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import at.pollux.thymeleaf.shiro.dialect.ShiroDialect;
-import zhongchiedu.wechat.compent.WeChatFilter;
 //import zhongchiedu.wechat.compent.WeChatFilter;
 import zhongchiedu.wechat.compent.WeiWebHandlerInterceptor;
 
@@ -25,22 +26,25 @@ import zhongchiedu.wechat.compent.WeiWebHandlerInterceptor;
 @Configuration
 public class MVCConfig extends WebMvcConfigurerAdapter {
 
-//	@Value("${upload.imgpath}")
-//	private String imgpath;
+	@Value("${upload-imgpath}")
+	private String imgpath;
 ////	@Value("${upload.kinderitor}")
 ////	private String kinderitor;
-//	@Value("${upload.savedir}")
-//	private String dir;
+	@Value("${upload-dir}")
+	private String dir;
 //	@Value("${upload.ueditor}")
 //	private String ueditor;
 //	@Value("${upload.ueditordir}")
 //	private String ueditordir;
 //	
+//	upload-dir=d:/zc/
+//	upload-imgpath=/upload/image/
 	 @Override
 	    public void addResourceHandlers(ResourceHandlerRegistry registry) {
 //	    	registry.addResourceHandler("/img/**").addResourceLocations("file:"+filepath+"/"); 
 //	    	registry.addResourceHandler(savePath+"/**").addResourceLocations("file:"+savePath+"/");
 //	    	registry.addResourceHandler(kinderitor+"/**").addResourceLocations("file:"+dir+kinderitor+"/");
+	    	registry.addResourceHandler(imgpath+"/**").addResourceLocations("file:"+dir+imgpath+File.separator);
 //	    	registry.addResourceHandler(imgpath+"/**").addResourceLocations("file:"+dir+imgpath+"/");
 //	    	registry.addResourceHandler(ueditor+"/**").addResourceLocations("file:"+dir+ueditor+"/");
 //	    	registry.addResourceHandler(ueditordir+"/**").addResourceLocations("file:"+ueditordir+"/");
@@ -55,10 +59,10 @@ public class MVCConfig extends WebMvcConfigurerAdapter {
 		return new WeiWebHandlerInterceptor();
 	}
 	
-	@Bean
-	public WeChatFilter weChatFilter() {
-		return new WeChatFilter();
-	}
+//	@Bean
+//	public WeChatFilter weChatFilter() {
+//		return new WeChatFilter();
+//	}
 
 	/**
 	 * shiro 界面整合 thymeleaf

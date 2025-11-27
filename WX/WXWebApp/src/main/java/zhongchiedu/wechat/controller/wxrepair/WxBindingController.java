@@ -40,6 +40,9 @@ public class WxBindingController {
 	@Value("${qrcode.weburl}")
 	private String weburl;
 	
+	@Value("${templateId5}")
+	private String templateId5; // 维修订单模版
+
 	
     /**
      * 跳转到绑定页面
