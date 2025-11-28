@@ -100,7 +100,7 @@ public class WxDoAssignController {
 
 				// 3. time2：期望时间（日期可能为 null，默认"未知期望时间"）
 				String expectedTime = (wxRepair.getExpectedVisitTime() != null)
-						? Common.getDateYMDHM(wxRepair.getExpectedVisitTime())
+						? Common.getDateYMD(wxRepair.getExpectedVisitTime())
 						: "未知期望时间";
 				map.put("time2", expectedTime);
 

@@ -28,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.gargoylesoftware.htmlunit.javascript.host.Console;
 
 import lombok.extern.slf4j.Slf4j;
+import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 import me.chanjar.weixin.common.bean.oauth2.WxOAuth2AccessToken;
 import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.common.service.WxOAuth2Service;
@@ -385,10 +386,9 @@ public class WxRepairController {
 
 	            // 3. 将获取到的 openId 存入 session，以便后续请求使用
 	            session.setAttribute("openId", openId);
-	            
-	            // 可以顺便把用户信息也存入 session
-	            WxMpUser userInfo = wxMpService.getUserService().userInfo(openId);
-	            session.setAttribute("userInfo", userInfo);
+	  
+	        	WxOAuth2UserInfo userInfo = oAuth2Service.getUserInfo(accessToken, null);
+				model.addAttribute("userInfo", userInfo);
 	        } else {
 	            // 4. 如果 session 中已经有 openId，说明是重复请求（如刷新），直接从 session 中获取
 	            System.out.println("openId 已存在于 session 中，直接使用: " + openId);
@@ -397,7 +397,7 @@ public class WxRepairController {
 	           
 	        
 	        // 此时 openId 一定是有效的，可以安全地使用它来查询数据
-	        List<WxRepair> repairList = this.wxRepairService.findOperationsWxRepairByOpenId(openId);
+	        List<WxRepair> repairList = this.wxRepairService.findOperationsWxRepairByOpenId(openId,"",null,"");
 	        
 	        model.addAttribute("repairList", repairList);
 	        model.addAttribute("openId", openId);

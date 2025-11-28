@@ -32,6 +32,7 @@ import zhongchiedu.inventory.pojo.WxBinding;
 import zhongchiedu.inventory.pojo.WxRepair;
 import zhongchiedu.inventory.service.WxBindingService;
 import zhongchiedu.inventory.service.WxRepairService;
+import zhongchiedu.inventory.service.WxReporterService;
 
 @Service
 @Slf4j
@@ -42,6 +43,9 @@ public class WxRepairServiceImpl extends GeneralServiceImpl<WxRepair> implements
 
 	@Autowired
 	private WxBindingService wxBindingService;
+	
+	@Autowired
+	private WxReporterService wxReporterService;
 
 	@Override
 	public Pagination<WxRepair> findpagination(Integer pageNo, Integer pageSize) {
@@ -143,28 +147,57 @@ public class WxRepairServiceImpl extends GeneralServiceImpl<WxRepair> implements
 	 * 维修人员 调度人员查看所有报修信息
 	 */
 	@Override
-	public List<WxRepair> findOperationsWxRepairByOpenId(String openId) {
+	public List<WxRepair> findOperationsWxRepairByOpenId(String openId,String search,Integer status,String workerId) {
 		// 通过openId 去查看opendId所属人员权限
 		WxBinding wxBinding = this.wxBindingService.findWxBindingByOpenId(openId);
 		PersonnelType personnelType = PersonnelType.getByCode(wxBinding.getPersonnelType())
 				.orElseThrow(() -> new IllegalArgumentException("无效的人员类型编码：" + wxBinding.getPersonnelType()));
 
 		Query query = new Query();
+		Criteria ca = new Criteria();
+		if(Common.isNotEmpty(search)) {
+			//根据search的内容去用户绑定里面查询id
+			List<ObjectId> findIdsBySearch = this.wxReporterService.findIdsBySearch(search);
+			
+		
+			query.addCriteria(ca.orOperator(Criteria.where("workOrderNumber").regex(search),
+					Criteria.where("faultInformation").regex(search),
+					Criteria.where("urgencyLevel").regex(search),
+					Criteria.where("reportClassroomRepair").regex(search),
+					Criteria.where("equipmentRepair").regex(search),Criteria.where("wxReporter.$id").in(findIdsBySearch)));
+			
+//			if(findIdsBySearch.size()>0) {
+//				ca.orOperator(Criteria.where("wxReporter.$id").in(findIdsBySearch));
+//			}
+			
+		}
+		if(Common.isNotEmpty(status)) {
+			query.addCriteria(Criteria.where("status").is(status));
+		}
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		query.with(new Sort(new Order(Direction.DESC, "createTime")));
 		switch (personnelType) {
 		case CONSTRUCTION_TEAM:
+			if(Common.isEmpty(status)) {
+				//施工队默认查看状态为2的数据
+				query.addCriteria(Criteria.where("status").is(2));
+			}
 			// 维修人员 只能根据自己的openId查看自己的维修数据
 			query.addCriteria(Criteria.where("worker.$id").is(new ObjectId(wxBinding.getId())));
 			break;
 		case DISPATCHER:
-			// 调度人员
+			if(Common.isNotEmpty(workerId)) {
+				query.addCriteria(Criteria.where("worker.$id").is(new ObjectId(workerId)));
+			}
+			if(Common.isEmpty(status)&&Common.isEmpty(search)&&Common.isEmpty(workerId)) {
+				// 调度人员默认查看状态为1的数据 
+				query.addCriteria(Criteria.where("status").is(1));
+			}
 			break;
 		default:
 			// 其他类型逻辑
 			break;
 		}
-
 		return this.find(query, WxRepair.class);
 	}
 

@@ -88,7 +88,7 @@
                             if (result.status === 200) {
                                 alert(result.msg); // 显示成功消息（如"分配成功"）
                                 // 跳转回报修单详情页（根据你的路径调整）
-                                window.location.href = `../wechatrp/findWxRepair/${repairId}`;
+                                window.location.href = `../wechatrp/operator_repairlist`;
                             } else {
                                 alert('分配失败：' + result.msg); // 显示错误消息（如"报修单已分配"）
                             }

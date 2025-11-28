@@ -6,6 +6,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import me.chanjar.weixin.common.bean.WxOAuth2UserInfo;
 import me.chanjar.weixin.common.bean.oauth2.WxOAuth2AccessToken;
 import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.common.service.WxOAuth2Service;
@@ -14,6 +15,8 @@ import me.chanjar.weixin.mp.bean.result.WxMpUser;
 import zhongchiedu.inventory.pojo.WxBinding;
 import zhongchiedu.inventory.service.WxBindingService;
 import zhongchiedu.wx.config.WxMpProperties;
+import zhongchiedu.wx.pojo.WXUserInfo;
+import zhongchiedu.wx.service.WXUserInfoService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -42,6 +45,9 @@ public class WxBindingController {
 	
 	@Value("${templateId5}")
 	private String templateId5; // 维修订单模版
+	
+	@Autowired
+	private WXUserInfoService wXUserInfoService;
 
 	
     /**
@@ -113,6 +119,7 @@ public class WxBindingController {
     public Map<String, Object> wxBinding(@Valid @RequestBody WxBinding wxBinding, HttpServletRequest request,BindingResult result) {
     	  String openId = (String) request.getSession().getAttribute("openId");
     	  wxBinding.setOpenId(openId);
+    	  
         Map<String, Object> response = new HashMap<>();
         // 校验参数
         if (result.hasErrors()) {

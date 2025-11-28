@@ -111,4 +111,6 @@ public class WxBindingServiceImpl extends GeneralServiceImpl<WxBinding> implemen
 		return this.find(query, WxBinding.class);
 	}
 
+
+
 }

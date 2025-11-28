@@ -83,7 +83,7 @@ public class WxConfirmRepairController {
 					//执行推送
 					findBindingsByPersonnelType.stream().filter(user -> Common.isNotEmpty(user.getOpenId())).forEach(user -> {
 						String sendWxMessage = this.wxMsgPush.sendWxMessage(templateId6, user.getOpenId(),
-								weburl + "/wechatrp/findWxRepairlist" , map);
+								weburl + "/wechatrp/operator_repairlist" , map);
 						log.info("报修单{}接单成功，消息推送成功：{}",repairId , sendWxMessage);
 					});
 				}

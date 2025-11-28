@@ -21,7 +21,7 @@
                 <!-- openId 隐藏域 -->
                 <input type="hidden" id="openId" name="openId" th:value="${openId}">
 
- 				 <div class="mb-6">
+                <div class="mb-6">
                     <label for="personnelType" class="block text-gray-700 text-sm font-bold mb-2">用户类型</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
@@ -72,8 +72,12 @@
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                             <i class="fa fa-user"></i>
                         </span>
-                        <input type="text" id="name" name="name" placeholder="请输入您的姓名"
-                               class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                        <input type="text" id="name" name="name" placeholder="请输入您的姓名（2-10个字符）"
+                               class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                               maxlength="10">
+                        <span id="nameLengthHint" class="absolute inset-y-0 right-3 flex items-center text-xs text-gray-400 hidden">
+                            <span id="nameLength">0</span>/10
+                        </span>
                     </div>
                 </div>
 
@@ -84,11 +88,10 @@
                             <i class="fa fa-phone"></i>
                         </span>
                         <input type="tel" id="contactNumber" name="contactNumber" placeholder="请输入您的联系电话"
-                               class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                               class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                               maxlength="11">
                     </div>
                 </div>
-
-             
 
                 <button type="submit" id="submitBtn"
                         class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-lg transition-all duration-200 flex items-center justify-center">
@@ -127,6 +130,45 @@
             const bindingForm = document.getElementById('bindingForm');
             const submitBtn = document.getElementById('submitBtn');
             const successToast = document.getElementById('successToast');
+            const nameInput = document.getElementById('name');
+            const nameLengthHint = document.getElementById('nameLengthHint');
+            const nameLength = document.getElementById('nameLength');
+            
+            // 姓名长度实时显示
+            nameInput.addEventListener('input', function() {
+                const length = this.value.length;
+                nameLength.textContent = length;
+                
+                if (length > 0) {
+                    nameLengthHint.classList.remove('hidden');
+                } else {
+                    nameLengthHint.classList.add('hidden');
+                }
+                
+                // 姓名长度校验样式
+                if (length < 2 || length > 10) {
+                    this.classList.add('border-red-500');
+                    this.classList.remove('border-gray-300');
+                } else {
+                    this.classList.remove('border-red-500');
+                    this.classList.add('border-gray-300');
+                }
+            });
+            
+            // 手机号码格式校验
+            const contactNumberInput = document.getElementById('contactNumber');
+            contactNumberInput.addEventListener('input', function() {
+                const phoneRegex = /^1[3-9]\d{9}$/;
+                const value = this.value;
+                
+                if (value.length === 11 && !phoneRegex.test(value)) {
+                    this.classList.add('border-red-500');
+                    this.classList.remove('border-gray-300');
+                } else {
+                    this.classList.remove('border-red-500');
+                    this.classList.add('border-gray-300');
+                }
+            });
 
             bindingForm.addEventListener('submit', function(e) {
                 e.preventDefault();
@@ -137,21 +179,40 @@
                 const contactNumber = document.getElementById('contactNumber').value.trim();
                 const personnelType = document.getElementById('personnelType').value;
 
-                // 关键改动2：条件校验施工队（仅维修人员需要）
-                if (userType === '1' && !team) {
-                    showToast('请选择所属施工队', 'error');
+                // 验证用户类型
+                if (!personnelType) {
+                    showToast('请选择用户类型', 'error');
                     return;
                 }
+                
+                // 验证姓名长度（2-10个字符）
                 if (!name) {
                     showToast('请输入姓名', 'error');
                     return;
                 }
+                if (name.length < 2) {
+                    showToast('请输入正确姓名', 'error');
+                    return;
+                }
+                if (name.length > 10) {
+                    showToast('请输入正确姓名', 'error');
+                    return;
+                }
+                
+                // 验证手机号码格式
                 if (!contactNumber) {
                     showToast('请输入联系电话', 'error');
                     return;
                 }
-                if (!personnelType) {
-                    showToast('请选择用户类型', 'error');
+                const phoneRegex = /^1[3-9]\d{9}$/;
+                if (!phoneRegex.test(contactNumber)) {
+                    showToast('请输入有效的手机号码', 'error');
+                    return;
+                }
+
+                // 关键改动2：条件校验施工队（仅维修人员需要）
+                if (userType === '1' && !team) {
+                    showToast('请选择所属施工队', 'error');
                     return;
                 }
 
@@ -210,10 +271,12 @@
                 toast.className = `fixed top-4 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-lg shadow-lg flex items-center z-50 transition-all duration-300 ${type === 'error' ? 'bg-red-500' : 'bg-green-500'} text-white`;
                 toast.innerHTML = `<i class="fa fa-${type === 'error' ? 'exclamation-circle' : 'check-circle'} mr-2"></i>${message}`;
                 document.body.appendChild(toast);
-                setTimeout(() => { toast.style.top = '1rem'; }, 10);
+                
                 setTimeout(() => {
-                    toast.style.top = '-5rem';
-                    setTimeout(() => { document.body.removeChild(toast); }, 300);
+                    toast.style.opacity = '0';
+                    setTimeout(() => { 
+                        document.body.removeChild(toast); 
+                    }, 300);
                 }, 3000);
             }
         });

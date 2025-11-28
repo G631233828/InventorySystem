@@ -214,10 +214,10 @@
           </div>
         </div>
         
-        <!-- 期望上门时间 -->
+        <!-- 期望上门日期 -->
         <div class="form-group">
-          <label for="expectedVisitTime" class="block text-sm font-medium text-gray-700 mb-1">期望上门时间 <span class="text-danger">*</span></label>
-          <input type="datetime-local" id="expectedVisitTime" name="expectedVisitTime" 
+          <label for="expectedVisitTime" class="block text-sm font-medium text-gray-700 mb-1">期望上门日期 <span class="text-danger">*</span></label>
+          <input type="date" id="expectedVisitTime" name="expectedVisitTime" 
                  class="w-full px-4 py-2 border border-gray-300 rounded-lg form-input-focus transition-all" required>
         </div>
         
@@ -301,12 +301,11 @@
      * 初始化表单基础功能
      */
     function initFormBasic() {
-      // 设置默认日期（明天早上9点）
+      // 设置默认日期（明天）
       const now = new Date();
       now.setDate(now.getDate() + 1);
-      now.setHours(9, 0, 0);
-      const formattedDateTime = now.toISOString().slice(0, 16);
-      document.getElementById('expectedVisitTime').value = formattedDateTime;
+      const formattedDate = now.toISOString().slice(0, 10); // 只取年月日部分
+      document.getElementById('expectedVisitTime').value = formattedDate;
       
       // 字符计数
       faultInformation.addEventListener('input', () => {

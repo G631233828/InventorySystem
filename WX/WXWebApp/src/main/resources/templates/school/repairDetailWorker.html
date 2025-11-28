@@ -731,7 +731,7 @@
                 return;
             }
             
-            const repairContent = document.getElementById('repairContent').value;
+            const repairContent = document.getElementById('repairContent').value.trim() || '无内容';
             
             // 创建FormData
             const formData = new FormData();

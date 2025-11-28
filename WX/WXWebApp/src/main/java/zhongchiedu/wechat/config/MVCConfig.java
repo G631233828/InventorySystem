@@ -19,6 +19,7 @@ import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
 import at.pollux.thymeleaf.shiro.dialect.ShiroDialect;
+import zhongchiedu.wechat.compent.WeChatFilter;
 //import zhongchiedu.wechat.compent.WeChatFilter;
 import zhongchiedu.wechat.compent.WeiWebHandlerInterceptor;
 
@@ -59,10 +60,10 @@ public class MVCConfig extends WebMvcConfigurerAdapter {
 		return new WeiWebHandlerInterceptor();
 	}
 	
-//	@Bean
-//	public WeChatFilter weChatFilter() {
-//		return new WeChatFilter();
-//	}
+	@Bean
+	public WeChatFilter weChatFilter() {
+		return new WeChatFilter();
+	}
 
 	/**
 	 * shiro 界面整合 thymeleaf

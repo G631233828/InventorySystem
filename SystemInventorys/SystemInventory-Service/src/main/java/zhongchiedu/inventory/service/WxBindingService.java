@@ -27,5 +27,4 @@ public interface WxBindingService extends GeneralService<WxBinding> {
 	
 	
 	
-	
 }

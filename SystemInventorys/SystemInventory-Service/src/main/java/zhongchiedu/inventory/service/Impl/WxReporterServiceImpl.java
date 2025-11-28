@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 import org.bson.types.ObjectId;
 import org.springframework.beans.BeanUtils;
@@ -129,7 +130,27 @@ public class WxReporterServiceImpl extends GeneralServiceImpl<WxReporter> implem
 		query.addCriteria(Criteria.where("openId").is(openId));
 		return this.findOneByQuery(query, WxReporter.class);
 	}
+	
 
-
+	@Override
+	public List<ObjectId> findIdsBySearch(String search) {
+		
+		if(Common.isNotEmpty(search)) {
+			Query query = new Query();
+			Criteria ca = new Criteria();
+			query.addCriteria(ca.orOperator(Criteria.where("schoolName").regex(search),Criteria.where("schoolAddress").regex(search),Criteria.where("campus").regex(search),Criteria.where("userName").regex(search)));
+			List<WxReporter> wxreporters = this.find(query, WxReporter.class);
+			return wxreporters.stream()
+		            .map(wxReporter -> {
+		                String id = wxReporter.getId();
+		                    return new ObjectId(id);
+		            })
+		            .filter(Objects::nonNull)
+		            .collect(Collectors.toList());
+		}
+		
+		
+		return null;
+	}
 
 }
