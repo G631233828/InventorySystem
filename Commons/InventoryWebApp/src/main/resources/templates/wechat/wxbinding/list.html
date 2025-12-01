@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+
+<head th:include="public/public_css::pub_css"></head>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" type="text/css"
+	th:href="@{/assets/js/progress-bar/number-pb.css}">
+<link th:href="@{/plugs/sweetalert/sweetalert.css}" rel="stylesheet">
+
+<style type="text/css">
+canvas#canvas4 {
+	position: relative;
+	top: 20px;
+}
+</style>
+<link rel="shortcut icon" href="@{/assets/ico/minus.png}">
+</head>
+
+<body>
+	<!-- Preloader -->
+	<div id="preloader">
+		<div id="status">&nbsp;</div>
+	</div>
+	<!-- TOP NAVBAR -->
+	<div th:replace="public/public::top"></div>
+	<!-- /END OF TOP NAVBAR -->
+
+	<!-- SIDE MENU -->
+	<div th:replace="public/public::left(activeUri='wxBinding')"></div>
+	<!-- END OF SIDE MENU -->
+
+	<!--  PAPER WRAP -->
+	<div class="wrap-fluid">
+		<div class="container-fluid paper-wrap bevel tlbr">
+
+
+			<!-- CONTENT -->
+			<!--TITLE -->
+			<div th:replace="public/public::title"></div>
+			<!--/ TITLE -->
+
+			<!-- BREADCRUMB -->
+			<div th:replace="public/public::menu"></div>
+			<!-- END OF BREADCRUMB -->
+
+
+			<div class="content-wrap">
+				<div class="row">
+
+
+					<div class="col-sm-12">
+
+						<div class="nest" id="tableStaticClose">
+							<div class="title-alt">
+								<div>
+		
+
+									<shiro:hasPermission name="wxBinding:edit">
+										<button class="btn btn-primary btn-sm"
+											onclick="return toeditPage('','wxBinding')">
+											<i class="fa fa-edit"> </i>编辑
+										</button>
+									</shiro:hasPermission>
+
+									<shiro:hasPermission name="wxBinding:delete">
+										<button class="btn btn-danger btn-sm"
+											th:onclick="|return del('','@{/wxBinding/}')|">
+											<i class="fa fa-trash-o"> </i>删除
+										</button>
+									</shiro:hasPermission>
+
+								</div>
+
+								<div class="titleClose">
+									<a class="gone" href="#tableStaticClose"> <span
+										class="entypo-cancel"></span>
+									</a>
+								</div>
+								<div class="titleToggle">
+									<a class="nav-toggle-alt" href="#tableStatic"> <span
+										class="entypo-up-open"></span>
+									</a>
+								</div>
+
+							</div>
+
+							<div class="body-nest" id="tableStatic">
+
+								<section id="flip-scroll">
+
+									<table class="table table-bordered table-striped cf">
+										<thead class="cf">
+											<tr>
+												<th class="numeric" style="width: 20px;">
+													<div class="checkbox checkbox-inline"
+														style="margin-top: 0px;">
+														<input type="checkbox" id="checkall" name="checkall" /> <label
+															for="checkall"></label>
+													</div>
+												</th>
+												<th class="numeric">微信OpenId</th>
+												<th class="numeric">所属施工队</th>
+												<th class="numeric">姓名</th>
+												<th class="numeric">联系电话</th>
+												<th class="numeric">用户类型</th>
+												<th class="numeric">人员审核状态</th>
+												<th class="numeric">操作</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr th:each="wxBinding:${pageList.datas}">
+												<td class="numeric">
+													<div class="checkbox checkbox-inline"
+														style="margin-top: 0px;">
+														<input type="checkbox" name="ids" th:id="${wxBinding.id}"
+															class="numeric" th:value="${wxBinding.id}"> <label
+															th:for="${wxBinding.id}"></label>
+													</div>
+												</td>
+												<td class="numeric">[[${wxBinding.openId}]]</td>
+												<td class="numeric">[[${wxBinding.team}]]</td>
+												<td class="numeric">[[${wxBinding.name}]]</td>
+												<td class="numeric">[[${wxBinding.contactNumber}]]</td>
+												<td class="numeric" 
+													th:text="${wxBinding.personnelType eq 1 ? '维修人员' : (wxBinding.personnelType eq 2 ? '调度人员' : '未知类型')}">
+												</td>
+												<td class="numeric">
+													<span th:switch="${wxBinding.auditStatus}">
+														<span th:case="1" class="label label-default">提交</span>
+														<span th:case="2" class="label label-success">通过</span>
+														<span th:case="3" class="label label-danger">拒绝</span>
+														<span th:case="*" class="label label-warning">未知</span>
+													</span>
+												</td>
+												<td class="numeric">
+													<shiro:hasPermission name="wxBinding:edit">
+														<button class="btn btn-primary btn-xs"
+															th:onclick="|return toeditPage('${wxBinding.id}','wxBinding')|">
+															<i class="fa fa-edit"> </i>编辑
+														</button>
+													</shiro:hasPermission> 
+													<shiro:hasPermission name="wxBinding:delete">
+														<button class="btn btn-danger btn-xs"
+															th:onclick="|return del('@{/wxBinding/}${wxBinding.id}','')|">
+															<i class="fa fa-trash-o"> </i>删除
+														</button>
+													</shiro:hasPermission>
+													<!-- 如需审核权限按钮可添加 -->
+													<shiro:hasPermission name="wxBinding:audit">
+														<button class="btn btn-info btn-xs"
+															th:onclick="|auditPage('${wxBinding.id}')|">
+															<i class="fa fa-check-circle"> </i>审核
+														</button>
+													</shiro:hasPermission>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+
+									<form method="post" id="deleteForm">
+										<input name="_method" value="delete" type="hidden">
+									</form>
+
+
+									<div class="row">
+										<div class="col-md-12">
+											<div class="col-md-6">
+												<div class="dataTables_info hidden-xs"
+													style="margin-top: 0px;" role="status" aria-live="polite"
+													th:text="|每页显示${pageList.pageSize}行
+										－ 当前页${pageList.pageNo}页 － 共${pageList.totalPage}页|"></div>
+											</div>
+											<div class="col-md-6">
+												<ul class="pagination pagination-split pull-right"
+													style="margin-top: 0px;">
+													<li th:class="${pageList.pageNo } eq 1 ?disabled:''">
+														<a th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/wxBinding?pageNo=}+${pageList.upPage}">上一页</a>
+													</li>
+													<li th:each="page:${pageList.navigatepageNums}"
+														th:class="${page  == pageList.pageNo}?active:''">
+														<a th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/wxBinding?pageNo=}+${page}">[[${page}]]</a>
+													</li>
+													<li th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
+														<a th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/wxBinding?pageNo=}+${pageList.nextPage}">下一页</a>
+													</li>
+												</ul>
+											</div>
+										</div>
+										<!-- 分页结束 -->
+									</div>
+
+								</section>
+
+							</div>
+
+						</div>
+
+
+					</div>
+
+				</div>
+			</div>
+			<div th:replace="public/public::myModal"></div>
+
+			<!-- 审核模态框 -->
+			<div class="modal fade" id="auditModal" tabindex="-1" role="dialog" aria-labelledby="auditModalLabel">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+							<h4 class="modal-title" id="auditModalLabel">人员审核操作</h4>
+						</div>
+						<div class="modal-body">
+							<input type="hidden" id="currentAuditId" value="">
+							<p>请选择对该人员的审核结果：</p>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+							<button type="button" class="btn btn-success" onclick="confirmAudit(2)">审核通过</button>
+							<button type="button" class="btn btn-danger" onclick="confirmAudit(3)">审核拒绝</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+	</div>
+	<!--  END OF PAPER WRAP -->
+	<!-- 右侧隐藏菜单start -->
+	<div th:replace="public/public::right"></div>
+	<!-- 右侧隐藏菜单end-->
+	<!-- 底部js -->
+	<div th:replace="public/public_js::pub_js"></div>
+	<div th:replace="public/public_js::public_script"></div>
+	<div th:replace="public/public::footer"></div>
+	<!-- Sweet alert -->
+	<script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
+	<div th:replace="public/public_js::validator"></div>
+
+	<!-- 审核相关JS -->
+	<script th:inline="javascript">
+		// 打开审核模态框
+		function auditPage(id) {
+			$("#currentAuditId").val(id);
+			$("#auditModal").modal("show");
+		}
+		
+		// 确认审核操作
+		function confirmAudit(status) {
+		    var id = $("#currentAuditId").val();
+		    var statusText = status === 2 ? "通过" : "拒绝";
+		    
+		    swal({
+		        title: "确认" + statusText + "审核？",
+		        text: "您确定要将该人员的审核状态设置为【" + (status === 2 ? "审核通过" : "审核拒绝") + "】吗？",
+		        type: "warning",
+		        showCancelButton: true,
+		        confirmButtonColor: status === 2 ? "#5cb85c" : "#d9534f",
+		        confirmButtonText: statusText,
+		        cancelButtonText: "取消",
+		        closeOnConfirm: false
+		    }, function() {
+		        // 使用AJAX提交审核请求
+		        $.post(getRootPath()+"/wxBinding/audit/" + id, {status: status}, function(res) {
+		            if (res.status === 200) {
+		                swal("操作成功！", res.msg, "success");
+		                $("#auditModal").modal("hide");
+		                // 刷新表格数据
+		                setTimeout(function() {
+		                    window.location.reload();
+		                }, 1000);
+		            } else {
+		                swal("操作失败！", res.msg, "error");
+		            }
+		        }, "json").error(function() {
+		            swal("操作失败！", "网络异常，请重试", "error");
+		        });
+		    });
+		}
+	</script>
+
+</body>
+</html>

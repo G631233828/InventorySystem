@@ -21,6 +21,7 @@ import me.chanjar.weixin.common.error.WxErrorException;
 import me.chanjar.weixin.common.service.WxOAuth2Service;
 import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.bean.result.WxMpUser;
+import zhongchiedu.common.utils.enums.PersonJoinAuditStatusEnum;
 import zhongchiedu.common.utils.enums.PersonnelType;
 import zhongchiedu.inventory.pojo.WxBinding;
 import zhongchiedu.inventory.pojo.WxRepair;
@@ -200,6 +201,9 @@ public class WxRepairToOperListController {
 	        if (wx == null) {
 	            // 跳转绑定界面
 	            return "school/error";
+	        }
+	        if(wx.getAuditStatus().equals(PersonJoinAuditStatusEnum.REFUSE.getCode())){
+	        	return "school/audit";
 	        }
 
 	        Integer personnelType = wx.getPersonnelType();

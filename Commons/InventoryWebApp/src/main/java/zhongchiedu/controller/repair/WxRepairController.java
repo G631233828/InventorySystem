@@ -1,4 +1,4 @@
-package zhongchiedu.controller.inventory;
+package zhongchiedu.controller.repair;
 
 import javax.servlet.http.HttpSession;
 

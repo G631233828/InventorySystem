@@ -77,7 +77,7 @@ public class WxConfirmRepairController {
 					Map<String, String> map = new HashMap<>();
 					map.put("character_string11", Common.getOrDefault(wxRepair.getWorkOrderNumber(), "未知工单号"));
 					map.put("time13", Common.getDateYMDHM(new Date()));
-					map.put("thing4", wxRepair.getWorker().getName());
+					map.put("thing4",  Common.isNotEmpty(wxRepair.getWorker().getName()) ? wxRepair.getWorker().getName() : "维修人员");
 					map.put("phone_number5", wxRepair.getWorker().getContactNumber());
 					map.put("thing6",wxRepair.getWxReporter().getSchoolName()+"("+wxRepair.getWxReporter().getCampus()+")");
 					//执行推送

@@ -19,6 +19,7 @@ public class WxBinding extends GeneralBean<WxRepair>{
 	private String name;          //姓名
 	private String contactNumber; //联系电话
 	private Integer personnelType;//用户类型   1.维修人员  2.调度人员
+	private Integer auditStatus; //人员审核    1.提交 2 通过  3 拒绝
 	
 
 }

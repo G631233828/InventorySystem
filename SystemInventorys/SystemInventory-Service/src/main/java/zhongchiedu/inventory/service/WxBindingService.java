@@ -19,6 +19,8 @@ public interface WxBindingService extends GeneralService<WxBinding> {
 	
 	
 	public List<WxBinding> findBindingsByPersonnelType(PersonnelType p);
+
+	public boolean auditWxBinding(String id, Integer status);
 	
 	
 	

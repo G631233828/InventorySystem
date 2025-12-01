@@ -358,7 +358,13 @@ public class WxRepairController {
 	}
 	
 	
-	
+	/**
+	 * 维修申请人员查看维修列表
+	 * @param request
+	 * @param model
+	 * @param session
+	 * @return
+	 */
 	
 	@GetMapping(value = "/findWxRepairlist")
 	public String findWxRepairlist(HttpServletRequest request, Model model, HttpSession session) {

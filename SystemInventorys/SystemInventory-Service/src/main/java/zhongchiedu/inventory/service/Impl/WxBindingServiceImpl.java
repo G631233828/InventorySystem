@@ -18,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import lombok.extern.slf4j.Slf4j;
 import zhongchiedu.common.utils.Common;
+import zhongchiedu.common.utils.enums.PersonJoinAuditStatusEnum;
 import zhongchiedu.common.utils.enums.PersonnelType;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralServiceImpl;
@@ -33,7 +34,6 @@ import zhongchiedu.inventory.service.WxRepairService;
 @Service
 @Slf4j
 public class WxBindingServiceImpl extends GeneralServiceImpl<WxBinding> implements WxBindingService {
-	
 
 	@Override
 	public Pagination<WxBinding> findpagination(Integer pageNo, Integer pageSize) {
@@ -65,6 +65,7 @@ public class WxBindingServiceImpl extends GeneralServiceImpl<WxBinding> implemen
 				BeanUtils.copyProperties(wxBinding, ed);
 				this.save(wxBinding);
 			} else {
+				wxBinding.setAuditStatus(PersonJoinAuditStatusEnum.SUBMITTED.getCode());
 				// insert
 				this.insert(wxBinding);
 			}
@@ -107,10 +108,30 @@ public class WxBindingServiceImpl extends GeneralServiceImpl<WxBinding> implemen
 		Query query = new Query();
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		query.addCriteria(Criteria.where("isDisable").is(false));
+		query.addCriteria(Criteria.where("auditStatus").is(PersonJoinAuditStatusEnum.APPROVED.getCode()));
 		query.addCriteria(Criteria.where("PersonnelType").is(p.getCode()));
 		return this.find(query, WxBinding.class);
 	}
 
+	@Override
+	public boolean auditWxBinding(String id, Integer status) {
 
+
+		WxBinding wxBinding = this.findOneById(id, WxBinding.class);
+
+		if (wxBinding == null) {
+			throw new RuntimeException("微信绑定记录不存在！");
+		}
+
+		// 2. 校验是否已审核（可选）
+		if (wxBinding.getAuditStatus() != null && wxBinding.getAuditStatus() != 1) {
+			throw new RuntimeException("该记录已审核，不能重复操作！");
+		}
+		// 3. 更新审核状态
+		wxBinding.setAuditStatus(status);
+
+		this.save(wxBinding);
+		return true;
+	}
 
 }
