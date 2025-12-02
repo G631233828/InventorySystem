@@ -170,6 +170,13 @@ public class ShiroConfig {
 //		filterChainDefinitionMap.put("/wechatrp/repairlist/**", "anon");
 //		filterChainDefinitionMap.put("/wechatrp/geocode/**", "anon");
 //		filterChainDefinitionMap.put("/wechatrp/wxRepair/**", "anon");
+//		filterChainDefinitionMap.put("/wechatrp/toBinding/**", "anon");
+//		filterChainDefinitionMap.put("/wechatrp/wxBinding/**", "anon");
+//		filterChainDefinitionMap.put("/wechatrp/repair/**", "anon");
+//		filterChainDefinitionMap.put("/wechatrp/toAudio/**", "anon");
+//		filterChainDefinitionMap.put("/wechatrp/bindingSuccess/**", "anon");
+//		filterChainDefinitionMap.put("/wechatrp/operator_repairlist/**", "anon");
+		
 		filterChainDefinitionMap.put("/upload/**", "anon");//图片显示
 		filterChainDefinitionMap.put("/wechat/preStock/**", "anon");
 		filterChainDefinitionMap.put("/wechat/cargoFromStorage/**", "anon");
@@ -190,6 +197,9 @@ public class ShiroConfig {
 		// 如果不设置默认会自动寻找Web工程根目录下的"/login.jsp"页面
 		// 登录成功后要跳转的链接
 		// shiroFilterFactoryBean.setSuccessUrl("/website/index");
+		//使用报修系统 跳转未授权界面
+		
+//		shiroFilterFactoryBean.setLoginUrl("/wechatrp/toBinding");
 		shiroFilterFactoryBean.setLoginUrl("/wechat/weChatAuth");
 		// // 登录成功后要跳转的链接
 		shiroFilterFactoryBean.setSuccessUrl("/wechat/toindex");

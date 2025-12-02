@@ -65,7 +65,11 @@ public class WxRepairDetailController {
     }
     
     @GetMapping("/findWxRepairByWorker/{id}")
-    public String toRepairDetailByWorker(@PathVariable("id") String id, Model model) {
+    public String toRepairDetailByWorker( @RequestParam(value = "code", required = false) String code,@PathVariable("id") String id, Model model) {
+    	
+    	System.out.println(code);
+    	
+    	
         try {
             // 1. 根据ID查询报修单完整信息（需关联查询报修人、图片等关联数据）
             // 注：确保WxRepairService的getById方法已实现关联查询（如MyBatis的关联查询/MP的级联查询）

@@ -64,6 +64,10 @@ public class MVCConfig extends WebMvcConfigurerAdapter {
 	public WeChatFilter weChatFilter() {
 		return new WeChatFilter();
 	}
+//	@Bean
+//	public WxAuthInterceptor wxAuthInterceptor() {
+//		return new WxAuthInterceptor();
+//	}
 
 	/**
 	 * shiro 界面整合 thymeleaf
@@ -82,8 +86,8 @@ public class MVCConfig extends WebMvcConfigurerAdapter {
 		WebMvcConfigurerAdapter adapter = new WebMvcConfigurerAdapter() {
 			@Override
 			public void addViewControllers(ViewControllerRegistry registry) {
-				registry.addViewController("/wechat").setViewName("/wechat/weChatAuth");
-				registry.addViewController("/wechatrp").setViewName("/wechatrp/repairlist");
+//				registry.addViewController("/wechatrp/").setViewName("/wechatrp/repairlist");
+				registry.addViewController("/wechat/").setViewName("/wechat/weChatAuth");
 			}
 
 
@@ -92,8 +96,8 @@ public class MVCConfig extends WebMvcConfigurerAdapter {
 			@Override
 			public void addInterceptors(InterceptorRegistry registry) {
 				//registry.addInterceptor(sessionInterceptor()).addPathPatterns("/**").excludePathPatterns("/index.html","/user/login");
-				 registry.addInterceptor(weiWebHandlerInterceptor()).addPathPatterns("/wechat").excludePathPatterns("/wechat/weChatAuth","/wechat/cargoFromStorage/**","/wechat/batchOut/**");
-				// registry.addInterceptor(weChatFilter()).addPathPatterns("/wechatrp"); // 仅拦截需要强制微信访问的接口
+//				registry.addInterceptor(wxAuthInterceptor()).addPathPatterns("/wechatrp/"); // 仅拦截需要强制微信访问的接口
+				 registry.addInterceptor(weiWebHandlerInterceptor()).addPathPatterns("/wechat/").excludePathPatterns("/wechat/weChatAuth","/wechat/cargoFromStorage/**","/wechat/batchOut/**");
 			}
 			
 		};

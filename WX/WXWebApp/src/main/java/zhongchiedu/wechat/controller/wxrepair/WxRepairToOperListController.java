@@ -190,6 +190,8 @@ public class WxRepairToOperListController {
 	            WxOAuth2AccessToken accessToken = oAuth2Service.getAccessToken(code);
 	            // 3. 将获取到的 openId 存入 session，以便后续请求使用
 	            openId = accessToken.getOpenId();
+
+	            
 	            session.setAttribute("openId", openId);
 	        } else {
 	            // 4. 如果 session 中已经有 openId，说明是重复请求（如刷新），直接从 session 中获取

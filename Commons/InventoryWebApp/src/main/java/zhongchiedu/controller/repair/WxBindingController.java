@@ -1,5 +1,6 @@
 package zhongchiedu.controller.repair;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import lombok.extern.slf4j.Slf4j;
 import zhongchiedu.common.utils.BasicDataResult;
@@ -47,39 +49,41 @@ public class WxBindingController {
 		return "redirect:wxRepairs";
 	}
 
-	@RequiresPermissions("wxBinding:audit") // 需审核权限
+	@RequiresPermissions("wxBinding:audit")
 	@PostMapping("/wxBinding/audit/{id}")
-	public BasicDataResult audit(@PathVariable("id") String id, @RequestParam("status") Integer status) {
+	@ResponseBody // 确保返回JSON（如果未全局配置）
+	public BasicDataResult audit(@PathVariable("id") String id, 
+	                             @RequestParam("status") Integer status,
+	                             HttpServletRequest request) {
+	    try {
+	        // 校验参数合法性
+	        if (id == null || id.trim().isEmpty() || status == null) {
+	            return BasicDataResult.build(400, "参数不能为空", null);
+	        }
+	        if (!(status == 2 || status == 3)) {
+	            return BasicDataResult.build(400, "审核状态只能是2（通过）或3（拒绝）", null);
+	        }
 
-		try {
-			// 校验参数合法性
-			if (id == null || status == null) {
-				return BasicDataResult.build(400, "参数不能为空", null);
-			}
-			if (!(status == 2 || status == 3)) {
-				return BasicDataResult.build(400, "审核状态只能是2（通过）或3（拒绝）", null);
-			}
+	        // 调用业务层处理审核逻辑
+	        boolean result = wxBindingService.auditWxBinding(id, status);
 
-			// 调用业务层处理审核逻辑
-			boolean result = wxBindingService.auditWxBinding(id, status);
-
-			if (result) {
-				String statusDesc = status == 2 ? "审核通过" : "审核拒绝";
-				log.info("微信绑定记录[{}]审核操作成功，状态更新为：{}", id, statusDesc);
-				return BasicDataResult.build(200,statusDesc + "操作成功！",null);
-			} else {
-				return BasicDataResult.build(500, "审核操作失败，请重试！", null);
-			}
-		} catch (IllegalArgumentException e) {
-			log.error("微信绑定记录[{}]审核参数异常：{}", id, e.getMessage());
-			return BasicDataResult.build(400, e.getMessage(), null);
-		} catch (RuntimeException e) {
-			log.error("微信绑定记录[{}]审核业务异常：{}", id, e.getMessage());
-			return BasicDataResult.build(404, e.getMessage(), null);
-		} catch (Exception e) {
-			log.error("微信绑定记录[{}]审核系统异常", id, e);
-			return BasicDataResult.build(500, "系统异常，请联系管理员！", null);
-		}
+	        if (result) {
+	            String statusDesc = status == 2 ? "审核通过" : "审核拒绝";
+	            log.info("微信绑定记录[{}]审核操作成功，状态更新为：{}", id, statusDesc);
+	            return BasicDataResult.ok(statusDesc + "操作成功！"); // 简化返回（如果BasicDataResult有ok方法）
+	        } else {
+	            return BasicDataResult.build(500, "审核操作失败，请重试！", null);
+	        }
+	    } catch (IllegalArgumentException e) {
+	        log.error("微信绑定记录[{}]审核参数异常：{}", id, e.getMessage());
+	        return BasicDataResult.build(400, e.getMessage(), null);
+	    } catch (RuntimeException e) {
+	        log.error("微信绑定记录[{}]审核业务异常：{}", id, e.getMessage());
+	        return BasicDataResult.build(400, e.getMessage(), null); // 业务异常返回400，前端友好提示
+	    } catch (Exception e) {
+	        log.error("微信绑定记录[{}]审核系统异常", id, e);
+	        return BasicDataResult.build(500, "系统异常，请联系管理员！", null);
+	    }
 	}
 
 }

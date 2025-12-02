@@ -56,7 +56,7 @@ canvas#canvas4 {
 							<div class="title-alt">
 								<div>
 		
-
+<!-- 
 									<shiro:hasPermission name="wxBinding:edit">
 										<button class="btn btn-primary btn-sm"
 											onclick="return toeditPage('','wxBinding')">
@@ -69,7 +69,7 @@ canvas#canvas4 {
 											th:onclick="|return del('','@{/wxBinding/}')|">
 											<i class="fa fa-trash-o"> </i>删除
 										</button>
-									</shiro:hasPermission>
+									</shiro:hasPermission> -->
 
 								</div>
 
@@ -135,12 +135,12 @@ canvas#canvas4 {
 													</span>
 												</td>
 												<td class="numeric">
-													<shiro:hasPermission name="wxBinding:edit">
+									<!-- 				<shiro:hasPermission name="wxBinding:edit">
 														<button class="btn btn-primary btn-xs"
 															th:onclick="|return toeditPage('${wxBinding.id}','wxBinding')|">
 															<i class="fa fa-edit"> </i>编辑
 														</button>
-													</shiro:hasPermission> 
+													</shiro:hasPermission>  -->
 													<shiro:hasPermission name="wxBinding:delete">
 														<button class="btn btn-danger btn-xs"
 															th:onclick="|return del('@{/wxBinding/}${wxBinding.id}','')|">

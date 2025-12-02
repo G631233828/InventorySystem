@@ -36,8 +36,8 @@ public class MVCConfig extends WebMvcConfigurerAdapter {
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
 //    	registry.addResourceHandler("/img/**").addResourceLocations("file:"+filepath+"/"); 
 //    	registry.addResourceHandler(savePath+"/**").addResourceLocations("file:"+savePath+"/");
-    	registry.addResourceHandler(imgpath+"/**").addResourceLocations("file:"+dir+imgpath+File.separator);
-    	registry.addResourceHandler(video+"/**").addResourceLocations("file:"+dir+video+File.separator);
+    	registry.addResourceHandler(imgpath+"/**").addResourceLocations("file:"+dir+File.separator +imgpath+File.separator);
+    	registry.addResourceHandler(video+"/**").addResourceLocations("file:"+dir+File.separator +video+File.separator);
     	registry.addResourceHandler(qrcodepath+"/**").addResourceLocations("file:"+dir+File.separator +qrcodepath+File.separator);
 	    	super.addResourceHandlers(registry);
 	    }

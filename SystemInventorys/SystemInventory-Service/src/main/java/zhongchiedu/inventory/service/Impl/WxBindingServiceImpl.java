@@ -115,23 +115,29 @@ public class WxBindingServiceImpl extends GeneralServiceImpl<WxBinding> implemen
 
 	@Override
 	public boolean auditWxBinding(String id, Integer status) {
+	    WxBinding wxBinding = this.findOneById(id, WxBinding.class);
 
+	    if (wxBinding == null) {
+	        throw new RuntimeException("微信绑定记录不存在！");
+	    }
 
-		WxBinding wxBinding = this.findOneById(id, WxBinding.class);
+	    // 新增：判断是否重复审核（当前状态与目标状态一致）
+	    Integer currentStatus = wxBinding.getAuditStatus();
+	    if (currentStatus != null && currentStatus.equals(status)) {
+	        String statusDesc = status == 2 ? "审核通过" : "审核拒绝";
+	        throw new RuntimeException("该记录当前已是【" + statusDesc + "】状态，无需重复操作！");
+	    }
 
-		if (wxBinding == null) {
-			throw new RuntimeException("微信绑定记录不存在！");
-		}
+	    // 校验是否已审核（可选：如果已审核且状态不同，也可阻止）
+	    if (currentStatus != null && currentStatus == status) {
+	        throw new RuntimeException("该记录已审核（当前状态：" + 
+	                (currentStatus == 2 ? "通过" : currentStatus == 3 ? "拒绝" : "未知") + "），无法重复审核！");
+	    }
 
-		// 2. 校验是否已审核（可选）
-		if (wxBinding.getAuditStatus() != null && wxBinding.getAuditStatus() != 1) {
-			throw new RuntimeException("该记录已审核，不能重复操作！");
-		}
-		// 3. 更新审核状态
-		wxBinding.setAuditStatus(status);
-
-		this.save(wxBinding);
-		return true;
+	    // 更新审核状态
+	    wxBinding.setAuditStatus(status);
+	    this.save(wxBinding);
+	    return true;
 	}
 
 }

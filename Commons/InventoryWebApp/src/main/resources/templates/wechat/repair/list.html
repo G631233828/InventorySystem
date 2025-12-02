@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+
+<head th:include="public/public_css::pub_css"></head>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" type="text/css"
+	th:href="@{/assets/js/progress-bar/number-pb.css}">
+<link th:href="@{/plugs/sweetalert/sweetalert.css}" rel="stylesheet">
+
+<link rel="shortcut icon" href="@{/assets/ico/minus.png}">
+<style>
+.photo-thumbnail {
+	width: 50px;
+	height: 50px;
+	object-fit: cover;
+	cursor: pointer;
+	margin-right: 5px;
+	border: 1px solid #ddd;
+	padding: 2px;
+}
+.photo-modal .modal-body {
+	max-height: 600px;
+	overflow-y: auto;
+}
+.photo-modal img {
+	max-width: 100%;
+	margin-bottom: 10px;
+}
+.repair-content {
+	max-width: 200px;
+	word-wrap: break-word;
+}
+</style>
+</head>
+
+<body>
+	<!-- Preloader -->
+	<div id="preloader">
+		<div id="status">&nbsp;</div>
+	</div>
+	<!-- TOP NAVBAR -->
+	<div th:replace="public/public::top"></div>
+	<!-- /END OF TOP NAVBAR -->
+
+	<!-- SIDE MENU -->
+	<div th:replace="public/public::left(activeUri='wxRepair')"></div>
+	<!-- END OF SIDE MENU -->
+
+	<!--  PAPER WRAP -->
+	<div class="wrap-fluid">
+		<div class="container-fluid paper-wrap bevel tlbr">
+
+
+			<!-- CONTENT -->
+			<!--TITLE -->
+			<div th:replace="public/public::title(title='报修单管理',subtitle='Repair Order Management')"></div>
+			<!--/ TITLE -->
+
+			<!-- BREADCRUMB -->
+			<div th:replace="public/public::menu(menu='报修单管理',submenu='报修单列表')"></div>
+			<!-- END OF BREADCRUMB -->
+
+
+			<div class="content-wrap">
+				<div class="row">
+
+
+					<div class="col-sm-12">
+
+						<div class="nest" id="tableStaticClose">
+							<div class="title-alt">
+								<div>
+									<shiro:hasPermission name="wxRepair:add">
+										<button class="btn btn-default btn-sm"
+											th:onclick="|window.location.href='@{/wxRepair}'|">
+											<i class="glyphicon glyphicon-plus"> </i> 添加报修单
+										</button>
+									</shiro:hasPermission>
+
+									<shiro:hasPermission name="wxRepair:edit">
+										<button class="btn btn-primary btn-sm"
+											onclick="return toeditPage('','wxRepair')">
+											<i class="fa fa-edit"> </i>编辑
+										</button>
+									</shiro:hasPermission>
+
+									<shiro:hasPermission name="wxRepair:delete">
+										<button class="btn btn-danger btn-sm"
+											th:onclick="|return del('','@{/wxRepair/}')|">
+											<i class="fa fa-trash-o"> </i>删除
+										</button>
+									</shiro:hasPermission>
+									
+									<shiro:hasPermission name="wxRepair:assign">
+										<button class="btn btn-info btn-sm"
+											onclick="return assignWorker()">
+											<i class="fa fa-user-plus"> </i>分配维修人员
+										</button>
+									</shiro:hasPermission>
+								</div>
+
+								<div class="titleClose">
+									<a class="gone" href="#tableStaticClose"> <span
+										class="entypo-cancel"></span>
+									</a>
+								</div>
+								<div class="titleToggle">
+									<a class="nav-toggle-alt" href="#tableStatic"> <span
+										class="entypo-up-open"></span>
+									</a>
+								</div>
+
+							</div>
+
+							<div class="body-nest" id="tableStatic">
+
+								<section id="flip-scroll">
+
+									<table class="table table-bordered table-striped cf">
+										<thead class="cf">
+											<tr>
+												<th class="numeric" style="width: 20px;">
+													<div class="checkbox checkbox-inline"
+														style="margin-top: 0px;">
+														<input type="checkbox" id="checkall" name="checkall" /> <label
+															for="checkall"></label>
+													</div>
+												</th>
+												<th class="numeric">工单号</th>
+												<th class="numeric">报修教室</th>
+												<th class="numeric">报修设备</th>
+												<th class="numeric">紧急程度</th>
+												<th class="numeric">维修状态</th>
+												<th class="numeric">报修照片</th>
+												<th class="numeric">维修内容</th>
+												<th class="numeric">维修完成照片</th>
+												<th class="numeric">维修人员</th>
+												<th class="numeric">操作</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr th:each="wxRepair:${pageList.datas}">
+												<td class="numeric">
+													<div class="checkbox checkbox-inline"
+														style="margin-top: 0px;">
+														<input type="checkbox" name="ids" th:id="${wxRepair.id}"
+															class="numeric" th:value="${wxRepair.id}"> <label
+															th:for="${wxRepair.id}"></label>
+													</div>
+												</td>
+												<td class="numeric">[[${wxRepair.workOrderNumber}]]</td>
+												<td class="numeric">[[${wxRepair.reportClassroomRepair}]]</td>
+												<td class="numeric">[[${wxRepair.equipmentRepair}]]</td>
+												<td class="numeric">[[${wxRepair.urgencyLevel}]]</td>
+												<td class="numeric">
+													<span th:switch="${wxRepair.status}">
+														<span th:case="1" class="label label-primary">待处理</span>
+														<span th:case="2" class="label label-warning">已分配</span>
+														<span th:case="3" class="label label-info">处理中</span>
+														<span th:case="4" class="label label-success">已完成</span>
+														<span th:case="5" class="label label-default">已取消</span>
+													</span>
+												</td>
+												<td class="numeric">
+													<div th:if="${wxRepair.photos != null and not #lists.isEmpty(wxRepair.photos)}">
+														<img 
+															th:each="photo :${wxRepair.photos}"
+															th:src="@{|${photo.savePath}${photo.generateName}|}" 
+															class="photo-thumbnail"
+															th:onclick="|showPhotos('${wxRepair.id}', 'report')|" />
+													</div>
+													<span th:unless="${wxRepair.photos != null and not #lists.isEmpty(wxRepair.photos)}">无</span>
+												</td>
+												<!-- 维修内容列 -->
+												<td class="numeric repair-content">
+													[[${wxRepair.repairContent ?: '无'}]]
+												</td>
+												<!-- 维修完成照片列 -->
+												<td class="numeric">
+													<div th:if="${wxRepair.repairPhotos != null and not #lists.isEmpty(wxRepair.repairPhotos)}">
+														<img 
+															th:each="photo :${wxRepair.repairPhotos}"
+															th:src="@{|${photo.savePath}${photo.generateName}|}" 
+															class="photo-thumbnail"
+															th:onclick="|showPhotos('${wxRepair.id}', 'repair')|" />
+													</div>
+													<span th:unless="${wxRepair.repairPhotos != null and not #lists.isEmpty(wxRepair.repairPhotos)}">无</span>
+												</td>
+												<td class="numeric" th:text="${wxRepair.worker?.name ?: '未分配'}"></td>
+												<td class="numeric">
+													<shiro:hasPermission name="wxRepair:edit">
+														<button class="btn btn-primary btn-xs"
+															th:onclick="|return toeditPage('${wxRepair.id}','wxRepair')|">
+															<i class="fa fa-edit"> </i>编辑
+														</button>
+													</shiro:hasPermission>
+													<shiro:hasPermission name="wxRepair:delete">
+														<button class="btn btn-danger btn-xs"
+															th:onclick="|return del('@{/wxRepair/}${wxRepair.id}','')|">
+															<i class="fa fa-trash-o"> </i>删除
+														</button>
+													</shiro:hasPermission>
+													<shiro:hasPermission name="wxRepair:assign">
+														<button class="btn btn-info btn-xs" th:if="${wxRepair.status == 1}"
+															th:onclick="|assignWorkerModal('${wxRepair.id}')|">
+															<i class="fa fa-user-plus"> </i>分配
+														</button>
+													</shiro:hasPermission>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+
+									<form method="post" id="deleteForm">
+										<input name="_method" value="delete" type="hidden">
+									</form>
+
+
+									<div class="row">
+										<div class="col-md-12">
+											<div class="col-md-6">
+												<div class="dataTables_info hidden-xs"
+													style="margin-top: 0px;" role="status" aria-live="polite"
+													th:text="|每页显示${pageList.pageSize}行
+										－ 当前页${pageList.pageNo}页 － 共${pageList.totalPage}页|"></div>
+											</div>
+											<div class="col-md-6">
+												<ul class="pagination pagination-split pull-right"
+													style="margin-top: 0px;">
+													<li th:class="${pageList.pageNo } eq 1 ?disabled:''">
+														<a th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/wxRepair/list?pageNo=}+${pageList.upPage}">上一页</a>
+													</li>
+													<li th:each="page:${pageList.navigatepageNums}"
+														th:class="${page  == pageList.pageNo}?active:''">
+														<a th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/wxRepair/list?pageNo=}+${page}">[[${page}]]</a>
+													</li>
+													<li th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
+														<a th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/wxRepair/list?pageNo=}+${pageList.nextPage}">下一页</a>
+													</li>
+												</ul>
+											</div>
+										</div>
+										<!-- 分页结束 -->
+									</div>
+
+								</section>
+
+							</div>
+
+						</div>
+
+
+					</div>
+
+				</div>
+			</div>
+			
+			<!-- 分配维修人员模态框 -->
+			<div class="modal fade" id="assignWorkerModal" tabindex="-1" role="dialog" aria-labelledby="assignWorkerModalLabel">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+							<h4 class="modal-title" id="assignWorkerModalLabel">分配维修人员</h4>
+						</div>
+						<div class="modal-body">
+							<input type="hidden" id="repairId" value="">
+							<div class="form-group">
+								<label>选择维修人员</label>
+								<select id="workerId" class="form-control">
+									<option value="">--请选择--</option>
+									<option th:each="worker:${workerList}" th:value="${worker.id}" th:text="|${worker.team}-${worker.name}|"></option>
+								</select>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+							<button type="button" class="btn btn-primary" onclick="submitAssignWorker()">确认分配</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<!-- 照片查看模态框（通用） -->
+			<div class="modal fade photo-modal" id="photoViewModal" tabindex="-1" role="dialog" aria-labelledby="photoViewModalLabel">
+				<div class="modal-dialog modal-lg" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+							<h4 class="modal-title" id="photoViewModalLabel">照片查看</h4>
+						</div>
+						<div class="modal-body" id="photoContainer">
+							<!-- 照片内容动态加载 -->
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<div th:replace="public/public::myModal"></div>
+
+		</div>
+	</div>
+
+	<!--  END OF PAPER WRAP -->
+	<!-- 右侧隐藏菜单start -->
+	<div th:replace="public/public::right"></div>
+	<!-- 右侧隐藏菜单end-->
+	<!-- 底部js -->
+	<div th:replace="public/public_js::pub_js"></div>
+	<div th:replace="public/public_js::public_script"></div>
+	<div th:replace="public/public::footer"></div>
+	<!-- Sweet alert -->
+	<script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
+	<div th:replace="public/public_js::validator"></div>
+	<script type="text/javascript">
+		// 分配维修人员模态框
+		function assignWorkerModal(id) {
+			$("#repairId").val(id);
+			$("#assignWorkerModal").modal("show");
+		}
+		
+		// 提交分配维修人员
+		function submitAssignWorker() {
+			var repairId = $("#repairId").val();
+			var workerId = $("#workerId").val();
+			if (!workerId) {
+				swal("提示", "请选择维修人员！", "warning");
+				return;
+			}
+			
+			$.post("[[@{/wxRepair/assignWorker}]]", {repairId: repairId, workerId: workerId}, function(res) {
+				if (res.status === 200) {
+					swal("成功", res.msg, "success");
+					$("#assignWorkerModal").modal("hide");
+					window.location.reload();
+				} else {
+					swal("失败", res.msg, "error");
+				}
+			}, "json");
+		}
+		
+		// 通用照片查看（区分报修/完成照片）
+		function showPhotos(repairId, type) {
+			var photoContainer = $("#photoContainer");
+			photoContainer.empty();
+			var $currentRow = $("input[id='" + repairId + "']").closest("tr");
+			var titleText = type === 'report' ? '报修照片' : '维修完成照片';
+			$("#photoViewModalLabel").text(titleText);
+			
+			// 根据类型获取对应照片缩略图
+			var $thumbnails = type === 'report' ? 
+				$currentRow.find("td:eq(6) .photo-thumbnail") :  // 报修照片列索引6
+				$currentRow.find("td:eq(8) .photo-thumbnail");  // 完成照片列索引8
+			
+			if ($thumbnails.length > 0) {
+				$thumbnails.each(function() {
+					var imgSrc = $(this).attr("src");
+					var imgHtml = '<div class="text-center"><img src="' + imgSrc + '" alt="' + titleText + '" style="max-height: 500px;"></div>';
+					photoContainer.append(imgHtml);
+				});
+			} else {
+				photoContainer.html('<div class="text-center text-muted">暂无' + titleText + '</div>');
+			}
+			
+			$("#photoViewModal").modal("show");
+		}
+		
+		// 图片加载失败处理
+		$(document).on("error", ".photo-thumbnail", function() {
+			$(this).attr("src", "[[@{/assets/img/default-img.png}]]"); // 默认图片路径
+		});
+	</script>
+
+</body>
+
+</html>
