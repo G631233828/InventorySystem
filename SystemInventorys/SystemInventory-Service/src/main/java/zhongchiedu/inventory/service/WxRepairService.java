@@ -12,7 +12,7 @@ import zhongchiedu.inventory.pojo.WxRepair;
 public interface WxRepairService extends GeneralService<WxRepair> {
 	
 
-	public Pagination<WxRepair> findpagination(Integer pageNo,Integer pageSize);
+	public Pagination<WxRepair> findpagination(Integer pageNo,Integer pageSize, String search, Integer status, String urgencyLevel, String workerId);
 	
 	public void saveOrUpdate(WxRepair wxRepair, MultipartFile[] photos, String imgPath, String dir);
 	
@@ -28,9 +28,11 @@ public interface WxRepairService extends GeneralService<WxRepair> {
 
 	public boolean completeRepair(WxRepair wxRepair, MultipartFile[] repairPhotos, String imgPath, String dir);
 	
+	List<WxRepair> findExportData(String startTime, String endTime, String workerId, Integer status, String search);
 	
-	
-	
+	 WxRepair cancelAssign(String repairId);
+
+	public WxRepair cancelRepair(String repairId);
 	
 	
 	

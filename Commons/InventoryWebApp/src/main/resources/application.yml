@@ -69,5 +69,14 @@ upload:
 #图片列表配置
   qrCode: upload/qrcode/
 
+#报修申请通知
+templateId4: ql3sGH0EZYZcaO7-dfjnHhAZVGkKPgn9PBeJjVU3lAs
+#派单通知
+templateId5: y5kwcslXvc-cG-c-rEuj_yO4_wo10PScim6sBa1qt2c
+#派单接单通知
+templateId6: z5pkfZs_y4qFX1Z1EpRPbbUuAHSeqBIhAbqly-Qs5t8
+#维修完成通知
+templateId7: vEq7MuWEONNo7vBwI-6fibuEFUMwuPHPUAzQmmbEE64
+
 
 
