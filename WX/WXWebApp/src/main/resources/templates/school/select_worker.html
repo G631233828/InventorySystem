@@ -20,6 +20,9 @@
 </head>
 <body class="bg-gray-50 min-h-screen p-4">
     <div class="max-w-md mx-auto bg-white card p-6">
+        <!-- 添加openId隐藏域 -->
+        <input type="hidden" id="openId" th:value="${openId}" />
+        
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-xl font-bold text-gray-800">选择施工队人员</h1>
             <a th:href="@{/wechatrp/findWxRepair/{id}(id=${repairId})}" class="text-blue-500 hover:text-blue-700">
@@ -65,12 +68,12 @@
             }, 100);
 
             // 为分配按钮添加点击事件
-         // 前端分配按钮的点击事件（你原代码的完善）
             document.querySelectorAll('.assign-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     const repairId = this.getAttribute('data-repair-id');
                     const workerId = this.getAttribute('data-worker-id');
                     const workerName = this.getAttribute('data-worker-name');
+                    const openId = document.getElementById('openId').value; // 获取openId
 
                     if(confirm(`确定要将报修单分配给 ${workerName} 吗？`)) {
                         // 发起POST请求到后端doAssign接口
@@ -81,7 +84,7 @@
                                 // 若有登录态（如Token），需添加认证头（根据你的权限框架调整）
                                 // 'Authorization': 'Bearer ' + localStorage.getItem('token')
                             },
-                            body: `repairId=${repairId}&id=${workerId}` // 参数拼接
+                            body: `repairId=${repairId}&id=${workerId}&openId=${openId}` // 添加openId参数
                         })
                         .then(response => response.json()) // 解析后端返回的JSON（BasicDataResult）
                         .then(result => {

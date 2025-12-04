@@ -96,7 +96,7 @@ public class WxBindingController {
     	        // 如果是因为 code 无效（如刷新导致），则清除 session 并重定向
     	        if (((WxErrorException) e).getError().getErrorCode() == 40163) {
     	            session.invalidate(); // 清除无效的 session
-    	            String redirect_uri = wxMpProperties.getServerUrl() + "/WXWebApp/wechatrp/toBinding";
+    	            String redirect_uri = weburl+ "/wechatrp/toBinding";
     	            return "redirect:" + redirect_uri; // 重定向到当前页面，会触发新的授权流程
     	        }
     	        e.printStackTrace();

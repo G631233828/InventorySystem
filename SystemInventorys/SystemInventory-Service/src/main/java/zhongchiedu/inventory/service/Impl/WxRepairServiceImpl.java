@@ -47,65 +47,66 @@ public class WxRepairServiceImpl extends GeneralServiceImpl<WxRepair> implements
 
 	@Autowired
 	private WxBindingService wxBindingService;
-	
+
 	@Autowired
 	private WxReporterService wxReporterService;
 
 	@Override
-	public Pagination<WxRepair> findpagination(Integer pageNo, Integer pageSize, String search, Integer status, String urgencyLevel, String workerId) {
-	    Pagination<WxRepair> pagination = null;
-	    try {
-	        Query query = new Query();
-	        // 基础条件：未删除
-	        query.addCriteria(Criteria.where("isDelete").is(false));
-	        // 1. 模糊查询条件（支持工单号、学校、教室、设备等）
-	        Criteria ca = new Criteria();
-	        if (Common.isNotEmpty(search)) {
-	        	List<ObjectId> findIdsBySearch = this.wxReporterService.findIdsBySearch(search);
-				query.addCriteria(ca.orOperator(Criteria.where("workOrderNumber").regex(search,"i"),
-						Criteria.where("faultInformation").regex(search,"i"),
-						Criteria.where("reportClassroomRepair").regex(search,"i"),
-						Criteria.where("equipmentRepair").regex(search,"i"),
+	public Pagination<WxRepair> findpagination(Integer pageNo, Integer pageSize, String search, Integer status,
+			String urgencyLevel, String workerId) {
+		Pagination<WxRepair> pagination = null;
+		try {
+			Query query = new Query();
+			// 基础条件：未删除
+			query.addCriteria(Criteria.where("isDelete").is(false));
+			// 1. 模糊查询条件（支持工单号、学校、教室、设备等）
+			Criteria ca = new Criteria();
+			if (Common.isNotEmpty(search)) {
+				List<ObjectId> findIdsBySearch = this.wxReporterService.findIdsBySearch(search);
+				query.addCriteria(ca.orOperator(Criteria.where("workOrderNumber").regex(search, "i"),
+						Criteria.where("faultInformation").regex(search, "i"),
+						Criteria.where("reportClassroomRepair").regex(search, "i"),
+						Criteria.where("equipmentRepair").regex(search, "i"),
 						Criteria.where("wxReporter.$id").in(findIdsBySearch)));
-	        }
+			}
 
-	        // 2. 维修状态条件
-	        if (status != null) {
-	            query.addCriteria(Criteria.where("status").is(status));
-	        }
+			// 2. 维修状态条件
+			if (status != null) {
+				query.addCriteria(Criteria.where("status").is(status));
+			}
 
-	        // 3. 紧急程度条件
-	        if (Common.isNotEmpty(urgencyLevel)) {
-	            query.addCriteria(Criteria.where("urgencyLevel").is(urgencyLevel));
-	        }
+			// 3. 紧急程度条件
+			if (Common.isNotEmpty(urgencyLevel)) {
+				query.addCriteria(Criteria.where("urgencyLevel").is(urgencyLevel));
+			}
 
-	        // 4. 维修人员条件
-	        if (Common.isNotEmpty(workerId)) {
-	            query.addCriteria(Criteria.where("worker.$id").is(new ObjectId(workerId)));
-	        }
+			// 4. 维修人员条件
+			if (Common.isNotEmpty(workerId)) {
+				query.addCriteria(Criteria.where("worker.$id").is(new ObjectId(workerId)));
+			}
 
-	        // 排序：按创建时间降序
-	        query.with(Sort.by(Sort.Direction.DESC, "createTime"));
-	        
-	        // 分页查询
-	        pagination = this.findPaginationByQuery(query, pageNo, pageSize, WxRepair.class);
-	        if (pagination == null) {
-	            pagination = new Pagination<>();
-	        }
-	    } catch (Exception e) {
-	        log.error("查询报修单列表失败", e);
-	    }
-	    return pagination;
+			// 排序：按创建时间降序
+			query.with(Sort.by(Sort.Direction.DESC, "createTime"));
+
+			// 分页查询
+			pagination = this.findPaginationByQuery(query, pageNo, pageSize, WxRepair.class);
+			if (pagination == null) {
+				pagination = new Pagination<>();
+			}
+		} catch (Exception e) {
+			log.error("查询报修单列表失败", e);
+		}
+		return pagination;
 	}
 
 	@Override
 	public void saveOrUpdate(WxRepair wxRepair, MultipartFile[] photos, String imgPath, String dir) {
-
-		List<MultiMedia> uploadPictures = this.multiMediaSerice.uploadPictures(photos, dir, imgPath, "WXREPAIR");
-		if (uploadPictures.size() > 0) {
-			wxRepair.setPhotos(uploadPictures);
+		if (photos.length > 0) {
+			List<MultiMedia> uploadPictures = this.multiMediaSerice.uploadPictures(photos, dir, imgPath, "WXREPAIR");
+			if (uploadPictures.size() > 0) {
+				wxRepair.setPhotos(uploadPictures);
+			}
 		}
-
 		if (Common.isNotEmpty(wxRepair)) {
 			if (Common.isNotEmpty(wxRepair.getId())) {
 				// update
@@ -178,7 +179,8 @@ public class WxRepairServiceImpl extends GeneralServiceImpl<WxRepair> implements
 	 * 维修人员 调度人员查看所有报修信息
 	 */
 	@Override
-	public List<WxRepair> findOperationsWxRepairByOpenId(String openId,String search,Integer status,String workerId) {
+	public List<WxRepair> findOperationsWxRepairByOpenId(String openId, String search, Integer status,
+			String workerId) {
 		// 通过openId 去查看opendId所属人员权限
 		WxBinding wxBinding = this.wxBindingService.findWxBindingByOpenId(openId);
 		PersonnelType personnelType = PersonnelType.getByCode(wxBinding.getPersonnelType())
@@ -186,43 +188,42 @@ public class WxRepairServiceImpl extends GeneralServiceImpl<WxRepair> implements
 
 		Query query = new Query();
 		Criteria ca = new Criteria();
-		if(Common.isNotEmpty(search)) {
-			//根据search的内容去用户绑定里面查询id
+		if (Common.isNotEmpty(search)) {
+			// 根据search的内容去用户绑定里面查询id
 			List<ObjectId> findIdsBySearch = this.wxReporterService.findIdsBySearch(search);
-			
-		
-			query.addCriteria(ca.orOperator(Criteria.where("workOrderNumber").regex(search,"i"),
-					Criteria.where("faultInformation").regex(search,"i"),
-					Criteria.where("urgencyLevel").regex(search,"i"),
-					Criteria.where("reportClassroomRepair").regex(search,"i"),
-					Criteria.where("equipmentRepair").regex(search,"i"),
+
+			query.addCriteria(ca.orOperator(Criteria.where("workOrderNumber").regex(search, "i"),
+					Criteria.where("faultInformation").regex(search, "i"),
+					Criteria.where("urgencyLevel").regex(search, "i"),
+					Criteria.where("reportClassroomRepair").regex(search, "i"),
+					Criteria.where("equipmentRepair").regex(search, "i"),
 					Criteria.where("wxReporter.$id").in(findIdsBySearch)));
-			
+
 //			if(findIdsBySearch.size()>0) {
 //				ca.orOperator(Criteria.where("wxReporter.$id").in(findIdsBySearch));
 //			}
-			
+
 		}
-		if(Common.isNotEmpty(status)) {
+		if (Common.isNotEmpty(status)) {
 			query.addCriteria(Criteria.where("status").is(status));
 		}
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		query.with(new Sort(new Order(Direction.DESC, "createTime")));
 		switch (personnelType) {
 		case CONSTRUCTION_TEAM:
-			if(Common.isEmpty(status)) {
-				//施工队默认查看状态为2的数据
+			if (Common.isEmpty(status)) {
+				// 施工队默认查看状态为2的数据
 				query.addCriteria(Criteria.where("status").is(2));
 			}
 			// 维修人员 只能根据自己的openId查看自己的维修数据
 			query.addCriteria(Criteria.where("worker.$id").is(new ObjectId(wxBinding.getId())));
 			break;
 		case DISPATCHER:
-			if(Common.isNotEmpty(workerId)) {
+			if (Common.isNotEmpty(workerId)) {
 				query.addCriteria(Criteria.where("worker.$id").is(new ObjectId(workerId)));
 			}
-			if(Common.isEmpty(status)&&Common.isEmpty(search)&&Common.isEmpty(workerId)) {
-				// 调度人员默认查看状态为1的数据 
+			if (Common.isEmpty(status) && Common.isEmpty(search) && Common.isEmpty(workerId)) {
+				// 调度人员默认查看状态为1的数据
 				query.addCriteria(Criteria.where("status").is(1));
 			}
 			break;
@@ -244,11 +245,11 @@ public class WxRepairServiceImpl extends GeneralServiceImpl<WxRepair> implements
 		if (uploadPictures.size() > 0) {
 			wxRepair.setRepairPhotos(uploadPictures);
 		}
-		wxRepair.setStatus(RepairStatus.COMPLETED.getCode());//订单完成
-		
+		wxRepair.setStatus(RepairStatus.COMPLETED.getCode());// 订单完成
+
 		if (Common.isNotEmpty(wxRepair.getId())) {
 			// update
-			
+
 			WxRepair ed = this.findOneById(wxRepair.getId(), WxRepair.class);
 			BeanUtils.copyProperties(wxRepair, ed);
 			this.save(wxRepair);
@@ -259,94 +260,94 @@ public class WxRepairServiceImpl extends GeneralServiceImpl<WxRepair> implements
 	}
 
 	@Override
-	public List<WxRepair> findExportData(String startTime, String endTime, String workerId, Integer status, String search) {
-	    Query query = new Query();
-	    query.addCriteria(Criteria.where("isDelete").is(false));
-	    
-	    // 1. 报修日期范围查询
-	    if (Common.isNotEmpty(startTime) && Common.isNotEmpty(endTime)) {
-	        try {
-	            Date start = new SimpleDateFormat("yyyy-MM-dd").parse(startTime);
-	            Date end = new SimpleDateFormat("yyyy-MM-dd").parse(endTime);
-	            // 结束日期加一天，包含当天所有数据
-	            Calendar cal = Calendar.getInstance();
-	            cal.setTime(end);
-	            cal.add(Calendar.DATE, 1);
-	            end = cal.getTime();
-	            
-	            query.addCriteria(Criteria.where("createTime").gte(start).lt(end));
-	        } catch (ParseException e) {
-	            log.error("日期格式解析失败", e);
-	        }
-	    }
-	    
-	    // 2. 施工队人员筛选
-	    if (Common.isNotEmpty(workerId)) {
-	        query.addCriteria(Criteria.where("worker.$id").is(new ObjectId(workerId)));
-	    }
-	    
-	    // 3. 维修状态筛选
-	    if (status != null) {
-	        query.addCriteria(Criteria.where("status").is(status));
-	    }
+	public List<WxRepair> findExportData(String startTime, String endTime, String workerId, Integer status,
+			String search) {
+		Query query = new Query();
+		query.addCriteria(Criteria.where("isDelete").is(false));
+
+		// 1. 报修日期范围查询
+		if (Common.isNotEmpty(startTime) && Common.isNotEmpty(endTime)) {
+			try {
+				Date start = new SimpleDateFormat("yyyy-MM-dd").parse(startTime);
+				Date end = new SimpleDateFormat("yyyy-MM-dd").parse(endTime);
+				// 结束日期加一天，包含当天所有数据
+				Calendar cal = Calendar.getInstance();
+				cal.setTime(end);
+				cal.add(Calendar.DATE, 1);
+				end = cal.getTime();
+
+				query.addCriteria(Criteria.where("createTime").gte(start).lt(end));
+			} catch (ParseException e) {
+				log.error("日期格式解析失败", e);
+			}
+		}
+
+		// 2. 施工队人员筛选
+		if (Common.isNotEmpty(workerId)) {
+			query.addCriteria(Criteria.where("worker.$id").is(new ObjectId(workerId)));
+		}
+
+		// 3. 维修状态筛选
+		if (status != null) {
+			query.addCriteria(Criteria.where("status").is(status));
+		}
 		Criteria ca = new Criteria();
-	    // 4. 学校名称模糊查询
-	    if (Common.isNotEmpty(search)) {
+		// 4. 学校名称模糊查询
+		if (Common.isNotEmpty(search)) {
 			List<ObjectId> findIdsBySearch = this.wxReporterService.findIdsBySearch(search);
-			
-			
-			query.addCriteria(ca.orOperator(Criteria.where("workOrderNumber").regex(search,"i"),
-					Criteria.where("faultInformation").regex(search,"i"),
-					Criteria.where("urgencyLevel").regex(search,"i"),
-					Criteria.where("reportClassroomRepair").regex(search,"i"),
-					Criteria.where("equipmentRepair").regex(search,"i"),
+
+			query.addCriteria(ca.orOperator(Criteria.where("workOrderNumber").regex(search, "i"),
+					Criteria.where("faultInformation").regex(search, "i"),
+					Criteria.where("urgencyLevel").regex(search, "i"),
+					Criteria.where("reportClassroomRepair").regex(search, "i"),
+					Criteria.where("equipmentRepair").regex(search, "i"),
 					Criteria.where("wxReporter.$id").in(findIdsBySearch)));
-	    }
-	    
-	    // 排序
-	    query.with(Sort.by(Sort.Direction.DESC, "createTime"));
-	    
-	    return this.find(query, WxRepair.class);
+		}
+
+		// 排序
+		query.with(Sort.by(Sort.Direction.DESC, "createTime"));
+
+		return this.find(query, WxRepair.class);
 	}
 
 	// zhongchiedu.inventory.service.Impl.WxRepairServiceImpl
 	@Override
 	public WxRepair cancelAssign(String repairId) {
-	    // 1. 查询报修单
-	    WxRepair wxRepair = this.findOneById(repairId, WxRepair.class);
-	    if (wxRepair == null) {
-	        return null;
-	    }
-	    
-	    // 2. 检查当前状态是否为已分配（状态2）
-	    if (wxRepair.getStatus() != RepairStatus.ASSIGNED.getCode()) {
-	        throw new RuntimeException("仅已分配状态的报修单可取消分配");
-	    }
-	    
-	    // 3. 清空维修人员，状态改为待处理（状态1）
-	    wxRepair.setWorker(null);
-	    wxRepair.setStatus(RepairStatus.PENDING.getCode()); // 假设PENDING是待处理状态（code=1）
-	    
-	    // 4. 保存修改
-	    this.save(wxRepair);
-	    
-	    return wxRepair;
+		// 1. 查询报修单
+		WxRepair wxRepair = this.findOneById(repairId, WxRepair.class);
+		if (wxRepair == null) {
+			return null;
+		}
+
+		// 2. 检查当前状态是否为已分配（状态2）
+		if (wxRepair.getStatus() != RepairStatus.ASSIGNED.getCode()) {
+			throw new RuntimeException("仅已分配状态的报修单可取消分配");
+		}
+
+		// 3. 清空维修人员，状态改为待处理（状态1）
+		wxRepair.setWorker(null);
+		wxRepair.setStatus(RepairStatus.PENDING.getCode()); // 假设PENDING是待处理状态（code=1）
+
+		// 4. 保存修改
+		this.save(wxRepair);
+
+		return wxRepair;
 	}
 
 	@Override
 	public WxRepair cancelRepair(String repairId) {
-		   WxRepair wxRepair = this.findOneById(repairId, WxRepair.class);
-		    if (wxRepair == null) {
-		        return null;
-		    }
-		    if (wxRepair.getStatus() == RepairStatus.COMPLETED.getCode()) {
-		        throw new RuntimeException("订单已完成维修，无法取消！");
-		    }
-		    wxRepair.setWorker(null);
-		    wxRepair.setStatus(RepairStatus.CANCELLED.getCode());
-		    // 4. 保存修改
-		    this.save(wxRepair);
-		    return wxRepair;
+		WxRepair wxRepair = this.findOneById(repairId, WxRepair.class);
+		if (wxRepair == null) {
+			return null;
+		}
+		if (wxRepair.getStatus() == RepairStatus.COMPLETED.getCode()) {
+			throw new RuntimeException("订单已完成维修，无法取消！");
+		}
+		wxRepair.setWorker(null);
+		wxRepair.setStatus(RepairStatus.CANCELLED.getCode());
+		// 4. 保存修改
+		this.save(wxRepair);
+		return wxRepair;
 	}
 
 }

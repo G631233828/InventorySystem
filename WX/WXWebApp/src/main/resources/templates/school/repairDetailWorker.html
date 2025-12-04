@@ -207,6 +207,9 @@
     <!-- 将statusEnum定义提升到外层容器，作用域覆盖所有子元素 -->
     <div class="max-w-md mx-auto bg-white detail-card p-6"
          th:with="statusEnum=${T(zhongchiedu.common.utils.enums.RepairStatus).fromCode(repair.status)}">
+        <!-- 添加openId隐藏域 -->
+        <input type="hidden" id="openId" th:value="${openId}" />
+        
         <!-- 状态显示 -->
         <div class="flex justify-between items-start mb-6">
             <h1 class="text-xl font-bold text-gray-800">报修单详情</h1>
@@ -543,6 +546,7 @@
         // 确认开始维修功能
         function confirmRepair(btn) {
             const repairId = btn.getAttribute('data-repair-id');
+            const openId = document.getElementById('openId').value; // 获取openId
             
             if (confirm('确认开始处理该报修单吗？\n处理后状态将变为"处理中"')) {
                 // 禁用按钮防止重复点击
@@ -552,6 +556,7 @@
                 // 构造请求参数
                 const formData = new URLSearchParams();
                 formData.append('repairId', repairId);
+                formData.append('openId', openId); // 添加openId参数
                 
                 // 发起请求（确保接口路径与后端一致）
                 fetch('../../wechatrp/confirmRepair', {
@@ -732,11 +737,13 @@
             }
             
             const repairContent = document.getElementById('repairContent').value.trim() || '无内容';
+            const openId = document.getElementById('openId').value; // 获取openId
             
             // 创建FormData
             const formData = new FormData();
             formData.append('repairId', repairId);
             formData.append('repairContent', repairContent);
+            formData.append('openId', openId); // 添加openId参数
             
             // 添加图片文件
             uploadedFiles.forEach((file, index) => {

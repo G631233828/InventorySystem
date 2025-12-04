@@ -2,6 +2,7 @@ package zhongchiedu.inventory.service;
 
 import java.util.List;
 
+import zhongchiedu.common.utils.enums.PersonJoinAuditStatusEnum;
 import zhongchiedu.common.utils.enums.PersonnelType;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralService;
@@ -18,7 +19,7 @@ public interface WxBindingService extends GeneralService<WxBinding> {
 	public WxBinding findWxBindingByOpenId(String openId);
 	
 	
-	public List<WxBinding> findBindingsByPersonnelType(PersonnelType p);
+	public List<WxBinding> findBindingsByPersonnelType(PersonnelType p, PersonJoinAuditStatusEnum a);
 
 	public boolean auditWxBinding(String id, Integer status);
 	

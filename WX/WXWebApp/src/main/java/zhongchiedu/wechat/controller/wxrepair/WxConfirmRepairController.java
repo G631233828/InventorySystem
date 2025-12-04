@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import lombok.extern.slf4j.Slf4j;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.Common;
+import zhongchiedu.common.utils.enums.PersonJoinAuditStatusEnum;
 import zhongchiedu.common.utils.enums.PersonnelType;
 import zhongchiedu.inventory.pojo.WxBinding;
 import zhongchiedu.inventory.pojo.WxRepair;
@@ -57,7 +58,7 @@ public class WxConfirmRepairController {
 	 */
 	@PostMapping("/confirmRepair")
 	@ResponseBody
-	public BasicDataResult confirmRepair(@RequestParam("repairId") String repairId) {
+	public BasicDataResult confirmRepair(@RequestParam("repairId") String repairId,@RequestParam("openId") String openId) {
 
 		try {
 			// 1. 参数校验（避免空指针或无效ID）
@@ -65,14 +66,37 @@ public class WxConfirmRepairController {
 				return BasicDataResult.build(400, "报修单ID无效", null);
 			}
 			
+			if (openId == null) {
+				return BasicDataResult.build(400, "报修单ID无效", null);
+			}
+			
+			if (openId == null) {
+				return BasicDataResult.build(400, "页面访问异常为获取到OpenId", null);
+			}
+
+			WxBinding findWxBindingByOpenId = this.wxBindingService.findWxBindingByOpenId(openId);
+			if(Common.isEmpty(findWxBindingByOpenId)||!findWxBindingByOpenId.getAuditStatus().equals(PersonJoinAuditStatusEnum.APPROVED.getCode())||!findWxBindingByOpenId.getPersonnelType().equals(PersonnelType.CONSTRUCTION_TEAM.getCode())) {
+           		//判断findWxBindingByOpenId 状态  不为空 必须是审核通过和人员类别为调度才能访问
+           		System.out.println("非调维修人员访问！");
+           		return BasicDataResult.build(400, "人员访问异常！请联系管理员", null);
+           	}
+			
+			
 
 			// 2. 调用业务层执行分配逻辑（核心业务，需你自行实现Service层）
 			WxRepair wxRepair = wxRepairService.confirmRepair(repairId);
 
 			// 3. 根据业务结果返回对应信息
 			if (wxRepair != null) {
+				//判断维修人员中的OpenId 与提交人员的openId是否一致
+				String workerOpenId = wxRepair.getWorker().getOpenId();
+				if (!openId.equals(workerOpenId)) {
+					return BasicDataResult.build(400, "该报修单状态异常请联系管理人员！", null);
+				}
+				
+				
 				// 分配成功 執行推送消息
-				List<WxBinding> findBindingsByPersonnelType = this.wxBindingService.findBindingsByPersonnelType(PersonnelType.DISPATCHER);//拿到所有调度人员
+				List<WxBinding> findBindingsByPersonnelType = this.wxBindingService.findBindingsByPersonnelType(PersonnelType.DISPATCHER,PersonJoinAuditStatusEnum.APPROVED);//拿到所有调度人员
 				if(findBindingsByPersonnelType.size()>0) {
 					Map<String, String> map = new HashMap<>();
 					map.put("character_string11", Common.getOrDefault(wxRepair.getWorkOrderNumber(), "未知工单号"));

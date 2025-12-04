@@ -200,11 +200,12 @@ public class WxRepairToOperListController {
 
 	        // 根据openId去wxbinding中查询
 	        WxBinding wx = this.wxBindingService.findWxBindingByOpenId(openId);
+	        
 	        if (wx == null) {
 	            // 跳转绑定界面
 	            return "school/error";
 	        }
-	        if(wx.getAuditStatus().equals(PersonJoinAuditStatusEnum.REFUSE.getCode())){
+	        if(!wx.getAuditStatus().equals(PersonJoinAuditStatusEnum.APPROVED.getCode())){
 	        	return "school/audit";
 	        }
 
@@ -229,7 +230,7 @@ public class WxRepairToOperListController {
 	            url = "school/workerRepairList";
 	        } else if (PersonnelType.DISPATCHER.getCode().equals(personnelType)) {
 	            // 调度人员：可以根据search、status、workerId筛选所有工单
-	            List<WxBinding> workers = this.wxBindingService.findBindingsByPersonnelType(PersonnelType.CONSTRUCTION_TEAM);
+	            List<WxBinding> workers = this.wxBindingService.findBindingsByPersonnelType(PersonnelType.CONSTRUCTION_TEAM,PersonJoinAuditStatusEnum.APPROVED);
 	            model.addAttribute("workers", workers);
 	            
 	            repairList = wxRepairService.findOperationsWxRepairByOpenId(openId,search, statusInt, workerId);

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import lombok.extern.slf4j.Slf4j;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.Common;
+import zhongchiedu.common.utils.enums.PersonJoinAuditStatusEnum;
 import zhongchiedu.common.utils.enums.PersonnelType;
 import zhongchiedu.inventory.pojo.WxBinding;
 import zhongchiedu.inventory.pojo.WxRepair;
@@ -56,7 +57,7 @@ public class WxDoAssignController {
 	 */
 	@PostMapping("/doAssign")
 	@ResponseBody
-	public BasicDataResult doAssign(@RequestParam("repairId") String repairId, @RequestParam("id") String id) {
+	public BasicDataResult doAssign(@RequestParam("repairId") String repairId, @RequestParam("id") String id,@RequestParam("openId") String openId) {
 
 		try {
 			// 1. 参数校验（避免空指针或无效ID）
@@ -66,12 +67,27 @@ public class WxDoAssignController {
 			if (id == null) {
 				return BasicDataResult.build(400, "施工队人员ID无效", null);
 			}
+			if (openId == null) {
+				return BasicDataResult.build(400, "页面访问异常为获取到OpenId", null);
+			}
 
+			WxBinding findWxBindingByOpenId = this.wxBindingService.findWxBindingByOpenId(openId);
+			if(Common.isEmpty(findWxBindingByOpenId)||
+					!findWxBindingByOpenId.getAuditStatus().equals(PersonJoinAuditStatusEnum.APPROVED.getCode())||
+					!findWxBindingByOpenId.getPersonnelType().equals(PersonnelType.DISPATCHER.getCode())) {
+           		//判断findWxBindingByOpenId 状态  不为空 必须是审核通过和人员类别为调度才能访问
+           		System.out.println("非调度人员访问！");
+           		return BasicDataResult.build(400, "人员访问异常！请联系管理员", null);
+           	}
+			
+			
 			// 2. 调用业务层执行分配逻辑（核心业务，需你自行实现Service层）
 			WxRepair wxRepair = wxRepairService.assignWorkerToRepair(repairId, id);
 
 			// 3. 根据业务结果返回对应信息
 			if (wxRepair != null) {
+				
+				
 				// 分配成功 執行推送消息
 
 				Map<String, String> map = new HashMap<>();

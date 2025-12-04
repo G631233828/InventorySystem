@@ -32,6 +32,7 @@ import com.alibaba.excel.EasyExcel;
 import lombok.extern.slf4j.Slf4j;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.Common;
+import zhongchiedu.common.utils.enums.PersonJoinAuditStatusEnum;
 import zhongchiedu.common.utils.enums.PersonnelType;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.inventory.Dto.WxRepairExportDTO;
@@ -85,7 +86,7 @@ public class WxRepairController {
 	    // 分页查询（传递所有检索条件）
 	    Pagination<WxRepair> pagination = wxRepairService.findpagination(pageNo, pageSize, search, status, urgencyLevel, workerId);
 	    
-	    List<WxBinding> findBindingsByPersonnelType = this.wxBindingService.findBindingsByPersonnelType(PersonnelType.CONSTRUCTION_TEAM);
+	    List<WxBinding> findBindingsByPersonnelType = this.wxBindingService.findBindingsByPersonnelType(PersonnelType.CONSTRUCTION_TEAM,PersonJoinAuditStatusEnum.APPROVED);
 	    
 	    model.addAttribute("pageList", pagination);
 

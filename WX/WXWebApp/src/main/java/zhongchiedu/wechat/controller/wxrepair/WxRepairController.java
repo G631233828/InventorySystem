@@ -36,6 +36,7 @@ import me.chanjar.weixin.mp.api.WxMpService;
 import me.chanjar.weixin.mp.bean.result.WxMpUser;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.Common;
+import zhongchiedu.common.utils.enums.PersonJoinAuditStatusEnum;
 import zhongchiedu.common.utils.enums.PersonnelType;
 import zhongchiedu.common.utils.enums.RepairStatus;
 import zhongchiedu.general.pojo.MultiMedia;
@@ -324,7 +325,7 @@ public class WxRepairController {
 //			设备名称
 //			报修类型
 			//收到信息 给商务推送消息
-			List<WxBinding> findBindingsByPersonnelType = this.wxBindingService.findBindingsByPersonnelType(PersonnelType.DISPATCHER);//拿到所有调度人员
+			List<WxBinding> findBindingsByPersonnelType = this.wxBindingService.findBindingsByPersonnelType(PersonnelType.DISPATCHER,PersonJoinAuditStatusEnum.APPROVED);//拿到所有调度人员
 			if(findBindingsByPersonnelType.size()>0) {
 				Map<String, String> map = new HashMap<>();
 				map.put("thing2", Common.getOrDefault(reporter.getSchoolName(), "未知学校") + "校区：" + Common.getOrDefault(reporter.getCampus(), "未知校区"));
