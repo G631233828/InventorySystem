@@ -19,16 +19,18 @@ import java.util.Comparator;
 @RestController
 @RequestMapping("/wechatrp")
 public class BaiduGeocodeController {
-    // 替换为你的百度AK（确保已开启「逆地理编码」和「POI搜索」权限）
+    // 【重要】替换为你自己的百度地图AK（需开启：逆地理编码、POI搜索、坐标转换权限）
     private static final String BAIDU_AK = "Auo0Upys2oNi6lRUtEKbexipHWGQBM9f";
-    // 百度地理编码API URL
-    private static final String BAIDU_API_URL = "https://api.map.baidu.com/reverse_geocoding/v3/";
+    // 百度逆地理编码API
+    private static final String BAIDU_REVERSE_GEO_URL = "https://api.map.baidu.com/reverse_geocoding/v3/";
+    // 百度坐标转换API（WGS84→BD09）
+    private static final String BAIDU_COORD_TRANS_URL = "https://api.map.baidu.com/geoconv/v1/";
 
     /**
-     * 优化后：接收经纬度，返回详细地址（优先POI名称+门牌号）
-     * @param latitude 纬度（GPS坐标，如31.244484）
-     * @param longitude 经度（GPS坐标，如121.62069）
-     * @return 包含详细地址的JSON结果121.633936,31.248550
+     * 高精度地址解析：1.坐标转换 2.优先筛选学校POI 3.精准地址组合
+     * @param latitude WGS84纬度
+     * @param longitude WGS84经度
+     * @return 高精度地址结果
      */
     @GetMapping("/geocode")
     public JSONObject getAddressByLocation(
@@ -39,13 +41,25 @@ public class BaiduGeocodeController {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         
         try {
-            // 优化参数：radius扩大到50米（覆盖GPS误差范围），确保POI搜索有效
-            String url = String.format(
-                    "%s?ak=%s&output=json&coordtype=bd09ll&location=%s,%s&extensions=2&radius=10",
-                    BAIDU_API_URL, BAIDU_AK, latitude, longitude
+            // 1. 坐标转换：WGS84(GPS) → BD09(百度坐标)
+            JSONObject transResult = convertCoord(httpClient, longitude, latitude);
+            if (transResult == null || transResult.getInteger("status") != 0) {
+                result.put("status", 500);
+                result.put("message", "坐标转换失败：" + (transResult != null ? transResult.getString("message") : "未知错误"));
+                return result;
+            }
+            
+            JSONArray transPoints = transResult.getJSONArray("result");
+            double bdLng = transPoints.getJSONObject(0).getDouble("x"); // 百度经度
+            double bdLat = transPoints.getJSONObject(0).getDouble("y"); // 百度纬度
+
+            // 2. 逆地理编码：高精度解析（扩大半径+筛选教育类POI）
+            String geoUrl = String.format(
+                    "%s?ak=%s&output=json&coordtype=bd09ll&location=%s,%s&extensions=2&radius=100&pois=1&poi_types=教育|学校",
+                    BAIDU_REVERSE_GEO_URL, BAIDU_AK, bdLat, bdLng
             );
             
-            HttpGet httpGet = new HttpGet(url);
+            HttpGet httpGet = new HttpGet(geoUrl);
             CloseableHttpResponse response = httpClient.execute(httpGet);
             HttpEntity entity = response.getEntity();
             
@@ -53,48 +67,51 @@ public class BaiduGeocodeController {
                 String responseStr = EntityUtils.toString(entity, "UTF-8");
                 JSONObject baiduResult = JSONObject.parseObject(responseStr);
                 
-                // 解析百度返回结果（status=0表示成功）
                 if (baiduResult.getInteger("status") == 0) {
                     JSONObject resultObj = baiduResult.getJSONObject("result");
                     JSONObject addressComponent = resultObj.getJSONObject("addressComponent");
-                    JSONArray pois = resultObj.getJSONArray("pois"); // 附近兴趣点（大厦、小区等）
+                    JSONArray pois = resultObj.getJSONArray("pois");
 
-                    // 1. 提取基础结构化地址（省市区+街道）
+                    // 基础地址拼接
                     String baseAddress = resultObj.getString("formatted_address");
-                    // 2. 提取门牌号（街道+门牌号，如“锦绣东路123号”）
-                    String street = addressComponent.getString("street"); // 街道（锦绣东路）
-                    String streetNumber = addressComponent.getString("street_number"); // 门牌号（如1688号）
-                    String detailStreetAddress = street;
-                    if (streetNumber != null && !streetNumber.isEmpty()) {
-                        detailStreetAddress += streetNumber; // 组合为“锦绣东路1688号”
-                    }
+                    String street = addressComponent.getString("street");
+                    String streetNumber = addressComponent.getString("street_number");
+                    String detailStreetAddress = street + (streetNumber != null && !streetNumber.isEmpty() ? streetNumber : "");
 
-                    // 3. 提取最近的POI名称（如“怡亚通广场”）
+                    // 优先筛选学校/教育类POI，按距离排序
                     String poiName = null;
                     if (pois != null && pois.size() > 0) {
-                        // 按距离排序，取最近的POI
                         poiName = pois.stream()
                                 .map(poi -> (JSONObject) poi)
+                                .filter(poi -> poi.getString("type").contains("教育") || poi.getString("type").contains("学校"))
                                 .min(Comparator.comparingInt(poi -> poi.getInteger("distance")))
                                 .map(poi -> poi.getString("name"))
-                                .orElse(null);
+                                .orElseGet(() -> pois.stream()
+                                        .map(poi -> (JSONObject) poi)
+                                        .min(Comparator.comparingInt(poi -> poi.getInteger("distance")))
+                                        .map(poi -> poi.getString("name"))
+                                        .orElse(null));
                     }
 
-                    // 组合最终详细地址（优先级：POI名称 > 街道+门牌号 > 基础地址）
+                    // 最终地址组合（优先级：学校POI > 街道门牌号 > 基础地址）
                     String finalAddress = baseAddress;
                     if (poiName != null && !poiName.isEmpty()) {
-                        finalAddress = poiName + "（" + detailStreetAddress + "）"; // 如“怡亚通广场（锦绣东路1688号）”
-                    } else if (!detailStreetAddress.equals(street)) { // 有门牌号时
-                        finalAddress = detailStreetAddress; // 如“锦绣东路1688号”
+                        finalAddress = poiName + "（" + detailStreetAddress + "）";
+                    } else if (!detailStreetAddress.equals(street)) {
+                        finalAddress = detailStreetAddress;
                     }
 
-                    // 返回结果（包含不同粒度的地址，方便前端选择）
+                    // 返回完整结果
                     result.put("status", 200);
                     result.put("message", "地址解析成功");
-                    result.put("baseAddress", baseAddress); // 基础地址（省市区+街道）
-                    result.put("detailStreetAddress", detailStreetAddress); // 街道+门牌号
-                    result.put("poiName", poiName); // 最近POI名称（大厦/小区）
-                    result.put("address", finalAddress); // 最终推荐详细地址
+                    result.put("originalLng", longitude);
+                    result.put("originalLat", latitude);
+                    result.put("bdLng", bdLng);
+                    result.put("bdLat", bdLat);
+                    result.put("baseAddress", baseAddress);
+                    result.put("detailStreetAddress", detailStreetAddress);
+                    result.put("poiName", poiName);
+                    result.put("address", finalAddress);
 
                 } else {
                     result.put("status", 500);
@@ -115,5 +132,26 @@ public class BaiduGeocodeController {
         }
         
         return result;
+    }
+
+    /**
+     * 坐标转换工具：WGS84 → BD09
+     */
+    private JSONObject convertCoord(CloseableHttpClient httpClient, double lng, double lat) throws IOException {
+        String transUrl = String.format(
+                "%s?ak=%s&coords=%s,%s&from=1&to=5&output=json",
+                BAIDU_COORD_TRANS_URL, BAIDU_AK, lng, lat
+        );
+        HttpGet httpGet = new HttpGet(transUrl);
+        CloseableHttpResponse response = httpClient.execute(httpGet);
+        HttpEntity entity = response.getEntity();
+        
+        JSONObject transResult = null;
+        if (entity != null) {
+            String responseStr = EntityUtils.toString(entity, "UTF-8");
+            transResult = JSONObject.parseObject(responseStr);
+        }
+        response.close();
+        return transResult;
     }
 }

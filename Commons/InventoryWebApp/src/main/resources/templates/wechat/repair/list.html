@@ -9,7 +9,7 @@
 	th:href="@{/assets/js/progress-bar/number-pb.css}">
 <link th:href="@{/plugs/sweetalert/sweetalert.css}" rel="stylesheet">
 
-<link rel="shortcut icon" href="@{/assets/ico/minus.png}">
+<link rel="shortcut icon" th:href="@{/assets/ico/minus.png}">
 <style>
 /* 原有样式不变，新增搜索表单样式 */
 .search-form {
@@ -34,16 +34,156 @@
 	margin-right: 5px;
 	border: 1px solid #ddd;
 	padding: 2px;
+	transition: all 0.2s ease;
 }
 
+.photo-thumbnail:hover {
+	border-color: #66afe9;
+	box-shadow: 0 0 5px rgba(102, 175, 233, 0.6);
+}
+
+/* 照片模态框优化 - 全屏显示 */
+.photo-modal .modal-dialog {
+	width: 95%;
+	height: 95vh;
+	margin: 2.5vh auto;
+	max-width: none;
+}
+
+.photo-modal .modal-content {
+	height: 100%;
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+.photo-modal .modal-header {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 10;
+	background: rgba(0,0,0,0.7);
+	color: white;
+	border-bottom: none;
+}
+
+.photo-modal .modal-header .close {
+	color: white;
+	opacity: 1;
+	font-size: 24px;
+}
+
+/* 修复：改为relative定位，作为图片拖拽的容器 */
 .photo-modal .modal-body {
-	max-height: 600px;
-	overflow-y: auto;
+	height: 100%;
+	padding: 60px 20px 80px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	overflow: hidden;
+	background-color: #000;
+	position: relative; /* 新增：作为拖拽容器的父级 */
 }
 
-.photo-modal img {
+/* 图片容器 - 支持缩放和平移（修复显示不全+拖拽） */
+.photo-viewer {
+	position: absolute; /* 改为absolute，方便拖拽计算 */
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%) scale(1); /* 初始居中 */
+	transform-origin: center center; /* 修复：缩放从中心开始 */
 	max-width: 100%;
-	margin-bottom: 10px;
+	max-height: 100%;
+	transition: transform 0.1s ease-out; /* 优化过渡效果 */
+	cursor: zoom-in;
+	user-select: none; /* 防止选中图片 */
+}
+
+.photo-viewer.zoomed {
+	cursor: move; /* 放大后显示移动光标 */
+}
+
+.photo-viewer img {
+	max-width: 100%;
+	max-height: 100%;
+	object-fit: contain;
+	display: block; /* 修复图片底部空白 */
+}
+
+/* 图片导航控制 */
+.photo-navigation {
+	position: absolute;
+	bottom: 20px;
+	left: 0;
+	right: 0;
+	z-index: 10;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 20px;
+}
+
+.nav-btn {
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	background: rgba(0,0,0,0.7);
+	color: white;
+	border: none;
+	outline: none;
+	cursor: pointer;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 18px;
+	transition: all 0.2s ease;
+}
+
+.nav-btn:disabled {
+	background: rgba(0,0,0,0.3);
+	cursor: not-allowed;
+}
+
+.nav-btn:hover:not(:disabled) {
+	background: rgba(0,0,0,0.9);
+	transform: scale(1.1);
+}
+
+/* 图片指示器 */
+.photo-indicator {
+	color: white;
+	background: rgba(0,0,0,0.7);
+	padding: 5px 15px;
+	border-radius: 20px;
+	font-size: 14px;
+}
+
+/* 缩放控制按钮 */
+.zoom-controls {
+	position: absolute;
+	top: 70px;
+	right: 20px;
+	z-index: 10;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.zoom-btn {
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	background: rgba(0,0,0,0.7);
+	color: white;
+	border: none;
+	outline: none;
+	cursor: pointer;
+	font-size: 16px;
+	transition: all 0.2s ease;
+}
+
+.zoom-btn:hover {
+	background: rgba(0,0,0,0.9);
 }
 
 /* 维修内容：如需换行可保留，如需不换行可参考其他列 */
@@ -244,6 +384,18 @@
         width: 100%;
         justify-content: flex-start;
     }
+    .photo-modal .modal-body {
+        padding: 50px 10px 70px;
+    }
+    .zoom-controls {
+        top: 60px;
+        right: 10px;
+    }
+    .nav-btn, .zoom-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 14px;
+    }
 }
 </style>
 </head>
@@ -432,10 +584,12 @@
 													<td class="numeric" data-column-id="reportPhotos">
 														<div
 															th:if="${wxRepair.photos != null and not #lists.isEmpty(wxRepair.photos)}">
+															<!-- 缩略图添加comp_前缀 -->
 															<img th:each="photo :${wxRepair.photos}"
-																th:src="@{|${photo.savePath}${photo.generateName}|}"
+																th:src="@{|${photo.savePath}comp_${photo.generateName}|}"
 																class="photo-thumbnail"
-																th:onclick="|showPhotos('${wxRepair.id}', 'report')|" />
+																th:onclick="|showPhotos('${wxRepair.id}', 'report', ${photoStat.index})|" 
+																th:alt="|报修照片-${photo.generateName}|"/>
 														</div> <span
 														th:unless="${wxRepair.photos != null and not #lists.isEmpty(wxRepair.photos)}">无</span>
 													</td>
@@ -445,10 +599,12 @@
 													<td class="numeric" data-column-id="repairPhotos">
 														<div
 															th:if="${wxRepair.repairPhotos != null and not #lists.isEmpty(wxRepair.repairPhotos)}">
+															<!-- 缩略图添加comp_前缀 -->
 															<img th:each="photo :${wxRepair.repairPhotos}"
-																th:src="@{|${photo.savePath}${photo.generateName}|}"
+																th:src="@{|${photo.savePath}comp_${photo.generateName}|}"
 																class="photo-thumbnail"
-																th:onclick="|showPhotos('${wxRepair.id}', 'repair')|" />
+																th:onclick="|showPhotos('${wxRepair.id}', 'repair', ${photoStat.index})|"
+																th:alt="|维修完成照片-${photo.generateName}|"/>
 														</div> <span
 														th:unless="${wxRepair.repairPhotos != null and not #lists.isEmpty(wxRepair.repairPhotos)}">无</span>
 													</td>
@@ -461,12 +617,7 @@
 																<i class="fa fa-edit"> </i>编辑
 															</button>
 														</shiro:hasPermission>
-														<shiro:hasPermission name="wxRepair:delete">
-															<button class="btn btn-danger btn-xs"
-																th:onclick="|return del('@{/wxRepair/}${wxRepair.id}','')|">
-																<i class="fa fa-trash-o"> </i>删除
-															</button>
-														</shiro:hasPermission>
+													
 														<shiro:hasPermission name="wxRepair:assign">
 															<button class="btn btn-info btn-xs"
 																th:if="${wxRepair.status == 1}"
@@ -487,7 +638,12 @@
 																<i class="fa fa-ban"> </i>维修取消
 															</button>
 														</shiro:hasPermission>
-														
+														<shiro:hasPermission name="wxRepair:delete">
+															<button class="btn btn-danger btn-xs"
+																th:onclick="|return del('@{/wxRepair/}${wxRepair.id}','')|">
+																<i class="fa fa-trash-o"> </i>删除
+															</button>
+														</shiro:hasPermission>
 													</td>
 												</tr>
 											</tbody>
@@ -585,7 +741,7 @@
 			    </div>
 			</div>
 
-			<!-- 照片查看模态框（通用） -->
+			<!-- 照片查看模态框（增强版） -->
 			<div class="modal fade photo-modal" id="photoViewModal" tabindex="-1"
 				role="dialog" aria-labelledby="photoViewModalLabel">
 				<div class="modal-dialog modal-lg" role="document">
@@ -597,12 +753,25 @@
 							</button>
 							<h4 class="modal-title" id="photoViewModalLabel">照片查看</h4>
 						</div>
-						<div class="modal-body" id="photoContainer">
-							<!-- 照片内容动态加载 -->
-						</div>
-						<div class="modal-footer">
-							<button type="button" class="btn btn-default"
-								data-dismiss="modal">关闭</button>
+						<div class="modal-body">
+							<!-- 缩放控制按钮 -->
+							<div class="zoom-controls">
+								<button class="zoom-btn" id="zoomInBtn" title="放大">+</button>
+								<button class="zoom-btn" id="zoomOutBtn" title="缩小">-</button>
+								<button class="zoom-btn" id="zoomResetBtn" title="重置">⟳</button>
+							</div>
+							
+							<!-- 图片查看容器 -->
+							<div class="photo-viewer" id="photoViewer">
+								<img id="currentPhoto" src="" alt="照片预览" class="img-responsive">
+							</div>
+							
+							<!-- 图片导航控制 -->
+							<div class="photo-navigation">
+								<button class="nav-btn" id="prevBtn" title="上一张">←</button>
+								<div class="photo-indicator" id="photoIndicator">1/1</div>
+								<button class="nav-btn" id="nextBtn" title="下一张">→</button>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -703,6 +872,20 @@
 	<script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
 	<div th:replace="public/public_js::validator"></div>
 	<script type="text/javascript">
+		// 全局变量存储图片数据（新增拖拽相关变量）
+		let photoData = {
+			photos: [],       // 图片列表
+			currentIndex: 0,  // 当前图片索引
+			scale: 1,         // 当前缩放比例
+			minScale: 1,      // 最小缩放比例
+			maxScale: 5,      // 最大缩放比例
+			isDragging: false,// 是否正在拖拽
+			startX: 0,        // 拖拽起始X坐标
+			startY: 0,        // 拖拽起始Y坐标
+			translateX: 0,    // X轴偏移量
+			translateY: 0     // Y轴偏移量
+		};
+
 		// 重置搜索表单
 		function resetSearch() {
 			$('.search-form')[0].reset();
@@ -738,37 +921,228 @@
 			}, "json");
 		}
 
-		// 通用照片查看
-		function showPhotos(repairId, type) {
-			var photoContainer = $("#photoContainer");
-			photoContainer.empty();
+		// 增强版照片查看 - 支持放大、上下张切换、拖拽
+		function showPhotos(repairId, type, initialIndex = 0) {
 			var $currentRow = $("input[id='" + repairId + "']").closest("tr");
 			var titleText = type === 'report' ? '报修照片' : '维修完成照片';
 			$("#photoViewModalLabel").text(titleText);
 
-			var $thumbnails = type === 'report' ? $currentRow
-					.find("td[data-column-id='reportPhotos'] .photo-thumbnail")
-					: $currentRow
-							.find("td[data-column-id='repairPhotos'] .photo-thumbnail");
+			// 收集所有图片原图地址
+			var $thumbnails = type === 'report' ? 
+				$currentRow.find("td[data-column-id='reportPhotos'] .photo-thumbnail") :
+				$currentRow.find("td[data-column-id='repairPhotos'] .photo-thumbnail");
 
-			if ($thumbnails.length > 0) {
-				$thumbnails
-						.each(function() {
-							var imgSrc = $(this).attr("src");
-							var imgHtml = '<div class="text-center"><img src="' + imgSrc + '" alt="' + titleText + '" style="max-height: 500px;"></div>';
-							photoContainer.append(imgHtml);
-						});
-			} else {
-				photoContainer.html('<div class="text-center text-muted">暂无'
-						+ titleText + '</div>');
-			}
+			// 重置图片数据
+			photoData = {
+				photos: [],
+				currentIndex: initialIndex,
+				scale: 1,
+				minScale: 1,
+				maxScale: 5,
+				isDragging: false,
+				startX: 0,
+				startY: 0,
+				translateX: 0,
+				translateY: 0
+			};
 
+			// 收集图片信息
+			$thumbnails.each(function() {
+				var originalSrc = $(this).attr("src").replace('comp_', '');
+				var alt = $(this).attr("alt");
+				photoData.photos.push({
+					src: originalSrc,
+					alt: alt
+				});
+			});
+
+			// 更新图片显示
+			updatePhotoDisplay();
+			// 显示模态框
 			$("#photoViewModal").modal("show");
+		}
+
+		// 更新图片显示（修复显示不全+拖拽兼容）
+		function updatePhotoDisplay() {
+			var currentPhoto = photoData.photos[photoData.currentIndex];
+			var $photoViewer = $("#photoViewer");
+			var $currentPhoto = $("#currentPhoto");
+			var $indicator = $("#photoIndicator");
+			var $prevBtn = $("#prevBtn");
+			var $nextBtn = $("#nextBtn");
+
+			// 设置当前图片
+			$currentPhoto.attr("src", currentPhoto.src);
+			$currentPhoto.attr("alt", currentPhoto.alt);
+
+			// 更新指示器
+			$indicator.text(`${photoData.currentIndex + 1}/${photoData.photos.length}`);
+
+			// 更新导航按钮状态
+			$prevBtn.prop("disabled", photoData.currentIndex === 0);
+			$nextBtn.prop("disabled", photoData.currentIndex === photoData.photos.length - 1);
+
+			// 重置缩放和位置
+			photoData.scale = 1;
+			photoData.translateX = 0;
+			photoData.translateY = 0;
+			updatePhotoTransform();
+			$photoViewer.removeClass("zoomed");
+		}
+
+		// 更新图片变换（缩放+平移）
+		function updatePhotoTransform() {
+			var $photoViewer = $("#photoViewer");
+			// 组合缩放和平移变换
+			$photoViewer.css("transform", 
+				`translate(-50%, -50%) translate(${photoData.translateX}px, ${photoData.translateY}px) scale(${photoData.scale})`
+			);
+		}
+
+		// 上一张图片
+		function showPrevPhoto() {
+			if (photoData.currentIndex > 0) {
+				photoData.currentIndex--;
+				updatePhotoDisplay();
+			}
+		}
+
+		// 下一张图片
+		function showNextPhoto() {
+			if (photoData.currentIndex < photoData.photos.length - 1) {
+				photoData.currentIndex++;
+				updatePhotoDisplay();
+			}
+		}
+
+		// 图片缩放（修复缩放中心+位置）
+		function zoomPhoto(delta) {
+			var newScale = photoData.scale + delta;
+			// 限制缩放范围
+			newScale = Math.max(photoData.minScale, Math.min(newScale, photoData.maxScale));
+			
+			if (newScale !== photoData.scale) {
+				photoData.scale = newScale;
+				updatePhotoTransform();
+				// 切换鼠标样式
+				$("#photoViewer").toggleClass("zoomed", photoData.scale > photoData.minScale);
+			}
+		}
+
+		// 重置缩放和位置
+		function resetZoom() {
+			photoData.scale = photoData.minScale;
+			photoData.translateX = 0;
+			photoData.translateY = 0;
+			updatePhotoTransform();
+			$("#photoViewer").removeClass("zoomed");
+		}
+
+		// 开始拖拽
+		function startDrag(e) {
+			// 只有放大后才能拖拽
+			if (photoData.scale <= photoData.minScale) return;
+			
+			photoData.isDragging = true;
+			// 获取鼠标起始位置（相对于视口）
+			photoData.startX = e.clientX;
+			photoData.startY = e.clientY;
+			// 添加拖拽样式
+			$("#photoViewer").css("cursor", "grabbing");
+			// 阻止默认行为
+			e.preventDefault();
+		}
+
+		// 拖拽中
+		function dragMove(e) {
+			if (!photoData.isDragging) return;
+			
+			// 计算鼠标移动距离
+			var dx = e.clientX - photoData.startX;
+			var dy = e.clientY - photoData.startY;
+			
+			// 更新偏移量
+			photoData.translateX += dx;
+			photoData.translateY += dy;
+			
+			// 更新起始位置
+			photoData.startX = e.clientX;
+			photoData.startY = e.clientY;
+			
+			// 应用变换
+			updatePhotoTransform();
+			e.preventDefault();
+		}
+
+		// 结束拖拽
+		function endDrag() {
+			if (photoData.isDragging) {
+				photoData.isDragging = false;
+				$("#photoViewer").css("cursor", "move");
+			}
 		}
 
 		// 图片加载失败处理
 		$(document).on("error", ".photo-thumbnail", function() {
 			$(this).attr("src", "[[@{/assets/img/default-img.png}]]");
+		});
+		
+		// 原图加载失败处理
+		$(document).on("error", "#currentPhoto", function() {
+			$(this).attr("src", "[[@{/assets/img/default-img.png}]]");
+			$(this).attr("alt", "图片加载失败");
+		});
+
+		// 注册图片导航和缩放事件（新增拖拽事件）
+		$(document).ready(function() {
+			// 上一张按钮
+			$("#prevBtn").click(showPrevPhoto);
+			
+			// 下一张按钮
+			$("#nextBtn").click(showNextPhoto);
+			
+			// 放大按钮
+			$("#zoomInBtn").click(function() {
+				zoomPhoto(0.2);
+			});
+			
+			// 缩小按钮
+			$("#zoomOutBtn").click(function() {
+				zoomPhoto(-0.2);
+			});
+			
+			// 重置缩放按钮
+			$("#zoomResetBtn").click(resetZoom);
+			
+			// 鼠标滚轮缩放
+			$("#photoViewer").on("wheel", function(e) {
+				e.preventDefault();
+				var delta = e.originalEvent.deltaY > 0 ? -0.1 : 0.1;
+				zoomPhoto(delta);
+			});
+			
+			// 点击图片切换下一张（仅未放大时）
+			$("#photoViewer").click(function() {
+				if (photoData.scale <= photoData.minScale) {
+					showNextPhoto();
+				}
+			});
+			
+			// 拖拽事件
+			$("#photoViewer").on("mousedown", startDrag);
+			$(document).on("mousemove", dragMove);
+			$(document).on("mouseup", endDrag);
+			$(document).on("mouseleave", endDrag);
+			
+			// 模态框关闭时重置
+			$("#photoViewModal").on("hidden.bs.modal", function() {
+				resetZoom();
+				endDrag(); // 确保拖拽状态重置
+			});
+
+			// 初始化列设置
+			var savedSettings = JSON.parse(localStorage.getItem('wxRepairColumnSettings')) || {};
+			applyColumnSettings(savedSettings);
 		});
 
 		// 列配置定义（含新增列）
@@ -872,15 +1246,6 @@
 			});
 		}
 
-		// 初始化列设置
-		$(document).ready(
-				function() {
-					var savedSettings = JSON.parse(localStorage
-							.getItem('wxRepairColumnSettings'))
-							|| {};
-					applyColumnSettings(savedSettings);
-				});
-		
 		// 打开导出模态框
 		function openExportModal() {
 		    $('#exportModal').modal('show');
@@ -905,8 +1270,7 @@
 		        method: 'GET',
 		        headers: {
 		            'Accept': 'application/json, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-		        },
-		        responseType: 'blob'
+		        }
 		    })
 		    .then(response => {
 		        // 检查响应状态
