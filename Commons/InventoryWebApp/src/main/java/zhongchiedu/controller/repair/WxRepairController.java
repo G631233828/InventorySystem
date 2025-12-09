@@ -228,14 +228,18 @@ public class WxRepairController {
         // 转换为DTO
         List<WxRepairExportDTO> exportList = repairList.stream().map(repair -> {
             WxRepairExportDTO dto = new WxRepairExportDTO();
+            
             dto.setWorkOrderNumber(repair.getWorkOrderNumber());
+            dto.setUserName(repair.getWxReporter().getUserName());
+            dto.setContactNumber(repair.getWxReporter().getContactNumber());
+            dto.setFaultInformation(repair.getFaultInformation()!=null?repair.getFaultInformation():"无");
             dto.setSchoolName(repair.getWxReporter() != null ? repair.getWxReporter().getSchoolName() : "无");
             dto.setCampus(repair.getWxReporter() != null ? repair.getWxReporter().getCampus() : "无");
             dto.setSchoolAddress(repair.getWxReporter() != null ? repair.getWxReporter().getSchoolAddress() : "无");
             dto.setReportClassroomRepair(repair.getReportClassroomRepair());
             dto.setEquipmentRepair(repair.getEquipmentRepair());
             dto.setUrgencyLevel(repair.getUrgencyLevel());
-            
+            dto.setCompleteTime(repair.getCompleteTime()!=null?repair.getCompleteTime():"未完成");
             // 格式化日期
             if (repair.getCreateTime() != null) {
                 dto.setCreateTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(repair.getCreateTime()));

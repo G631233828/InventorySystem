@@ -176,7 +176,7 @@ public class WxRepairServiceImpl extends GeneralServiceImpl<WxRepair> implements
 	}
 
 	/**
-	 * 维修人员 调度人员查看所有报修信息
+	 * 维修人员 调度人员查看所有报修信息（不分页）
 	 */
 	@Override
 	public List<WxRepair> findOperationsWxRepairByOpenId(String openId, String search, Integer status,
@@ -198,11 +198,6 @@ public class WxRepairServiceImpl extends GeneralServiceImpl<WxRepair> implements
 					Criteria.where("reportClassroomRepair").regex(search, "i"),
 					Criteria.where("equipmentRepair").regex(search, "i"),
 					Criteria.where("wxReporter.$id").in(findIdsBySearch)));
-
-//			if(findIdsBySearch.size()>0) {
-//				ca.orOperator(Criteria.where("wxReporter.$id").in(findIdsBySearch));
-//			}
-
 		}
 		if (Common.isNotEmpty(status)) {
 			query.addCriteria(Criteria.where("status").is(status));
@@ -234,6 +229,75 @@ public class WxRepairServiceImpl extends GeneralServiceImpl<WxRepair> implements
 		return this.find(query, WxRepair.class);
 	}
 
+	/**
+	 * 分页查询维修工单（适配下拉刷新/滚动加载）
+	 */
+	@Override
+	public Pagination<WxRepair> findOperationsWxRepairByOpenIdWithPage(
+	        String openId, String search, Integer status, String workerId, 
+	        Integer pageNo, Integer pageSize) {
+	    
+	    // 1. 获取人员权限
+	    WxBinding wxBinding = this.wxBindingService.findWxBindingByOpenId(openId);
+	    if (wxBinding == null) {
+	        return new Pagination<>();
+	    }
+	    PersonnelType personnelType = PersonnelType.getByCode(wxBinding.getPersonnelType())
+	            .orElseThrow(() -> new IllegalArgumentException("无效的人员类型"));
+
+	    // 2. 构建查询条件
+	    Query query = new Query();
+	    Criteria ca = new Criteria();
+	    
+	    // 搜索条件
+	    if (Common.isNotEmpty(search)) {
+	        List<ObjectId> findIdsBySearch = this.wxReporterService.findIdsBySearch(search);
+	        query.addCriteria(ca.orOperator(
+	            Criteria.where("workOrderNumber").regex(search, "i"),
+	            Criteria.where("faultInformation").regex(search, "i"),
+	            Criteria.where("urgencyLevel").regex(search, "i"),
+	            Criteria.where("reportClassroomRepair").regex(search, "i"),
+	            Criteria.where("equipmentRepair").regex(search, "i"),
+	            Criteria.where("wxReporter.$id").in(findIdsBySearch)
+	        ));
+	    }
+	    
+	    // 状态筛选
+	    if (Common.isNotEmpty(status)) {
+	        query.addCriteria(Criteria.where("status").is(status));
+	    }
+	    
+	    // 基础条件：未删除 + 按创建时间降序
+	    query.addCriteria(Criteria.where("isDelete").is(false));
+	    query.with(Sort.by(Sort.Direction.DESC, "createTime"));
+
+	    // 3. 权限过滤
+	    switch (personnelType) {
+	        case CONSTRUCTION_TEAM: // 维修人员
+//	            if (Common.isEmpty(status)) {
+//	                query.addCriteria(Criteria.where("status").is(2)); // 默认查已分配
+//	            }
+	            query.addCriteria(Criteria.where("worker.$id").is(new ObjectId(wxBinding.getId())));
+	            break;
+	        case DISPATCHER: // 调度人员
+	            if (Common.isNotEmpty(workerId)) {
+	                query.addCriteria(Criteria.where("worker.$id").is(new ObjectId(workerId)));
+	            }
+//	            if (Common.isEmpty(status) && Common.isEmpty(search) && Common.isEmpty(workerId)) {
+//	                query.addCriteria(Criteria.where("status").is(1)); // 默认查待处理
+//	            }
+	            break;
+	        default:
+	            throw new IllegalArgumentException("不支持的人员类型");
+	    }
+
+	    // 4. 分页查询（核心）
+	    Pagination<WxRepair> pagination = this.findPaginationByQuery(
+	        query, pageNo, pageSize, WxRepair.class
+	    );
+	    return pagination == null ? new Pagination<>() : pagination;
+	}
+
 	@Override
 	public boolean completeRepair(WxRepair wxRepair, MultipartFile[] repairPhotos, String imgPath, String dir) {
 		List<MultiMedia> uploadPictures = this.multiMediaSerice.uploadPictures(repairPhotos, dir, imgPath,
@@ -246,10 +310,15 @@ public class WxRepairServiceImpl extends GeneralServiceImpl<WxRepair> implements
 			wxRepair.setRepairPhotos(uploadPictures);
 		}
 		wxRepair.setStatus(RepairStatus.COMPLETED.getCode());// 订单完成
+		try {
+			wxRepair.setCompleteTime(Common.getDateYMDHM(new Date()));
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}//维修完成时间
 
 		if (Common.isNotEmpty(wxRepair.getId())) {
 			// update
-
 			WxRepair ed = this.findOneById(wxRepair.getId(), WxRepair.class);
 			BeanUtils.copyProperties(wxRepair, ed);
 			this.save(wxRepair);
@@ -310,7 +379,6 @@ public class WxRepairServiceImpl extends GeneralServiceImpl<WxRepair> implements
 		return this.find(query, WxRepair.class);
 	}
 
-	// zhongchiedu.inventory.service.Impl.WxRepairServiceImpl
 	@Override
 	public WxRepair cancelAssign(String repairId) {
 		// 1. 查询报修单
@@ -326,7 +394,7 @@ public class WxRepairServiceImpl extends GeneralServiceImpl<WxRepair> implements
 
 		// 3. 清空维修人员，状态改为待处理（状态1）
 		wxRepair.setWorker(null);
-		wxRepair.setStatus(RepairStatus.PENDING.getCode()); // 假设PENDING是待处理状态（code=1）
+		wxRepair.setStatus(RepairStatus.PENDING.getCode()); 
 
 		// 4. 保存修改
 		this.save(wxRepair);

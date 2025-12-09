@@ -194,6 +194,14 @@
 	max-width: none;
 }
 
+/* 故障信息列样式（支持换行） */
+.fault-info {
+	white-space: normal;
+	word-wrap: break-word;
+	word-break: break-all;
+	max-width: none;
+}
+
 .checkbox-list .checkbox {
 	margin-bottom: 8px;
 }
@@ -258,6 +266,8 @@
 }
 
 /* 【关键】需要不换行的列：强制单行显示 */
+.table-scroll-container table th[data-column-id="checkbox"],
+.table-scroll-container table td[data-column-id="checkbox"],
 .table-scroll-container table th[data-column-id="workOrderNumber"],
 .table-scroll-container table td[data-column-id="workOrderNumber"],
 .table-scroll-container table th[data-column-id="schoolName"],
@@ -279,7 +289,14 @@
 .table-scroll-container table th[data-column-id="status"],
 .table-scroll-container table td[data-column-id="status"],
 .table-scroll-container table th[data-column-id="worker"],
-.table-scroll-container table td[data-column-id="worker"] {
+.table-scroll-container table td[data-column-id="worker"],
+/* 新增列的不换行配置 */
+.table-scroll-container table th[data-column-id="reporterName"],
+.table-scroll-container table td[data-column-id="reporterName"],
+.table-scroll-container table th[data-column-id="contactNumber"],
+.table-scroll-container table td[data-column-id="contactNumber"],
+.table-scroll-container table th[data-column-id="completeTime"],
+.table-scroll-container table td[data-column-id="completeTime"] {
 	white-space: nowrap; /* 强制单行，不换行 */
 	word-wrap: normal; /* 取消自动换行 */
 	word-break: keep-all; /* 保留单词完整性，不截断 */
@@ -311,6 +328,22 @@
 .table-scroll-container table th[data-column-id="schoolAddress"],
 .table-scroll-container table td[data-column-id="schoolAddress"] {
 	min-width: 250px; /* 加宽基础宽度，适配长地址 */
+}
+
+/* 新增列的最小宽度配置 */
+.table-scroll-container table th[data-column-id="reporterName"],
+.table-scroll-container table td[data-column-id="reporterName"] {
+	min-width: 120px;
+}
+
+.table-scroll-container table th[data-column-id="contactNumber"],
+.table-scroll-container table td[data-column-id="contactNumber"] {
+	min-width: 130px;
+}
+
+.table-scroll-container table th[data-column-id="faultInformation"],
+.table-scroll-container table td[data-column-id="faultInformation"] {
+	min-width: 200px;
 }
 
 .table-scroll-container table th[data-column-id="createTime"],
@@ -363,6 +396,11 @@
 .table-scroll-container table th[data-column-id="worker"],
 .table-scroll-container table td[data-column-id="worker"] {
 	min-width: 100px;
+}
+
+.table-scroll-container table th[data-column-id="completeTime"],
+.table-scroll-container table td[data-column-id="completeTime"] {
+	min-width: 180px;
 }
 
 .table-scroll-container table th[data-column-id="operation"],
@@ -437,7 +475,7 @@
 									<div class="form-group">
 										<label class="mr-2">模糊查询：</label> <input type="text"
 											name="search" th:value="${search}"
-											class="form-control input-sm" placeholder="工单号/学校/教室/设备..."
+											class="form-control input-sm" placeholder="工单号/学校/教室/设备/报修人..."
 											style="width: 200px;">
 									</div>
 									<div class="form-group ml-3">
@@ -531,6 +569,9 @@
 													<th class="numeric" data-column-id="schoolName">报修学校</th>
 													<th class="numeric" data-column-id="campus">报修校区</th>
 													<th class="numeric" data-column-id="schoolAddress">报修地址</th>
+													<th class="numeric" data-column-id="reporterName">报修人</th>
+													<th class="numeric" data-column-id="contactNumber">联系电话</th>
+													<th class="numeric" data-column-id="faultInformation">故障信息</th>
 													<th class="numeric" data-column-id="createTime">提交时间</th>
 													<th class="numeric" data-column-id="reportClassroomRepair">报修教室</th>
 													<th class="numeric" data-column-id="equipmentRepair">报修设备</th>
@@ -541,6 +582,7 @@
 													<th class="numeric" data-column-id="repairContent">维修内容</th>
 													<th class="numeric" data-column-id="repairPhotos">维修完成照片</th>
 													<th class="numeric" data-column-id="worker">维修人员</th>
+													<th class="numeric" data-column-id="completeTime">维修完成时间</th>
 													<th class="numeric" data-column-id="operation">操作</th>
 												</tr>
 											</thead>
@@ -564,15 +606,29 @@
 													<!-- 报修地址 -->
 													<td class="numeric" data-column-id="schoolAddress">[[${wxRepair.wxReporter?.schoolAddress
 														?: '无'}]]</td>
+													<!-- 新增：报修人 -->
+													<td class="numeric" data-column-id="reporterName">[[${wxRepair.wxReporter?.userName
+														?: '无'}]]</td>
+													<!-- 新增：联系电话 -->
+													<td class="numeric" data-column-id="contactNumber">[[${wxRepair.wxReporter?.contactNumber
+														?: '无'}]]</td>
+													<!-- 新增：故障信息 -->
+													<td class="numeric fault-info" data-column-id="faultInformation">[[${wxRepair.faultInformation ?: '无'}]]</td>
+													<!-- 提交时间 -->
 													<td class="numeric" data-column-id="createTime">
 														[[${#dates.format(wxRepair.createTime, 'yyyy-MM-dd
 														HH:mm:ss') ?: '无'}]]</td>
+													<!-- 报修教室 -->
 													<td class="numeric" data-column-id="reportClassroomRepair">[[${wxRepair.reportClassroomRepair}]]</td>
+													<!-- 报修设备 -->
 													<td class="numeric" data-column-id="equipmentRepair">[[${wxRepair.equipmentRepair}]]</td>
+													<!-- 紧急程度 -->
 													<td class="numeric" data-column-id="urgencyLevel">[[${wxRepair.urgencyLevel}]]</td>
+													<!-- 期望完成时间 -->
 													<td class="numeric" data-column-id="expectedVisitTime">
 														[[${#dates.format(wxRepair.expectedVisitTime,
 														'yyyy-MM-dd') ?: '无'}]]</td>
+													<!-- 维修状态 -->
 													<td class="numeric" data-column-id="status"><span
 														th:switch="${wxRepair.status}"> <span th:case="1"
 															class="label label-primary">待处理</span> <span th:case="2"
@@ -581,6 +637,7 @@
 															class="label label-success">已完成</span> <span th:case="5"
 															class="label label-default">已取消</span>
 													</span></td>
+													<!-- 报修照片 -->
 													<td class="numeric" data-column-id="reportPhotos">
 														<div
 															th:if="${wxRepair.photos != null and not #lists.isEmpty(wxRepair.photos)}">
@@ -593,9 +650,11 @@
 														</div> <span
 														th:unless="${wxRepair.photos != null and not #lists.isEmpty(wxRepair.photos)}">无</span>
 													</td>
+													<!-- 维修内容 -->
 													<td class="numeric repair-content"
 														data-column-id="repairContent">
 														[[${wxRepair.repairContent ?: '无'}]]</td>
+													<!-- 维修完成照片 -->
 													<td class="numeric" data-column-id="repairPhotos">
 														<div
 															th:if="${wxRepair.repairPhotos != null and not #lists.isEmpty(wxRepair.repairPhotos)}">
@@ -608,8 +667,12 @@
 														</div> <span
 														th:unless="${wxRepair.repairPhotos != null and not #lists.isEmpty(wxRepair.repairPhotos)}">无</span>
 													</td>
+													<!-- 维修人员 -->
 													<td class="numeric" data-column-id="worker"
 														th:text="${wxRepair.worker?.name ?: '未分配'}"></td>
+													<!-- 新增：维修完成时间 -->
+													<td class="numeric" data-column-id="completeTime">[[${wxRepair.completeTime ?: '无'}]]</td>
+													<!-- 操作列 -->
 													<td class="numeric" data-column-id="operation">
 														<shiro:hasPermission name="wxRepair:edit">
 															<button class="btn btn-primary btn-xs"
@@ -849,6 +912,22 @@
 			                        <label>学校名称：</label>
 			                        <input type="text" name="schoolName" class="form-control" placeholder="模糊查询">
 			                    </div>
+			                    <!-- 新增导出筛选字段 -->
+			                <!--     <div class="form-group">
+			                        <label>报修人：</label>
+			                        <input type="text" name="reporterName" class="form-control" placeholder="模糊查询">
+			                    </div> -->
+			                 <!--    <div class="form-group">
+			                        <label>维修完成日期范围：</label>
+			                        <div class="row">
+			                            <div class="col-md-6">
+			                                <input type="date" name="completeStartTime" class="form-control" placeholder="开始日期">
+			                            </div>
+			                            <div class="col-md-6">
+			                                <input type="date" name="completeEndTime" class="form-control" placeholder="结束日期">
+			                            </div>
+			                        </div>
+			                    </div> -->
 			                </form>
 			            </div>
 			            <div class="modal-footer">
@@ -1145,7 +1224,7 @@
 			applyColumnSettings(savedSettings);
 		});
 
-		// 列配置定义（含新增列）
+		// 列配置定义（新增4个列配置）
 		var columnConfigs = [ {
 			id : 'checkbox',
 			name : '复选框'
@@ -1161,6 +1240,15 @@
 		}, {
 			id : 'schoolAddress',
 			name : '报修地址'
+		}, {
+			id : 'reporterName',
+			name : '报修人'
+		}, {
+			id : 'contactNumber',
+			name : '联系电话'
+		}, {
+			id : 'faultInformation',
+			name : '故障信息'
 		}, {
 			id : 'createTime',
 			name : '提交时间'
@@ -1191,6 +1279,9 @@
 		}, {
 			id : 'worker',
 			name : '维修人员'
+		}, {
+			id : 'completeTime',
+			name : '维修完成时间'
 		}, {
 			id : 'operation',
 			name : '操作'

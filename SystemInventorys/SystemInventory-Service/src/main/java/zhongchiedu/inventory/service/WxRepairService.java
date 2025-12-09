@@ -34,8 +34,9 @@ public interface WxRepairService extends GeneralService<WxRepair> {
 
 	public WxRepair cancelRepair(String repairId);
 	
-	
-	
+	Pagination<WxRepair> findOperationsWxRepairByOpenIdWithPage(
+            String openId, String search, Integer status, String workerId, 
+            Integer pageNo, Integer pageSize);
 	
 	
 }

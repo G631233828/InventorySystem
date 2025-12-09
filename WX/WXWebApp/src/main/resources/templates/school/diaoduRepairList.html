@@ -3,25 +3,27 @@
 <head>
 <meta charset="UTF-8">
 <title>工单管理 - 调度人员端</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<!-- 引入外部资源 -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
 <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
 <script type="text/javascript" th:src="@{/assets/js/tailwindcs-3.4.17.js}"></script>
 
-<!-- Tailwind 配置 -->
 <script>
     tailwind.config = {
         theme: {
             extend: {
                 colors: {
-                    primary: '#3B82F6',    // 主色调：蓝色
-                    pending: '#F59E0B',    // 待处理状态色
-                    assigned: '#3B82F6',   // 已分配状态色
-                    processing: '#6366F1', // 处理中状态色
-                    completed: '#10B981',  // 已完成状态色
-                    cancelled: '#6B7280',  // 已取消状态色
-                    urgent: '#EF4444',     // 紧急级别色
-                    normal: '#3B82F6',     // 一般级别色
+                    primary: '#3B82F6',
+                    pending: '#F59E0B',
+                    assigned: '#3B82F6',
+                    processing: '#6366F1',
+                    completed: '#10B981',
+                    cancelled: '#6B7280',
+                    urgent: '#EF4444',
+                    normal: '#3B82F6',
+                },
+                boxShadow: {
+                    'soft': '0 2px 8px rgba(0, 0, 0, 0.08)',
                 }
             }
         }
@@ -38,69 +40,76 @@
         .card-hover { @apply transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 cursor-pointer; }
         .filter-active { @apply bg-primary text-white; }
         .filter-inactive { @apply bg-gray-100 text-gray-700 hover:bg-gray-200; }
-        .clear-btn { @apply absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer transition-colors; }
+        .clear-btn { @apply absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer transition-colors z-10; }
+        
+        /* 统一表单控件样式 */
+        .form-control {
+            @apply w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-700 text-base transition-all;
+        }
+        .form-button {
+            @apply px-4 py-3 rounded-lg text-base font-medium transition-colors;
+        }
+        
+        /* 分页按钮样式 */
+        .mobile-page-btn {
+            @apply h-12 w-12 rounded-lg text-xl font-medium transition-all duration-200 flex items-center justify-center;
+        }
+        .mobile-page-btn-disabled {
+            @apply bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200;
+        }
+        .mobile-page-btn-normal {
+            @apply bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 hover:border-primary/30 hover:text-primary;
+        }
     }
 </style>
 </head>
-<body class="bg-gray-50 font-sans text-gray-800 min-h-screen">
+<body class="bg-gray-50 font-sans text-gray-800 min-h-screen pb-8">
     <!-- 顶部导航 -->
     <header class="bg-white shadow-sm fixed top-0 left-0 right-0 z-50 transition-all duration-300">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <h1 class="text-lg font-bold text-primary flex items-center">
                 <i class="fa fa-tasks mr-2"></i>维修列表管理
             </h1>
-          <!--   <div class="flex items-center space-x-4">
-                <div class="relative">
-                    <button class="flex items-center space-x-2 text-sm font-medium text-neutral">
-                        <img class="w-7 h-7 rounded-full object-cover border-2 border-primary/20"
-                             th:src="${userInfo?.headImgUrl}" th:alt="${userInfo?.nickname}"
-                             src="https://picsum.photos/id/1005/100/100" alt="默认头像">
-                        <span th:text="${userInfo?.nickname}">调度人员</span>
-                    </button>
-                </div>
-            </div> -->
         </div>
     </header>
 
     <!-- 主内容区 -->
-    <main class="container mx-auto px-4 pt-20 pb-6">
+    <main class="container mx-auto px-4 pt-24 pb-10">
         <!-- 页面标题和操作区 -->
-        <div class="mb-6 pt-4">
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div class="mb-6 pt-2">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
                 <div>
                     <h2 class="text-xl font-bold text-gray-800">报修工单管理</h2>
                     <p class="text-gray-500 text-sm">点击工单查看详情并管理</p>
                 </div>
-                <button id="refreshBtn" class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                <button id="refreshBtn" class="form-button border border-gray-300 text-gray-700 bg-white hover:bg-gray-50">
                     <i class="fa fa-refresh mr-2"></i> 刷新
                 </button>
             </div>
             
-            <!-- 搜索框（增加清除按钮） -->
-            <div class="mt-4 flex">
+            <!-- 搜索框和按钮一行显示 + 修复图标重叠 -->
+            <div class="mt-2 flex gap-2 w-full">
                 <div class="relative flex-grow">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i class="fa fa-search text-gray-400"></i>
-                    </div>
+              
+                    <!-- pl-12 确保文字不与图标重叠 -->
                     <input type="text" id="searchInput"
-                           class="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:form-input-focus text-sm transition-all"
-                           placeholder="搜索工单号、报修学校、报修校区、报修教室、设备名称..." th:value="${search}">
-                    <!-- 清除按钮 -->
+                           class="form-control pl-12 pr-10 focus:form-input-focus"
+                           placeholder="搜索工单号、报修学校..." th:value="${search}">
                     <button id="clearSearchBtn" class="clear-btn hidden" aria-label="清除搜索内容">
-                        <i class="fa fa-times"></i>
+                        <i class="fa fa-times text-base"></i>
                     </button>
                 </div>
-                <button id="searchBtn" class="ml-2 px-4 py-2 bg-primary text-white rounded-md text-sm font-medium hover:bg-primary/90 transition-colors">
-                    <i class="fa fa-search mr-1"></i> 搜索
+                <!-- 按钮固定宽度，不挤压搜索框 -->
+                <button id="searchBtn" class="form-button bg-primary text-white hover:bg-primary/90 whitespace-nowrap w-28 flex-shrink-0">
+                    <i class="fa fa-search mr-1"></i> 
                 </button>
             </div>
             
             <!-- 筛选条件区 -->
-            <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- 状态筛选 -->
+            <div class="mt-4 grid grid-cols-1 gap-4">
                 <div>
                     <label class="block text-xs font-medium text-gray-500 mb-2">维修状态</label>
-                    <select id="statusSelect" class="block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white text-gray-700 focus:outline-none focus:form-input-focus text-sm transition-all">
+                    <select id="statusSelect" class="form-control focus:form-input-focus">
                         <option value="">全部状态</option>
                         <option value="1" th:selected="${status == '1'}">待处理</option>
                         <option value="2" th:selected="${status == '2'}">已分配</option>
@@ -110,10 +119,9 @@
                     </select>
                 </div>
                 
-                <!-- 维修人员筛选 -->
                 <div>
                     <label class="block text-xs font-medium text-gray-500 mb-2">维修人员</label>
-                    <select id="workerSelect" class="block w-full px-3 py-2 border border-gray-300 rounded-md leading-5 bg-white text-gray-700 focus:outline-none focus:form-input-focus text-sm transition-all">
+                    <select id="workerSelect" class="form-control focus:form-input-focus">
                         <option value="">全部维修人员</option>
                         <option th:each="worker : ${workers}" 
                                 th:value="${worker.id}" 
@@ -125,27 +133,27 @@
             
             <!-- 快捷筛选标签 -->
             <div class="mt-4 flex flex-wrap gap-2">
-                <button class="filter-btn inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-full" 
+                <button class="filter-btn inline-flex items-center px-3 py-2 text-sm font-medium rounded-full min-h-[32px]" 
                         th:classappend="${status == null or status == '' ? 'filter-active' : 'filter-inactive'}" 
                         data-status="">
-                    <i class="fa fa-tag mr-1"></i>全部工单
+                    <i class="fa fa-tag mr-1"></i>全部
                 </button>
-                <button class="filter-btn inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-full" 
+                <button class="filter-btn inline-flex items-center px-3 py-2 text-sm font-medium rounded-full min-h-[32px]" 
                         th:classappend="${status == '1' ? 'filter-active' : 'filter-inactive'}" 
                         data-status="1">
                     <i class="fa fa-clock-o mr-1"></i>待处理
                 </button>
-                <button class="filter-btn inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-full" 
+                <button class="filter-btn inline-flex items-center px-3 py-2 text-sm font-medium rounded-full min-h-[32px]" 
                         th:classappend="${status == '2' ? 'filter-active' : 'filter-inactive'}" 
                         data-status="2">
                     <i class="fa fa-user mr-1"></i>已分配
                 </button>
-                <button class="filter-btn inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-full" 
+                <button class="filter-btn inline-flex items-center px-3 py-2 text-sm font-medium rounded-full min-h-[32px]" 
                         th:classappend="${status == '3' ? 'filter-active' : 'filter-inactive'}" 
                         data-status="3">
                     <i class="fa fa-cogs mr-1"></i>处理中
                 </button>
-                <button class="filter-btn inline-flex items-center px-3 py-1.5 text-xs font-medium rounded-full" 
+                <button class="filter-btn inline-flex items-center px-3 py-2 text-sm font-medium rounded-full min-h-[32px]" 
                         th:classappend="${status == '4' ? 'filter-active' : 'filter-inactive'}" 
                         data-status="4">
                     <i class="fa fa-check mr-1"></i>已完成
@@ -153,15 +161,17 @@
             </div>
             
             <!-- 筛选结果统计 -->
-            <div class="mt-3 text-sm text-gray-500">
-                <span id="resultCount" th:text="'共 ' + ${repairList != null ? repairList.size() : 0} + ' 条工单'">共 0 条工单</span>
+            <div class="mt-3 text-base text-gray-500 bg-white p-3 rounded-lg shadow-soft">
+                <span id="resultCount" th:text="'共 ' + ${pagination?.totalCount ?: 0} + ' 条工单 · 当前第 ' + ${pagination?.pageNo ?: 1} + ' 页/共 ' + ${pagination?.totalPage ?: 0} + ' 页'">
+                    共 0 条工单 · 当前第 1 页/共 0 页
+                </span>
             </div>
         </div>
 
         <!-- 工单列表 -->
         <div class="space-y-4" id="repairListContainer">
-            <div th:each="repair : ${repairList}" class="repair-item">
-                <!-- 状态变量定义 -->
+            <!-- 工单项循环 -->
+            <div th:each="repair : ${pagination.datas}" class="repair-item">
                 <div class="bg-white rounded-lg shadow-soft overflow-hidden card-hover"
                      th:with="statusEnum=${T(zhongchiedu.common.utils.enums.RepairStatus).fromCode(repair.status)},
                              statusClass=${statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).PENDING ? 'bg-pending/10 text-pending' : 
@@ -170,83 +180,65 @@
                                           statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).COMPLETED ? 'bg-completed/10 text-completed' : 'bg-cancelled/10 text-cancelled'},
                              levelClass=${repair.urgencyLevel == '紧急' ? 'bg-urgent/10 text-urgent' : 'bg-normal/10 text-normal'}">
                     
-                    <!-- 使用a标签实现跳转 -->
                     <a th:href="@{/wechatrp/findWxRepair/{id}(id=${repair.id})}" class="block p-4 no-underline text-gray-800">
-                        <!-- 顶部信息 -->
                         <div class="flex justify-between items-start mb-3">
-                            <!-- 工单号 -->
                             <div>
                                 <span class="text-xs font-medium text-gray-500">工单号</span>
-                                <p class="font-medium text-primary" th:text="${repair.workOrderNumber}">#WX20240520001</p>
+                                <p class="font-medium text-primary text-base" th:text="${repair.workOrderNumber}">#WX20240520001</p>
                             </div>
-                            
-                            <!-- 状态标签 -->
-                            <span class="status-badge" th:classappend="${statusClass}"
+                            <span class="status-badge text-sm" th:classappend="${statusClass}"
                                   th:text="${statusEnum?.description ?: '未知状态'}">待处理</span>
                         </div>
 
-                        <!-- 核心信息 - 调整为6列布局 -->
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 mb-4">
-                            <div class="lg:col-span-2">
-                                <span class="text-xs font-medium text-gray-500 block mb-1">报修学校</span>
-                                <p class="text-sm font-medium" th:text="${repair.wxReporter?.schoolName ?: '未知学校'}">第一中学</p>
+                        <div class="grid grid-cols-1 gap-3 mb-4">
+                            <div>
+                                <span class="text-xs font-medium text-gray-500 block mb-1">报修学校/校区</span>
+                                <p class="text-base font-medium" th:text="${repair.wxReporter?.schoolName ?: '未知学校'} + ' / ' + ${repair.wxReporter?.campus ?: '未知校区'}">第一中学 / 本部校区</p>
                             </div>
-                            <div class="lg:col-span-1">
-                                <span class="text-xs font-medium text-gray-500 block mb-1">报修校区</span>
-                                <p class="text-sm font-medium" th:text="${repair.wxReporter?.campus ?: '未知校区'}">本部校区</p>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <span class="text-xs font-medium text-gray-500 block mb-1">报修教室</span>
+                                    <p class="text-base font-medium" th:text="${repair.reportClassroomRepair}">一号教学楼302教室</p>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-medium text-gray-500 block mb-1">报修设备</span>
+                                    <p class="text-base font-medium" th:text="${repair.equipmentRepair}">多媒体一体机</p>
+                                </div>
                             </div>
-                            <div class="lg:col-span-1">
-                                <span class="text-xs font-medium text-gray-500 block mb-1">报修教室</span>
-                                <p class="text-sm font-medium" th:text="${repair.reportClassroomRepair}">一号教学楼302教室</p>
-                            </div>
-                            <div class="lg:col-span-1">
-                                <span class="text-xs font-medium text-gray-500 block mb-1">报修设备</span>
-                                <p class="text-sm font-medium" th:text="${repair.equipmentRepair}">多媒体一体机</p>
-                            </div>
-                            <div class="lg:col-span-1">
-                                <span class="text-xs font-medium text-gray-500 block mb-1">紧急程度</span>
-                                <span class="level-badge" th:classappend="${levelClass}"
-                                      th:text="${repair.urgencyLevel}">紧急</span>
+                            <div>
+                                <span class="text-xs font-medium text-gray-500 block mb-1">紧急程度 / 处理人员</span>
+                                <div class="flex items-center gap-3">
+                                    <span class="level-badge text-sm" th:classappend="${levelClass}"
+                                          th:text="${repair.urgencyLevel}">紧急</span>
+                                    <span class="text-base" th:text="${repair.worker?.name ?: '未分配'}">未分配</span>
+                                </div>
                             </div>
                         </div>
 
-                        <!-- 处理人员信息 -->
-                        <div class="mb-4">
-                            <span class="text-xs font-medium text-gray-500 block mb-1">处理人员</span>
-                            <p class="text-sm" th:text="${repair.worker?.name ?: '未分配'}">未分配</p>
-                        </div>
-
-                        <!-- 故障信息 -->
                         <div class="mb-4">
                             <span class="text-xs font-medium text-gray-500 block mb-1">故障描述</span>
-                            <p class="text-sm text-gray-700 line-clamp-2" th:text="${repair.faultInformation}">
+                            <p class="text-base text-gray-700" th:text="${repair.faultInformation}">
                                 设备无法开机，电源指示灯不亮，投影无显示，疑似电源故障。
                             </p>
                         </div>
 
-                        <!-- 报修人信息 -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3 pt-3 border-t border-gray-100">
+                        <div class="grid grid-cols-2 gap-3 mb-3 pt-3 border-t border-gray-100">
                             <div>
-                                <span class="text-xs font-medium text-gray-500 block mb-1">报修人</span>
-                                <p class="text-sm" th:text="${repair.wxReporter?.userName ?: '未知'}">张三</p>
-                            </div>
-                            <div>
-                                <span class="text-xs font-medium text-gray-500 block mb-1">联系电话</span>
-                                <p class="text-sm" th:text="${repair.wxReporter?.contactNumber ?: '未知'}">13800138000</p>
+                                <span class="text-xs font-medium text-gray-500 block mb-1">报修人 / 电话</span>
+                                <p class="text-base" th:text="${repair.wxReporter?.userName ?: '未知'} + ' / ' + ${repair.wxReporter?.contactNumber ?: '未知'}">张三 / 13800138000</p>
                             </div>
                             <div>
                                 <span class="text-xs font-medium text-gray-500 block mb-1">提交时间</span>
-                                <p class="text-sm" th:text="${repair.createTime != null ? #dates.format(repair.createTime, 'yyyy-MM-dd HH:mm') : '暂无时间'}">2024-05-20 09:30</p>
+                                <p class="text-base" th:text="${repair.createTime != null ? #dates.format(repair.createTime, 'yyyy-MM-dd HH:mm') : '暂无时间'}">2024-05-20 09:30</p>
                             </div>
                         </div>
 
-                        <!-- 底部信息 -->
                         <div class="flex justify-between items-center pt-3 border-t border-gray-100">
-                            <div class="text-xs text-gray-500">
+                            <div class="text-sm text-gray-500">
                                 <i class="fa fa-clock-o mr-1"></i>
                                 <span th:text="${repair.createTime != null ? #dates.format(repair.createTime, 'yyyy-MM-dd') : '暂无时间'}">2024-05-20</span>
                             </div>
-                            <span class="text-xs text-primary hover:text-primary/80 transition-colors">
+                            <span class="text-base text-primary hover:text-primary/80 transition-colors">
                                 查看详情 <i class="fa fa-angle-right ml-1"></i>
                             </span>
                         </div>
@@ -256,25 +248,55 @@
             
             <!-- 空状态提示 -->
             <div id="emptyState" class="py-16 flex flex-col items-center justify-center text-center"
-                 th:if="${repairList == null or repairList.isEmpty()}">
+                 th:if="${pagination == null or pagination.datas.isEmpty()}">
                 <div class="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4">
                     <i class="fa fa-file-text-o text-4xl"></i>
                 </div>
                 <h3 class="text-xl font-bold text-gray-800 mb-2">暂无报修工单</h3>
                 <p class="text-gray-500 max-w-md mb-6">系统中暂无报修工单，用户提交后将显示在此处</p>
-                <button class="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-lg text-gray-700 bg-white hover:bg-gray-50 transition-colors"
-                        onclick="location.reload()">
+                <button class="form-button border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 px-6">
                     <i class="fa fa-refresh mr-2"></i> 刷新页面
                 </button>
+            </div>
+
+            <!-- 分页：页码状态和按钮一行显示 -->
+            <div class="mt-8" th:if="${pagination != null and pagination.totalPage > 1}">
+                <div class="bg-white p-4 rounded-xl shadow-soft">
+                    <!-- 一行显示：页码状态 + 箭头按钮 -->
+                    <div class="flex items-center justify-center gap-4 w-full">
+                        <!-- 页码状态 -->
+                      
+                        <!-- 箭头按钮组 -->
+                        <div class="flex items-center gap-4">
+                            <!-- 上一页 -->
+                            <button class="mobile-page-btn" 
+                                    th:classappend="${pagination.hasPreviousPage ? 'mobile-page-btn-normal' : 'mobile-page-btn-disabled'}"
+                                    th:data-page="${pagination.upPage}"
+                                    th:disabled="${!pagination.hasPreviousPage}">
+                                <i class="fa fa-chevron-left"></i>
+                            </button>
+                              <div class="text-base text-gray-700 font-medium">
+                            第 <span class="text-primary text-lg font-bold" th:text="${pagination.pageNo}">1</span> 页 / 共 <span th:text="${pagination.totalPage}">0</span> 页
+                        </div>
+                        
+                            <!-- 下一页 -->
+                            <button class="mobile-page-btn" 
+                                    th:classappend="${pagination.hasNextPage ? 'mobile-page-btn-normal' : 'mobile-page-btn-disabled'}"
+                                    th:data-page="${pagination.nextPage}"
+                                    th:disabled="${!pagination.hasNextPage}">
+                                <i class="fa fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
 
     <!-- JavaScript -->
     <script>
-        // 页面加载完成后初始化
         document.addEventListener('DOMContentLoaded', function() {
-            // 获取筛选元素
+            // 获取元素
             const searchInput = document.getElementById('searchInput');
             const clearSearchBtn = document.getElementById('clearSearchBtn');
             const statusSelect = document.getElementById('statusSelect');
@@ -282,100 +304,124 @@
             const filterButtons = document.querySelectorAll('.filter-btn');
             const refreshBtn = document.getElementById('refreshBtn');
             const searchBtn = document.getElementById('searchBtn');
+            const pageButtons = document.querySelectorAll('[data-page]');
             
-            // 初始化清除按钮状态
-            updateClearButtonVisibility();
-            
-            // 导航栏滚动效果
-            window.addEventListener('scroll', function() {
-                const header = document.querySelector('header');
-                if (window.scrollY > 10) {
-                    header.classList.add('shadow');
-                    header.classList.add('py-2');
-                    header.classList.remove('py-3');
-                } else {
-                    header.classList.remove('shadow');
-                    header.classList.add('py-3');
-                    header.classList.remove('py-2');
-                }
-            });
-            
-            // 搜索框输入事件 - 更新清除按钮显示状态
-            searchInput.addEventListener('input', updateClearButtonVisibility);
-            
-            // 清除按钮点击事件
-            clearSearchBtn.addEventListener('click', function() {
-                searchInput.value = '';
-                updateClearButtonVisibility();
-                searchInput.focus();
-                // 如果需要立即搜索空内容，可以调用搜索函数
-                // submitFiltersToServer();
-            });
-            
-            // ESC键清除搜索内容
-            searchInput.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                    clearSearchBtn.click();
-                }
-            });
-            
-            // 更新清除按钮显示状态
+            // 清除按钮显示逻辑
             function updateClearButtonVisibility() {
-                if (searchInput.value.trim() !== '') {
+                if (searchInput && searchInput.value.trim() !== '') {
                     clearSearchBtn.classList.remove('hidden');
                 } else {
                     clearSearchBtn.classList.add('hidden');
                 }
             }
             
-            // 筛选按钮点击事件（调用后端接口）
-            filterButtons.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    // 更新状态选择框
-                    const statusValue = this.getAttribute('data-status');
-                    statusSelect.value = statusValue;
-                    
-                    // 提交筛选条件到后端
-                    submitFiltersToServer();
+            // 初始化
+            if (searchInput) {
+                updateClearButtonVisibility();
+                searchInput.addEventListener('input', updateClearButtonVisibility);
+            }
+            
+            // 清除按钮点击
+            if (clearSearchBtn) {
+                clearSearchBtn.addEventListener('click', function() {
+                    searchInput.value = '';
+                    updateClearButtonVisibility();
+                    searchInput.focus();
                 });
-            });
+            }
             
-            // 搜索按钮点击事件
-            searchBtn.addEventListener('click', submitFiltersToServer);
+            // ESC清除
+            if (searchInput) {
+                searchInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') clearSearchBtn.click();
+                });
+            }
             
-            // 状态选择框变化事件
-            statusSelect.addEventListener('change', submitFiltersToServer);
+            // 导航栏滚动
+            const header = document.querySelector('header');
+            if (header) {
+                window.addEventListener('scroll', function() {
+                    if (window.scrollY > 10) {
+                        header.classList.add('shadow', 'py-2');
+                        header.classList.remove('py-3');
+                    } else {
+                        header.classList.remove('shadow');
+                        header.classList.add('py-3');
+                        header.classList.remove('py-2');
+                    }
+                }, { passive: true });
+            }
             
-            // 维修人员选择框变化事件
-            workerSelect.addEventListener('change', submitFiltersToServer);
+            // 筛选按钮
+            if (filterButtons) {
+                filterButtons.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        statusSelect.value = this.getAttribute('data-status');
+                        submitFiltersToServer(1);
+                    });
+                });
+            }
+            
+            // 搜索按钮
+            if (searchBtn) {
+                searchBtn.addEventListener('click', () => submitFiltersToServer(1));
+            }
+            
+            // 下拉框变化
+            if (statusSelect) statusSelect.addEventListener('change', () => submitFiltersToServer(1));
+            if (workerSelect) workerSelect.addEventListener('change', () => submitFiltersToServer(1));
             
             // 刷新按钮
-            refreshBtn.addEventListener('click', function() {
-                // 重置所有筛选条件并刷新页面
-                window.location.href = '../wechatrp/operator_repairlist';
-            });
+            if (refreshBtn) {
+                refreshBtn.addEventListener('click', function() {
+                    let currentPage = 1;
+                    const pageTextEl = document.querySelector('.text-primary.text-lg.font-bold');
+                    if (pageTextEl) currentPage = parseInt(pageTextEl.textContent) || 1;
+                    submitFiltersToServer(currentPage);
+                });
+            }
             
-            // 支持回车键搜索
-            searchInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    submitFiltersToServer();
+            // 回车搜索
+            if (searchInput) {
+                searchInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        submitFiltersToServer(1);
+                    }
+                });
+            }
+            
+            // 分页按钮
+            if (pageButtons) {
+                pageButtons.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        if (this.disabled) return;
+                        submitFiltersToServer(this.getAttribute('data-page'));
+                    });
+                });
+            }
+            
+            // 提交筛选
+            function submitFiltersToServer(pageNo = 1) {
+                try {
+                    const searchTerm = searchInput ? searchInput.value.trim() : '';
+                    const selectedStatus = statusSelect ? statusSelect.value : '';
+                    const selectedWorkerId = workerSelect ? workerSelect.value : '';
+                    let pageSize = 10;
+                    
+                    const params = new URLSearchParams();
+                    if (searchTerm) params.append('search', searchTerm);
+                    if (selectedStatus) params.append('status', selectedStatus);
+                    if (selectedWorkerId) params.append('workerId', selectedWorkerId);
+                    params.append('pageNo', pageNo);
+                    params.append('pageSize', pageSize);
+                    
+                    const baseUrl = window.location.pathname.split('/').slice(0, -1).join('/') || '.';
+                    window.location.href = `${baseUrl}/operator_repairlist?${params.toString()}`;
+                } catch (e) {
+                    console.error('提交失败:', e);
+                    window.location.reload();
                 }
-            });
-            
-            // 提交筛选条件到后端
-            function submitFiltersToServer() {
-                const searchTerm = searchInput.value.trim();
-                const selectedStatus = statusSelect.value;
-                const selectedWorkerId = workerSelect.value;
-                
-                // 构建查询参数
-                const params = new URLSearchParams();
-                if (searchTerm) params.append('search', searchTerm);
-                if (selectedStatus) params.append('status', selectedStatus);
-                if (selectedWorkerId) params.append('workerId', selectedWorkerId);
-                
-                // 跳转到筛选后的页面（GET请求）
-                window.location.href = `../wechatrp/operator_repairlist?${params.toString()}`;
             }
         });
     </script>

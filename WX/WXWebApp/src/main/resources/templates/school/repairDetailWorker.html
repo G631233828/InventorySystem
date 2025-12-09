@@ -45,6 +45,29 @@
             gap: 0.25rem;
         }
         
+        /* 优化：返回按钮样式（独立行+更小文字） */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f0f9ff;
+            color: #2563eb;
+            padding: 0.4rem 0.8rem; /* 缩小内边距 */
+            border-radius: 0.75rem;
+            font-weight: 500;
+            font-size: 0.75rem; /* 更小文字（12px） */
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            text-decoration: none; /* 去除a标签下划线 */
+            margin-bottom: 0.8rem; /* 与标题行保持间距 */
+        }
+        .back-btn:hover {
+            background-color: #e0efff;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1);
+        }
+        
         /* 模态框样式 */
         #imageModal, #completeModal {
             position: fixed;
@@ -210,7 +233,13 @@
         <!-- 添加openId隐藏域 -->
         <input type="hidden" id="openId" th:value="${openId}" />
         
-        <!-- 状态显示 -->
+        <!-- 核心修改：返回按钮独立一行（与标题不同行） -->
+        <a th:href="@{/wechatrp/operator_repairlist}" class="back-btn">
+            <i class="fa fa-arrow-left mr-1"></i> <!-- 缩小图标间距 -->
+            <span>返回列表</span>
+        </a>
+
+        <!-- 状态显示（标题+状态标签行，独立于返回按钮） -->
         <div class="flex justify-between items-start mb-6">
             <h1 class="text-xl font-bold text-gray-800">报修单详情</h1>
 
@@ -304,8 +333,8 @@
                 <i class="fa fa-picture-o mr-2 text-blue-500"></i>故障图片
             </div>
             <div class="value grid grid-cols-3 gap-2 mt-2">
-                <img th:each="photo : ${repair.photos}" 
-                     th:src="|@{/}${photo.savePath}/${photo.generateName}|" 
+                <img th:each="photo : ${repair?.photos}" 
+                     th:src="|@{/}${photo?.savePath}/comp_${photo?.generateName}|" 
                      th:alt="'故障图片 ' + ${photoStat.index + 1}" 
                      class="w-full h-24 object-cover rounded-md cursor-pointer hover:opacity-90 transition-opacity"
                      th:onclick="|openModal('@{/}${photo.savePath}/${photo.generateName}')|">

@@ -12,6 +12,14 @@ public class WxRepairExportDTO {
     @ColumnWidth(20)
     private String workOrderNumber;
 
+    @ExcelProperty("报修人")
+    @ColumnWidth(10)
+    private String userName;
+    
+    @ExcelProperty("报修人电话")
+    @ColumnWidth(20)
+    private String contactNumber;
+    
     @ExcelProperty("报修学校")
     @ColumnWidth(25)
     private String schoolName;
@@ -31,6 +39,11 @@ public class WxRepairExportDTO {
     @ExcelProperty("报修设备")
     @ColumnWidth(20)
     private String equipmentRepair;
+    
+    
+    @ExcelProperty("故障信息")
+    @ColumnWidth(20)
+    private String faultInformation;
 
     @ExcelProperty("紧急程度")
     @ColumnWidth(12)
@@ -55,4 +68,12 @@ public class WxRepairExportDTO {
     @ExcelProperty("维修内容")
     @ColumnWidth(30)
     private String repairContent;
+    
+    @ExcelProperty("维修完成时间")
+    @ColumnWidth(20)
+    private String completeTime;
+
+    
+    
+    
 }

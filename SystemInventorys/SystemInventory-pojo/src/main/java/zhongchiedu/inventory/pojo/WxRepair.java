@@ -42,6 +42,8 @@ public class WxRepair extends GeneralBean<WxRepair> {
 	
 	private String repairContent;//维修内容
 	
+	private String completeTime;//维修完成时间
+	
 	
 	
 	
