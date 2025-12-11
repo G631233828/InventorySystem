@@ -67,6 +67,9 @@ public class WxRepairServiceImpl extends GeneralServiceImpl<WxRepair> implements
 						Criteria.where("faultInformation").regex(search, "i"),
 						Criteria.where("reportClassroomRepair").regex(search, "i"),
 						Criteria.where("equipmentRepair").regex(search, "i"),
+						Criteria.where("equipmentYear").regex(search, "i"),
+						Criteria.where("repairContent").regex(search, "i"),
+						Criteria.where("workDept").regex(search, "i"),
 						Criteria.where("wxReporter.$id").in(findIdsBySearch)));
 			}
 
@@ -82,7 +85,12 @@ public class WxRepairServiceImpl extends GeneralServiceImpl<WxRepair> implements
 
 			// 4. 维修人员条件
 			if (Common.isNotEmpty(workerId)) {
-				query.addCriteria(Criteria.where("worker.$id").is(new ObjectId(workerId)));
+				if(workerId.equals("工程部")||workerId.equals("销售部")) {
+					query.addCriteria(Criteria.where("workDept").is(workerId));
+				}else {
+					query.addCriteria(Criteria.where("worker.$id").is(new ObjectId(workerId)));
+				}
+				
 			}
 
 			// 排序：按创建时间降序
@@ -416,6 +424,25 @@ public class WxRepairServiceImpl extends GeneralServiceImpl<WxRepair> implements
 		// 4. 保存修改
 		this.save(wxRepair);
 		return wxRepair;
+	}
+
+	@Override
+	public WxRepair cancelRepairToComplete(String repairId, String workDept) {
+		
+		WxRepair wxRepair = this.findOneById(repairId, WxRepair.class);
+		if (wxRepair == null) {
+			return null;
+		}
+		if (wxRepair.getStatus() == RepairStatus.COMPLETED.getCode()) {
+			throw new RuntimeException("订单已完成维修，无法取消！");
+		}
+		wxRepair.setWorker(null);
+		wxRepair.setWorkDept(workDept);
+		wxRepair.setStatus(RepairStatus.COMPLETED.getCode());
+		// 4. 保存修改
+		this.save(wxRepair);
+		return wxRepair;
+		
 	}
 
 }

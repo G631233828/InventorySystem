@@ -1,1466 +1,1529 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org"
-	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
-
-<head th:include="public/public_css::pub_css"></head>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
 <head>
-<meta charset="utf-8">
-<link rel="stylesheet" type="text/css"
-	th:href="@{/assets/js/progress-bar/number-pb.css}">
-<link th:href="@{/plugs/sweetalert/sweetalert.css}" rel="stylesheet">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>报修单管理</title>
+    <!-- 公共CSS -->
+    <th:block th:include="public/public_css::pub_css"></th:block>
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/js/progress-bar/number-pb.css}">
+    <link th:href="@{/plugs/sweetalert/sweetalert.css}" rel="stylesheet">
+    <link rel="shortcut icon" th:href="@{/assets/ico/minus.png}">
+    <style>
+        /* 可编辑单元格样式 */
+        .editable-td {
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .editable-td:hover {
+            background-color: #f5f5f5;
+        }
+        /* 编辑状态输入框样式 */
+        .edit-input {
+            padding: 2px 5px;
+            border: 1px solid #66afe9;
+            border-radius: 3px;
+            outline: none;
+        }
+        /* 提交按钮样式 */
+        .edit-submit-btn {
+            padding: 2px 8px !important;
+            line-height: 1.2 !important;
+            height: auto !important;
+            background-color: #337ab7 !important;
+            border-color: #2e6da4 !important;
+            color: white !important;
+            margin-left: 5px !important;
+        }
+        /* 搜索表单样式 */
+        .search-form {
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .search-form .form-group {
+            margin-bottom: 0;
+        }
 
-<link rel="shortcut icon" th:href="@{/assets/ico/minus.png}">
-<style>
-/* 原有样式不变，新增搜索表单样式 */
-.search-form {
-	margin-bottom: 10px;
-	padding: 8px 0;
-	border-bottom: 1px solid #eee;
-	display: flex;
-	align-items: center;
-	flex-wrap: wrap;
-	gap: 10px;
-}
+        /* 照片缩略图样式 */
+        .photo-thumbnail {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            cursor: pointer;
+            margin-right: 5px;
+            border: 1px solid #ddd;
+            padding: 2px;
+            transition: all 0.2s ease;
+        }
+        .photo-thumbnail:hover {
+            border-color: #66afe9;
+            box-shadow: 0 0 5px rgba(102, 175, 233, 0.6);
+        }
 
-.search-form .form-group {
-	margin-bottom: 0;
-}
+        /* 照片模态框优化 - 全屏显示 */
+        .photo-modal .modal-dialog {
+            width: 95%;
+            height: 95vh;
+            margin: 2.5vh auto;
+            max-width: none;
+        }
+        .photo-modal .modal-content {
+            height: 100%;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .photo-modal .modal-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            border-bottom: none;
+        }
+        .photo-modal .modal-header .close {
+            color: white;
+            opacity: 1;
+            font-size: 24px;
+        }
+        .photo-modal .modal-body {
+            height: 100%;
+            padding: 60px 20px 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            background-color: #000;
+            position: relative;
+        }
+        /* 图片容器 - 支持缩放和平移 */
+        .photo-viewer {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(1);
+            transform-origin: center center;
+            max-width: 100%;
+            max-height: 100%;
+            transition: transform 0.1s ease-out;
+            cursor: zoom-in;
+            user-select: none;
+        }
+        .photo-viewer.zoomed {
+            cursor: move;
+        }
+        .photo-viewer img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            display: block;
+        }
 
-.photo-thumbnail {
-	width: 50px;
-	height: 50px;
-	object-fit: cover;
-	cursor: pointer;
-	margin-right: 5px;
-	border: 1px solid #ddd;
-	padding: 2px;
-	transition: all 0.2s ease;
-}
+        /* 图片导航控制 */
+        .photo-navigation {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+        }
+        .nav-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            transition: all 0.2s ease;
+        }
+        .nav-btn:disabled {
+            background: rgba(0,0,0,0.3);
+            cursor: not-allowed;
+        }
+        .nav-btn:hover:not(:disabled) {
+            background: rgba(0,0,0,0.9);
+            transform: scale(1.1);
+        }
+        .photo-indicator {
+            color: white;
+            background: rgba(0,0,0,0.7);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
 
-.photo-thumbnail:hover {
-	border-color: #66afe9;
-	box-shadow: 0 0 5px rgba(102, 175, 233, 0.6);
-}
+        /* 缩放控制按钮 */
+        .zoom-controls {
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .zoom-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+        .zoom-btn:hover {
+            background: rgba(0,0,0,0.9);
+        }
 
-/* 照片模态框优化 - 全屏显示 */
-.photo-modal .modal-dialog {
-	width: 95%;
-	height: 95vh;
-	margin: 2.5vh auto;
-	max-width: none;
-}
+        /* 表格列样式 */
+        .repair-content, .fault-info, .repair-description {
+            white-space: normal;
+            word-wrap: break-word;
+            word-break: break-all;
+            max-width: none;
+        }
 
-.photo-modal .modal-content {
-	height: 100%;
-	border-radius: 4px;
-	overflow: hidden;
-}
+        /* 按钮容器布局 */
+        .btn-group-container {
+            margin-left: auto;
+            display: flex;
+            gap: 5px;
+        }
+        .column-setting-btn {
+            margin-left: 5px !important;
+        }
 
-.photo-modal .modal-header {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	z-index: 10;
-	background: rgba(0,0,0,0.7);
-	color: white;
-	border-bottom: none;
-}
+        /* 表格滚动容器 */
+        .table-scroll-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            width: 100%;
+            margin: 0 auto;
+            scrollbar-width: thin;
+            scrollbar-color: #888 #f1f1f1;
+        }
+        .table-scroll-container::-webkit-scrollbar {
+            height: 8px;
+        }
+        .table-scroll-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        .table-scroll-container::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        .table-scroll-container::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
 
-.photo-modal .modal-header .close {
-	color: white;
-	opacity: 1;
-	font-size: 24px;
-}
+        /* 表格基础样式 */
+        .table-scroll-container table {
+            width: 100%;
+            table-layout: auto;
+            min-width: max-content;
+            border-collapse: collapse;
+        }
+        .table-scroll-container table th,
+        .table-scroll-container table td {
+            vertical-align: middle;
+            overflow: visible;
+            text-overflow: clip;
+            padding: 8px 12px;
+        }
 
-/* 修复：改为relative定位，作为图片拖拽的容器 */
-.photo-modal .modal-body {
-	height: 100%;
-	padding: 60px 20px 80px;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	overflow: hidden;
-	background-color: #000;
-	position: relative; /* 新增：作为拖拽容器的父级 */
-}
+        /* 不换行列配置 */
+        .table-scroll-container table th[data-column-id="checkbox"],
+        .table-scroll-container table td[data-column-id="checkbox"],
+        .table-scroll-container table th[data-column-id="workOrderNumber"],
+        .table-scroll-container table td[data-column-id="workOrderNumber"],
+        .table-scroll-container table th[data-column-id="schoolName"],
+        .table-scroll-container table td[data-column-id="schoolName"],
+        .table-scroll-container table th[data-column-id="campus"],
+        .table-scroll-container table td[data-column-id="campus"],
+        .table-scroll-container table th[data-column-id="schoolAddress"],
+        .table-scroll-container table td[data-column-id="schoolAddress"],
+        .table-scroll-container table th[data-column-id="createTime"],
+        .table-scroll-container table td[data-column-id="createTime"],
+        .table-scroll-container table th[data-column-id="reportClassroomRepair"],
+        .table-scroll-container table td[data-column-id="reportClassroomRepair"],
+        .table-scroll-container table th[data-column-id="equipmentRepair"],
+        .table-scroll-container table td[data-column-id="equipmentRepair"],
+        .table-scroll-container table th[data-column-id="urgencyLevel"],
+        .table-scroll-container table td[data-column-id="urgencyLevel"],
+        .table-scroll-container table th[data-column-id="expectedVisitTime"],
+        .table-scroll-container table td[data-column-id="expectedVisitTime"],
+        .table-scroll-container table th[data-column-id="status"],
+        .table-scroll-container table td[data-column-id="status"],
+        .table-scroll-container table th[data-column-id="worker"],
+        .table-scroll-container table td[data-column-id="worker"],
+        .table-scroll-container table th[data-column-id="reporterName"],
+        .table-scroll-container table td[data-column-id="reporterName"],
+        .table-scroll-container table th[data-column-id="contactNumber"],
+        .table-scroll-container table td[data-column-id="contactNumber"],
+        .table-scroll-container table th[data-column-id="completeTime"],
+        .table-scroll-container table td[data-column-id="completeTime"],
+        .table-scroll-container table th[data-column-id="workDept"],
+        .table-scroll-container table td[data-column-id="workDept"] {
+            white-space: nowrap;
+            word-wrap: normal;
+            word-break: keep-all;
+        }
 
-/* 图片容器 - 支持缩放和平移（修复显示不全+拖拽） */
-.photo-viewer {
-	position: absolute; /* 改为absolute，方便拖拽计算 */
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%) scale(1); /* 初始居中 */
-	transform-origin: center center; /* 修复：缩放从中心开始 */
-	max-width: 100%;
-	max-height: 100%;
-	transition: transform 0.1s ease-out; /* 优化过渡效果 */
-	cursor: zoom-in;
-	user-select: none; /* 防止选中图片 */
-}
+        /* 维修内容/备注列 - 支持换行 */
+        .table-scroll-container table th[data-column-id="description"],
+        .table-scroll-container table td[data-column-id="description"],
+        .table-scroll-container table th[data-column-id="repairContent"],
+        .table-scroll-container table td[data-column-id="repairContent"] {
+            white-space: normal;
+            word-wrap: break-word;
+            word-break: break-all;
+            max-width: none;
+        }
 
-.photo-viewer.zoomed {
-	cursor: move; /* 放大后显示移动光标 */
-}
-
-.photo-viewer img {
-	max-width: 100%;
-	max-height: 100%;
-	object-fit: contain;
-	display: block; /* 修复图片底部空白 */
-}
-
-/* 图片导航控制 */
-.photo-navigation {
-	position: absolute;
-	bottom: 20px;
-	left: 0;
-	right: 0;
-	z-index: 10;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	gap: 20px;
-}
-
-.nav-btn {
-	width: 40px;
-	height: 40px;
-	border-radius: 50%;
-	background: rgba(0,0,0,0.7);
-	color: white;
-	border: none;
-	outline: none;
-	cursor: pointer;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	font-size: 18px;
-	transition: all 0.2s ease;
-}
-
-.nav-btn:disabled {
-	background: rgba(0,0,0,0.3);
-	cursor: not-allowed;
-}
-
-.nav-btn:hover:not(:disabled) {
-	background: rgba(0,0,0,0.9);
-	transform: scale(1.1);
-}
-
-/* 图片指示器 */
-.photo-indicator {
-	color: white;
-	background: rgba(0,0,0,0.7);
-	padding: 5px 15px;
-	border-radius: 20px;
-	font-size: 14px;
-}
-
-/* 缩放控制按钮 */
-.zoom-controls {
-	position: absolute;
-	top: 70px;
-	right: 20px;
-	z-index: 10;
-	display: flex;
-	flex-direction: column;
-	gap: 10px;
-}
-
-.zoom-btn {
-	width: 40px;
-	height: 40px;
-	border-radius: 50%;
-	background: rgba(0,0,0,0.7);
-	color: white;
-	border: none;
-	outline: none;
-	cursor: pointer;
-	font-size: 16px;
-	transition: all 0.2s ease;
-}
-
-.zoom-btn:hover {
-	background: rgba(0,0,0,0.9);
-}
-
-/* 维修内容：如需换行可保留，如需不换行可参考其他列 */
-.repair-content {
-	white-space: normal; /* 如需维修内容也不换行，改为 nowrap */
-	word-wrap: break-word;
-	word-break: break-all;
-	max-width: none;
-}
-
-/* 故障信息列样式（支持换行） */
-.fault-info {
-	white-space: normal;
-	word-wrap: break-word;
-	word-break: break-all;
-	max-width: none;
-}
-
-.checkbox-list .checkbox {
-	margin-bottom: 8px;
-}
-
-/* 按钮容器布局 */
-.btn-group-container {
-	margin-left: auto;
-	display: flex;
-	gap: 5px;
-}
-
-.column-setting-btn {
-	margin-left: 5px !important;
-}
-
-/* 表格左右滚动容器 - 强制显示横向滚动条（可选） */
-.table-scroll-container {
-	overflow-x: auto; /* 内容超宽时滚动 */
-	-webkit-overflow-scrolling: touch;
-	width: 100%;
-	margin: 0 auto;
-	scrollbar-width: thin;
-	scrollbar-color: #888 #f1f1f1;
-	/* 可选：强制显示滚动条（Chrome/Safari） */
-	overflow-x: scroll;
-}
-
-/* Chrome/Safari 自定义滚动条样式 */
-.table-scroll-container::-webkit-scrollbar {
-	height: 8px;
-}
-
-.table-scroll-container::-webkit-scrollbar-track {
-	background: #f1f1f1;
-	border-radius: 4px;
-}
-
-.table-scroll-container::-webkit-scrollbar-thumb {
-	background: #888;
-	border-radius: 4px;
-}
-
-.table-scroll-container::-webkit-scrollbar-thumb:hover {
-	background: #555;
-}
-
-/* 表格：固定列宽基础，确保不换行列足够宽 */
-.table-scroll-container table {
-	width: 100%;
-	table-layout: auto; /* 列宽自适应内容 */
-	min-width: max-content; /* 确保表格宽度至少容纳所有内容 */
-	border-collapse: collapse;
-}
-
-/* 通用单元格样式 */
-.table-scroll-container table th, 
-.table-scroll-container table td {
-	vertical-align: middle;
-	overflow: visible;
-	text-overflow: clip;
-	padding: 8px 12px;
-}
-
-/* 【关键】需要不换行的列：强制单行显示 */
-.table-scroll-container table th[data-column-id="checkbox"],
-.table-scroll-container table td[data-column-id="checkbox"],
-.table-scroll-container table th[data-column-id="workOrderNumber"],
-.table-scroll-container table td[data-column-id="workOrderNumber"],
-.table-scroll-container table th[data-column-id="schoolName"],
-.table-scroll-container table td[data-column-id="schoolName"],
-.table-scroll-container table th[data-column-id="campus"],
-.table-scroll-container table td[data-column-id="campus"],
-.table-scroll-container table th[data-column-id="schoolAddress"],
-.table-scroll-container table td[data-column-id="schoolAddress"],
-.table-scroll-container table th[data-column-id="createTime"],
-.table-scroll-container table td[data-column-id="createTime"],
-.table-scroll-container table th[data-column-id="reportClassroomRepair"],
-.table-scroll-container table td[data-column-id="reportClassroomRepair"],
-.table-scroll-container table th[data-column-id="equipmentRepair"],
-.table-scroll-container table td[data-column-id="equipmentRepair"],
-.table-scroll-container table th[data-column-id="urgencyLevel"],
-.table-scroll-container table td[data-column-id="urgencyLevel"],
-.table-scroll-container table th[data-column-id="expectedVisitTime"],
-.table-scroll-container table td[data-column-id="expectedVisitTime"],
-.table-scroll-container table th[data-column-id="status"],
-.table-scroll-container table td[data-column-id="status"],
-.table-scroll-container table th[data-column-id="worker"],
-.table-scroll-container table td[data-column-id="worker"],
-/* 新增列的不换行配置 */
-.table-scroll-container table th[data-column-id="reporterName"],
-.table-scroll-container table td[data-column-id="reporterName"],
-.table-scroll-container table th[data-column-id="contactNumber"],
-.table-scroll-container table td[data-column-id="contactNumber"],
-.table-scroll-container table th[data-column-id="completeTime"],
-.table-scroll-container table td[data-column-id="completeTime"] {
-	white-space: nowrap; /* 强制单行，不换行 */
-	word-wrap: normal; /* 取消自动换行 */
-	word-break: keep-all; /* 保留单词完整性，不截断 */
-}
-
-/* 列最小宽度（确保列基础宽度） */
-.table-scroll-container table th[data-column-id="checkbox"],
-.table-scroll-container table td[data-column-id="checkbox"] {
-	min-width: 40px !important;
-	text-align: center;
-	white-space: nowrap;
-}
-
-.table-scroll-container table th[data-column-id="workOrderNumber"],
-.table-scroll-container table td[data-column-id="workOrderNumber"] {
-	min-width: 120px;
-}
-
-.table-scroll-container table th[data-column-id="schoolName"],
-.table-scroll-container table td[data-column-id="schoolName"] {
-	min-width: 150px;
-}
-
-.table-scroll-container table th[data-column-id="campus"],
-.table-scroll-container table td[data-column-id="campus"] {
-	min-width: 100px;
-}
-
-.table-scroll-container table th[data-column-id="schoolAddress"],
-.table-scroll-container table td[data-column-id="schoolAddress"] {
-	min-width: 250px; /* 加宽基础宽度，适配长地址 */
-}
-
-/* 新增列的最小宽度配置 */
-.table-scroll-container table th[data-column-id="reporterName"],
-.table-scroll-container table td[data-column-id="reporterName"] {
-	min-width: 120px;
-}
-
-.table-scroll-container table th[data-column-id="contactNumber"],
-.table-scroll-container table td[data-column-id="contactNumber"] {
-	min-width: 130px;
-}
-
-.table-scroll-container table th[data-column-id="faultInformation"],
-.table-scroll-container table td[data-column-id="faultInformation"] {
-	min-width: 200px;
-}
-
-.table-scroll-container table th[data-column-id="createTime"],
-.table-scroll-container table td[data-column-id="createTime"] {
-	min-width: 180px;
-}
-
-.table-scroll-container table th[data-column-id="reportClassroomRepair"],
-.table-scroll-container table td[data-column-id="reportClassroomRepair"] {
-	min-width: 120px;
-}
-
-.table-scroll-container table th[data-column-id="equipmentRepair"],
-.table-scroll-container table td[data-column-id="equipmentRepair"] {
-	min-width: 120px;
-}
-
-.table-scroll-container table th[data-column-id="urgencyLevel"],
-.table-scroll-container table td[data-column-id="urgencyLevel"] {
-	min-width: 100px;
-}
-
-.table-scroll-container table th[data-column-id="expectedVisitTime"],
-.table-scroll-container table td[data-column-id="expectedVisitTime"] {
-	min-width: 180px;
-}
-
-.table-scroll-container table th[data-column-id="status"],
-.table-scroll-container table td[data-column-id="status"] {
-	min-width: 100px;
-}
-
-.table-scroll-container table th[data-column-id="reportPhotos"],
-.table-scroll-container table td[data-column-id="reportPhotos"] {
-	min-width: 100px;
-	white-space: nowrap;
-}
-
-.table-scroll-container table th[data-column-id="repairContent"],
-.table-scroll-container table td[data-column-id="repairContent"] {
-	min-width: 200px;
-}
-
-.table-scroll-container table th[data-column-id="repairPhotos"],
-.table-scroll-container table td[data-column-id="repairPhotos"] {
-	min-width: 100px;
-	white-space: nowrap;
-}
-
-.table-scroll-container table th[data-column-id="worker"],
-.table-scroll-container table td[data-column-id="worker"] {
-	min-width: 100px;
-}
-
-.table-scroll-container table th[data-column-id="completeTime"],
-.table-scroll-container table td[data-column-id="completeTime"] {
-	min-width: 180px;
-}
-
-.table-scroll-container table th[data-column-id="operation"],
-.table-scroll-container table td[data-column-id="operation"] {
-	min-width: 200px;
-	text-align: center;
-	white-space: nowrap; /* 操作按钮不换行 */
-}
-
-/* 响应式适配 */
-@media (max-width: 992px) {
-    .search-form {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    .btn-group-container {
-        margin-left: 0;
-        margin-top: 10px;
-        width: 100%;
-        justify-content: flex-start;
-    }
-    .photo-modal .modal-body {
-        padding: 50px 10px 70px;
-    }
-    .zoom-controls {
-        top: 60px;
-        right: 10px;
-    }
-    .nav-btn, .zoom-btn {
-        width: 35px;
-        height: 35px;
-        font-size: 14px;
-    }
-}
-</style>
+        /* 列最小宽度配置 */
+        .table-scroll-container table th[data-column-id="checkbox"],
+        .table-scroll-container table td[data-column-id="checkbox"] { min-width: 40px !important; text-align: center; }
+        .table-scroll-container table th[data-column-id="workOrderNumber"],
+        .table-scroll-container table td[data-column-id="workOrderNumber"] { min-width: 120px; }
+        .table-scroll-container table th[data-column-id="schoolName"],
+        .table-scroll-container table td[data-column-id="schoolName"] { min-width: 150px; }
+        .table-scroll-container table th[data-column-id="campus"],
+        .table-scroll-container table td[data-column-id="campus"] { min-width: 100px; }
+        .table-scroll-container table th[data-column-id="schoolAddress"],
+        .table-scroll-container table td[data-column-id="schoolAddress"] { min-width: 250px; }
+        .table-scroll-container table th[data-column-id="reporterName"],
+        .table-scroll-container table td[data-column-id="reporterName"] { min-width: 120px; }
+        .table-scroll-container table th[data-column-id="contactNumber"],
+        .table-scroll-container table td[data-column-id="contactNumber"] { min-width: 130px; }
+        .table-scroll-container table th[data-column-id="faultInformation"],
+        .table-scroll-container table td[data-column-id="faultInformation"] { min-width: 200px; }
+        .table-scroll-container table th[data-column-id="createTime"],
+        .table-scroll-container table td[data-column-id="createTime"] { min-width: 180px; }
+        .table-scroll-container table th[data-column-id="reportClassroomRepair"],
+        .table-scroll-container table td[data-column-id="reportClassroomRepair"] { min-width: 120px; }
+        .table-scroll-container table th[data-column-id="equipmentRepair"],
+        .table-scroll-container table td[data-column-id="equipmentRepair"] { min-width: 120px; }
+        .table-scroll-container table th[data-column-id="urgencyLevel"],
+        .table-scroll-container table td[data-column-id="urgencyLevel"] { min-width: 100px; }
+        .table-scroll-container table th[data-column-id="expectedVisitTime"],
+        .table-scroll-container table td[data-column-id="expectedVisitTime"] { min-width: 180px; }
+        .table-scroll-container table th[data-column-id="status"],
+        .table-scroll-container table td[data-column-id="status"] { min-width: 100px; }
+        .table-scroll-container table th[data-column-id="reportPhotos"],
+        .table-scroll-container table td[data-column-id="reportPhotos"] { min-width: 100px; white-space: nowrap; }
+        .table-scroll-container table th[data-column-id="repairContent"],
+        .table-scroll-container table td[data-column-id="repairContent"] { min-width: 200px; }
+        .table-scroll-container table th[data-column-id="repairPhotos"],
+        .table-scroll-container table td[data-column-id="repairPhotos"] { min-width: 100px; white-space: nowrap; }
+        .table-scroll-container table th[data-column-id="worker"],
+        .table-scroll-container table td[data-column-id="worker"] { min-width: 100px; }
+        .table-scroll-container table th[data-column-id="completeTime"],
+        .table-scroll-container table td[data-column-id="completeTime"] { min-width: 180px; }
+        .table-scroll-container table th[data-column-id="workDept"],
+        .table-scroll-container table td[data-column-id="workDept"] { min-width: 120px; }
+        .table-scroll-container table th[data-column-id="description"],
+        .table-scroll-container table td[data-column-id="description"] { min-width: 250px; } /* 加宽备注列 */
+        .table-scroll-container table th[data-column-id="operation"],
+        .table-scroll-container table td[data-column-id="operation"] { min-width: 200px; text-align: center; white-space: nowrap; }
+		.table-scroll-container table th[data-column-id="equipmentYear"],
+		.table-scroll-container table td[data-column-id="equipmentYear"] {   white-space: nowrap;    word-wrap: normal;    word-break: keep-all;}
+		.table-scroll-container table th[data-column-id="equipmentYear"],
+		.table-scroll-container table td[data-column-id="equipmentYear"] { min-width: 100px; }
+        /* 响应式适配 */
+        @media (max-width: 992px) {
+            .search-form {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .btn-group-container {
+                margin-left: 0;
+                margin-top: 10px;
+                width: 100%;
+                justify-content: flex-start;
+            }
+            .photo-modal .modal-body {
+                padding: 50px 10px 70px;
+            }
+            .zoom-controls {
+                top: 60px;
+                right: 10px;
+            }
+            .nav-btn, .zoom-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 14px;
+            }
+        }
+    </style>
 </head>
-
 <body>
-	<!-- Preloader -->
-	<div id="preloader">
-		<div id="status">&nbsp;</div>
-	</div>
-	<!-- TOP NAVBAR -->
-	<div th:replace="public/public::top"></div>
-	<!-- /END OF TOP NAVBAR -->
+<!-- Preloader -->
+<div id="preloader">
+    <div id="status">&nbsp;</div>
+</div>
 
-	<!-- SIDE MENU -->
-	<div th:replace="public/public::left(activeUri='repair')"></div>
-	<!-- END OF SIDE MENU -->
+<!-- TOP NAVBAR -->
+<div th:replace="public/public::top"></div>
 
-	<!--  PAPER WRAP -->
-	<div class="wrap-fluid">
-		<div class="container-fluid paper-wrap bevel tlbr">
-			<!-- CONTENT -->
-			<!--TITLE -->
-			<div
-				th:replace="public/public::title(title='报修单管理',subtitle='Repair Order Management')"></div>
-			<!--/ TITLE -->
+<!-- SIDE MENU -->
+<div th:replace="public/public::left(activeUri='repair')"></div>
 
-			<!-- BREADCRUMB -->
-			<div th:replace="public/public::menu(menu='报修单管理',submenu='报修单列表')"></div>
-			<!-- END OF BREADCRUMB -->
+<!-- PAPER WRAP -->
+<div class="wrap-fluid">
+    <div class="container-fluid paper-wrap bevel tlbr">
+        <!-- CONTENT -->
+        <!-- TITLE -->
+        <div th:replace="public/public::title(title='报修单管理',subtitle='Repair Order Management')"></div>
+        <!-- /TITLE -->
 
-			<div class="content-wrap">
-				<div class="row">
-					<div class="col-sm-12">
-						<div class="nest" id="tableStaticClose">
-							<div class="title-alt">
-								<!-- 搜索表单和按钮整合在同一行 -->
-								<form th:action="@{/wxRepairs}" method="get"
-									class="form-inline search-form">
-									<div class="form-group">
-										<label class="mr-2">模糊查询：</label> <input type="text"
-											name="search" th:value="${search}"
-											class="form-control input-sm" placeholder="工单号/学校/教室/设备/报修人..."
-											style="width: 200px;">
-									</div>
-									<div class="form-group ml-3">
-										<label class="mr-2">紧急程度：</label> <select name="urgencyLevel"
-											th:value="${urgencyLevel}" class="form-control input-sm">
-											<option value="">全部</option>
-											<option value="一般">一般</option>
-											<option value="紧急">紧急</option>
-											<option value="非常紧急">非常紧急</option>
-										</select>
-									</div>
-									<div class="form-group ml-3">
-										<label class="mr-2">维修状态：</label> <select name="status"
-											th:value="${status}" class="form-control input-sm">
-											<option value="">全部</option>
-											<option value="1">待处理</option>
-											<option value="2">已分配</option>
-											<option value="3">处理中</option>
-											<option value="4">已完成</option>
-											<option value="5">已取消</option>
-										</select>
-									</div>
-									<button type="submit" class="btn btn-default btn-sm ml-3">搜索</button>
-									<button type="button" onclick="resetSearch()"
-										class="btn btn-default btn-sm ml-2">重置</button>
-									
-									<!-- 操作按钮组放在重置按钮后面 -->
-									<div class="btn-group-container">
-										<shiro:hasPermission name="wxRepair:add">
-											<button type="button" class="btn btn-default btn-sm"
-												th:onclick="|window.location.href='@{/wxRepair}'|">
-												<i class="glyphicon glyphicon-plus"> </i> 添加报修单
-											</button>
-										</shiro:hasPermission>
+        <!-- BREADCRUMB -->
+        <div th:replace="public/public::menu(menu='报修单管理',submenu='报修单列表')"></div>
+        <!-- END OF BREADCRUMB -->
 
-										<shiro:hasPermission name="wxRepair:edit">
-											<button type="button" class="btn btn-primary btn-sm"
-												onclick="return toeditPage('','wxRepair')">
-												<i class="fa fa-edit"> </i>编辑
-											</button>
-										</shiro:hasPermission>
+        <div class="content-wrap">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="nest" id="tableStaticClose">
+                        <div class="title-alt">
+                            <!-- 搜索表单 - 新增维修人员筛选 -->
+                          <!-- 搜索表单 - 修复回显问题 -->
+<form th:action="@{/wxRepairs}" method="get" class="form-inline search-form">
+<div class="form-group">
+    <label class="mr-2">模糊查询：</label>
+    <input type="text" name="search" th:value="${search}"
+           class="form-control input-sm" placeholder="工单号/学校/教室/设备/设备年份/报修人/维修部门/备注..."
+           style="width: 200px;">
+</div>
+    <div class="form-group ml-3">
+        <label class="mr-2">紧急程度：</label>
+        <select name="urgencyLevel" class="form-control input-sm">
+            <option value="" th:selected="${urgencyLevel == null or urgencyLevel == ''}">全部</option>
+            <option value="一般" th:selected="${urgencyLevel == '一般'}">一般</option>
+            <option value="紧急" th:selected="${urgencyLevel == '紧急'}">紧急</option>
+            <option value="非常紧急" th:selected="${urgencyLevel == '非常紧急'}">非常紧急</option>
+        </select>
+    </div>
+    <div class="form-group ml-3">
+        <label class="mr-2">维修状态：</label>
+        <select name="status" class="form-control input-sm">
+            <option value="" th:selected="${status == null or status == ''}">全部</option>
+            <option value="1" th:selected="${status == 1}">待处理</option>
+            <option value="2" th:selected="${status == 2}">已分配</option>
+            <option value="3" th:selected="${status == 3}">处理中</option>
+            <option value="4" th:selected="${status == 4}">已完成</option>
+            <option value="5" th:selected="${status == 5}">已取消</option>
+        </select>
+    </div>
+    <!-- 新增：维修人员筛选（修复回显） -->
+    <div class="form-group ml-3">
+        <label class="mr-2">维修人员：</label>
+        <select name="workerId" class="form-control input-sm">
+            <option value="" th:selected="${workerId == null or workerId == ''}">全部</option>
+            <option th:each="worker:${workerList}" 
+                    th:value="${worker.id}" 
+                    th:text="|${worker.team}-${worker.name}|"
+                    th:selected="${workerId != null and worker.id == workerId}">
+            </option>
+            <option value="工程部"   th:selected="${workerId != null and '工程部' == workerId}">工程部</option>
+            <option value="销售部"   th:selected="${workerId != null and '销售部' == workerId}">销售部</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-default btn-sm ml-3">搜索</button>
+    <button type="button" onclick="resetSearch()" class="btn btn-default btn-sm ml-2">重置</button>
 
-										<shiro:hasPermission name="wxRepair:export">
-											<button type="button" class="btn btn-success btn-sm"
-												onclick="openExportModal()">
-												<i class="fa fa-download"> </i>导出
-											</button>
-										</shiro:hasPermission>
+    <!-- 操作按钮组 -->
+    <div class="btn-group-container">
+        <shiro:hasPermission name="wxRepair:add">
+            <button type="button" class="btn btn-default btn-sm"
+                    th:onclick="|window.location.href='@{/wxRepair}'|">
+                <i class="glyphicon glyphicon-plus"> </i> 添加报修单
+            </button>
+        </shiro:hasPermission>
 
-										<shiro:hasPermission name="wxRepair:delete">
-											<button type="button" class="btn btn-danger btn-sm"
-												th:onclick="|return del('','@{/wxRepair/}')|">
-												<i class="fa fa-trash-o"> </i>删除
-											</button>
-										</shiro:hasPermission>
+        <shiro:hasPermission name="wxRepair:edit">
+            <button type="button" class="btn btn-primary btn-sm"
+                    onclick="return toeditPage('','wxRepair')">
+                <i class="fa fa-edit"> </i>编辑
+            </button>
+        </shiro:hasPermission>
 
-										<button type="button" class="btn btn-default btn-sm column-setting-btn"
-											onclick="openColumnSetting()">
-											<i class="fa fa-cog"> </i>列设置
-										</button>
-									</div>
-								</form>
+        <shiro:hasPermission name="wxRepair:export">
+            <button type="button" class="btn btn-success btn-sm"
+                    onclick="openExportModal()">
+                <i class="fa fa-download"> </i>导出
+            </button>
+        </shiro:hasPermission>
 
-								<div class="titleClose">
-									<a class="gone" href="#tableStaticClose"> <span
-										class="entypo-cancel"></span>
-									</a>
-								</div>
-								<div class="titleToggle">
-									<a class="nav-toggle-alt" href="#tableStatic"> <span
-										class="entypo-up-open"></span>
-									</a>
-								</div>
-							</div>
+        <shiro:hasPermission name="wxRepair:delete">
+            <button type="button" class="btn btn-danger btn-sm"
+                    th:onclick="|return del('','@{/wxRepair/}')|">
+                <i class="fa fa-trash-o"> </i>删除
+            </button>
+        </shiro:hasPermission>
 
-							<div class="body-nest" id="tableStatic">
-								<!-- 表格滚动容器：内容超宽时滚动 -->
-								<div class="table-scroll-container">
-									<section id="flip-scroll">
-										<table class="table table-bordered table-striped cf">
-											<thead class="cf">
-												<tr>
-													<th class="numeric" data-column-id="checkbox">
-														<div class="checkbox checkbox-inline"
-															style="margin-top: 0px;">
-															<input type="checkbox" id="checkall" name="checkall" />
-															<label for="checkall"></label>
-														</div>
-													</th>
-													<th class="numeric" data-column-id="workOrderNumber">工单号</th>
-													<th class="numeric" data-column-id="schoolName">报修学校</th>
-													<th class="numeric" data-column-id="campus">报修校区</th>
-													<th class="numeric" data-column-id="schoolAddress">报修地址</th>
-													<th class="numeric" data-column-id="reporterName">报修人</th>
-													<th class="numeric" data-column-id="contactNumber">联系电话</th>
-													<th class="numeric" data-column-id="faultInformation">故障信息</th>
-													<th class="numeric" data-column-id="createTime">提交时间</th>
-													<th class="numeric" data-column-id="reportClassroomRepair">报修教室</th>
-													<th class="numeric" data-column-id="equipmentRepair">报修设备</th>
-													<th class="numeric" data-column-id="urgencyLevel">紧急程度</th>
-													<th class="numeric" data-column-id="expectedVisitTime">期望完成时间</th>
-													<th class="numeric" data-column-id="status">维修状态</th>
-													<th class="numeric" data-column-id="reportPhotos">报修照片</th>
-													<th class="numeric" data-column-id="repairContent">维修内容</th>
-													<th class="numeric" data-column-id="repairPhotos">维修完成照片</th>
-													<th class="numeric" data-column-id="worker">维修人员</th>
-													<th class="numeric" data-column-id="completeTime">维修完成时间</th>
-													<th class="numeric" data-column-id="operation">操作</th>
-												</tr>
-											</thead>
-											<tbody>
-												<tr th:each="wxRepair:${pageList.datas}">
-													<td class="numeric" data-column-id="checkbox">
-														<div class="checkbox checkbox-inline"
-															style="margin-top: 0px;">
-															<input type="checkbox" name="ids" th:id="${wxRepair.id}"
-																class="numeric" th:value="${wxRepair.id}"> <label
-																th:for="${wxRepair.id}"></label>
-														</div>
-													</td>
-													<td class="numeric" data-column-id="workOrderNumber">[[${wxRepair.workOrderNumber}]]</td>
-													<!-- 报修学校：从wxReporter获取，判空 -->
-													<td class="numeric" data-column-id="schoolName">[[${wxRepair.wxReporter?.schoolName
-														?: '无'}]]</td>
-													<!-- 报修校区 -->
-													<td class="numeric" data-column-id="campus">[[${wxRepair.wxReporter?.campus
-														?: '无'}]]</td>
-													<!-- 报修地址 -->
-													<td class="numeric" data-column-id="schoolAddress">[[${wxRepair.wxReporter?.schoolAddress
-														?: '无'}]]</td>
-													<!-- 新增：报修人 -->
-													<td class="numeric" data-column-id="reporterName">[[${wxRepair.wxReporter?.userName
-														?: '无'}]]</td>
-													<!-- 新增：联系电话 -->
-													<td class="numeric" data-column-id="contactNumber">[[${wxRepair.wxReporter?.contactNumber
-														?: '无'}]]</td>
-													<!-- 新增：故障信息 -->
-													<td class="numeric fault-info" data-column-id="faultInformation">[[${wxRepair.faultInformation ?: '无'}]]</td>
-													<!-- 提交时间 -->
-													<td class="numeric" data-column-id="createTime">
-														[[${#dates.format(wxRepair.createTime, 'yyyy-MM-dd
-														HH:mm:ss') ?: '无'}]]</td>
-													<!-- 报修教室 -->
-													<td class="numeric" data-column-id="reportClassroomRepair">[[${wxRepair.reportClassroomRepair}]]</td>
-													<!-- 报修设备 -->
-													<td class="numeric" data-column-id="equipmentRepair">[[${wxRepair.equipmentRepair}]]</td>
-													<!-- 紧急程度 -->
-													<td class="numeric" data-column-id="urgencyLevel">[[${wxRepair.urgencyLevel}]]</td>
-													<!-- 期望完成时间 -->
-													<td class="numeric" data-column-id="expectedVisitTime">
-														[[${#dates.format(wxRepair.expectedVisitTime,
-														'yyyy-MM-dd') ?: '无'}]]</td>
-													<!-- 维修状态 -->
-													<td class="numeric" data-column-id="status"><span
-														th:switch="${wxRepair.status}"> <span th:case="1"
-															class="label label-primary">待处理</span> <span th:case="2"
-															class="label label-warning">已分配</span> <span th:case="3"
-															class="label label-info">处理中</span> <span th:case="4"
-															class="label label-success">已完成</span> <span th:case="5"
-															class="label label-default">已取消</span>
-													</span></td>
-													<!-- 报修照片 -->
-													<td class="numeric" data-column-id="reportPhotos">
-														<div
-															th:if="${wxRepair.photos != null and not #lists.isEmpty(wxRepair.photos)}">
-															<!-- 缩略图添加comp_前缀 -->
-															<img th:each="photo :${wxRepair.photos}"
-																th:src="@{|${photo.savePath}comp_${photo.generateName}|}"
-																class="photo-thumbnail"
-																th:onclick="|showPhotos('${wxRepair.id}', 'report', ${photoStat.index})|" 
-																th:alt="|报修照片-${photo.generateName}|"/>
-														</div> <span
-														th:unless="${wxRepair.photos != null and not #lists.isEmpty(wxRepair.photos)}">无</span>
-													</td>
-													<!-- 维修内容 -->
-													<td class="numeric repair-content"
-														data-column-id="repairContent">
-														[[${wxRepair.repairContent ?: '无'}]]</td>
-													<!-- 维修完成照片 -->
-													<td class="numeric" data-column-id="repairPhotos">
-														<div
-															th:if="${wxRepair.repairPhotos != null and not #lists.isEmpty(wxRepair.repairPhotos)}">
-															<!-- 缩略图添加comp_前缀 -->
-															<img th:each="photo :${wxRepair.repairPhotos}"
-																th:src="@{|${photo.savePath}comp_${photo.generateName}|}"
-																class="photo-thumbnail"
-																th:onclick="|showPhotos('${wxRepair.id}', 'repair', ${photoStat.index})|"
-																th:alt="|维修完成照片-${photo.generateName}|"/>
-														</div> <span
-														th:unless="${wxRepair.repairPhotos != null and not #lists.isEmpty(wxRepair.repairPhotos)}">无</span>
-													</td>
-													<!-- 维修人员 -->
-													<td class="numeric" data-column-id="worker"
-														th:text="${wxRepair.worker?.name ?: '未分配'}"></td>
-													<!-- 新增：维修完成时间 -->
-													<td class="numeric" data-column-id="completeTime">[[${wxRepair.completeTime ?: '无'}]]</td>
-													<!-- 操作列 -->
-													<td class="numeric" data-column-id="operation">
-														<shiro:hasPermission name="wxRepair:edit">
-															<button class="btn btn-primary btn-xs"
-																th:onclick="|return toeditPage('${wxRepair.id}','wxRepair')|">
-																<i class="fa fa-edit"> </i>编辑
-															</button>
-														</shiro:hasPermission>
-													
-														<shiro:hasPermission name="wxRepair:assign">
-															<button class="btn btn-info btn-xs"
-																th:if="${wxRepair.status == 1}"
-																th:onclick="|assignWorkerModal('${wxRepair.id}')|">
-																<i class="fa fa-user-plus"> </i>分配
-															</button>
-															<!-- 取消分配按钮：仅状态为已分配（2）时显示 -->
-															<button class="btn btn-warning btn-xs" th:if="${wxRepair.status == 2}"
-																th:onclick="|showConfirmModal('cancelAssign', '${wxRepair.id}')|">
-																<i class="fa fa-user-times"> </i>取消分配
-															</button>
-														</shiro:hasPermission>
-														<shiro:hasPermission name="wxRepair:cancel">
-															<!-- 维修取消按钮：状态为待处理（1）、已分配（2）、处理中（3）时显示 -->
-															<button class="btn btn-default btn-xs" 
-																th:if="${wxRepair.status == 1 or wxRepair.status == 2 or wxRepair.status == 3}"
-																th:onclick="|showConfirmModal('cancelRepair', '${wxRepair.id}')|">
-																<i class="fa fa-ban"> </i>维修取消
-															</button>
-														</shiro:hasPermission>
-														<shiro:hasPermission name="wxRepair:delete">
-															<button class="btn btn-danger btn-xs"
-																th:onclick="|return del('@{/wxRepair/}${wxRepair.id}','')|">
-																<i class="fa fa-trash-o"> </i>删除
-															</button>
-														</shiro:hasPermission>
-													</td>
-												</tr>
-											</tbody>
-										</table>
-									</section>
-								</div>
+        <button type="button" class="btn btn-default btn-sm column-setting-btn"
+                onclick="openColumnSetting()">
+            <i class="fa fa-cog"> </i>列设置
+        </button>
+    </div>
+</form>
 
-								<form method="post" id="deleteForm">
-									<input name="_method" value="delete" type="hidden">
-								</form>
+                            <div class="titleClose">
+                                <a class="gone" href="#tableStaticClose"> <span class="entypo-cancel"></span> </a>
+                            </div>
+                            <div class="titleToggle">
+                                <a class="nav-toggle-alt" href="#tableStatic"> <span class="entypo-up-open"></span> </a>
+                            </div>
+                        </div>
 
-								<div class="row">
-									<div class="col-md-12">
-										<div class="col-md-6">
-											<div class="dataTables_info hidden-xs"
-												style="margin-top: 0px;" role="status" aria-live="polite"
-												th:text="|每页显示${pageList.pageSize}行
-										－ 当前页${pageList.pageNo}页 － 共${pageList.totalPage}页|"></div>
-										</div>
-										<div class="col-md-6">
-											<ul class="pagination pagination-split pull-right"
-												style="margin-top: 0px;">
-												<li th:class="${pageList.pageNo } eq 1 ?disabled:''"><a
-													th:href="@{/wxRepairs(pageNo=${pageList.upPage},search=${search},status=${status},urgencyLevel=${urgencyLevel},workerId=${workerId})}">上一页</a>
-												</li>
-												<li th:each="page:${pageList.navigatepageNums}"
-													th:class="${page  == pageList.pageNo}?active:''"><a
-													th:href="@{/wxRepairs(pageNo=${page},search=${search},status=${status},urgencyLevel=${urgencyLevel},workerId=${workerId})}">[[${page}]]</a>
-												</li>
-												<li
-													th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
-													<a
-													th:href="@{/wxRepairs(pageNo=${pageList.nextPage},search=${search},status=${status},urgencyLevel=${urgencyLevel},workerId=${workerId})}">下一页</a>
-												</li>
-											</ul>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
+                        <div class="body-nest" id="tableStatic">
+                            <!-- 表格滚动容器 -->
+                            <div class="table-scroll-container">
+                                <section id="flip-scroll">
+                                    <table class="table table-bordered table-striped cf">
+                                        <thead class="cf">
+                                        <tr>
+                                            <th class="numeric" data-column-id="checkbox">
+                                                <div class="checkbox checkbox-inline" style="margin-top: 0px;">
+                                                    <input type="checkbox" id="checkall" name="checkall" />
+                                                    <label for="checkall"></label>
+                                                </div>
+                                            </th>
+                                            <th class="numeric" data-column-id="workOrderNumber">工单号</th>
+                                            <th class="numeric" data-column-id="schoolName">报修学校</th>
+                                            <th class="numeric" data-column-id="campus">报修校区</th>
+                                            <th class="numeric" data-column-id="schoolAddress">报修地址</th>
+                                            <th class="numeric" data-column-id="reporterName">报修人</th>
+                                            <th class="numeric" data-column-id="contactNumber">联系电话</th>
+                                            <th class="numeric" data-column-id="faultInformation">故障信息</th>
+                                            <th class="numeric" data-column-id="createTime">提交时间</th>
+                                            <th class="numeric" data-column-id="reportClassroomRepair">报修教室</th>
+                                            <th class="numeric" data-column-id="equipmentRepair">报修设备</th>
+                                            <th class="numeric" data-column-id="equipmentYear">设备年份</th>
+                                            <th class="numeric" data-column-id="urgencyLevel">紧急程度</th>
+                                            <th class="numeric" data-column-id="expectedVisitTime">期望完成时间</th>
+                                            <th class="numeric" data-column-id="status">维修状态</th>
+                                            <th class="numeric" data-column-id="reportPhotos">报修照片</th>
+                                            <th class="numeric" data-column-id="repairContent">维修内容</th>
+                                            <th class="numeric" data-column-id="repairPhotos">维修完成照片</th>
+                                            <th class="numeric" data-column-id="worker">维修人员</th>
+                                            <th class="numeric" data-column-id="completeTime">维修完成时间</th>
+                                            <th class="numeric" data-column-id="workDept">维修部门</th>
+                                            <th class="numeric" data-column-id="description">维修备注</th>
+                                            <th class="numeric" data-column-id="operation">操作</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr th:each="wxRepair:${pageList.datas}">
+                                            <td class="numeric" data-column-id="checkbox">
+                                                <div class="checkbox checkbox-inline" style="margin-top: 0px;">
+                                                    <input type="checkbox" name="ids" th:id="${wxRepair.id}"
+                                                           class="numeric" th:value="${wxRepair.id}">
+                                                    <label th:for="${wxRepair.id}"></label>
+                                                </div>
+                                            </td>
+                                            <td class="numeric" data-column-id="workOrderNumber">[[${wxRepair.workOrderNumber}]]</td>
+                                            
+                                            <!-- 可编辑列：报修学校 -->
+                                            <td class="numeric editable-td"
+                                                data-column-id="schoolName"
+                                                th:data-reporter-id="${wxRepair.wxReporter?.openId ?: ''}"
+                                                data-field="schoolName">
+                                                [[${wxRepair.wxReporter?.schoolName ?: '无'}]]
+                                            </td>
+                                            
+                                            <!-- 可编辑列：报修校区 -->
+                                            <td class="numeric editable-td"
+                                                data-column-id="campus"
+                                                th:data-reporter-id="${wxRepair.wxReporter?.openId ?: ''}"
+                                                data-field="campus">
+                                                [[${wxRepair.wxReporter?.campus ?: '无'}]]
+                                            </td>
+                                            
+                                            <!-- 可编辑列：报修地址 -->
+                                            <td class="numeric editable-td"
+                                                data-column-id="schoolAddress"
+                                                th:data-reporter-id="${wxRepair.wxReporter?.openId ?: ''}"
+                                                data-field="schoolAddress">
+                                                [[${wxRepair.wxReporter?.schoolAddress ?: '无'}]]
+                                            </td>
+                                            
+                                            <!-- 可编辑列：报修人 -->
+                                            <td class="numeric editable-td"
+                                                data-column-id="reporterName"
+                                                th:data-reporter-id="${wxRepair.wxReporter?.openId ?: ''}"
+                                                data-field="userName">
+                                                [[${wxRepair.wxReporter?.userName ?: '无'}]]
+                                            </td>
+                                            
+                                            <!-- 可编辑列：联系电话 -->
+                                            <td class="numeric editable-td"
+                                                data-column-id="contactNumber"
+                                                th:data-reporter-id="${wxRepair.wxReporter?.openId ?: ''}"
+                                                data-field="contactNumber">
+                                                [[${wxRepair.wxReporter?.contactNumber ?: '无'}]]
+                                            </td>
+                                            
+                                            <td class="numeric fault-info" data-column-id="faultInformation">[[${wxRepair.faultInformation ?: '无'}]]</td>
+                                            <td class="numeric" data-column-id="createTime">
+                                                [[${#dates.format(wxRepair.createTime, 'yyyy-MM-dd HH:mm:ss') ?: '无'}]]
+                                            </td>
+                                            <td class="numeric" data-column-id="reportClassroomRepair">[[${wxRepair.reportClassroomRepair ?: '无'}]]</td>
+                                            <td class="numeric" data-column-id="equipmentRepair">[[${wxRepair.equipmentRepair ?: '无'}]]</td>
+                                            <td class="numeric" data-column-id="equipmentYear">[[${wxRepair.equipmentYear ?: '无'}]]</td>
+                                            <td class="numeric" data-column-id="urgencyLevel">[[${wxRepair.urgencyLevel ?: '无'}]]</td>
+                                            <td class="numeric" data-column-id="expectedVisitTime">
+                                                [[${#dates.format(wxRepair.expectedVisitTime, 'yyyy-MM-dd') ?: '无'}]]
+                                            </td>
+                                            <td class="numeric" data-column-id="status">
+                                                <span th:switch="${wxRepair.status}">
+                                                    <span th:case="1" class="label label-primary">待处理</span>
+                                                    <span th:case="2" class="label label-warning">已分配</span>
+                                                    <span th:case="3" class="label label-info">处理中</span>
+                                                    <span th:case="4" class="label label-success">已完成</span>
+                                                    <span th:case="5" class="label label-default">已取消</span>
+                                                </span>
+                                            </td>
+                                            <td class="numeric" data-column-id="reportPhotos">
+                                                <div th:if="${wxRepair.photos != null and not #lists.isEmpty(wxRepair.photos)}">
+                                                    <img th:each="photo :${wxRepair.photos}"
+                                                         th:src="@{|${photo.savePath}comp_${photo.generateName}|}"
+                                                         class="photo-thumbnail"
+                                                         th:onclick="|showPhotos('${wxRepair.id}', 'report', ${photoStat.index})|"
+                                                         th:alt="|报修照片-${photo.generateName}|"/>
+                                                </div>
+                                                <span th:unless="${wxRepair.photos != null and not #lists.isEmpty(wxRepair.photos)}">无</span>
+                                            </td>
+                                            <td class="numeric repair-content" data-column-id="repairContent">
+                                                [[${wxRepair.repairContent ?: '无'}]]
+                                            </td>
+                                            <td class="numeric" data-column-id="repairPhotos">
+                                                <div th:if="${wxRepair.repairPhotos != null and not #lists.isEmpty(wxRepair.repairPhotos)}">
+                                                    <img th:each="photo :${wxRepair.repairPhotos}"
+                                                         th:src="@{|${photo.savePath}comp_${photo.generateName}|}"
+                                                         class="photo-thumbnail"
+                                                         th:onclick="|showPhotos('${wxRepair.id}', 'repair', ${photoStat.index})|"
+                                                         th:alt="|维修完成照片-${photo.generateName}|"/>
+                                                </div>
+                                                <span th:unless="${wxRepair.repairPhotos != null and not #lists.isEmpty(wxRepair.repairPhotos)}">无</span>
+                                            </td>
+                                            <td class="numeric" data-column-id="worker" th:text="${wxRepair.worker?.name ?: '未分配'}"></td>
+                                            <td class="numeric" data-column-id="completeTime">
+                                                [[${wxRepair?.completeTime != null ? wxRepair.completeTime : '未完成'}]]
+                                            </td>
+                                            <!-- 维修部门显示 - 优化空值处理 -->
+                                            <td class="numeric" data-column-id="workDept">
+                                                [[${#strings.isEmpty(wxRepair?.workDept) ? '无' : wxRepair.workDept}]]
+                                            </td>
+                                            <!-- 维修备注显示 - 优化样式和空值处理 -->
+                                            <td class="numeric" data-column-id="description">
+                                                [[${#strings.isEmpty(wxRepair?.description) ? '无' : wxRepair.description}]]
+                                            </td>
+                                            <td class="numeric" data-column-id="operation">
+                                                <shiro:hasPermission name="wxRepair:edit">
+                                                    <button class="btn btn-primary btn-xs"
+                                                            th:onclick="|return toeditPage('${wxRepair.id}','wxRepair')|">
+                                                        <i class="fa fa-edit"> </i>编辑
+                                                    </button>
+                                                </shiro:hasPermission>
 
-			<!-- 分配维修人员模态框 -->
-			<div class="modal fade" id="assignWorkerModal" tabindex="-1"
-				role="dialog" aria-labelledby="assignWorkerModalLabel">
-				<div class="modal-dialog" role="document">
-					<div class="modal-content">
-						<div class="modal-header">
-							<button type="button" class="close" data-dismiss="modal"
-								aria-label="Close">
-								<span aria-hidden="true">&times;</span>
-							</button>
-							<h4 class="modal-title" id="assignWorkerModalLabel">分配维修人员</h4>
-						</div>
-						<div class="modal-body">
-							<input type="hidden" id="repairId" value="">
-							<div class="form-group">
-								<label>选择维修人员</label> <select id="workerId" class="form-control">
-									<option value="">--请选择--</option>
-									<option th:each="worker:${workerList}" th:value="${worker.id}"
-										th:text="|${worker.team}-${worker.name}|"></option>
-								</select>
-							</div>
-						</div>
-						<div class="modal-footer">
-							<button type="button" class="btn btn-default"
-								data-dismiss="modal">取消</button>
-							<button type="button" class="btn btn-primary"
-								onclick="submitAssignWorker()">确认分配</button>
-						</div>
-					</div>
-				</div>
-			</div>
+                                                <shiro:hasPermission name="wxRepair:assign">
+                                                    <button class="btn btn-success btn-xs"
+                                                           th:if="${wxRepair.status == 2 or wxRepair.status == 3 or wxRepair.status == 1}"
+                                                            th:onclick="|completeRepairModal('${wxRepair.id}')|">
+                                                        <i class="fa fa-check-circle"> </i>直接完成
+                                                    </button>
+                                                    <button class="btn btn-info btn-xs"
+                                                            th:if="${wxRepair.status == 1}"
+                                                            th:onclick="|assignWorkerModal('${wxRepair.id}')|">
+                                                        <i class="fa fa-user-plus"> </i>分配
+                                                    </button>
+                                                    <button class="btn btn-warning btn-xs" th:if="${wxRepair.status == 2}"
+                                                            th:onclick="|showConfirmModal('cancelAssign', '${wxRepair.id}')|">
+                                                        <i class="fa fa-user-times"> </i>取消分配
+                                                    </button>
+                                                </shiro:hasPermission>
+                                                <shiro:hasPermission name="wxRepair:cancel">
+                                                    <button class="btn btn-default btn-xs"
+                                                            th:if="${wxRepair.status == 1 or wxRepair.status == 2 or wxRepair.status == 3}"
+                                                            th:onclick="|showConfirmModal('cancelRepair', '${wxRepair.id}')|">
+                                                        <i class="fa fa-ban"> </i>维修取消
+                                                    </button>
+                                                </shiro:hasPermission>
+                                                <shiro:hasPermission name="wxRepair:delete">
+                                                    <button class="btn btn-danger btn-xs"
+                                                            th:onclick="|return del('@{/wxRepair/}${wxRepair.id}','')|">
+                                                        <i class="fa fa-trash-o"> </i>删除
+                                                    </button>
+                                                </shiro:hasPermission>
+                                            </td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </section>
+                            </div>
 
-			<!-- 操作确认模态框 -->
-			<div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel">
-			    <div class="modal-dialog" role="document">
-			        <div class="modal-content">
-			            <div class="modal-header">
-			                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-			                    <span aria-hidden="true">&times;</span>
-			                </button>
-			                <h4 class="modal-title" id="confirmModalLabel">操作确认</h4>
-			            </div>
-			            <div class="modal-body" id="confirmContent">
-			                确定要执行此操作吗？
-			            </div>
-			            <div class="modal-footer">
-			                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-			                <button type="button" class="btn btn-primary" id="confirmBtn">确认</button>
-			            </div>
-			        </div>
-			    </div>
-			</div>
+                            <!-- 删除表单 -->
+                            <form method="post" id="deleteForm">
+                                <input name="_method" value="delete" type="hidden">
+                            </form>
 
-			<!-- 照片查看模态框（增强版） -->
-			<div class="modal fade photo-modal" id="photoViewModal" tabindex="-1"
-				role="dialog" aria-labelledby="photoViewModalLabel">
-				<div class="modal-dialog modal-lg" role="document">
-					<div class="modal-content">
-						<div class="modal-header">
-							<button type="button" class="close" data-dismiss="modal"
-								aria-label="Close">
-								<span aria-hidden="true">&times;</span>
-							</button>
-							<h4 class="modal-title" id="photoViewModalLabel">照片查看</h4>
-						</div>
-						<div class="modal-body">
-							<!-- 缩放控制按钮 -->
-							<div class="zoom-controls">
-								<button class="zoom-btn" id="zoomInBtn" title="放大">+</button>
-								<button class="zoom-btn" id="zoomOutBtn" title="缩小">-</button>
-								<button class="zoom-btn" id="zoomResetBtn" title="重置">⟳</button>
-							</div>
-							
-							<!-- 图片查看容器 -->
-							<div class="photo-viewer" id="photoViewer">
-								<img id="currentPhoto" src="" alt="照片预览" class="img-responsive">
-							</div>
-							
-							<!-- 图片导航控制 -->
-							<div class="photo-navigation">
-								<button class="nav-btn" id="prevBtn" title="上一张">←</button>
-								<div class="photo-indicator" id="photoIndicator">1/1</div>
-								<button class="nav-btn" id="nextBtn" title="下一张">→</button>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
+                            <!-- 分页 -->
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="col-md-6">
+                                        <div class="dataTables_info hidden-xs" style="margin-top: 0px;" role="status" aria-live="polite"
+                                             th:text="|每页显示${pageList.pageSize}行 － 当前页${pageList.pageNo}页 － 共${pageList.totalPage}页|"></div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <ul class="pagination pagination-split pull-right" style="margin-top: 0px;">
+                                            <li th:class="${pageList.pageNo } eq 1 ?disabled:''">
+                                                <a th:href="@{/wxRepairs(pageNo=${pageList.upPage},search=${search},status=${status},urgencyLevel=${urgencyLevel},workerId=${workerId})}">上一页</a>
+                                            </li>
+                                            <li th:each="page:${pageList.navigatepageNums}" th:class="${page  == pageList.pageNo}?active:''">
+                                                <a th:href="@{/wxRepairs(pageNo=${page},search=${search},status=${status},urgencyLevel=${urgencyLevel},workerId=${workerId})}">[[${page}]]</a>
+                                            </li>
+                                            <li th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
+                                                <a th:href="@{/wxRepairs(pageNo=${pageList.nextPage},search=${search},status=${status},urgencyLevel=${urgencyLevel},workerId=${workerId})}">下一页</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-			<!-- 列设置模态框 -->
-			<div class="modal fade" id="columnSettingModal" tabindex="-1"
-				role="dialog" aria-labelledby="columnSettingModalLabel">
-				<div class="modal-dialog" role="document">
-					<div class="modal-content">
-						<div class="modal-header">
-							<button type="button" class="close" data-dismiss="modal"
-								aria-label="Close">
-								<span aria-hidden="true">&times;</span>
-							</button>
-							<h4 class="modal-title" id="columnSettingModalLabel">自定义列显示</h4>
-						</div>
-						<div class="modal-body">
-							<div id="columnCheckboxes" class="checkbox-list">
-								<!-- 动态生成列复选框 -->
-							</div>
-						</div>
-						<div class="modal-footer">
-							<button type="button" class="btn btn-default"
-								data-dismiss="modal">取消</button>
-							<button type="button" class="btn btn-primary"
-								onclick="saveColumnSettings()">保存设置</button>
-						</div>
-					</div>
-				</div>
-			</div>
-			
-			<!-- 导出筛选模态框 -->
-			<div class="modal fade" id="exportModal" tabindex="-1" role="dialog" aria-labelledby="exportModalLabel">
-			    <div class="modal-dialog" role="document">
-			        <div class="modal-content">
-			            <div class="modal-header">
-			                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-			                    <span aria-hidden="true">&times;</span>
-			                </button>
-			                <h4 class="modal-title" id="exportModalLabel">导出数据筛选</h4>
-			            </div>
-			            <div class="modal-body">
-			                <form id="exportForm">
-			                    <div class="form-group">
-			                        <label>报修日期范围：</label>
-			                        <div class="row">
-			                            <div class="col-md-6">
-			                                <input type="date" name="startTime" class="form-control" placeholder="开始日期">
-			                            </div>
-			                            <div class="col-md-6">
-			                                <input type="date" name="endTime" class="form-control" placeholder="结束日期">
-			                            </div>
-			                        </div>
-			                    </div>
-			                    <div class="form-group">
-			                        <label>施工队人员：</label>
-			                        <select name="workerId" class="form-control">
-			                            <option value="">全部</option>
-			                            <option th:each="worker:${workerList}" th:value="${worker.id}" th:text="|${worker.team}-${worker.name}|"></option>
-			                        </select>
-			                    </div>
-			                    <div class="form-group">
-			                        <label>维修状态：</label>
-			                        <select name="status" class="form-control">
-			                            <option value="">全部</option>
-			                            <option value="1">待处理</option>
-			                            <option value="2">已分配</option>
-			                            <option value="3">处理中</option>
-			                            <option value="4">已完成</option>
-			                            <option value="5">已取消</option>
-			                        </select>
-			                    </div>
-			                    <div class="form-group">
-			                        <label>学校名称：</label>
-			                        <input type="text" name="schoolName" class="form-control" placeholder="模糊查询">
-			                    </div>
-			                    <!-- 新增导出筛选字段 -->
-			                <!--     <div class="form-group">
-			                        <label>报修人：</label>
-			                        <input type="text" name="reporterName" class="form-control" placeholder="模糊查询">
-			                    </div> -->
-			                 <!--    <div class="form-group">
-			                        <label>维修完成日期范围：</label>
-			                        <div class="row">
-			                            <div class="col-md-6">
-			                                <input type="date" name="completeStartTime" class="form-control" placeholder="开始日期">
-			                            </div>
-			                            <div class="col-md-6">
-			                                <input type="date" name="completeEndTime" class="form-control" placeholder="结束日期">
-			                            </div>
-			                        </div>
-			                    </div> -->
-			                </form>
-			            </div>
-			            <div class="modal-footer">
-			                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-			                <button type="button" class="btn btn-primary" onclick="submitExport()">确认导出</button>
-			            </div>
-			        </div>
-			    </div>
-			</div>
+        <!-- 分配维修人员模态框 -->
+        <div class="modal fade" id="assignWorkerModal" tabindex="-1" role="dialog" aria-labelledby="assignWorkerModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title" id="assignWorkerModalLabel">分配维修人员</h4>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="repairId" value="">
+                        <div class="form-group">
+                            <label>选择维修人员</label>
+                            <select id="workerId" class="form-control">
+                                <option value="">--请选择--</option>
+                                <option th:each="worker:${workerList}" th:value="${worker.id}" th:text="|${worker.team}-${worker.name}|"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" onclick="submitAssignWorker()">确认分配</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-			<div th:replace="public/public::myModal"></div>
-		</div>
-	</div>
+        <!-- 操作确认模态框 -->
+        <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-labelledby="confirmModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title" id="confirmModalLabel">操作确认</h4>
+                    </div>
+                    <div class="modal-body" id="confirmContent">
+                        确定要执行此操作吗？
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" id="confirmBtn">确认</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-	<!--  END OF PAPER WRAP -->
-	<div th:replace="public/public::right"></div>
-	<!-- 底部js -->
-	<div th:replace="public/public_js::pub_js"></div>
-	<div th:replace="public/public_js::public_script"></div>
-	<div th:replace="public/public::footer"></div>
-	<script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
-	<div th:replace="public/public_js::validator"></div>
-	<script type="text/javascript">
-		// 全局变量存储图片数据（新增拖拽相关变量）
-		let photoData = {
-			photos: [],       // 图片列表
-			currentIndex: 0,  // 当前图片索引
-			scale: 1,         // 当前缩放比例
-			minScale: 1,      // 最小缩放比例
-			maxScale: 5,      // 最大缩放比例
-			isDragging: false,// 是否正在拖拽
-			startX: 0,        // 拖拽起始X坐标
-			startY: 0,        // 拖拽起始Y坐标
-			translateX: 0,    // X轴偏移量
-			translateY: 0     // Y轴偏移量
-		};
+        <!-- 照片查看模态框 -->
+        <div class="modal fade photo-modal" id="photoViewModal" tabindex="-1" role="dialog" aria-labelledby="photoViewModalLabel">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title" id="photoViewModalLabel">照片查看</h4>
+                    </div>
+                    <div class="modal-body">
+                        <!-- 缩放控制按钮 -->
+                        <div class="zoom-controls">
+                            <button class="zoom-btn" id="zoomInBtn" title="放大">+</button>
+                            <button class="zoom-btn" id="zoomOutBtn" title="缩小">-</button>
+                            <button class="zoom-btn" id="zoomResetBtn" title="重置">⟳</button>
+                        </div>
 
-		// 重置搜索表单
-		function resetSearch() {
-			$('.search-form')[0].reset();
-			$('.search-form').submit();
-		}
+                        <!-- 图片查看容器 -->
+                        <div class="photo-viewer" id="photoViewer">
+                            <img id="currentPhoto" src="" alt="照片预览" class="img-responsive">
+                        </div>
 
-		// 分配维修人员模态框
-		function assignWorkerModal(id) {
-			$("#repairId").val(id);
-			$("#assignWorkerModal").modal("show");
-		}
+                        <!-- 图片导航控制 -->
+                        <div class="photo-navigation">
+                            <button class="nav-btn" id="prevBtn" title="上一张">←</button>
+                            <div class="photo-indicator" id="photoIndicator">1/1</div>
+                            <button class="nav-btn" id="nextBtn" title="下一张">→</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-		// 提交分配维修人员
-		function submitAssignWorker() {
-			var repairId = $("#repairId").val();
-			var workerId = $("#workerId").val();
-			if (!workerId) {
-				swal("提示", "请选择维修人员！", "warning");
-				return;
-			}
+        <!-- 列设置模态框 -->
+        <div class="modal fade" id="columnSettingModal" tabindex="-1" role="dialog" aria-labelledby="columnSettingModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title" id="columnSettingModalLabel">自定义列显示</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="columnCheckboxes" class="checkbox-list">
+                            <!-- 动态生成列复选框 -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" onclick="saveColumnSettings()">保存设置</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-			$.post("[[@{/wxRepair/assignWorker}]]", {
-				repairId : repairId,
-				workerId : workerId
-			}, function(res) {
-				if (res.status === 200) {
-					swal("成功", res.msg, "success");
-					$("#assignWorkerModal").modal("hide");
-					window.location.reload();
-				} else {
-					swal("失败", res.msg, "error");
-				}
-			}, "json");
-		}
+        <!-- 导出筛选模态框 -->
+        <div class="modal fade" id="exportModal" tabindex="-1" role="dialog" aria-labelledby="exportModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title" id="exportModalLabel">导出数据筛选</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form id="exportForm">
+                            <div class="form-group">
+                                <label>报修日期范围：</label>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <input type="date" name="startTime" class="form-control" placeholder="开始日期">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <input type="date" name="endTime" class="form-control" placeholder="结束日期">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>施工队人员：</label>
+                                <select name="workerId" class="form-control">
+                                    <option value="">全部</option>
+                                    <option th:each="worker:${workerList}" th:value="${worker.id}" th:text="|${worker.team}-${worker.name}|"></option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>维修状态：</label>
+                                <select name="status" class="form-control">
+                                    <option value="">全部</option>
+                                    <option value="1">待处理</option>
+                                    <option value="2">已分配</option>
+                                    <option value="3">处理中</option>
+                                    <option value="4">已完成</option>
+                                    <option value="5">已取消</option>
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" onclick="submitExport()">确认导出</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-		// 增强版照片查看 - 支持放大、上下张切换、拖拽
-		function showPhotos(repairId, type, initialIndex = 0) {
-			var $currentRow = $("input[id='" + repairId + "']").closest("tr");
-			var titleText = type === 'report' ? '报修照片' : '维修完成照片';
-			$("#photoViewModalLabel").text(titleText);
+        <!-- 直接完成维修模态框 -->
+        <div class="modal fade" id="completeRepairModal" tabindex="-1" role="dialog" aria-labelledby="completeRepairModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title" id="completeRepairModalLabel">直接完成维修</h4>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="completeRepairId" value="">
+                        <div class="form-group">
+                            <label>维修部门 <span style="color:red">*</span></label>
+                            <select id="workDept" class="form-control">
+                                <option value="">--请选择部门--</option>
+                                <option value="销售部">销售部</option>
+                                <option value="工程部">工程部</option>
+                                <option value="其他部门">其他部门</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>维修备注（可选）</label>
+                            <textarea class="form-control" id="repairDescription" rows="3" placeholder="请输入维修完成备注（可选）"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" onclick="submitCompleteRepair()">确认完成</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-			// 收集所有图片原图地址
-			var $thumbnails = type === 'report' ? 
-				$currentRow.find("td[data-column-id='reportPhotos'] .photo-thumbnail") :
-				$currentRow.find("td[data-column-id='repairPhotos'] .photo-thumbnail");
+        <!-- 公共模态框 -->
+        <div th:replace="public/public::myModal"></div>
+    </div>
+</div>
 
-			// 重置图片数据
-			photoData = {
-				photos: [],
-				currentIndex: initialIndex,
-				scale: 1,
-				minScale: 1,
-				maxScale: 5,
-				isDragging: false,
-				startX: 0,
-				startY: 0,
-				translateX: 0,
-				translateY: 0
-			};
+<!-- 右侧边栏 -->
+<div th:replace="public/public::right"></div>
 
-			// 收集图片信息
-			$thumbnails.each(function() {
-				var originalSrc = $(this).attr("src").replace('comp_', '');
-				var alt = $(this).attr("alt");
-				photoData.photos.push({
-					src: originalSrc,
-					alt: alt
-				});
-			});
+<!-- 底部JS -->
+<div th:replace="public/public_js::pub_js"></div>
+<div th:replace="public/public_js::public_script"></div>
+<div th:replace="public/public::footer"></div>
+<script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
+<div th:replace="public/public_js::validator"></div>
 
-			// 更新图片显示
-			updatePhotoDisplay();
-			// 显示模态框
-			$("#photoViewModal").modal("show");
-		}
+<script type="text/javascript">
+    // 全局图片数据
+    let photoData = {
+        photos: [],
+        currentIndex: 0,
+        scale: 1,
+        minScale: 1,
+        maxScale: 5,
+        isDragging: false,
+        startX: 0,
+        startY: 0,
+        translateX: 0,
+        translateY: 0
+    };
 
-		// 更新图片显示（修复显示不全+拖拽兼容）
-		function updatePhotoDisplay() {
-			var currentPhoto = photoData.photos[photoData.currentIndex];
-			var $photoViewer = $("#photoViewer");
-			var $currentPhoto = $("#currentPhoto");
-			var $indicator = $("#photoIndicator");
-			var $prevBtn = $("#prevBtn");
-			var $nextBtn = $("#nextBtn");
+    // 重置搜索表单
+    function resetSearch() {
+        $('.search-form')[0].reset();
+        $('.search-form').submit();
+    }
 
-			// 设置当前图片
-			$currentPhoto.attr("src", currentPhoto.src);
-			$currentPhoto.attr("alt", currentPhoto.alt);
+    // 打开分配维修人员模态框
+    function assignWorkerModal(id) {
+        $("#repairId").val(id);
+        $("#assignWorkerModal").modal("show");
+    }
 
-			// 更新指示器
-			$indicator.text(`${photoData.currentIndex + 1}/${photoData.photos.length}`);
+    // 提交分配维修人员
+    function submitAssignWorker() {
+        var repairId = $("#repairId").val();
+        var workerId = $("#workerId").val();
+        if (!workerId) {
+            swal("提示", "请选择维修人员！", "warning");
+            return;
+        }
 
-			// 更新导航按钮状态
-			$prevBtn.prop("disabled", photoData.currentIndex === 0);
-			$nextBtn.prop("disabled", photoData.currentIndex === photoData.photos.length - 1);
+        $.post("[[@{/wxRepair/assignWorker}]]", {
+            repairId: repairId,
+            workerId: workerId
+        }, function(res) {
+            if (res.status === 200) {
+                swal("成功", res.msg, "success");
+                $("#assignWorkerModal").modal("hide");
+                window.location.reload();
+            } else {
+                swal("失败", res.msg, "error");
+            }
+        }, "json");
+    }
 
-			// 重置缩放和位置
-			photoData.scale = 1;
-			photoData.translateX = 0;
-			photoData.translateY = 0;
-			updatePhotoTransform();
-			$photoViewer.removeClass("zoomed");
-		}
+    // 打开直接完成维修模态框
+    function completeRepairModal(id) {
+        $("#completeRepairId").val(id);
+        $("#workDept").val('');
+        $("#repairDescription").val('');
+        $("#completeRepairModal").modal("show");
+    }
 
-		// 更新图片变换（缩放+平移）
-		function updatePhotoTransform() {
-			var $photoViewer = $("#photoViewer");
-			// 组合缩放和平移变换
-			$photoViewer.css("transform", 
-				`translate(-50%, -50%) translate(${photoData.translateX}px, ${photoData.translateY}px) scale(${photoData.scale})`
-			);
-		}
+    // 提交直接完成维修
+   function submitCompleteRepair() {
+    var repairId = $("#completeRepairId").val();
+    var workDept = $("#workDept").val().trim();
+    var description = $("#repairDescription").val().trim();
 
-		// 上一张图片
-		function showPrevPhoto() {
-			if (photoData.currentIndex > 0) {
-				photoData.currentIndex--;
-				updatePhotoDisplay();
-			}
-		}
+    if (!workDept) {
+        swal("提示", "请选择维修部门！", "warning");
+        $("#workDept").focus();
+        return;
+    }
 
-		// 下一张图片
-		function showNextPhoto() {
-			if (photoData.currentIndex < photoData.photos.length - 1) {
-				photoData.currentIndex++;
-				updatePhotoDisplay();
-			}
-		}
+    var params = {
+        repairId: repairId,
+        workDept: workDept,
+        description: description
+    };
 
-		// 图片缩放（修复缩放中心+位置）
-		function zoomPhoto(delta) {
-			var newScale = photoData.scale + delta;
-			// 限制缩放范围
-			newScale = Math.max(photoData.minScale, Math.min(newScale, photoData.maxScale));
-			
-			if (newScale !== photoData.scale) {
-				photoData.scale = newScale;
-				updatePhotoTransform();
-				// 切换鼠标样式
-				$("#photoViewer").toggleClass("zoomed", photoData.scale > photoData.minScale);
-			}
-		}
+    $.post("[[@{/wxRepair/cancelRepairToComplete}]]", params, function(res) {
+        if (res.status === 200) {
+            swal("成功", res.msg, "success");
+            $("#completeRepairModal").modal("hide");
+            window.location.reload();
+        } else {
+            swal("失败", res.msg, "error");
+        }
+    }, "json").fail(function(xhr) {
+        // 新增：异常捕获
+        var errorMsg = xhr.responseJSON?.msg || "服务器内部错误，请联系管理员";
+        swal("错误", `请求失败：${errorMsg}`, "error");
+    });
+}
 
-		// 重置缩放和位置
-		function resetZoom() {
-			photoData.scale = photoData.minScale;
-			photoData.translateX = 0;
-			photoData.translateY = 0;
-			updatePhotoTransform();
-			$("#photoViewer").removeClass("zoomed");
-		}
+    // 显示操作确认模态框
+    function showConfirmModal(type, id) {
+        var content = '';
+        if (type === 'cancelAssign') {
+            content = '确定要取消该报修单的维修人员分配吗？';
+        } else if (type === 'cancelRepair') {
+            content = '确定要取消该报修单的维修流程吗？';
+        }
+        $('#confirmContent').text(content);
+        $('#confirmModal').modal('show');
+        
+        $('#confirmBtn').off('click').on('click', function() {
+            if (type === 'cancelAssign') {
+                cancelAssign(id);
+            } else if (type === 'cancelRepair') {
+                cancelRepair(id);
+            }
+            $('#confirmModal').modal('hide');
+        });
+    }
 
-		// 开始拖拽
-		function startDrag(e) {
-			// 只有放大后才能拖拽
-			if (photoData.scale <= photoData.minScale) return;
-			
-			photoData.isDragging = true;
-			// 获取鼠标起始位置（相对于视口）
-			photoData.startX = e.clientX;
-			photoData.startY = e.clientY;
-			// 添加拖拽样式
-			$("#photoViewer").css("cursor", "grabbing");
-			// 阻止默认行为
-			e.preventDefault();
-		}
+    // 取消分配
+    function cancelAssign(id) {
+        $.post("[[@{/wxRepair/cancelAssign}]]", {repairId: id}, function(res) {
+            if (res.status === 200) {
+                swal("成功", res.msg, "success");
+                window.location.reload();
+            } else {
+                swal("失败", res.msg, "error");
+            }
+        }, "json");
+    }
 
-		// 拖拽中
-		function dragMove(e) {
-			if (!photoData.isDragging) return;
-			
-			// 计算鼠标移动距离
-			var dx = e.clientX - photoData.startX;
-			var dy = e.clientY - photoData.startY;
-			
-			// 更新偏移量
-			photoData.translateX += dx;
-			photoData.translateY += dy;
-			
-			// 更新起始位置
-			photoData.startX = e.clientX;
-			photoData.startY = e.clientY;
-			
-			// 应用变换
-			updatePhotoTransform();
-			e.preventDefault();
-		}
+    // 取消维修
+    function cancelRepair(id) {
+        $.post("[[@{/wxRepair/cancelRepair}]]", {repairId: id}, function(res) {
+            if (res.status === 200) {
+                swal("成功", res.msg, "success");
+                window.location.reload();
+            } else {
+                swal("失败", res.msg, "error");
+            }
+        }, "json");
+    }
 
-		// 结束拖拽
-		function endDrag() {
-			if (photoData.isDragging) {
-				photoData.isDragging = false;
-				$("#photoViewer").css("cursor", "move");
-			}
-		}
+    // 照片查看
+    function showPhotos(repairId, type, initialIndex = 0) {
+        var $currentRow = $("input[id='" + repairId + "']").closest("tr");
+        var titleText = type === 'report' ? '报修照片' : '维修完成照片';
+        $("#photoViewModalLabel").text(titleText);
 
-		// 图片加载失败处理
-		$(document).on("error", ".photo-thumbnail", function() {
-			$(this).attr("src", "[[@{/assets/img/default-img.png}]]");
-		});
-		
-		// 原图加载失败处理
-		$(document).on("error", "#currentPhoto", function() {
-			$(this).attr("src", "[[@{/assets/img/default-img.png}]]");
-			$(this).attr("alt", "图片加载失败");
-		});
+        var $thumbnails = type === 'report' ?
+            $currentRow.find("td[data-column-id='reportPhotos'] .photo-thumbnail") :
+            $currentRow.find("td[data-column-id='repairPhotos'] .photo-thumbnail");
 
-		// 注册图片导航和缩放事件（新增拖拽事件）
-		$(document).ready(function() {
-			// 上一张按钮
-			$("#prevBtn").click(showPrevPhoto);
-			
-			// 下一张按钮
-			$("#nextBtn").click(showNextPhoto);
-			
-			// 放大按钮
-			$("#zoomInBtn").click(function() {
-				zoomPhoto(0.2);
-			});
-			
-			// 缩小按钮
-			$("#zoomOutBtn").click(function() {
-				zoomPhoto(-0.2);
-			});
-			
-			// 重置缩放按钮
-			$("#zoomResetBtn").click(resetZoom);
-			
-			// 鼠标滚轮缩放
-			$("#photoViewer").on("wheel", function(e) {
-				e.preventDefault();
-				var delta = e.originalEvent.deltaY > 0 ? -0.1 : 0.1;
-				zoomPhoto(delta);
-			});
-			
-			// 点击图片切换下一张（仅未放大时）
-			$("#photoViewer").click(function() {
-				if (photoData.scale <= photoData.minScale) {
-					showNextPhoto();
-				}
-			});
-			
-			// 拖拽事件
-			$("#photoViewer").on("mousedown", startDrag);
-			$(document).on("mousemove", dragMove);
-			$(document).on("mouseup", endDrag);
-			$(document).on("mouseleave", endDrag);
-			
-			// 模态框关闭时重置
-			$("#photoViewModal").on("hidden.bs.modal", function() {
-				resetZoom();
-				endDrag(); // 确保拖拽状态重置
-			});
+        photoData = {
+            photos: [],
+            currentIndex: initialIndex,
+            scale: 1,
+            minScale: 1,
+            maxScale: 5,
+            isDragging: false,
+            startX: 0,
+            startY: 0,
+            translateX: 0,
+            translateY: 0
+        };
 
-			// 初始化列设置
-			var savedSettings = JSON.parse(localStorage.getItem('wxRepairColumnSettings')) || {};
-			applyColumnSettings(savedSettings);
-		});
+        $thumbnails.each(function() {
+            var originalSrc = $(this).attr("src").replace('comp_', '');
+            var alt = $(this).attr("alt");
+            photoData.photos.push({
+                src: originalSrc,
+                alt: alt
+            });
+        });
 
-		// 列配置定义（新增4个列配置）
-		var columnConfigs = [ {
-			id : 'checkbox',
-			name : '复选框'
-		}, {
-			id : 'workOrderNumber',
-			name : '工单号'
-		}, {
-			id : 'schoolName',
-			name : '报修学校'
-		}, {
-			id : 'campus',
-			name : '报修校区'
-		}, {
-			id : 'schoolAddress',
-			name : '报修地址'
-		}, {
-			id : 'reporterName',
-			name : '报修人'
-		}, {
-			id : 'contactNumber',
-			name : '联系电话'
-		}, {
-			id : 'faultInformation',
-			name : '故障信息'
-		}, {
-			id : 'createTime',
-			name : '提交时间'
-		}, {
-			id : 'reportClassroomRepair',
-			name : '报修教室'
-		}, {
-			id : 'equipmentRepair',
-			name : '报修设备'
-		}, {
-			id : 'urgencyLevel',
-			name : '紧急程度'
-		}, {
-			id : 'expectedVisitTime',
-			name : '期望完成时间'
-		}, {
-			id : 'status',
-			name : '维修状态'
-		}, {
-			id : 'reportPhotos',
-			name : '报修照片'
-		}, {
-			id : 'repairContent',
-			name : '维修内容'
-		}, {
-			id : 'repairPhotos',
-			name : '维修完成照片'
-		}, {
-			id : 'worker',
-			name : '维修人员'
-		}, {
-			id : 'completeTime',
-			name : '维修完成时间'
-		}, {
-			id : 'operation',
-			name : '操作'
-		} ];
+        updatePhotoDisplay();
+        $("#photoViewModal").modal("show");
+    }
 
-		// 打开列设置模态框
-		function openColumnSetting() {
-			var columnCheckboxes = $('#columnCheckboxes');
-			columnCheckboxes.empty();
-			var savedSettings = JSON.parse(localStorage
-					.getItem('wxRepairColumnSettings'))
-					|| {};
+    // 更新图片显示
+    function updatePhotoDisplay() {
+        var currentPhoto = photoData.photos[photoData.currentIndex];
+        var $photoViewer = $("#photoViewer");
+        var $currentPhoto = $("#currentPhoto");
+        var $indicator = $("#photoIndicator");
+        var $prevBtn = $("#prevBtn");
+        var $nextBtn = $("#nextBtn");
 
-			columnConfigs.forEach(function(column) {
-				var isChecked = savedSettings[column.id] !== false;
-				var checkboxHtml = '<div class="checkbox checkbox-inline">'
-						+ '<input type="checkbox" id="col_' + column.id
-						+ '" name="column" value="' + column.id + '" '
-						+ (isChecked ? 'checked' : '') + '>'
-						+ '<label for="col_' + column.id + '">' + column.name
-						+ '</label>' + '</div>';
-				columnCheckboxes.append(checkboxHtml);
-			});
+        $currentPhoto.attr("src", currentPhoto.src);
+        $currentPhoto.attr("alt", currentPhoto.alt);
+        $indicator.text(`${photoData.currentIndex + 1}/${photoData.photos.length}`);
+        $prevBtn.prop("disabled", photoData.currentIndex === 0);
+        $nextBtn.prop("disabled", photoData.currentIndex === photoData.photos.length - 1);
 
-			$('#columnSettingModal').modal('show');
-		}
+        photoData.scale = 1;
+        photoData.translateX = 0;
+        photoData.translateY = 0;
+        updatePhotoTransform();
+        $photoViewer.removeClass("zoomed");
+    }
 
-		// 保存列设置
-		function saveColumnSettings() {
-			var selectedColumns = {};
-			$('input[name="column"]').each(function() {
-				selectedColumns[$(this).val()] = $(this).is(':checked');
-			});
+    // 更新图片变换
+    function updatePhotoTransform() {
+        var $photoViewer = $("#photoViewer");
+        $photoViewer.css("transform",
+            `translate(-50%, -50%) translate(${photoData.translateX}px, ${photoData.translateY}px) scale(${photoData.scale})`
+        );
+    }
 
-			localStorage.setItem('wxRepairColumnSettings', JSON
-					.stringify(selectedColumns));
-			applyColumnSettings(selectedColumns);
-			$('#columnSettingModal').modal('hide');
-		}
+    // 上一张
+    function showPrevPhoto() {
+        if (photoData.currentIndex > 0) {
+            photoData.currentIndex--;
+            updatePhotoDisplay();
+        }
+    }
 
-		// 应用列设置
-		function applyColumnSettings(settings) {
-			$('th[data-column-id]').each(function() {
-				var columnId = $(this).data('column-id');
-				$(this).toggle(settings[columnId] !== false);
-			});
+    // 下一张
+    function showNextPhoto() {
+        if (photoData.currentIndex < photoData.photos.length - 1) {
+            photoData.currentIndex++;
+            updatePhotoDisplay();
+        }
+    }
 
-			$('tbody tr').each(function() {
-				$(this).find('td[data-column-id]').each(function() {
-					var columnId = $(this).data('column-id');
-					$(this).toggle(settings[columnId] !== false);
-				});
-			});
-		}
+    // 缩放
+    function zoomPhoto(delta) {
+        var newScale = photoData.scale + delta;
+        newScale = Math.max(photoData.minScale, Math.min(newScale, photoData.maxScale));
+        
+        if (newScale !== photoData.scale) {
+            photoData.scale = newScale;
+            updatePhotoTransform();
+            $("#photoViewer").toggleClass("zoomed", photoData.scale > photoData.minScale);
+        }
+    }
 
-		// 打开导出模态框
-		function openExportModal() {
-		    $('#exportModal').modal('show');
-		}
+    // 重置缩放
+    function resetZoom() {
+        photoData.scale = photoData.minScale;
+        photoData.translateX = 0;
+        photoData.translateY = 0;
+        updatePhotoTransform();
+        $("#photoViewer").removeClass("zoomed");
+    }
 
-		// 提交导出请求 - 使用原生fetch API替代axios
-		function submitExport() {
-		    const form = $('#exportForm')[0];
-		    const formData = new FormData(form);
-		    
-		    // 构建请求URL参数
-		    let params = new URLSearchParams();
-		    for (let pair of formData.entries()) {
-		        if (pair[1]) {
-		            params.append(pair[0], pair[1]);
-		        }
-		    }
-		    
-		    const url = "[[@{/wxRepair/export}]]?" + params.toString();
-		    
-		    fetch(url, {
-		        method: 'GET',
-		        headers: {
-		            'Accept': 'application/json, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-		        }
-		    })
-		    .then(response => {
-		        // 检查响应状态
-		        if (!response.ok) {
-		            // 如果是JSON错误响应
-		            if (response.headers.get('content-type').includes('application/json')) {
-		                return response.json().then(data => {
-		                    throw new Error(data.errorMsg || '导出失败');
-		                });
-		            } else {
-		                throw new Error('导出失败，请联系管理员');
-		            }
-		        }
-		        
-		        // 检查响应类型
-		        const contentType = response.headers.get('content-type');
-		        if (contentType.includes('application/json')) {
-		            return response.json().then(data => {
-		                throw new Error(data.errorMsg || '导出失败');
-		            });
-		        }
-		        
-		        // 处理文件下载
-		        return response.blob().then(blob => {
-		            const downloadUrl = window.URL.createObjectURL(blob);
-		            const a = document.createElement('a');
-		            a.href = downloadUrl;
-		            a.download = '报修单数据_' + new Date().getTime() + '.xlsx';
-		            document.body.appendChild(a);
-		            a.click();
-		            window.URL.revokeObjectURL(downloadUrl);
-		            $('#exportModal').modal('hide');
-		            swal("成功", "导出成功！", "success");
-		        });
-		    })
-		    .catch(error => {
-		        swal("导出失败", error.message || "服务器内部错误，请联系管理员", "error");
-		        console.error("导出错误：", error);
-		    });
-		}
-		
-		// 操作类型和ID存储
-		let currentOperateType = '';
-		let currentRepairId = '';
+    // 开始拖拽
+    function startDrag(e) {
+        if (photoData.scale <= photoData.minScale) return;
+        
+        photoData.isDragging = true;
+        photoData.startX = e.clientX;
+        photoData.startY = e.clientY;
+        $("#photoViewer").css("cursor", "grabbing");
+        e.preventDefault();
+    }
 
-		// 显示确认模态框
-		function showConfirmModal(operateType, repairId) {
-		    currentOperateType = operateType;
-		    currentRepairId = repairId;
-		    
-		    // 设置不同操作的提示内容
-		    if (operateType === 'cancelAssign') {
-		        $('#confirmModalLabel').text('取消分配确认');
-		        $('#confirmContent').text('确定要取消该报修单的维修人员分配吗？取消后状态将改为待处理');
-		    } else if (operateType === 'cancelRepair') {
-		        $('#confirmModalLabel').text('维修取消确认');
-		        $('#confirmContent').text('确定要取消该报修单的维修流程吗？状态将改为已取消');
-		    }
-		    
-		    $('#confirmModal').modal('show');
-		}
+    // 拖拽中
+    function dragMove(e) {
+        if (!photoData.isDragging) return;
+        
+        var dx = e.clientX - photoData.startX;
+        var dy = e.clientY - photoData.startY;
+        
+        photoData.translateX += dx;
+        photoData.translateY += dy;
+        photoData.startX = e.clientX;
+        photoData.startY = e.clientY;
+        
+        updatePhotoTransform();
+        e.preventDefault();
+    }
 
-		// 确认操作按钮点击事件
-		$('#confirmBtn').click(function() {
-		    if (currentOperateType === 'cancelAssign') {
-		        cancelAssign();
-		    } else if (currentOperateType === 'cancelRepair') {
-		        cancelRepair();
-		    }
-		    $('#confirmModal').modal('hide');
-		});
+    // 结束拖拽
+    function endDrag() {
+        if (photoData.isDragging) {
+            photoData.isDragging = false;
+            $("#photoViewer").css("cursor", "move");
+        }
+    }
 
-		// 取消分配
-		function cancelAssign() {
-		    $.post("[[@{/wxRepair/cancelAssign}]]", {repairId: currentRepairId}, function(res) {
-		        if (res.status === 200) {
-		            swal("成功", res.msg, "success");
-		            window.location.reload();
-		        } else {
-		            swal("失败", res.msg, "error");
-		        }
-		    }, "json").fail(function() {
-		        swal("错误", "请求失败，请重试", "error");
-		    });
-		}
+    // 初始化可编辑单元格
+    function initEditableTd() {
+        function closeAllEditableTd() {
+            $('.editable-td').each(function() {
+                const $td = $(this);
+                const originalText = $td.data('original-text');
+                if ($td.find('input').length > 0 && originalText !== undefined) {
+                    $td.html(originalText);
+                    $td.removeData('original-text');
+                }
+            });
+        }
 
-		// 维修取消
-		function cancelRepair() {
-		    $.post("[[@{/wxRepair/cancelRepair}]]", {repairId: currentRepairId}, function(res) {
-		        if (res.status === 200) {
-		            swal("成功", res.msg, "success");
-		            window.location.reload();
-		        } else {
-		            swal("失败", res.msg, "error");
-		        }
-		    }, "json").fail(function() {
-		        swal("错误", "请求失败，请重试", "error");
-		    });
-		}
-	</script>
+        $(document).on('click', function(e) {
+            const $target = $(e.target);
+            if (!$target.hasClass('edit-input') && 
+                !$target.hasClass('edit-submit-btn') && 
+                !$target.closest('.editable-td').is('.editable-td')) {
+                closeAllEditableTd();
+            }
+        });
+
+        $(document).on('dblclick', '.editable-td', function(e) {
+            e.stopPropagation();
+            closeAllEditableTd();
+            
+            const $td = $(this);
+            if ($td.find('input').length > 0) return;
+            
+            const reporterId = $td.data('reporter-id');
+            const field = $td.data('field');
+            const originalText = $td.text().trim();
+            const inputValue = originalText === '无' ? '' : originalText;
+            
+            $td.data('original-text', originalText);
+            
+            const editHtml = `
+                <input type="text" class="form-control input-sm edit-input" value="${inputValue}" style="width: 80%; display: inline-block;">
+                <button class="btn btn-primary btn-xs edit-submit-btn">提交</button>
+            `;
+            
+            $td.html(editHtml);
+            $td.find('.edit-input').focus();
+        });
+
+        $(document).on('click', '.edit-submit-btn', function(e) {
+            e.stopPropagation();
+            const $btn = $(this);
+            const $td = $btn.closest('.editable-td');
+            const $tr = $td.closest('tr');
+            const oldOpenId = $td.data('reporter-id');
+            const field = $td.data('field');
+            const $input = $td.find('.edit-input');
+            const newValue = $input.val().trim();
+
+            if (!newValue) {
+                swal("提示", "请输入有效内容！", "warning");
+                $input.focus();
+                return;
+            }
+
+            const userName = $tr.find('td[data-column-id="reporterName"]').text().trim().replace('无', '');
+            const contactNumber = $tr.find('td[data-column-id="contactNumber"]').text().trim().replace('无', '');
+            const schoolName = $tr.find('td[data-column-id="schoolName"]').text().trim().replace('无', '');
+            const campus = $tr.find('td[data-column-id="campus"]').text().trim().replace('无', '');
+            const schoolAddress = $tr.find('td[data-column-id="schoolAddress"]').text().trim().replace('无', '');
+
+            if (!oldOpenId) {
+                if (!userName || !contactNumber || !schoolName) {
+                    swal("提示", "新增报修人时，姓名、联系电话、学校不能为空！", "warning");
+                    return;
+                }
+            }
+
+            const params = {
+                openId: oldOpenId,
+                userName: userName,
+                contactNumber: contactNumber,
+                schoolName: schoolName,
+                campus: campus,
+                schoolAddress: schoolAddress
+            };
+            params[field] = newValue;
+
+            $.post("[[@{/wxRepair/editWxReporter}]]", params, function(res) {
+                if (res.status === 200) {
+                    swal("成功", res.msg, "success");
+                    
+                    const newOpenId = res.data?.openId || oldOpenId;
+                    const fieldToColumnIdMap = {
+                        userName: 'reporterName',
+                        contactNumber: 'contactNumber',
+                        schoolName: 'schoolName',
+                        campus: 'campus',
+                        schoolAddress: 'schoolAddress'
+                    };
+                    const targetColumnId = fieldToColumnIdMap[field];
+
+                    $(`.editable-td[data-reporter-id="${newOpenId}"][data-column-id="${targetColumnId}"]`).each(function() {
+                        const $targetTd = $(this);
+                        if ($targetTd[0] !== $td[0]) {
+                            $targetTd.html(newValue);
+                        }
+                    });
+
+                    $td.html(newValue);
+                    $td.removeData('original-text');
+
+                    if (!oldOpenId && newOpenId) {
+                        $tr.find('.editable-td').each(function() {
+                            $(this).data('reporter-id', newOpenId);
+                            $(this).attr('data-reporter-id', newOpenId);
+                        });
+                    }
+                } else {
+                    swal("失败", res.msg, "error");
+                    const originalText = $td.data('original-text');
+                    $td.html(originalText);
+                    $td.removeData('original-text');
+                }
+            }, "json").fail(function(xhr) {
+                swal("错误", `请求失败：${xhr.responseJSON?.msg || '服务器内部错误'}`, "error");
+                const originalText = $td.data('original-text');
+                $td.html(originalText);
+                $td.removeData('original-text');
+            });
+        });
+
+        $(document).on('keypress', '.edit-input', function(e) {
+            if (e.which === 13) {
+                e.stopPropagation();
+                $(this).next('.edit-submit-btn').click();
+            }
+        });
+
+        $(document).on('keydown', '.edit-input', function(e) {
+            if (e.key === 'Escape') {
+                e.stopPropagation();
+                const $td = $(this).closest('.editable-td');
+                const originalText = $td.data('original-text');
+                $td.html(originalText);
+                $td.removeData('original-text');
+            }
+        });
+    }
+
+    // 列配置
+    var columnConfigs = [
+        {id: 'checkbox', name: '复选框'},
+        {id: 'workOrderNumber', name: '工单号'},
+        {id: 'schoolName', name: '报修学校'},
+        {id: 'campus', name: '报修校区'},
+        {id: 'schoolAddress', name: '报修地址'},
+        {id: 'reporterName', name: '报修人'},
+        {id: 'contactNumber', name: '联系电话'},
+        {id: 'faultInformation', name: '故障信息'},
+        {id: 'createTime', name: '提交时间'},
+        {id: 'reportClassroomRepair', name: '报修教室'},
+        {id: 'equipmentRepair', name: '报修设备'},
+        {id: 'equipmentYear', name: '设备年份'},
+        {id: 'urgencyLevel', name: '紧急程度'},
+        {id: 'expectedVisitTime', name: '期望完成时间'},
+        {id: 'status', name: '维修状态'},
+        {id: 'reportPhotos', name: '报修照片'},
+        {id: 'repairContent', name: '维修内容'},
+        {id: 'repairPhotos', name: '维修完成照片'},
+        {id: 'worker', name: '维修人员'},
+        {id: 'completeTime', name: '维修完成时间'},
+        {id: 'workDept', name: '维修部门'},
+        {id: 'description', name: '维修备注'},
+        {id: 'operation', name: '操作'}
+    ];
+
+    // 打开列设置
+    function openColumnSetting() {
+        var columnCheckboxes = $('#columnCheckboxes');
+        columnCheckboxes.empty();
+        var savedSettings = JSON.parse(localStorage.getItem('wxRepairColumnSettings')) || {};
+
+        columnConfigs.forEach(function(column) {
+            var isChecked = savedSettings[column.id] !== false;
+            var checkboxHtml = '<div class="checkbox checkbox-inline">'
+                    + '<input type="checkbox" id="col_' + column.id
+                    + '" name="column" value="' + column.id + '" '
+                    + (isChecked ? 'checked' : '') + '>'
+                    + '<label for="col_' + column.id + '">' + column.name
+                    + '</label>' + '</div>';
+            columnCheckboxes.append(checkboxHtml);
+        });
+
+        $('#columnSettingModal').modal('show');
+    }
+
+    // 保存列设置
+    function saveColumnSettings() {
+        var selectedColumns = {};
+        $('input[name="column"]').each(function() {
+            selectedColumns[$(this).val()] = $(this).is(':checked');
+        });
+
+        localStorage.setItem('wxRepairColumnSettings', JSON.stringify(selectedColumns));
+        applyColumnSettings(selectedColumns);
+        $('#columnSettingModal').modal('hide');
+    }
+
+    // 应用列设置
+    function applyColumnSettings(settings) {
+        $('th[data-column-id]').each(function() {
+            var columnId = $(this).data('column-id');
+            $(this).toggle(settings[columnId] !== false);
+        });
+
+        $('tbody tr').each(function() {
+            $(this).find('td[data-column-id]').each(function() {
+                var columnId = $(this).data('column-id');
+                $(this).toggle(settings[columnId] !== false);
+            });
+        });
+    }
+
+    // 打开导出模态框
+    function openExportModal() {
+        $('#exportModal').modal('show');
+    }
+
+    // 提交导出
+    function submitExport() {
+        const form = $('#exportForm')[0];
+        const formData = new FormData(form);
+        
+        let params = new URLSearchParams();
+        for (let pair of formData.entries()) {
+            if (pair[1]) {
+                params.append(pair[0], pair[1]);
+            }
+        }
+        
+        const url = "[[@{/wxRepair/export}]]?" + params.toString();
+        
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                if (response.headers.get('content-type').includes('application/json')) {
+                    return response.json().then(data => {
+                        throw new Error(data.errorMsg || '导出失败');
+                    });
+                } else {
+                    throw new Error('导出失败，服务器返回异常');
+                }
+            }
+            return response.blob();
+        })
+        .then(blob => {
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            a.download = `报修单数据_${new Date().getTime()}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(downloadUrl);
+            document.body.removeChild(a);
+            $('#exportModal').modal('hide');
+            swal("成功", "导出成功！", "success");
+        })
+        .catch(error => {
+            swal("失败", error.message, "error");
+        });
+    }
+
+    // 页面加载完成初始化
+    $(document).ready(function() {
+        // 初始化可编辑单元格
+        initEditableTd();
+        
+        // 照片查看事件绑定
+        $("#prevBtn").click(showPrevPhoto);
+        $("#nextBtn").click(showNextPhoto);
+        $("#zoomInBtn").click(function() { zoomPhoto(0.2); });
+        $("#zoomOutBtn").click(function() { zoomPhoto(-0.2); });
+        $("#zoomResetBtn").click(resetZoom);
+        
+        // 滚轮缩放
+        $("#photoViewer").on("wheel", function(e) {
+            e.preventDefault();
+            var delta = e.originalEvent.deltaY > 0 ? -0.1 : 0.1;
+            zoomPhoto(delta);
+        });
+        
+        // 点击图片切换下一张
+        $("#photoViewer").click(function() {
+            if (photoData.scale <= photoData.minScale) {
+                showNextPhoto();
+            }
+        });
+        
+        // 拖拽事件
+        $("#photoViewer").on("mousedown", startDrag);
+        $(document).on("mousemove", dragMove);
+        $(document).on("mouseup", endDrag);
+        $(document).on("mouseleave", endDrag);
+        
+        // 模态框关闭重置
+        $("#photoViewModal").on("hidden.bs.modal", function() {
+            resetZoom();
+            endDrag();
+        });
+
+        // 图片加载失败处理
+        $(document).on("error", ".photo-thumbnail", function() {
+            $(this).attr("src", "[[@{/assets/img/default-img.png}]]");
+        });
+        $(document).on("error", "#currentPhoto", function() {
+            $(this).attr("src", "[[@{/assets/img/default-img.png}]]");
+            $(this).attr("alt", "图片加载失败");
+        });
+
+        // 初始化列设置
+        var savedSettings = JSON.parse(localStorage.getItem('wxRepairColumnSettings')) || {};
+        applyColumnSettings(savedSettings);
+    });
+</script>
 </body>
 </html>

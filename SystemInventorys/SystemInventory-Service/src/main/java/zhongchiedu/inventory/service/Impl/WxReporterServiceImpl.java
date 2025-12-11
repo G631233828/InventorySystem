@@ -83,6 +83,8 @@ public class WxReporterServiceImpl extends GeneralServiceImpl<WxReporter> implem
 		        isInfoChanged = true;
 		    } else if (!Objects.equals(getwxReporter.getContactNumber(), wxReporter.getContactNumber())) {
 		        isInfoChanged = true;
+		    } else if (!Objects.equals(getwxReporter.getSchoolName(), wxReporter.getSchoolName())) {
+		        isInfoChanged = true;
 		    }
 		    // 5. 根据判断结果执行更新或跳过
 		    if (isInfoChanged) {

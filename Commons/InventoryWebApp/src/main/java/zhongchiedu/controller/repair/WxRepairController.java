@@ -41,6 +41,7 @@ import zhongchiedu.inventory.pojo.WxRepair;
 import zhongchiedu.inventory.pojo.WxReporter;
 import zhongchiedu.inventory.service.WxBindingService;
 import zhongchiedu.inventory.service.WxRepairService;
+import zhongchiedu.inventory.service.WxReporterService;
 import zhongchiedu.log.annotation.SystemControllerLog;
 import zhongchiedu.wx.template.WxMsgPush;
 
@@ -53,6 +54,9 @@ public class WxRepairController {
 
     @Autowired
     private WxBindingService wxBindingService;
+    
+    @Autowired
+    private WxReporterService wxReporterService;
 
     @Value("${upload-imgpath}")
     private String imgPath;
@@ -240,6 +244,8 @@ public class WxRepairController {
             dto.setEquipmentRepair(repair.getEquipmentRepair());
             dto.setUrgencyLevel(repair.getUrgencyLevel());
             dto.setCompleteTime(repair.getCompleteTime()!=null?repair.getCompleteTime():"未完成");
+            dto.setWorkDept(repair.getWorkDept()!=null?repair.getWorkDept():"无");
+            dto.setDescription(repair.getDescription()!=null?repair.getDescription():"无");
             // 格式化日期
             if (repair.getCreateTime() != null) {
                 dto.setCreateTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(repair.getCreateTime()));
@@ -314,7 +320,84 @@ public class WxRepairController {
     	}
     }
     
-    
+    /**
+     * 编辑报修人信息（整合版）
+     */
+    @PostMapping("/wxRepair/editWxReporter")
+    @ResponseBody
+    //@RequiresPermissions("wxRepair:editReporter")
+    public BasicDataResult editWxReporter(WxReporter wxReporter) {
+        try {
+            // 参数校验
+            if (wxReporter == null) {
+                return BasicDataResult.build(500, "报修人信息不能为空", null);
+            }
 
+            // 区分新增（无ID）和编辑（有ID）
+            if (wxReporter.getId() == null ) {
+                // 新增时校验所有必填字段
+                if (wxReporter.getUserName() == null || wxReporter.getUserName().trim().isEmpty()) {
+                    return BasicDataResult.build(500, "报修人姓名不能为空", null);
+                }
+                if (wxReporter.getContactNumber() == null || wxReporter.getContactNumber().trim().isEmpty()) {
+                    return BasicDataResult.build(500, "联系电话不能为空", null);
+                }
+                if (wxReporter.getSchoolName() == null || wxReporter.getSchoolName().trim().isEmpty()) {
+                    return BasicDataResult.build(500, "报修学校不能为空", null);
+                }
+            } else {
+                // 编辑时仅校验修改的字段（非空则校验格式）
+                if (wxReporter.getContactNumber() != null && !wxReporter.getContactNumber().trim().isEmpty()) {
+                    // 可选：校验手机号格式
+                    if (!wxReporter.getContactNumber().matches("^1[3-9]\\d{9}$")) {
+                        return BasicDataResult.build(500, "联系电话格式不正确", null);
+                    }
+                }
+                // 其他字段编辑时仅判空（如果传了值则不能为空）
+                if (wxReporter.getUserName() != null && wxReporter.getUserName().trim().isEmpty()) {
+                    return BasicDataResult.build(500, "报修人姓名不能为空", null);
+                }
+                if (wxReporter.getSchoolName() != null && wxReporter.getSchoolName().trim().isEmpty()) {
+                    return BasicDataResult.build(500, "报修学校不能为空", null);
+                }
+            }
+
+            // 调用服务层方法
+            WxReporter saveOrUpdate = wxReporterService.saveOrUpdate(wxReporter);
+            if (saveOrUpdate != null) {
+                // 修复：返回新增的ID，供前端同步
+                return BasicDataResult.build(200, "编辑报修人信息成功", saveOrUpdate);
+            } else {
+                return BasicDataResult.build(500, "编辑报修人信息失败", null);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return BasicDataResult.build(500, "编辑报修人信息异常：" + e.getMessage(), null);
+        }
+    }
+
+    
+    @PostMapping("/wxRepair/cancelRepairToComplete")
+    @RequiresPermissions(value = "wxRepair:cancel")
+    @SystemControllerLog(description = "维修直接完成")
+    @ResponseBody
+    public BasicDataResult cancelRepairToComplete(@RequestParam("repairId") String repairId,String workDept) {
+    	try {
+    		WxRepair wxRepair = wxRepairService.cancelRepairToComplete(repairId,workDept);
+    		if (Objects.nonNull(wxRepair)) {
+    			return BasicDataResult.build(200, "维修状态修改成功", wxRepair);
+    		} else {
+    			return BasicDataResult.build(400, "报修单不存在", null);
+    		}
+    	} catch (RuntimeException e) {
+    		log.error("取消分配失败：", e);
+    		return BasicDataResult.build(400, e.getMessage(), null);
+    	} catch (Exception e) {
+    		log.error("系统异常：", e);
+    		return BasicDataResult.build(500, "系统异常", null);
+    	}
+    }
+    
+    
 
 }

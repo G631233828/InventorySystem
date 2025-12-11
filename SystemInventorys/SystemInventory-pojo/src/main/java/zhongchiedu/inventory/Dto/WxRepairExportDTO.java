@@ -72,6 +72,16 @@ public class WxRepairExportDTO {
     @ExcelProperty("维修完成时间")
     @ColumnWidth(20)
     private String completeTime;
+    
+    @ExcelProperty("工单状态")
+    @ColumnWidth(20)
+    private String workDept;
+    
+    @ExcelProperty("维修单描述")
+    @ColumnWidth(20)
+    private String description;
+    
+    
 
     
     

@@ -283,6 +283,7 @@ public class WxRepairController {
 			@RequestParam("faultInformation") String faultInformation,
 			@RequestParam("urgencyLevel") String urgencyLevel,
 			@RequestParam("expectedVisitTime") String expectedVisitTime,
+			@RequestParam("equipmentYear") String equipmentYear,
 			@RequestParam(value = "photos", required = false) MultipartFile[] photos, HttpServletRequest request) {
 		try {
 			 // 1. 处理报修人信息：保存或更新（通过openId判断是否存在）
@@ -313,7 +314,7 @@ public class WxRepairController {
 			wxRepair.setFaultInformation(faultInformation);
 			wxRepair.setUrgencyLevel(urgencyLevel);
 			wxRepair.setExpectedVisitTime(expectedVisitTime.replace("T", " "));
-
+			wxRepair.setEquipmentYear(equipmentYear);
 			// 建议在这里设置一些默认值，比如创建时间和初始状态
 			wxRepair.setCreateTime(new Date());
 			wxRepair.setStatus(RepairStatus.PENDING.getCode()); // 例如：待处理
