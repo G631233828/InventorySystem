@@ -23,8 +23,10 @@ import me.chanjar.weixin.mp.api.WxMpService;
 import zhongchiedu.common.utils.Common;
 import zhongchiedu.common.utils.enums.PersonJoinAuditStatusEnum;
 import zhongchiedu.common.utils.enums.PersonnelType;
+import zhongchiedu.inventory.pojo.AfterSalesProjects;
 import zhongchiedu.inventory.pojo.WxBinding;
 import zhongchiedu.inventory.pojo.WxRepair;
+import zhongchiedu.inventory.service.AfterSalesProjectsService;
 import zhongchiedu.inventory.service.WxBindingService;
 import zhongchiedu.inventory.service.WxRepairService;
 import zhongchiedu.wx.config.WxMpProperties;
@@ -40,6 +42,8 @@ public class WxRepairDetailController {
 	// 注入报修单服务（用于查询报修单数据）
 	@Autowired
 	private WxRepairService wxRepairService;
+	@Autowired
+	private AfterSalesProjectsService afterSalesProjectsService;
 
 	@Autowired
 	private WxBindingService wxBindingService;
@@ -253,6 +257,9 @@ public class WxRepairDetailController {
 			model.addAttribute("openId", openId);
 			model.addAttribute("workers", findBindingsByPersonnelType);
 			model.addAttribute("repairId", repairId); // 将报修单ID也传递过去，用于后续提交分配
+			
+		    List<AfterSalesProjects> findAllinServiceProj = this.afterSalesProjectsService.findAllinServiceProj();
+	        model.addAttribute("projs", findAllinServiceProj);
 
 			// 3. 返回选择施工队的页面
 			return "school/select_worker";

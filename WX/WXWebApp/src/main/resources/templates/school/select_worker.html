@@ -16,18 +16,63 @@
         .worker-phone { color: #718096; font-size: 0.875rem; }
         .assign-btn { background-color: #48bb78; color: white; padding: 0.375rem 0.75rem; border-radius: 0.375rem; font-size: 0.875rem; }
         .assign-btn:hover { background-color: #38a169; }
+        /* 项目选择区域样式 */
+        .project-selector { border-bottom: 2px solid #f0f0f0; padding-bottom: 1.5rem; margin-bottom: 1.5rem; }
+        .project-search-input { border: 1px solid #e2e8f0; padding: 0.5rem 0.75rem; border-radius: 0.5rem; width: 100%; }
+        .project-list { max-height: 180px; overflow-y: auto; margin-top: 0.75rem; border: 1px solid #e2e8f0; border-radius: 0.5rem; }
+        .project-item { padding: 0.75rem 1rem; cursor: pointer; transition: background-color 0.2s; }
+        .project-item:hover { background-color: #f7fafc; }
+        .project-item.active { background-color: #e8f4f8; border-left: 3px solid #4299e1; }
+        .project-name { font-weight: 500; color: #2d3748; }
+        .project-school { font-size: 0.875rem; color: #718096; }
+        .no-project { padding: 1rem; text-align: center; color: #718096; }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen p-4">
     <div class="max-w-md mx-auto bg-white card p-6">
-        <!-- 添加openId隐藏域 -->
+        <!-- 隐藏域 -->
         <input type="hidden" id="openId" th:value="${openId}" />
+        <input type="hidden" id="repairId" th:value="${repairId}" />
+        <input type="hidden" id="selectedProjectId" value="" /> <!-- 选中的项目ID -->
         
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-xl font-bold text-gray-800">选择施工队人员</h1>
             <a th:href="@{/wechatrp/findWxRepair/{id}(id=${repairId})}" class="text-blue-500 hover:text-blue-700">
                 <i class="fa fa-arrow-left"></i> 返回
             </a>
+        </div>
+
+        <!-- 项目选择区域（新增） -->
+        <div class="project-selector">
+            <h2 class="text-lg font-semibold text-gray-700 mb-2">选择维保项目 <span class="text-red-500">*</span></h2>
+            <!-- 项目搜索框 -->
+            <div class="relative">
+                <input type="text" id="projectSearchInput" 
+                       class="project-search-input" 
+                       placeholder="搜索项目名称/学校名称..." 
+                       autocomplete="off">
+                <i class="fa fa-search absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            </div>
+            <!-- 项目列表 -->
+            <div class="project-list" id="projectList">
+                <!-- 无项目数据 -->
+                <div th:if="${projs == null or projs.isEmpty()}" class="no-project">
+                    <i class="fa fa-folder-open-o text-gray-300 mr-1"></i> 暂无维保项目数据
+                </div>
+                <!-- 项目列表项（初始渲染） -->
+                <div th:unless="${projs == null or projs.isEmpty()}" th:each="proj : ${projs}" 
+                     class="project-item" 
+                     th:data-project-id="${proj?.id}"
+                     th:data-project-name="${proj?.projectName}"
+                     th:data-school-name="${proj?.schoolName}">
+                    <p class="project-name" th:text="${proj?.projectName}">项目名称</p>
+                    <p class="project-school" th:text="'所属学校: ' + ${proj?.schoolName}">所属学校: 测试学校</p>
+                </div>
+            </div>
+            <!-- 选中的项目提示 -->
+            <p id="selectedProjectTip" class="mt-2 text-sm text-gray-500 hidden">
+                已选中：<span id="selectedProjectName" class="text-blue-600 font-medium"></span>
+            </p>
         </div>
 
         <!-- 施工队人员列表 -->
@@ -38,7 +83,6 @@
                     <p class="worker-phone" th:text="'联系电话: ' + ${worker?.contactNumber}">联系电话: 13800138000</p>
                 </div>
                 <button class="assign-btn" 
-                        th:data-repair-id="${repairId}" 
                         th:data-worker-id="${worker?.id}"
                         th:data-worker-name="|${worker?.team}团队${worker?.name}|">
                     <i class="fa fa-user-plus mr-1"></i> 分配
@@ -46,7 +90,7 @@
             </div>
         </div>
 
-        <!-- 没有数据时的提示 -->
+        <!-- 没有施工队数据时的提示 -->
         <div th:if="${workers == null or workers.isEmpty()}" class="text-center py-10">
             <i class="fa fa-users text-gray-300 text-4xl mb-4"></i>
             <p class="text-gray-500">暂无施工队人员信息</p>
@@ -67,33 +111,115 @@
                 container.style.transform = 'translateY(0)';
             }, 100);
 
-            // 为分配按钮添加点击事件
+            // ========== 项目选择 + 搜索功能（核心新增） ==========
+            const projectSearchInput = document.getElementById('projectSearchInput');
+            const projectList = document.getElementById('projectList');
+            const selectedProjectId = document.getElementById('selectedProjectId');
+            const selectedProjectTip = document.getElementById('selectedProjectTip');
+            const selectedProjectName = document.getElementById('selectedProjectName');
+            // 原始项目数据（备份，用于搜索过滤）
+            let originalProjects = [];
+
+            // 初始化原始项目数据
+            if (projectList.querySelector('.project-item')) {
+                originalProjects = Array.from(projectList.querySelectorAll('.project-item')).map(item => ({
+                    id: item.getAttribute('data-project-id'),
+                    name: item.getAttribute('data-project-name'),
+                    school: item.getAttribute('data-school-name'),
+                    element: item
+                }));
+            }
+
+            // 项目搜索过滤逻辑
+            projectSearchInput.addEventListener('input', function(e) {
+                const searchKeyword = e.target.value.trim().toLowerCase();
+                // 清空现有列表（保留无数据提示）
+                if (originalProjects.length > 0) {
+                    projectList.innerHTML = '';
+                }
+
+                // 无搜索词时显示全部项目
+                if (!searchKeyword) {
+                    originalProjects.forEach(proj => {
+                        projectList.appendChild(proj.element);
+                    });
+                    return;
+                }
+
+                // 过滤项目（匹配项目名称或学校名称）
+                const filteredProjects = originalProjects.filter(proj => 
+                    proj.name.toLowerCase().includes(searchKeyword) || 
+                    proj.school.toLowerCase().includes(searchKeyword)
+                );
+
+                // 渲染过滤后的项目
+                if (filteredProjects.length > 0) {
+                    filteredProjects.forEach(proj => {
+                        projectList.appendChild(proj.element);
+                    });
+                } else {
+                    projectList.innerHTML = '<div class="no-project"><i class="fa fa-search text-gray-300 mr-1"></i> 未找到匹配的项目</div>';
+                }
+            });
+
+            // 项目选中逻辑
+            projectList.addEventListener('click', function(e) {
+                const projectItem = e.target.closest('.project-item');
+                if (!projectItem) return;
+
+                // 移除其他项目的选中状态
+                document.querySelectorAll('.project-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                // 添加当前项目选中状态
+                projectItem.classList.add('active');
+                
+                // 更新选中的项目信息
+                const projId = projectItem.getAttribute('data-project-id');
+                const projName = projectItem.getAttribute('data-project-name');
+                const schoolName = projectItem.getAttribute('data-school-name');
+                
+                selectedProjectId.value = projId;
+                selectedProjectName.textContent = `${projName}（${schoolName}）`;
+                selectedProjectTip.classList.remove('hidden');
+            });
+
+            // ========== 施工队分配逻辑（修改：添加projectId校验和参数） ==========
             document.querySelectorAll('.assign-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
-                    const repairId = this.getAttribute('data-repair-id');
+                    // 1. 获取参数
+                    const repairId = document.getElementById('repairId').value;
                     const workerId = this.getAttribute('data-worker-id');
                     const workerName = this.getAttribute('data-worker-name');
-                    const openId = document.getElementById('openId').value; // 获取openId
+                    const openId = document.getElementById('openId').value;
+                    const projectId = selectedProjectId.value;
 
-                    if(confirm(`确定要将报修单分配给 ${workerName} 吗？`)) {
-                        // 发起POST请求到后端doAssign接口
+                    // 2. 校验项目是否选中
+                    if (!projectId) {
+                        alert('请先选择维保项目！');
+                        return;
+                    }
+
+                    // 3. 确认分配
+                    if(confirm(`确定要将报修单分配给 ${workerName} 吗？\n项目：${selectedProjectName.textContent}`)) {
+                        // 4. 发起请求（添加projectId参数）
                         fetch('../wechatrp/doAssign', {
                             method: 'POST',
                             headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                                // 若有登录态（如Token），需添加认证头（根据你的权限框架调整）
-                                // 'Authorization': 'Bearer ' + localStorage.getItem('token')
+                                'Content-Type': 'application/x-www-form-urlencoded'
                             },
-                            body: `repairId=${repairId}&id=${workerId}&openId=${openId}` // 添加openId参数
+                            body: `repairId=${repairId}&id=${workerId}&openId=${openId}&projectId=${projectId}` // 新增projectId参数
                         })
-                        .then(response => response.json()) // 解析后端返回的JSON（BasicDataResult）
+                        .then(response => {
+                            if (!response.ok) throw new Error('请求失败');
+                            return response.json();
+                        })
                         .then(result => {
                             if (result.status === 200) {
-                                alert(result.msg); // 显示成功消息（如"分配成功"）
-                                // 跳转回报修单详情页（根据你的路径调整）
+                                alert(result.msg);
                                 window.location.href = `../wechatrp/operator_repairlist`;
                             } else {
-                                alert('分配失败：' + result.msg); // 显示错误消息（如"报修单已分配"）
+                                alert('分配失败：' + (result.msg || '未知错误'));
                             }
                         })
                         .catch(error => {

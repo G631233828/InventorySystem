@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 公共CSS引入 -->
+    <th:block th:include="public/public_css::pub_css"></th:block>
+    <!-- 自定义样式引入 -->
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/js/progress-bar/number-pb.css}">
+    <link th:href="@{/plugs/sweetalert/sweetalert.css}" rel="stylesheet">
+    <style>
+        /* 表格滚动容器 - 核心样式 */
+        .table-scroll-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            width: 100%;
+            margin: 0 auto;
+            scrollbar-width: thin;
+            scrollbar-color: #888 #f1f1f1;
+        }
+        .table-scroll-container::-webkit-scrollbar {
+            height: 8px;
+        }
+        .table-scroll-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        .table-scroll-container::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        .table-scroll-container::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* 表格基础样式 */
+        .table-scroll-container table {
+            width: 100%;
+            table-layout: auto;
+            min-width: max-content;
+            border-collapse: collapse;
+        }
+        .table-scroll-container table th,
+        .table-scroll-container table td {
+            vertical-align: middle;
+            overflow: visible;
+            text-overflow: clip;
+            padding: 8px 12px;
+            white-space: nowrap;
+            word-wrap: normal;
+            word-break: keep-all;
+        }
+
+        /* 列最小宽度配置 - 适配业务场景 */
+        .table-scroll-container table th[data-column-id="checkbox"],
+        .table-scroll-container table td[data-column-id="checkbox"] { min-width: 40px !important; text-align: center; }
+        .table-scroll-container table th[data-column-id="projectName"],
+        .table-scroll-container table td[data-column-id="projectName"] { min-width: 180px; }
+        .table-scroll-container table th[data-column-id="schoolName"],
+        .table-scroll-container table td[data-column-id="schoolName"] { min-width: 150px; }
+        .table-scroll-container table th[data-column-id="winningBidder"],
+        .table-scroll-container table td[data-column-id="winningBidder"] { min-width: 150px; }
+        .table-scroll-container table th[data-column-id="contactTeacher"],
+        .table-scroll-container table td[data-column-id="contactTeacher"] { min-width: 100px; }
+        .table-scroll-container table th[data-column-id="teacherPhone"],
+        .table-scroll-container table td[data-column-id="teacherPhone"] { min-width: 130px; }
+        .table-scroll-container table th[data-column-id="schoolAddress"],
+        .table-scroll-container table td[data-column-id="schoolAddress"] { min-width: 250px; }
+        .table-scroll-container table th[data-column-id="worker"],
+        .table-scroll-container table td[data-column-id="worker"] { min-width: 100px; }
+        .table-scroll-container table th[data-column-id="warrantyStartTime"],
+        .table-scroll-container table td[data-column-id="warrantyStartTime"] { min-width: 120px; }
+        .table-scroll-container table th[data-column-id="warrantyEndTime"],
+        .table-scroll-container table td[data-column-id="warrantyEndTime"] { min-width: 120px; }
+        .table-scroll-container table th[data-column-id="projectYear"],
+        .table-scroll-container table td[data-column-id="projectYear"] { min-width: 100px; }
+        .table-scroll-container table th[data-column-id="isInWarranty"],
+        .table-scroll-container table td[data-column-id="isInWarranty"] { min-width: 100px; text-align: center; }
+        .table-scroll-container table th[data-column-id="status"],
+        .table-scroll-container table td[data-column-id="status"] { min-width: 100px; text-align: center; }
+        .table-scroll-container table th[data-column-id="operation"],
+        .table-scroll-container table td[data-column-id="operation"] { min-width: 200px; text-align: center; }
+
+        /* 按钮容器样式 */
+        .btn-group-container {
+            margin-left: auto;
+            display: flex;
+            gap: 5px;
+        }
+        /* 列设置按钮 - 强制靠最右 */
+        .column-setting-btn {
+            margin-left: 10px !important;
+            order: 999; /* 确保优先级最高，排在最右 */
+        }
+
+        /* 搜索栏样式优化 */
+        .search-form {
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .search-form .form-group {
+            margin-bottom: 0;
+        }
+
+        /* 响应式适配 */
+        @media (max-width: 992px) {
+            .search-form {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .column-setting-btn {
+                margin-left: 0 !important;
+                margin-top: 8px;
+                align-self: flex-start;
+            }
+            .search-form .form-inline {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Preloader -->
+<div id="preloader">
+    <div id="status">&nbsp;</div>
+</div>
+<!-- TOP NAVBAR -->
+<div th:replace="public/public::top"></div>
+<!-- /END OF TOP NAVBAR -->
+<!-- SIDE MENU -->
+<div th:replace="public/public::left(activeUri='repair')"></div>
+<!-- END OF SIDE MENU -->
+<!--  PAPER WRAP -->
+<div class="wrap-fluid">
+    <div class="container-fluid paper-wrap bevel tlbr">
+        <!-- CONTENT -->
+        <!--TITLE -->
+        <div th:replace="public/public::title"></div>
+        <!--/ TITLE -->
+        <!-- BREADCRUMB -->
+        <div th:replace="public/public::menu"></div>
+        <!-- END OF BREADCRUMB -->
+        <div class="content-wrap">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="body-nest" id="alert" th:if="${errorImport!=''}">
+                        <div class="alert alert-danger">
+                            <button data-dismiss="alert" class="close" type="button">×</button>
+                            <th:block th:utext="${errorImport}"></th:block>
+                        </div>
+                    </div>
+
+                    <div class="nest" id="tableStaticClose">
+                        <div class="title-alt">
+                            <div class="search-form">
+                                <!-- 原有操作按钮 -->
+                                <shiro:hasPermission name="afterSalesProjects:add">
+                                    <button class="btn btn-default btn-sm"
+                                            th:onclick="|window.location.href='@{/afterSalesProject}'|">
+                                        <i class="glyphicon glyphicon-plus"> </i> 添加
+                                    </button>
+                                </shiro:hasPermission>
+                                <shiro:hasPermission name="afterSalesProjects:edit">
+                                    <button class="btn btn-primary btn-sm"
+                                            onclick="return toeditPage('','afterSalesProject')">
+                                        <i class="fa fa-edit"> </i>编辑
+                                    </button>
+                                </shiro:hasPermission>
+                                <shiro:hasPermission name="afterSalesProjects:delete">
+                                    <button class="btn btn-danger btn-sm"
+                                            th:onclick="|return del('','@{/afterSalesProject/}')|">
+                                        <i class="fa fa-trash-o"> </i>删除
+                                    </button>
+                                </shiro:hasPermission>
+                                <shiro:hasPermission name="afterSalesProjects:batch">
+                                    <button class="btn btn-success" onclick="return batchImput()">
+                                        <i class="fontawesome-upload"> </i>批量导入
+                                    </button>
+                                </shiro:hasPermission>
+
+                                <!-- 搜索区域 - 靠右显示 -->
+                                <div class="form-inline ml-auto">
+                                    <select class="filter-status form-control input-sm" id="pageSize"
+                                            onchange="return searchSize()">
+                                        <option value="10" th:selected="${pageSize == 10}">10</option>
+                                        <option value="20" th:selected="${pageSize == 20}">20</option>
+                                        <option value="50" th:selected="${pageSize == 50}">50</option>
+                                        <option value="100" th:selected="${pageSize == 100}">100</option>
+                                    </select>
+                                    <input class="form-control input-sm ml-2" id="serach" placeholder="模糊匹配所有字段（名称/年份/地址等）"
+                                           th:value="${search}" type="text" style="width: 200px;">
+                                    <button class="btn btn-default btn-sm ml-2"
+                                            onclick="return searchVal()">
+                                        <i class="entypo-search"> </i> 搜索
+                                    </button>
+                                </div>
+
+                                <!-- 列设置按钮 - 移到最右侧（ml-auto的搜索区域后，order:999确保最右） -->
+                                <button type="button" class="btn btn-default btn-sm column-setting-btn"
+                                        onclick="openColumnSetting()">
+                                    <i class="fa fa-cog"> </i>列设置
+                                </button>
+                            </div>
+                            <div class="titleClose">
+                                <a class="gone" href="#tableStaticClose"> <span class="entypo-cancel"></span>
+                                </a>
+                            </div>
+                            <div class="titleToggle">
+                                <a class="nav-toggle-alt" href="#tableStatic"> <span class="entypo-up-open"></span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="body-nest" id="tableStatic">
+                            <!-- 新增：表格滚动容器 -->
+                            <div class="table-scroll-container">
+                                <section id="flip-scroll">
+                                    <table class="table table-bordered table-striped cf">
+                                        <thead class="cf">
+                                        <tr>
+                                            <th class="numeric" data-column-id="checkbox" style="width: 20px;">
+                                                <div class="checkbox checkbox-inline" style="margin-top: 0px;">
+                                                    <input type="checkbox" id="checkall" name="checkall" />
+                                                    <label for="checkall"></label>
+                                                </div>
+                                            </th>
+                                            <th class="numeric" data-column-id="projectName">项目名称</th>
+                                            <th class="numeric" data-column-id="schoolName">学校名称</th>
+                                            <th class="numeric" data-column-id="winningBidder">中标单位</th>
+                                            <th class="numeric" data-column-id="contactTeacher">联系老师</th>
+                                            <th class="numeric" data-column-id="teacherPhone">老师电话</th>
+                                            <th class="numeric" data-column-id="schoolAddress">学校地址</th>
+                                            <th class="numeric" data-column-id="worker">施工队</th>
+                                            <th class="numeric" data-column-id="warrantyStartTime">保修开始时间</th>
+                                            <th class="numeric" data-column-id="warrantyEndTime">保修截止时间</th>
+                                            <th class="numeric" data-column-id="projectYear">项目年份</th>
+                                            <th class="numeric" data-column-id="isInWarranty">是否在保</th>
+                                            <th class="numeric" data-column-id="operation">操作</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <th:block th:each="project:${pageList.datas}">
+                                            <tr>
+                                                <td class="numeric" data-column-id="checkbox">
+                                                    <div class="checkbox checkbox-inline" style="margin-top: 0px;">
+                                                        <input type="checkbox" name="ids" th:id="${project.id}"
+                                                               class="numeric" th:value="${project.id}">
+                                                        <label th:for="${project.id}"></label>
+                                                    </div>
+                                                </td>
+                                                <td class="numeric" data-column-id="projectName">[[${project?.projectName} ?: '-']]</td>
+                                                <td class="numeric" data-column-id="schoolName">[[${project?.schoolName} ?: '-']]</td>
+                                                <td class="numeric" data-column-id="winningBidder">[[${project?.winningBidder} ?: '-']]</td>
+                                                <td class="numeric" data-column-id="contactTeacher">[[${project?.contactTeacher} ?: '-']]</td>
+                                                <td class="numeric" data-column-id="teacherPhone">[[${project?.teacherPhone} ?: '-']]</td>
+                                                <td class="numeric" data-column-id="schoolAddress">[[${project?.schoolAddress} ?: '-']]</td>
+                                                <td class="numeric" data-column-id="worker">[[${project?.worker} ?: '-']]</td>
+                                                <td class="numeric" data-column-id="warrantyStartTime">[[${project?.warrantyStartTime} ?: '-']]</td>
+                                                <td class="numeric" data-column-id="warrantyEndTime">[[${project?.warrantyEndTime} ?: '-']]</td>
+                                                <td class="numeric" data-column-id="projectYear">[[${project?.projectYear} ?: '-']]</td>
+                                                <!-- 是否在保列 - 优化后逻辑 -->
+                                                <td class="numeric" data-column-id="isInWarranty">
+                                                    <th:block th:if="${#strings.isEmpty(project?.warrantyEndTime) || #strings.isEmpty(today)}">-</th:block>
+                                                    <th:block th:unless="${#strings.isEmpty(project?.warrantyEndTime) || #strings.isEmpty(today)}">
+                                                        <span th:if="${project.warrantyEndTime ge today}" style="color: green; font-weight: 500;">在保</span>
+                                                        <span th:unless="${project.warrantyEndTime ge today}" style="color: red; font-weight: 500;">不在保</span>
+                                                    </th:block>
+                                                </td>
+                                                <td class="numeric" data-column-id="status" th:id="disBtn+${project.id}"
+                                                    shiro:hasPermission="|afterSalesProjects:disable|"
+                                                    th:utext="${project.isDisable eq true }?
+                                                    |<button type='button' onclick=toDisable('${project.id}','afterSalesProject') class='btn btn-danger btn-xs'>禁用</button>|
+                                                    :|<button type='button' onclick=toDisable('${project.id}','afterSalesProject') class='btn btn-success btn-xs'>启用</button>|">
+                                                </td>
+                                                <td class="numeric" data-column-id="operation">
+                                                    <shiro:hasPermission name="afterSalesProjects:edit">
+                                                        <button class="btn btn-primary btn-xs"
+                                                                th:onclick="|return toeditPage('${project.id}','afterSalesProject')|">
+                                                            <i class="fa fa-edit"> </i>编辑
+                                                        </button>
+                                                    </shiro:hasPermission>
+                                                    <shiro:hasPermission name="afterSalesProjects:delete">
+                                                        <button class="btn btn-danger btn-xs"
+                                                                th:onclick="|return del('@{/afterSalesProject/}${project.id}','')|">
+                                                            <i class="fa fa-trash-o"> </i>删除
+                                                        </button>
+                                                    </shiro:hasPermission>
+                                                </td>
+                                            </tr>
+                                        </th:block>
+                                        </tbody>
+                                    </table>
+                                </section>
+                            </div>
+
+                            <form method="post" id="deleteForm">
+                                <input name="_method" value="delete" type="hidden">
+                            </form>
+                            <div class="row mt-2">
+                                <div class="col-md-12">
+                                    <div class="col-md-6">
+                                        <div class="dataTables_info hidden-xs"
+                                             style="margin-top: 0px;" role="status" aria-live="polite"
+                                             th:text="|每页显示${pageList.pageSize}行 － 当前页${pageList.pageNo}页 － 共${pageList.totalPage}页|">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <ul class="pagination pagination-split pull-right"
+                                            style="margin-top: 0px;">
+                                            <li th:class="${pageList.pageNo } eq 1 ?disabled:''">
+                                                <a th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/afterSalesProjects(pageNo=${pageList.upPage},pageSize=${pageSize},search=${search})}">上一页</a>
+                                            </li>
+                                            <li th:each="page:${pageList.navigatepageNums}"
+                                                th:class="${page  == pageList.pageNo}?active:''">
+                                                <a th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/afterSalesProjects(pageNo=${page},pageSize=${pageSize},search=${search})}">[[${page}]]</a>
+                                            </li>
+                                            <li th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
+                                                <a th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/afterSalesProjects(pageNo=${pageList.nextPage},pageSize=${pageSize},search=${search})}">下一页</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 新增：列设置模态框 -->
+        <div class="modal fade" id="columnSettingModal" tabindex="-1" role="dialog" aria-labelledby="columnSettingModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title" id="columnSettingModalLabel">自定义列显示</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="columnCheckboxes" class="checkbox-list">
+                            <!-- 动态生成列复选框 -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" onclick="saveColumnSettings()">保存设置</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:replace="public/public::myModal"></div>
+        <div th:replace="admin/afterSalesProjects/batch::mybatch"></div>
+    </div>
+</div>
+<!-- 脚本引入 -->
+<script type="text/javascript" th:inline="javascript"
+        th:src="@{/js/admin/afterSalesProjects/afterSalesProjectslist.js}"></script>
+<script type="text/javascript" th:src="@{/plugs/prettyfile/bootstrap-prettyfile.js}"></script>
+<!-- 右侧隐藏菜单start -->
+<div th:replace="public/public::right"></div>
+<!-- 右侧隐藏菜单end-->
+<!-- 底部js -->
+<div th:replace="public/public_js::pub_js"></div>
+<div th:replace="public/public_js::public_script"></div>
+<div th:replace="public/public::footer"></div>
+<!-- Sweet alert -->
+<script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
+<div th:replace="public/public_js::validator"></div>
+
+<!-- 新增：列设置核心JS -->
+<script type="text/javascript">
+    // 列配置定义 - 与表格data-column-id对应
+    var columnConfigs = [
+        {id: 'checkbox', name: '复选框'},
+        {id: 'projectName', name: '项目名称'},
+        {id: 'schoolName', name: '学校名称'},
+        {id: 'winningBidder', name: '中标单位'},
+        {id: 'contactTeacher', name: '联系老师'},
+        {id: 'teacherPhone', name: '老师电话'},
+        {id: 'schoolAddress', name: '学校地址'},
+        {id: 'worker', name: '施工队'},
+        {id: 'warrantyStartTime', name: '保修开始时间'},
+        {id: 'warrantyEndTime', name: '保修截止时间'},
+        {id: 'projectYear', name: '项目年份'},
+        {id: 'isInWarranty', name: '是否在保'},
+        {id: 'status', name: '使用状态'},
+        {id: 'operation', name: '操作'}
+    ];
+
+    // 打开列设置模态框
+    function openColumnSetting() {
+        var columnCheckboxes = $('#columnCheckboxes');
+        columnCheckboxes.empty();
+        // 读取本地存储的列设置，无则默认全部显示
+        var savedSettings = JSON.parse(localStorage.getItem('afterSalesColumnSettings')) || {};
+
+        columnConfigs.forEach(function(column) {
+            var isChecked = savedSettings[column.id] !== false;
+            var checkboxHtml = '<div class="checkbox checkbox-inline mb-1">'
+                    + '<input type="checkbox" id="col_' + column.id
+                    + '" name="column" value="' + column.id + '" '
+                    + (isChecked ? 'checked' : '') + '>'
+                    + '<label for="col_' + column.id + '">' + column.name
+                    + '</label>' + '</div>';
+            columnCheckboxes.append(checkboxHtml);
+        });
+
+        $('#columnSettingModal').modal('show');
+    }
+
+    // 保存列设置到本地存储并应用
+    function saveColumnSettings() {
+        var selectedColumns = {};
+        $('input[name="column"]').each(function() {
+            selectedColumns[$(this).val()] = $(this).is(':checked');
+        });
+
+        // 存储到本地
+        localStorage.setItem('afterSalesColumnSettings', JSON.stringify(selectedColumns));
+        // 应用列显示/隐藏
+        applyColumnSettings(selectedColumns);
+        // 关闭模态框
+        $('#columnSettingModal').modal('hide');
+        // 提示
+        swal("成功", "列设置已保存！", "success");
+    }
+
+    // 应用列设置（显示/隐藏）
+    function applyColumnSettings(settings) {
+        // 处理表头
+        $('th[data-column-id]').each(function() {
+            var columnId = $(this).data('column-id');
+            $(this).toggle(settings[columnId] !== false);
+        });
+
+        // 处理表格体
+        $('tbody tr').each(function() {
+            $(this).find('td[data-column-id]').each(function() {
+                var columnId = $(this).data('column-id');
+                $(this).toggle(settings[columnId] !== false);
+            });
+        });
+    }
+
+    // 页面加载完成初始化
+    $(document).ready(function() {
+        // 初始化列设置（读取本地存储）
+        var savedSettings = JSON.parse(localStorage.getItem('afterSalesColumnSettings')) || {};
+        applyColumnSettings(savedSettings);
+
+        // 优化分页链接 - 保留搜索条件（原有分页可能丢失参数）
+        $('.pagination a').each(function() {
+            var href = $(this).attr('href');
+            if (href && href.indexOf('javascript') === -1) {
+                var searchVal = $('#serach').val();
+                var pageSizeVal = $('#pageSize').val();
+                // 补充搜索和分页大小参数
+                if (searchVal) {
+                    href += (href.indexOf('?') > -1 ? '&' : '?') + 'search=' + encodeURIComponent(searchVal);
+                }
+                if (pageSizeVal) {
+                    href += (href.indexOf('?') > -1 ? '&' : '?') + 'pageSize=' + pageSizeVal;
+                }
+                $(this).attr('href', href);
+            }
+        });
+    });
+</script>
+</body>
+</html>

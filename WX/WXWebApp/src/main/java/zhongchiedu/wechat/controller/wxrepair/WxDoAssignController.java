@@ -57,7 +57,10 @@ public class WxDoAssignController {
 	 */
 	@PostMapping("/doAssign")
 	@ResponseBody
-	public BasicDataResult doAssign(@RequestParam("repairId") String repairId, @RequestParam("id") String id,@RequestParam("openId") String openId) {
+	public BasicDataResult doAssign(@RequestParam("repairId") String repairId,
+			@RequestParam("id") String id,
+			@RequestParam("projectId") String projectId,
+			@RequestParam("openId") String openId) {
 
 		try {
 			// 1. 参数校验（避免空指针或无效ID）
@@ -80,9 +83,9 @@ public class WxDoAssignController {
            		return BasicDataResult.build(400, "人员访问异常！请联系管理员", null);
            	}
 			
-			
+			//TODO 要传绑定项目
 			// 2. 调用业务层执行分配逻辑（核心业务，需你自行实现Service层）
-			WxRepair wxRepair = wxRepairService.assignWorkerToRepair(repairId, id);
+			WxRepair wxRepair = wxRepairService.assignWorkerToRepair(repairId, id,projectId);
 
 			// 3. 根据业务结果返回对应信息
 			if (wxRepair != null) {

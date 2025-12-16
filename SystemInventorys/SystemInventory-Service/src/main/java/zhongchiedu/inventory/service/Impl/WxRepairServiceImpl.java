@@ -32,8 +32,10 @@ import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralServiceImpl;
 import zhongchiedu.general.pojo.MultiMedia;
 import zhongchiedu.general.service.Impl.MultiMediaServiceImpl;
+import zhongchiedu.inventory.pojo.AfterSalesProjects;
 import zhongchiedu.inventory.pojo.WxBinding;
 import zhongchiedu.inventory.pojo.WxRepair;
+import zhongchiedu.inventory.service.AfterSalesProjectsService;
 import zhongchiedu.inventory.service.WxBindingService;
 import zhongchiedu.inventory.service.WxRepairService;
 import zhongchiedu.inventory.service.WxReporterService;
@@ -50,6 +52,9 @@ public class WxRepairServiceImpl extends GeneralServiceImpl<WxRepair> implements
 
 	@Autowired
 	private WxReporterService wxReporterService;
+	
+	@Autowired
+	private AfterSalesProjectsService afterSalesProjectsService;
 
 	@Override
 	public Pagination<WxRepair> findpagination(Integer pageNo, Integer pageSize, String search, Integer status,
@@ -63,6 +68,7 @@ public class WxRepairServiceImpl extends GeneralServiceImpl<WxRepair> implements
 			Criteria ca = new Criteria();
 			if (Common.isNotEmpty(search)) {
 				List<ObjectId> findIdsBySearch = this.wxReporterService.findIdsBySearch(search);
+				List<ObjectId> findprojIdsBySearch = this.afterSalesProjectsService.findIdsBySearch(search);
 				query.addCriteria(ca.orOperator(Criteria.where("workOrderNumber").regex(search, "i"),
 						Criteria.where("faultInformation").regex(search, "i"),
 						Criteria.where("reportClassroomRepair").regex(search, "i"),
@@ -70,7 +76,9 @@ public class WxRepairServiceImpl extends GeneralServiceImpl<WxRepair> implements
 						Criteria.where("equipmentYear").regex(search, "i"),
 						Criteria.where("repairContent").regex(search, "i"),
 						Criteria.where("workDept").regex(search, "i"),
-						Criteria.where("wxReporter.$id").in(findIdsBySearch)));
+						Criteria.where("wxReporter.$id").in(findIdsBySearch),
+						Criteria.where("project.$id").in(findprojIdsBySearch)
+						));
 			}
 
 			// 2. 维修状态条件
@@ -160,13 +168,24 @@ public class WxRepairServiceImpl extends GeneralServiceImpl<WxRepair> implements
 
 	// 根据报修单id 跟拿过来的维修人员（wxbinding）的id来绑定 分配任务给施工队
 	@Override
-	public WxRepair assignWorkerToRepair(String repairId, String id) {
+	public WxRepair assignWorkerToRepair(String repairId, String id,String projectId) {
+		
+	
+		
 		WxRepair wxRepair = this.findOneById(repairId, WxRepair.class);
 		if (wxRepair == null)
 			return null;
 		WxBinding wxBinding = this.wxBindingService.findOneById(id, WxBinding.class);
 		if (wxBinding == null)
 			return null;
+		
+		if(projectId!=null) {
+			AfterSalesProjects afterSalesProjects = this.afterSalesProjectsService.findOneById(projectId, AfterSalesProjects.class);
+			if(afterSalesProjects == null ||afterSalesProjects.getIsDelete()||afterSalesProjects.getIsDisable()) {
+				return null;
+			}
+			wxRepair.setProject(afterSalesProjects);
+		}
 		wxRepair.setWorker(wxBinding);
 		wxRepair.setStatus(RepairStatus.ASSIGNED.getCode());// 修改状态 已分配
 		this.save(wxRepair);

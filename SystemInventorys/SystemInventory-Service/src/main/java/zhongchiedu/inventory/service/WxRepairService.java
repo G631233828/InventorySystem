@@ -20,7 +20,7 @@ public interface WxRepairService extends GeneralService<WxRepair> {
 	
 	public List<WxRepair> findWxRepairByOpenId(String openId);
 
-	public WxRepair assignWorkerToRepair(String repairId, String id);
+	public WxRepair assignWorkerToRepair(String repairId, String id, String projectId);
 
 	public WxRepair confirmRepair(String repairId);
 

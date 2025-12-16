@@ -47,6 +47,8 @@ public class WxRepair extends GeneralBean<WxRepair> {
 	private String workDept;//工单状态  销售部  工程部
 	
 	private String equipmentYear;//设备年份
+	@DBRef
+	private AfterSalesProjects project;
 	
 	
 	

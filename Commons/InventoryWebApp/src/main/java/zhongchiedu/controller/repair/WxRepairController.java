@@ -36,9 +36,11 @@ import zhongchiedu.common.utils.enums.PersonJoinAuditStatusEnum;
 import zhongchiedu.common.utils.enums.PersonnelType;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.inventory.Dto.WxRepairExportDTO;
+import zhongchiedu.inventory.pojo.AfterSalesProjects;
 import zhongchiedu.inventory.pojo.WxBinding;
 import zhongchiedu.inventory.pojo.WxRepair;
 import zhongchiedu.inventory.pojo.WxReporter;
+import zhongchiedu.inventory.service.AfterSalesProjectsService;
 import zhongchiedu.inventory.service.WxBindingService;
 import zhongchiedu.inventory.service.WxRepairService;
 import zhongchiedu.inventory.service.WxReporterService;
@@ -73,7 +75,8 @@ public class WxRepairController {
 	@Autowired
 	private WxMsgPush wxMsgPush; 
     
-
+	@Autowired
+	private AfterSalesProjectsService afterSalesProjectsService;
 	/**
 	 * 报修单列表查询（分页+条件）
 	 */
@@ -91,6 +94,10 @@ public class WxRepairController {
 	    Pagination<WxRepair> pagination = wxRepairService.findpagination(pageNo, pageSize, search, status, urgencyLevel, workerId);
 	    
 	    List<WxBinding> findBindingsByPersonnelType = this.wxBindingService.findBindingsByPersonnelType(PersonnelType.CONSTRUCTION_TEAM,PersonJoinAuditStatusEnum.APPROVED);
+	    
+	    
+        List<AfterSalesProjects> findAllinServiceProj = this.afterSalesProjectsService.findAllinServiceProj();
+        model.addAttribute("projs", findAllinServiceProj);
 	    
 	    model.addAttribute("pageList", pagination);
 
@@ -141,9 +148,11 @@ public class WxRepairController {
     @SystemControllerLog(description = "分配维修人员")
     @ResponseBody
     public BasicDataResult assignWorker(@RequestParam("repairId") String repairId,
-                                        @RequestParam("workerId") String workerId) {
+                                        @RequestParam("workerId") String workerId,
+                                        @RequestParam("projectId") String projectId
+                                        ) {
         try {
-            WxRepair wxRepair = wxRepairService.assignWorkerToRepair(repairId, workerId);
+            WxRepair wxRepair = wxRepairService.assignWorkerToRepair(repairId, workerId,projectId);
             if (Objects.nonNull(wxRepair)) {
             	
 
