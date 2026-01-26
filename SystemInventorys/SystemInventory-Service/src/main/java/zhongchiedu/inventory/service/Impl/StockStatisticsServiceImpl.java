@@ -530,7 +530,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			}
 			// 更新统计
 			st.setRevoke(true);
-			st.setRevokeNum(st.getRevokeNum() + num);
+			st.setRevokeNum(st.getRevokeNum() == null?0.0:st.getRevokeNum() + num);
 
 			StockStatistics stockStatistics = updateStockStatistics(st);
 

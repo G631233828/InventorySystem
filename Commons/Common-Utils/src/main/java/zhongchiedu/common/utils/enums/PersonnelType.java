@@ -4,20 +4,26 @@ import java.util.Optional;
 
 /**
  * 人员类型枚举
- * 1: 施工队
+ * 1: 施工队（维修人员）
  * 2: 调度人员
+ * 3: 销售人员
  */
 public enum PersonnelType {
 
     /**
-     *维修人员（值为1）
+     * 维修人员（值为1）
      */
     CONSTRUCTION_TEAM(1, "维修人员"),
 
     /**
      * 调度人员（值为2）
      */
-    DISPATCHER(2, "调度人员");
+    DISPATCHER(2, "调度人员"),
+
+    /**
+     * 销售人员（值为3）
+     */
+    SALESPERSON(3, "销售人员");
 
     /**
      * 人员类型编码（数据库存储用）

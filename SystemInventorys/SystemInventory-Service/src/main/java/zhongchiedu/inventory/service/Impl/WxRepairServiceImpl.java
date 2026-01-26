@@ -445,6 +445,9 @@ public class WxRepairServiceImpl extends GeneralServiceImpl<WxRepair> implements
 		return wxRepair;
 	}
 
+	
+	
+	//TODO 过保项目推送给销售微信
 	@Override
 	public WxRepair cancelRepairToComplete(String repairId, String workDept) {
 		

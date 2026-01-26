@@ -50,6 +50,12 @@ public class WxRepair extends GeneralBean<WxRepair> {
 	@DBRef
 	private AfterSalesProjects project;
 	
+	//2026年1月26日15:18:09 新增 分配时间用于记录维修人员维修时间
+	private String assignTime;//分配时间
+	
+	
+	
+	
 	
 	
 	

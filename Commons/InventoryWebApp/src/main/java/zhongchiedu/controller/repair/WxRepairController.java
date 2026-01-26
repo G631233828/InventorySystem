@@ -3,6 +3,7 @@ package zhongchiedu.controller.repair;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -149,68 +150,89 @@ public class WxRepairController {
     @ResponseBody
     public BasicDataResult assignWorker(@RequestParam("repairId") String repairId,
                                         @RequestParam("workerId") String workerId,
-                                        @RequestParam("projectId") String projectId
-                                        ) {
+                                        @RequestParam("projectId") String projectId) {
+        // 声明返回结果对象
+        BasicDataResult result;
         try {
-            WxRepair wxRepair = wxRepairService.assignWorkerToRepair(repairId, workerId,projectId);
+            // 1. 核心业务逻辑：分配维修人员
+            WxRepair wxRepair = wxRepairService.assignWorkerToRepair(repairId, workerId, projectId);
+            
             if (Objects.nonNull(wxRepair)) {
-            	
+                // 分配成功 执行推送消息
+                Map<String, String> map = new HashMap<>();
 
-				// 分配成功 執行推送消息
+                // 先处理 wxReporter 空值（核心：避免 wxReporter 为 null 导致后续调用抛空指针）
+                WxReporter reporter = wxRepair.getWxReporter();
+                if (reporter == null) {
+                    reporter = new WxReporter(); // 若为 null，创建空对象避免后续频繁判断
+                }
 
-				Map<String, String> map = new HashMap<>();
-//    				map.put("thing4", wxRepair.getWxReporter().getSchoolName()+"校区："+wxRepair.getWxReporter().getCampus());
-//    				map.put("thing5", wxRepair.getWxReporter().getUserName());
-//    				map.put("time2", Common.getDateYMDHM(wxRepair.getExpectedVisitTime()));
-//    				map.put("thing16", wxRepair.getUrgencyLevel());
-//    				map.put("thing11", wxRepair.getFaultInformation());
+                // 1. thing4：学校+校区（分别校验空值，避免拼接出"null校区：null"）
+                String schoolName = Common.isNotEmpty(reporter.getSchoolName()) ? reporter.getSchoolName() : "未知学校";
+                String campus = Common.isNotEmpty(reporter.getCampus()) ? reporter.getCampus() : "未知校区";
+                map.put("thing4", schoolName + "校区：" + campus);
 
-				// 先处理 wxReporter 空值（核心：避免 wxReporter 为 null 导致后续调用抛空指针）
-				WxReporter reporter = wxRepair.getWxReporter();
-				if (reporter == null) {
-					reporter = new WxReporter(); // 若为 null，创建空对象避免后续频繁判断
-				}
+                // 2. thing5：报修人姓名（默认"未知报修人"）
+                String userName = Common.isNotEmpty(reporter.getUserName()) ? reporter.getUserName() : "未知报修人";
+                map.put("thing5", userName);
 
-				// 1. thing4：学校+校区（分别校验空值，避免拼接出"null校区：null"）
-				String schoolName = Common.isNotEmpty(reporter.getSchoolName()) ? reporter.getSchoolName() : "未知学校";
-				String campus = Common.isNotEmpty(reporter.getCampus()) ? reporter.getCampus() : "未知校区";
-				map.put("thing4", schoolName + "校区：" + campus);
+                // 3. time2：期望时间（日期可能为 null，默认"未知期望时间"）
+                String expectedTime = (wxRepair.getExpectedVisitTime() != null)
+                        ? Common.getDateYMDHM(wxRepair.getExpectedVisitTime())
+                        : "未知期望时间";
+                map.put("time2", expectedTime);
 
-				// 2. thing5：报修人姓名（默认"未知报修人"）
-				String userName = Common.isNotEmpty(reporter.getUserName()) ? reporter.getUserName() : "未知报修人";
-				String contactNumber = Common.isNotEmpty(reporter.getContactNumber()) ? reporter.getContactNumber() : "";
-				
-				map.put("thing5", userName);
+                // 4. thing16：紧急程度（默认"普通"，和之前逻辑一致）
+                String urgencyLevel = Common.isNotEmpty(wxRepair.getUrgencyLevel()) ? wxRepair.getUrgencyLevel() : "普通";
+                map.put("thing16", urgencyLevel);
 
-				// 3. time2：期望时间（日期可能为 null，默认"未知期望时间"）
-				String expectedTime = (wxRepair.getExpectedVisitTime() != null)
-						? Common.getDateYMD(wxRepair.getExpectedVisitTime())
-						: "未知期望时间";
-				map.put("time2", expectedTime);
+                // 5. thing11：故障描述（默认"无详细故障描述"，更贴合业务）
+                String faultInfo = Common.isNotEmpty(wxRepair.getFaultInformation()) ? wxRepair.getFaultInformation()
+                        : "无详细故障描述";
+                map.put("thing11", faultInfo);
 
-				// 4. thing16：紧急程度（默认"普通"，和之前逻辑一致）
-				String urgencyLevel = Common.isNotEmpty(wxRepair.getUrgencyLevel()) ? wxRepair.getUrgencyLevel() : "普通";
-				map.put("thing16", urgencyLevel);
-
-				// 5. thing11：故障描述（默认"无详细故障描述"，更贴合业务）
-				String faultInfo = Common.isNotEmpty(wxRepair.getFaultInformation()) ? wxRepair.getFaultInformation()
-						: "无详细故障描述";
-				map.put("thing11", faultInfo);
-				// 执行推送
-				String sendWxMessage = this.wxMsgPush.sendWxMessage(templateId5, wxRepair.getWorker().getOpenId(),
-						weburl + "/wechatrp/findWxRepairByWorker/" + wxRepair.getId(), map);
-				log.info("用户[{}]提交报修单成功，消息推送成功：{}", wxRepair.getWorker().getOpenId(), sendWxMessage);
-            	
-                return BasicDataResult.build(200, "维修人员分配成功", wxRepair);
+                // 校验worker是否为空，避免空指针
+                if (wxRepair.getWorker() == null) {
+                    throw new RuntimeException("分配的维修人员信息为空，无法推送消息");
+                }
+                // 执行推送
+                String sendWxMessage = this.wxMsgPush.sendWxMessage(templateId5, wxRepair.getWorker().getOpenId(),
+                        weburl + "/wechatrp/findWxRepairByWorker/" + wxRepair.getId(), map);
+                log.info("用户[{}]提交报修单成功，消息推送成功：{}", wxRepair.getWorker().getOpenId(), sendWxMessage);
+               
+                //记录assignTime 分配任务时间
+                wxRepair.setAssignTime(Common.getDateYMDHM(new Date()));
+                this.wxRepairService.save(wxRepair);
+                
+                
+                // 构建成功结果
+                result = BasicDataResult.build(200, "维修人员分配成功", wxRepair);
             } else {
-                return BasicDataResult.build(400, "维修人员分配失败", null);
+                // 业务异常：分配失败（主动抛出运行时异常，让AOP捕获）
+                String errorMsg = "维修人员分配失败：未找到对应的报修单或维修人员";
+                log.error(errorMsg);
+                throw new RuntimeException(errorMsg);
             }
         } catch (Exception e) {
+            // 2. 捕获所有异常，记录本地日志，并重新抛出让AOP切面捕获
             log.error("分配维修人员失败：", e);
-            return BasicDataResult.build(500, "系统异常", null);
+            
+            // 区分异常类型，返回友好提示
+            String errorMsg = "系统异常";
+            if (e instanceof IllegalArgumentException) {
+                errorMsg = "参数错误：" + e.getMessage();
+            } else if (e instanceof RuntimeException) {
+                errorMsg = e.getMessage();
+            }
+            
+            // 构建错误返回结果
+            result = BasicDataResult.build(500, errorMsg, null);
+            
+            // 核心：将异常包装为RuntimeException重新抛出，确保AOP的@AfterThrowing能捕获到
+            throw new RuntimeException("分配维修人员异常：" + e.getMessage(), e);
         }
+        return result;
     }
-
     
     
     
