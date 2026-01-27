@@ -278,8 +278,21 @@
         .table-scroll-container table td[data-column-id="expectedVisitTime"],
         .table-scroll-container table th[data-column-id="status"],
         .table-scroll-container table td[data-column-id="status"],
+        
         .table-scroll-container table th[data-column-id="worker"],
         .table-scroll-container table td[data-column-id="worker"],
+		.table-scroll-container table th[data-column-id="assignTime"],
+		.table-scroll-container table td[data-column-id="assignTime"] {
+		 white-space: nowrap;
+		 word-wrap: normal;
+		 word-break: keep-all;
+		}
+		.table-scroll-container table th[data-column-id="useTime"],
+		.table-scroll-container table td[data-column-id="useTime"] {
+   		 white-space: nowrap;
+   		 word-wrap: normal;
+   		 word-break: keep-all;
+		}
         .table-scroll-container table th[data-column-id="reporterName"],
         .table-scroll-container table td[data-column-id="reporterName"],
         .table-scroll-container table th[data-column-id="contactNumber"],
@@ -353,6 +366,11 @@
 		.table-scroll-container table td[data-column-id="equipmentYear"] {   white-space: nowrap;    word-wrap: normal;    word-break: keep-all;}
 		.table-scroll-container table th[data-column-id="equipmentYear"],
 		.table-scroll-container table td[data-column-id="equipmentYear"] { min-width: 100px; }
+		.table-scroll-container table th[data-column-id="useTime"],
+		.table-scroll-container table td[data-column-id="useTime"] { min-width: 120px; text-align: center; }
+		/* 新增用时列颜色样式（第385行） */
+		.use-time-over { color: #dc3545 !important; font-weight: 600; } /* 超过3天红色 */
+		.use-time-normal { color: #28a745 !important; font-weight: 600; } /* 未超3天绿色 */
 		.table-scroll-container table th[data-column-id="projectName"],
 .table-scroll-container table td[data-column-id="projectName"] {   
     white-space: nowrap;    
@@ -515,7 +533,7 @@
                                     <table class="table table-bordered table-striped cf">
                                         <thead class="cf">
                                         <tr>
-                                            <th class="numeric" data-column-id="checkbox">
+                                          <th class="numeric" data-column-id="checkbox">
                                                 <div class="checkbox checkbox-inline" style="margin-top: 0px;">
                                                     <input type="checkbox" id="checkall" name="checkall" />
                                                     <label for="checkall"></label>
@@ -536,6 +554,8 @@
                                             <th class="numeric" data-column-id="urgencyLevel">紧急程度</th>
                                             <th class="numeric" data-column-id="expectedVisitTime">期望完成时间</th>
                                             <th class="numeric" data-column-id="status">维修状态</th>
+                                            <th class="numeric" data-column-id="assignTime">分配时间</th>
+                                            <th class="numeric" data-column-id="useTime">用时</th>
                                             <th class="numeric" data-column-id="reportPhotos">报修照片</th>
                                             <th class="numeric" data-column-id="repairContent">维修内容</th>
                                             <th class="numeric" data-column-id="repairPhotos">维修完成照片</th>
@@ -618,6 +638,16 @@
                                                     <span th:case="5" class="label label-default">已取消</span>
                                                 </span>
                                             </td>
+                                            <td class="numeric" data-column-id="assignTime">
+   												 [[${wxRepair.assignTime != null ? wxRepair.assignTime : '未分配'}]]
+											</td>
+											<td class="numeric" data-column-id="useTime">
+											    <span th:if="${wxRepair.assignTime != null and wxRepair.assignTime != ''}" 
+											          th:data-assign-time="${wxRepair.assignTime}"
+											          class="use-time-text">计算中...</span>
+											    <span th:unless="${wxRepair.assignTime != null and wxRepair.assignTime != ''}">未分配</span>
+											</td>
+											
                                             <td class="numeric" data-column-id="reportPhotos">
                                                 <div th:if="${wxRepair.photos != null and not #lists.isEmpty(wxRepair.photos)}">
                                                     <img th:each="photo :${wxRepair.photos}"
@@ -676,6 +706,11 @@
                                                             th:onclick="|showConfirmModal('cancelAssign', '${wxRepair.id}')|">
                                                         <i class="fa fa-user-times"> </i>取消分配
                                                     </button>
+                                                     <button class="btn btn-danger btn-xs"
+											                th:if="${(wxRepair.status == 2 or wxRepair.status == 3) and wxRepair.worker != null}"
+											                th:onclick="|remindWorkerModal('${wxRepair.id}')|">
+											            <i class="fa fa-bell"> </i>催单
+											        </button>
                                                 </shiro:hasPermission>
                                                 <shiro:hasPermission name="wxRepair:cancel">
                                                     <button class="btn btn-default btn-xs"
@@ -792,6 +827,28 @@
                 </div>
             </div>
         </div>
+        
+        <div class="modal fade" id="remindWorkerModal" tabindex="-1" role="dialog" aria-labelledby="remindWorkerModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="remindWorkerModalLabel">催单确认</h4>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="remindRepairId" value="">
+                <p>确定要向该报修单的维修人员发送催单提醒吗？</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="submitRemindWorker()">确认催单</button>
+            </div>
+        </div>
+    </div>
+</div>
+        
 
         <!-- 照片查看模态框 -->
         <div class="modal fade photo-modal" id="photoViewModal" tabindex="-1" role="dialog" aria-labelledby="photoViewModalLabel">
@@ -1114,6 +1171,64 @@ function submitAssignWorker() {
         }, "json");
     }
 
+ // 新增：打开催单模态框（第2105行）
+    function remindWorkerModal(id) {
+        $("#remindRepairId").val(id);
+        $("#remindWorkerModal").modal("show");
+    }
+
+ 
+ 
+    function submitRemindWorker() {
+        var repairId = $("#remindRepairId").val();
+        if (!repairId) {
+            swal("提示", "报修单ID不能为空！", "warning");
+            return;
+        }
+
+        // 禁用按钮，防止重复点击
+        var $confirmBtn = $(".btn-primary");
+        $confirmBtn.attr("disabled", true).text("催单中...");
+
+        $.ajax({
+            url: "[[@{/wxRepair/remindWorker}]]",
+            type: "POST",
+            data: {repairId: repairId},
+            dataType: "json",
+            timeout: 15000, // 超时时间15秒
+            success: function(res) {
+                // 【唯一成功条件】：status===200
+                if (res && res.status === 200) {
+                    swal("成功", res.msg || "催单消息已推送至维修人员", "success");
+                    $("#remindWorkerModal").modal("hide");
+                } else {
+                    // 只要status≠200，一律显示失败
+                    swal("失败", res?.msg || "催单失败（业务参数错误）", "error");
+                }
+            },
+            error: function(xhr, status, error) {
+                // 网络错误/接口500/解析失败，一律显示失败
+                console.error("催单请求异常：", xhr, status, error);
+                var errorMsg = "催单失败：系统异常";
+                // 解析后端返回的具体错误信息
+                try {
+                    var res = JSON.parse(xhr.responseText);
+                    errorMsg = res.msg || errorMsg;
+                } catch (e) {
+                    // 解析失败时，显示通用错误
+                    errorMsg = "催单失败：请求超时/服务器无响应";
+                }
+                swal("失败", errorMsg, "error");
+            },
+            complete: function() {
+                // 恢复按钮状态
+                $confirmBtn.attr("disabled", false).text("确认催单");
+            }
+        });
+    }
+
+    
+    
     // 照片查看
     function showPhotos(repairId, type, initialIndex = 0) {
         var $currentRow = $("input[id='" + repairId + "']").closest("tr");
@@ -1416,6 +1531,7 @@ function submitAssignWorker() {
         {id: 'urgencyLevel', name: '紧急程度'},
         {id: 'expectedVisitTime', name: '期望完成时间'},
         {id: 'status', name: '维修状态'},
+        {id: 'assignTime', name: '分配时间'},
         {id: 'reportPhotos', name: '报修照片'},
         {id: 'repairContent', name: '维修内容'},
         {id: 'repairPhotos', name: '维修完成照片'},
@@ -1532,6 +1648,82 @@ function submitAssignWorker() {
         // 初始化可编辑单元格
         initEditableTd();
         
+        calculateUseTime();
+        
+     // 新增：用时计算核心函数（适配String类型时间）
+     function calculateUseTime() {
+        $('.use-time-text').each(function() {
+            const $this = $(this);
+            const assignTimeStr = $this.data('assign-time');
+            if (!assignTimeStr || assignTimeStr.trim() === '' || assignTimeStr === '未分配') {
+                $this.text('未分配');
+                return;
+            }
+
+            try {
+                // 1. 解析分配时间（assignTime）
+                const formattedAssignTime = assignTimeStr.includes(':') && assignTimeStr.split(':').length === 2 
+                    ? assignTimeStr + ':00' // 补全秒数
+                    : assignTimeStr;
+                const assignTime = new Date(formattedAssignTime);
+                if (isNaN(assignTime.getTime())) {
+                    $this.text('分配时间格式错误');
+                    return;
+                }
+
+                // 2. 获取并解析完成时间（completeTime），确定结束时间
+                const $completeTimeTd = $this.closest('tr').find('td[data-column-id="completeTime"]');
+                const completeTimeStr = $completeTimeTd.text().trim();
+                let endTime;
+
+                if (completeTimeStr !== '未完成' && completeTimeStr) {
+                    // 有完成时间：用completeTime作为结束时间
+                    const formattedCompleteTime = completeTimeStr.includes(':') && completeTimeStr.split(':').length === 2 
+                        ? completeTimeStr + ':00' 
+                        : completeTimeStr;
+                    endTime = new Date(formattedCompleteTime);
+                    if (isNaN(endTime.getTime())) {
+                        $this.text('完成时间格式错误');
+                        return;
+                    }
+                } else {
+                    // 无完成时间：用当前时间作为结束时间
+                    endTime = new Date();
+                }
+
+                // 3. 计算时间差（结束时间 - 分配时间）
+                const diffMs = endTime - assignTime.getTime();
+                if (diffMs < 0) {
+                    $this.text('时间异常');
+                    return;
+                }
+
+                // 4. 格式化显示用时（天+小时）
+                const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                
+                let timeText = '';
+                if (days > 0) {
+                    timeText += `${days}天`;
+                }
+                timeText += `${hours}小时`;
+                
+                // 5. 设置样式（超过3天红色，否则绿色）
+                const isOver3Days = diffMs > 3 * 24 * 60 * 60 * 1000;
+                $this.text(timeText);
+                $this.removeClass('use-time-over use-time-normal');
+                $this.addClass(isOver3Days ? 'use-time-over' : 'use-time-normal');
+
+            } catch (e) {
+                console.error('用时计算失败：', e);
+                $this.text('时间解析错误');
+            }
+        });
+        
+        // 每5分钟刷新一次用时（仅对未完成的报修单生效）
+        setTimeout(calculateUseTime, 5 * 60 * 1000);
+    }
+
         // 照片查看事件绑定
         $("#prevBtn").click(showPrevPhoto);
         $("#nextBtn").click(showNextPhoto);
