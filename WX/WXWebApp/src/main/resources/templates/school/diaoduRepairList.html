@@ -21,6 +21,7 @@
                     cancelled: '#6B7280',
                     urgent: '#EF4444',
                     normal: '#3B82F6',
+                    remind: '#F97316', // 新增催单按钮颜色
                 },
                 boxShadow: {
                     'soft': '0 2px 8px rgba(0, 0, 0, 0.08)',
@@ -60,6 +61,26 @@
         .mobile-page-btn-normal {
             @apply bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 hover:border-primary/30 hover:text-primary;
         }
+        
+        /* 用时样式（和参考方法保持一致） */
+        .use-time-over { @apply text-red-600 font-medium; }
+        .use-time-normal { @apply text-green-600 font-medium; }
+
+        /* 新增催单按钮样式 */
+        .remind-btn {
+            @apply inline-flex items-center justify-center bg-remind/10 text-remind px-3 py-1 rounded-lg text-xs font-medium transition-all duration-200 hover:bg-remind/20 cursor-pointer;
+        }
+        .remind-btn:disabled {
+            @apply bg-gray-100 text-gray-400 cursor-not-allowed hover:bg-gray-100;
+        }
+
+        /* 提示弹窗样式 */
+        .toast {
+            @apply fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/80 text-white px-6 py-3 rounded-lg text-sm z-50 opacity-0 transition-opacity duration-300 pointer-events-none;
+        }
+        .toast.show {
+            @apply opacity-100 pointer-events-auto;
+        }
     }
 </style>
 </head>
@@ -90,7 +111,6 @@
             <!-- 搜索框和按钮一行显示 + 修复图标重叠 -->
             <div class="mt-2 flex gap-2 w-full">
                 <div class="relative flex-grow">
-              
                     <!-- pl-12 确保文字不与图标重叠 -->
                     <input type="text" id="searchInput"
                            class="form-control pl-12 pr-10 focus:form-input-focus"
@@ -101,7 +121,7 @@
                 </div>
                 <!-- 按钮固定宽度，不挤压搜索框 -->
                 <button id="searchBtn" class="form-button bg-primary text-white hover:bg-primary/90 whitespace-nowrap w-28 flex-shrink-0">
-                    <i class="fa fa-search mr-1"></i> 
+                    <i class="fa fa-search mr-1"></i> 搜索
                 </button>
             </div>
             
@@ -131,31 +151,32 @@
                 </div>
             </div>
             
-            <!-- 快捷筛选标签 -->
+            <!-- 快捷筛选标签 - 核心修复：解决空表达式问题 -->
             <div class="mt-4 flex flex-wrap gap-2">
+                <!-- 修复：空表达式改为合法的字符串表达式 -->
                 <button class="filter-btn inline-flex items-center px-3 py-2 text-sm font-medium rounded-full min-h-[32px]" 
                         th:classappend="${status == null or status == '' ? 'filter-active' : 'filter-inactive'}" 
-                        data-status="">
+                        th:data-status="''">
                     <i class="fa fa-tag mr-1"></i>全部
                 </button>
                 <button class="filter-btn inline-flex items-center px-3 py-2 text-sm font-medium rounded-full min-h-[32px]" 
                         th:classappend="${status == '1' ? 'filter-active' : 'filter-inactive'}" 
-                        data-status="1">
+                        th:data-status="1">
                     <i class="fa fa-clock-o mr-1"></i>待处理
                 </button>
                 <button class="filter-btn inline-flex items-center px-3 py-2 text-sm font-medium rounded-full min-h-[32px]" 
                         th:classappend="${status == '2' ? 'filter-active' : 'filter-inactive'}" 
-                        data-status="2">
+                        th:data-status="2">
                     <i class="fa fa-user mr-1"></i>已分配
                 </button>
                 <button class="filter-btn inline-flex items-center px-3 py-2 text-sm font-medium rounded-full min-h-[32px]" 
                         th:classappend="${status == '3' ? 'filter-active' : 'filter-inactive'}" 
-                        data-status="3">
+                        th:data-status="3">
                     <i class="fa fa-cogs mr-1"></i>处理中
                 </button>
                 <button class="filter-btn inline-flex items-center px-3 py-2 text-sm font-medium rounded-full min-h-[32px]" 
                         th:classappend="${status == '4' ? 'filter-active' : 'filter-inactive'}" 
-                        data-status="4">
+                        th:data-status="4">
                     <i class="fa fa-check mr-1"></i>已完成
                 </button>
             </div>
@@ -232,6 +253,36 @@
                                 <p class="text-base" th:text="${repair.createTime != null ? #dates.format(repair.createTime, 'yyyy-MM-dd HH:mm') : '暂无时间'}">2024-05-20 09:30</p>
                             </div>
                         </div>
+                        
+                        <!-- 修复后的时间数据传递 + 催单按钮放在用时右侧 -->
+                        <div class="grid grid-cols-1 gap-3 mb-3 pt-3 border-t border-gray-100" 
+                             th:if="${repair.assignTime != null and repair.assignTime != ''}">
+                            <div class="grid grid-cols-2 gap-3 items-center">
+                                <div>
+                                    <span class="text-xs font-medium text-gray-500 block mb-1">分配时间</span>
+                                    <p class="text-base" th:text="${repair.assignTime}">2026-01-26 02:10</p>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <span class="text-xs font-medium text-gray-500 block mb-1">处理用时</span>
+                                        <!-- 正确的Thymeleaf数据属性 -->
+                                        <p class="text-base" 
+                                           th:data-assign-time="${repair.assignTime}" 
+                                           th:data-complete-time="${repair.completeTime != null ? repair.completeTime : ''}">
+                                            <span class="use-time-text">计算中...</span>
+                                        </p>
+                                    </div>
+                                    <!-- 催单按钮 - 仅已分配/处理中状态显示，放在用时右侧 -->
+                                    <button th:if="${repair.status == 2 or repair.status == 3}" 
+                                            class="remind-btn" 
+                                            th:data-repair-id="${repair.id}"
+                                            id="remindBtn_[[${repair.id}]]"
+                                            onclick="event.stopPropagation();">
+                                        <i class="fa fa-bell mr-1"></i> 催单
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
 
                         <div class="flex justify-between items-center pt-3 border-t border-gray-100">
                             <div class="text-sm text-gray-500">
@@ -264,8 +315,6 @@
                 <div class="bg-white p-4 rounded-xl shadow-soft">
                     <!-- 一行显示：页码状态 + 箭头按钮 -->
                     <div class="flex items-center justify-center gap-4 w-full">
-                        <!-- 页码状态 -->
-                      
                         <!-- 箭头按钮组 -->
                         <div class="flex items-center gap-4">
                             <!-- 上一页 -->
@@ -275,10 +324,9 @@
                                     th:disabled="${!pagination.hasPreviousPage}">
                                 <i class="fa fa-chevron-left"></i>
                             </button>
-                              <div class="text-base text-gray-700 font-medium">
-                            第 <span class="text-primary text-lg font-bold" th:text="${pagination.pageNo}">1</span> 页 / 共 <span th:text="${pagination.totalPage}">0</span> 页
-                        </div>
-                        
+                            <div class="text-base text-gray-700 font-medium">
+                                第 <span class="text-primary text-lg font-bold" th:text="${pagination.pageNo}">1</span> 页 / 共 <span th:text="${pagination.totalPage}">0</span> 页
+                            </div>
                             <!-- 下一页 -->
                             <button class="mobile-page-btn" 
                                     th:classappend="${pagination.hasNextPage ? 'mobile-page-btn-normal' : 'mobile-page-btn-disabled'}"
@@ -293,6 +341,9 @@
         </div>
     </main>
 
+    <!-- 新增：提示弹窗 -->
+    <div class="toast" id="toast"></div>
+
     <!-- JavaScript -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -306,7 +357,222 @@
             const searchBtn = document.getElementById('searchBtn');
             const pageButtons = document.querySelectorAll('[data-page]');
             
-            // 清除按钮显示逻辑
+            // ========== 稳定的时间解析函数 ==========
+            function parseCustomTimeStr(timeStr) {
+                if (!timeStr || typeof timeStr !== 'string' || timeStr.trim() === '') {
+                    console.log('时间字符串为空或非字符串:', timeStr);
+                    return null;
+                }
+
+                const cleanStr = timeStr.trim().replace(/[\s\u3000]+/g, ' ');
+                
+                try {
+                    // 优先原生解析
+                    const date1 = new Date(cleanStr);
+                    if (!isNaN(date1.getTime())) {
+                        return date1;
+                    }
+
+                    // 正则解析
+                    const regex = /^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2})$/;
+                    const match = cleanStr.match(regex);
+                    
+                    if (match) {
+                        const [, year, month, day, hour, minute] = match.map(Number);
+                        const date2 = new Date(year, month - 1, day, hour, minute);
+                        if (!isNaN(date2.getTime())) {
+                            return date2;
+                        }
+                    }
+
+                    // 兜底解析
+                    const parts = cleanStr.split(/[-: ]/).filter(part => part);
+                    if (parts.length >= 5) {
+                        const year = parseInt(parts[0], 10);
+                        const month = parseInt(parts[1], 10) - 1;
+                        const day = parseInt(parts[2], 10);
+                        const hour = parseInt(parts[3], 10);
+                        const minute = parseInt(parts[4], 10);
+                        
+                        if (!isNaN(year) && !isNaN(month) && !isNaN(day) && !isNaN(hour) && !isNaN(minute)) {
+                            const date3 = new Date(year, month, day, hour, minute);
+                            if (!isNaN(date3.getTime())) {
+                                return date3;
+                            }
+                        }
+                    }
+
+                    console.error('时间解析失败:', timeStr);
+                    return null;
+                } catch (e) {
+                    console.error('时间解析异常:', e, timeStr);
+                    return null;
+                }
+            }
+            
+            // ========== 用时计算函数 ==========
+            function calculateUseTime() {
+                const useTimeElements = document.querySelectorAll('.use-time-text');
+                
+                useTimeElements.forEach(el => {
+                    const parentEl = el.parentElement;
+                    const assignTimeStr = parentEl.dataset.assignTime;
+                    const completeTimeStr = parentEl.dataset.completeTime;
+                    
+                    if (!assignTimeStr || assignTimeStr.trim() === '' || assignTimeStr === '未分配') {
+                        el.textContent = '未分配';
+                        el.classList.remove('use-time-over', 'use-time-normal');
+                        return;
+                    }
+
+                    try {
+                        const assignTime = parseCustomTimeStr(assignTimeStr);
+                        
+                        if (!assignTime || isNaN(assignTime.getTime())) {
+                            el.textContent = '时间格式错误';
+                            el.classList.remove('use-time-over', 'use-time-normal');
+                            return;
+                        }
+
+                        let endTime;
+                        if (completeTimeStr && completeTimeStr.trim() !== '' && completeTimeStr !== '未完成') {
+                            const completeTime = parseCustomTimeStr(completeTimeStr);
+                            
+                            if (!completeTime || isNaN(completeTime.getTime())) {
+                                el.textContent = '完成时间错误';
+                                el.classList.remove('use-time-over', 'use-time-normal');
+                                return;
+                            }
+                            endTime = completeTime;
+                        } else {
+                            endTime = new Date();
+                        }
+
+                        const diffMs = endTime - assignTime;
+                        
+                        if (diffMs < 0) {
+                            el.textContent = '时间异常';
+                            el.classList.remove('use-time-over', 'use-time-normal');
+                            return;
+                        }
+
+                        const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                        const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        
+                        let timeText = '';
+                        if (days > 0) {
+                            timeText += `${days}天`;
+                        }
+                        timeText += `${hours}小时`;
+                        if (days === 0 && hours === 0) {
+                            timeText = '0小时';
+                        }
+                        
+                        const isOver3Days = diffMs > 3 * 24 * 60 * 60 * 1000;
+                        el.textContent = timeText;
+                        el.classList.remove('use-time-over', 'use-time-normal');
+                        el.classList.add(isOver3Days ? 'use-time-over' : 'use-time-normal');
+
+                    } catch (e) {
+                        console.error('用时计算失败:', e);
+                        el.textContent = '计算失败';
+                        el.classList.remove('use-time-over', 'use-time-normal');
+                    }
+                });
+                
+                setTimeout(calculateUseTime, 5 * 60 * 1000);
+            }
+            
+            // 初始化计算用时
+            calculateUseTime();
+            
+            // ========== 新增：催单功能核心逻辑 ==========
+            // 显示提示弹窗
+            function showToast(message, type = 'info') {
+                const toast = document.getElementById('toast');
+                if (!toast) return;
+                
+                toast.textContent = message;
+                toast.classList.add('show');
+                
+                // 根据类型调整样式
+                if (type === 'error') {
+                    toast.classList.add('bg-red-600/80');
+                    toast.classList.remove('bg-black/80');
+                } else if (type === 'success') {
+                    toast.classList.add('bg-green-600/80');
+                    toast.classList.remove('bg-black/80');
+                } else {
+                    toast.classList.add('bg-black/80');
+                    toast.classList.remove('bg-red-600/80', 'bg-green-600/80');
+                }
+                
+                // 3秒后隐藏
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                    setTimeout(() => {
+                        toast.textContent = '';
+                        toast.classList.remove('bg-red-600/80', 'bg-green-600/80');
+                    }, 300);
+                }, 3000);
+            }
+
+            // 初始化催单按钮事件
+            function initRemindButtons() {
+                const remindButtons = document.querySelectorAll('.remind-btn');
+                remindButtons.forEach(btn => {
+                    btn.addEventListener('click', async function(e) {
+                        // 阻止事件冒泡，防止触发外层a标签的跳转
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        const repairId = this.dataset.repairId;
+                        
+                        if (!repairId) {
+                            showToast('催单失败：报修单ID为空', 'error');
+                            return;
+                        }
+
+                        // 禁用按钮防止重复点击
+                        this.disabled = true;
+                        this.innerHTML = '<i class="fa fa-spinner fa-spin mr-1"></i> 催单中...';
+
+                        try {
+                            // 调用催单接口
+                            const response = await fetch('../wechatrp/remindWorker', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                },
+                                body: `repairId=${encodeURIComponent(repairId)}`
+                            });
+
+                            const result = await response.json();
+                            
+                            if (result.status === 200) {
+                                showToast('催单消息已发送给维修人员', 'success');
+                            } else {
+                                showToast(`催单失败：${result.msg || '未知错误'}`, 'error');
+                            }
+                        } catch (error) {
+                            console.error('催单请求异常:', error);
+                            showToast('催单失败：网络异常，请稍后重试', 'error');
+                        } finally {
+                            // 恢复按钮状态
+                            setTimeout(() => {
+                                this.disabled = false;
+                                this.innerHTML = '<i class="fa fa-bell mr-1"></i> 催单';
+                            }, 1500);
+                        }
+                    });
+                });
+            }
+
+            // 初始化催单按钮
+            initRemindButtons();
+            
+            // ========== 原有逻辑 ==========
             function updateClearButtonVisibility() {
                 if (searchInput && searchInput.value.trim() !== '') {
                     clearSearchBtn.classList.remove('hidden');
@@ -315,13 +581,11 @@
                 }
             }
             
-            // 初始化
             if (searchInput) {
                 updateClearButtonVisibility();
                 searchInput.addEventListener('input', updateClearButtonVisibility);
             }
             
-            // 清除按钮点击
             if (clearSearchBtn) {
                 clearSearchBtn.addEventListener('click', function() {
                     searchInput.value = '';
@@ -330,14 +594,12 @@
                 });
             }
             
-            // ESC清除
             if (searchInput) {
                 searchInput.addEventListener('keydown', function(e) {
                     if (e.key === 'Escape') clearSearchBtn.click();
                 });
             }
             
-            // 导航栏滚动
             const header = document.querySelector('header');
             if (header) {
                 window.addEventListener('scroll', function() {
@@ -352,7 +614,6 @@
                 }, { passive: true });
             }
             
-            // 筛选按钮
             if (filterButtons) {
                 filterButtons.forEach(btn => {
                     btn.addEventListener('click', function() {
@@ -362,26 +623,23 @@
                 });
             }
             
-            // 搜索按钮
             if (searchBtn) {
                 searchBtn.addEventListener('click', () => submitFiltersToServer(1));
             }
             
-            // 下拉框变化
             if (statusSelect) statusSelect.addEventListener('change', () => submitFiltersToServer(1));
             if (workerSelect) workerSelect.addEventListener('change', () => submitFiltersToServer(1));
             
-            // 刷新按钮
             if (refreshBtn) {
                 refreshBtn.addEventListener('click', function() {
                     let currentPage = 1;
                     const pageTextEl = document.querySelector('.text-primary.text-lg.font-bold');
                     if (pageTextEl) currentPage = parseInt(pageTextEl.textContent) || 1;
                     submitFiltersToServer(currentPage);
+                    calculateUseTime();
                 });
             }
             
-            // 回车搜索
             if (searchInput) {
                 searchInput.addEventListener('keypress', function(e) {
                     if (e.key === 'Enter') {
@@ -391,7 +649,6 @@
                 });
             }
             
-            // 分页按钮
             if (pageButtons) {
                 pageButtons.forEach(btn => {
                     btn.addEventListener('click', function() {
@@ -401,7 +658,6 @@
                 });
             }
             
-            // 提交筛选
             function submitFiltersToServer(pageNo = 1) {
                 try {
                     const searchTerm = searchInput ? searchInput.value.trim() : '';
@@ -423,6 +679,7 @@
                     window.location.reload();
                 }
             }
+            
         });
     </script>
 </body>

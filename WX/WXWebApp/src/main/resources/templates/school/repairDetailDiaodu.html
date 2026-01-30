@@ -68,6 +68,43 @@
             box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1);
         }
         
+        /* 新增：催单按钮样式 */
+        .remind-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #fff7ed;
+            color: #f97316;
+            padding: 0.3rem 0.7rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            gap: 0.25rem;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+            margin-left: 0.8rem;
+        }
+        .remind-btn:hover {
+            background-color: #ffedd5;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(249, 115, 22, 0.1);
+        }
+        .remind-btn:disabled {
+            background-color: #f5f5f5;
+            color: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        .remind-btn .loading {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
         /* 模态框样式 */
         #imageModal {
             position: fixed;
@@ -108,23 +145,57 @@
             border-radius: 0.5rem;
             margin-top: 1rem;
         }
+
+        /* 用时样式：超3天红色，否则绿色 */
+        .use-time-over { 
+            color: #dc2626 !important; /* 红色 */
+            font-weight: 500;
+        }
+        .use-time-normal { 
+            color: #059669 !important; /* 绿色 */
+            font-weight: 500;
+        }
+        
+        /* 新增：提示弹窗样式 */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            z-index: 1100;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .toast.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .toast.success {
+            background-color: rgba(16, 185, 129, 0.8);
+        }
+        .toast.error {
+            background-color: rgba(220, 38, 38, 0.8);
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen p-4">
     <div class="max-w-md mx-auto bg-white detail-card p-6"
          th:with="statusEnum=${T(zhongchiedu.common.utils.enums.RepairStatus).fromCode(repair.status)}">
-        <!-- 核心修改：返回按钮独立一行（与标题不同行） -->
         <!-- 返回列表按钮：单独一行 + 文字更小 -->
         <a th:href="@{/wechatrp/operator_repairlist}" class="back-btn">
-            <i class="fa fa-arrow-left mr-1"></i> <!-- 缩小图标间距 -->
+            <i class="fa fa-arrow-left mr-1"></i>
             <span>返回列表</span>
         </a>
 
-        <!-- 标题+状态标签行（独立于返回按钮） -->
+        <!-- 标题+状态标签行 -->
         <div class="flex justify-between items-start mb-6">
             <h1 class="text-xl font-bold text-gray-800">报修单详情</h1>
-
-            <!-- 动态状态标签 -->
             <span class="status-badge"
                   th:classappend="${statusEnum?.cssClass}"
                   th:text="${statusEnum?.description ?: '未知状态'}">
@@ -193,6 +264,44 @@
             <div class="value" th:text="${#dates.format(repair.createTime, 'yyyy-MM-dd HH:mm:ss')}"></div>
         </div>
 
+        <!-- 分配时间：仅分配后显示 -->
+        <div th:if="${repair.assignTime != null and repair.assignTime != ''}" class="detail-item">
+            <div class="label flex items-center">
+                <i class="fa fa-calendar-check-o mr-2 text-purple-500"></i>分配时间
+            </div>
+            <div class="value" th:text="${repair.assignTime}"></div>
+        </div>
+
+        <!-- 新增：完成时间 → 仅工单完成且有完成时间时显示 -->
+        <div th:if="${repair.completeTime != null and repair.completeTime != ''}" class="detail-item">
+            <div class="label flex items-center">
+                <i class="fa fa-calendar-check mr-2 text-green-500"></i>完成时间
+            </div>
+            <div class="value" th:text="${repair.completeTime}"></div>
+        </div>
+
+        <!-- 处理用时：仅分配后显示 + 催单按钮 -->
+        <div th:if="${repair.assignTime != null and repair.assignTime != ''}" class="detail-item">
+            <div class="label flex items-center">
+                <i class="fa fa-hourglass-half mr-2 text-orange-500"></i>处理用时
+            </div>
+            <!-- 关键修改：flex布局让用时和按钮同行显示 -->
+            <div class="flex items-center">
+                <div class="value" 
+                     th:data-assign-time="${repair.assignTime}" 
+                     th:data-complete-time="${repair.completeTime != null ? repair.completeTime : ''}">
+                    <span class="use-time-text">计算中...</span>
+                </div>
+                <!-- 催单按钮：仅已分配/处理中状态显示 -->
+                <button th:if="${repair.status == 2 or repair.status == 3}" 
+                        class="remind-btn" 
+                        th:data-repair-id="${repair.id}"
+                        onclick="event.stopPropagation();">
+                    <i class="fa fa-bell mr-1"></i> 催单
+                </button>
+            </div>
+        </div>
+
         <!-- 故障图片展示 -->
         <div th:if="${repair.photos != null and repair.photos.size() > 0}" class="detail-item">
             <div class="label flex items-center">
@@ -255,6 +364,9 @@
         <img id="modalImage" src="" alt="放大的图片" onclick="resetZoom()">
     </div>
 
+    <!-- 新增：提示弹窗 -->
+    <div class="toast" id="toast"></div>
+
     <script>
         // 页面加载动画
         document.addEventListener('DOMContentLoaded', function() {
@@ -267,7 +379,92 @@
                 container.style.opacity = '1';
                 container.style.transform = 'translateY(0)';
             }, 100);
+
+            // 初始化计算处理用时
+            calculateUseTime();
+            // 每5分钟刷新一次（未完成工单实时更新）
+            setInterval(calculateUseTime, 5 * 60 * 1000);
+            
+            // 初始化催单按钮事件
+            initRemindButtons();
         });
+
+        // 处理用时计算函数（兼容String类型时间）
+        function calculateUseTime() {
+            const useTimeElements = document.querySelectorAll('.use-time-text');
+            
+            useTimeElements.forEach(el => {
+                const parentEl = el.parentElement;
+                const assignTimeStr = parentEl.dataset.assignTime;
+                const completeTimeStr = parentEl.dataset.completeTime;
+                
+                // 分配时间为空处理
+                if (!assignTimeStr || assignTimeStr.trim() === '') {
+                    el.textContent = '未分配';
+                    el.classList.remove('use-time-over', 'use-time-normal');
+                    return;
+                }
+
+                try {
+                    // 直接解析String类型的时间（兼容常见格式）
+                    const assignTime = new Date(assignTimeStr);
+                    if (isNaN(assignTime.getTime())) {
+                        el.textContent = '时间格式错误';
+                        el.classList.remove('use-time-over', 'use-time-normal');
+                        return;
+                    }
+
+                    // 确定结束时间：优先用完成时间，否则用当前时间
+                    let endTime;
+                    if (completeTimeStr && completeTimeStr.trim() !== '') {
+                        const completeTime = new Date(completeTimeStr);
+                        if (isNaN(completeTime.getTime())) {
+                            el.textContent = '完成时间错误';
+                            el.classList.remove('use-time-over', 'use-time-normal');
+                            return;
+                        }
+                        endTime = completeTime;
+                    } else {
+                        endTime = new Date();
+                    }
+
+                    // 计算时间差（毫秒）
+                    const diffMs = endTime - assignTime;
+                    
+                    // 时间异常（结束时间 < 分配时间）
+                    if (diffMs < 0) {
+                        el.textContent = '时间异常';
+                        el.classList.remove('use-time-over', 'use-time-normal');
+                        return;
+                    }
+
+                    // 转换为天和小时
+                    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    
+                    // 格式化显示文本
+                    let timeText = '';
+                    if (days > 0) {
+                        timeText += `${days}天`;
+                    }
+                    timeText += `${hours}小时`;
+                    if (days === 0 && hours === 0) {
+                        timeText = '0小时';
+                    }
+                    
+                    // 设置样式（超3天红色，否则绿色）
+                    const isOver3Days = diffMs > 3 * 24 * 60 * 60 * 1000;
+                    el.textContent = timeText;
+                    el.classList.remove('use-time-over', 'use-time-normal');
+                    el.classList.add(isOver3Days ? 'use-time-over' : 'use-time-normal');
+
+                } catch (e) {
+                    console.error('用时计算失败:', e);
+                    el.textContent = '计算失败';
+                    el.classList.remove('use-time-over', 'use-time-normal');
+                }
+            });
+        }
 
         // 模态框核心逻辑
         const modal = document.getElementById("imageModal");
@@ -416,6 +613,77 @@
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape' && modal.style.display === 'flex') closeModal();
         });
+        
+        // ========== 新增：催单功能核心逻辑 ==========
+        // 显示提示弹窗
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            if (!toast) return;
+            
+            toast.textContent = message;
+            toast.className = 'toast ' + type;
+            toast.classList.add('show');
+            
+            // 3秒后隐藏
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    toast.className = 'toast';
+                    toast.textContent = '';
+                }, 300);
+            }, 3000);
+        }
+
+        // 初始化催单按钮事件
+        function initRemindButtons() {
+            const remindButtons = document.querySelectorAll('.remind-btn');
+            remindButtons.forEach(btn => {
+                btn.addEventListener('click', async function(e) {
+                    // 阻止事件冒泡和默认行为，防止触发其他逻辑
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const repairId = this.dataset.repairId;
+                    if (!repairId) {
+                        showToast('催单失败：报修单ID为空', 'error');
+                        return;
+                    }
+
+                    // 禁用按钮防止重复点击
+                    this.disabled = true;
+                    this.innerHTML = '<i class="fa fa-spinner loading mr-1"></i> 催单中...';
+
+                    try {
+                        // 调用催单接口
+                        const response = await fetch('../../wechatrp/remindWorker', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            },
+                            body: `repairId=${encodeURIComponent(repairId)}`
+                        });
+
+                        const result = await response.json();
+                        
+                        if (result.status === 200 || result.code === 200) {
+                            showToast('催单消息已发送给维修人员', 'success');
+                        } else {
+                            showToast(`催单失败：${result.msg || '未知错误'}`, 'error');
+                        }
+                    } catch (error) {
+                        console.error('催单请求异常:', error);
+                        showToast('催单失败：网络异常，请稍后重试', 'error');
+                    } finally {
+                        // 恢复按钮状态
+                        setTimeout(() => {
+                            this.disabled = false;
+                            this.innerHTML = '<i class="fa fa-bell mr-1"></i> 催单';
+                        }, 1500);
+                    }
+                });
+            });
+        }
     </script>
 </body>
 </html>

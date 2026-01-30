@@ -170,8 +170,8 @@ public class WxRepairController {
 
                 // 1. thing4：学校+校区（分别校验空值，避免拼接出"null校区：null"）
                 String schoolName = Common.isNotEmpty(reporter.getSchoolName()) ? reporter.getSchoolName() : "未知学校";
-                String campus = Common.isNotEmpty(reporter.getCampus()) ? reporter.getCampus() : "未知校区";
-                map.put("thing4", schoolName + "校区：" + campus);
+//                String campus = Common.isNotEmpty(reporter.getCampus()) ? reporter.getCampus() : "未知校区";
+                map.put("thing4", schoolName );
 
                 // 2. thing5：报修人姓名（默认"未知报修人"）
                 String userName = Common.isNotEmpty(reporter.getUserName()) ? reporter.getUserName() : "未知报修人";
@@ -239,9 +239,6 @@ public class WxRepairController {
     /**
      * 催单功能（向已分配的维修人员推送催单消息）
      */
-    /**
-     * 催单功能（向已分配的维修人员推送催单消息）
-     */
     @PostMapping("/wxRepair/remindWorker")
     @RequiresPermissions(value = "wxRepair:assign")
     @SystemControllerLog(description = "报修单催单")
@@ -278,22 +275,22 @@ public class WxRepairController {
             
             // 4.1 学校+校区（非空兜底）
             String schoolName = Common.isNotEmpty(reporter.getSchoolName()) ? reporter.getSchoolName() : "未知学校";
-            String campus = Common.isNotEmpty(reporter.getCampus()) ? reporter.getCampus() : "未知校区";
-            map.put("thing4", schoolName + "校区：" + campus);
+//            String campus = Common.isNotEmpty(reporter.getCampus()) ? reporter.getCampus() : "未知校区";
+            map.put("thing4","催单通知：" +schoolName );
 
-            // 4.3 工单号（非空兜底）
-            map.put("thing6", Common.isNotEmpty(wxRepair.getWorkOrderNumber()) ? wxRepair.getWorkOrderNumber() : "未知工单号");
+            String userName = Common.isNotEmpty(reporter.getUserName()) ? reporter.getUserName() : "未知报修人";
+            map.put("thing5", userName);
 
-            // 4.4 催单时间（非空）
             map.put("time2", Common.getDateYMDHM(new Date()));
 
             // 4.5 紧急程度（非空兜底）
             String urgencyLevel = Common.isNotEmpty(wxRepair.getUrgencyLevel()) ? wxRepair.getUrgencyLevel() : "普通";
             map.put("thing16", urgencyLevel);
+            
+            String faultInfo = Common.isNotEmpty(wxRepair.getFaultInformation()) ? wxRepair.getFaultInformation()
+                    : "无详细故障描述";
+            map.put("thing11", faultInfo);
 
-            // 4.6 报修人（必填：解决微信47003错误）
-            String userName = Common.isNotEmpty(reporter.getUserName()) ? reporter.getUserName() : "未知报修人";
-            map.put("thing5", userName);
 
             // 5. 推送催单消息（核心：精准捕获微信异常）
             try {

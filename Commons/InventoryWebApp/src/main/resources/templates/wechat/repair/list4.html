@@ -403,49 +403,6 @@
                 font-size: 14px;
             }
         }
-        
-        /* 自定义右键菜单样式 */
-.custom-contextmenu {
-    position: absolute;
-    z-index: 9999;
-    width: 180px;
-    background: #fff;
-    border: 1px solid #e6e6e6;
-    border-radius: 4px;
-    box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
-    display: none;
-    padding: 5px 0;
-}
-.custom-contextmenu ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-.custom-contextmenu li {
-    padding: 0;
-    margin: 0;
-}
-.custom-contextmenu li a {
-    display: block;
-    padding: 6px 15px;
-    color: #333;
-    text-decoration: none;
-    font-size: 14px;
-    cursor: pointer;
-}
-.custom-contextmenu li a:hover {
-    background-color: #f5f5f5;
-}
-.custom-contextmenu li.divider {
-    height: 1px;
-    margin: 5px 0;
-    background-color: #e6e6e6;
-}
-.custom-contextmenu li a.disabled {
-    color: #999;
-    cursor: not-allowed;
-    background-color: transparent !important;
-}
     </style>
 </head>
 <body>
@@ -582,7 +539,7 @@
                                                     <label for="checkall"></label>
                                                 </div>
                                             </th>
-                                         
+                                             <th class="numeric" data-column-id="operation">操作</th>
                                             <th class="numeric" data-column-id="workOrderNumber">工单号</th>
                                             <th class="numeric" data-column-id="schoolName">报修学校</th>
                                             <th class="numeric" data-column-id="campus">报修校区</th>
@@ -607,7 +564,6 @@
                                             <th class="numeric" data-column-id="completeTime">维修完成时间</th>
                                             <th class="numeric" data-column-id="workDept">维修部门</th>
                                             <th class="numeric" data-column-id="description">维修备注</th>
-                                                <th class="numeric" data-column-id="operation">操作</th>
                                            
                                         </tr>
                                         </thead>
@@ -620,7 +576,49 @@
                                                     <label th:for="${wxRepair.id}"></label>
                                                 </div>
                                             </td>
-                                            
+                                              <td class="numeric" data-column-id="operation">
+                                                <shiro:hasPermission name="wxRepair:edit">
+                                                    <button class="btn btn-primary btn-xs"
+                                                            th:onclick="|return toeditPage('${wxRepair.id}','wxRepair')|">
+                                                        <i class="fa fa-edit"> </i>编辑
+                                                    </button>
+                                                </shiro:hasPermission>
+
+                                                <shiro:hasPermission name="wxRepair:assign">
+                                                    <button class="btn btn-success btn-xs"
+                                                           th:if="${wxRepair.status == 2 or wxRepair.status == 3 or wxRepair.status == 1}"
+                                                            th:onclick="|completeRepairModal('${wxRepair.id}')|">
+                                                        <i class="fa fa-check-circle"> </i>直接完成
+                                                    </button>
+                                                    <button class="btn btn-info btn-xs"
+                                                            th:if="${wxRepair.status == 1}"
+                                                            th:onclick="|assignWorkerModal('${wxRepair.id}')|">
+                                                        <i class="fa fa-user-plus"> </i>分配
+                                                    </button>
+                                                    <button class="btn btn-warning btn-xs" th:if="${wxRepair.status == 2}"
+                                                            th:onclick="|showConfirmModal('cancelAssign', '${wxRepair.id}')|">
+                                                        <i class="fa fa-user-times"> </i>取消分配
+                                                    </button>
+                                                     <button class="btn btn-danger btn-xs"
+											                th:if="${(wxRepair.status == 2 or wxRepair.status == 3) and wxRepair.worker != null}"
+											                th:onclick="|remindWorkerModal('${wxRepair.id}')|">
+											            <i class="fa fa-bell"> </i>催单
+											        </button>
+                                                </shiro:hasPermission>
+                                                <shiro:hasPermission name="wxRepair:cancel">
+                                                    <button class="btn btn-default btn-xs"
+                                                            th:if="${wxRepair.status == 1 or wxRepair.status == 2 or wxRepair.status == 3}"
+                                                            th:onclick="|showConfirmModal('cancelRepair', '${wxRepair.id}')|">
+                                                        <i class="fa fa-ban"> </i>维修取消
+                                                    </button>
+                                                </shiro:hasPermission>
+                                                <shiro:hasPermission name="wxRepair:delete">
+                                                    <button class="btn btn-danger btn-xs"
+                                                            th:onclick="|return del('@{/wxRepair/}${wxRepair.id}','')|">
+                                                        <i class="fa fa-trash-o"> </i>删除
+                                                    </button>
+                                                </shiro:hasPermission>
+                                            </td>
                                             <td class="numeric" data-column-id="workOrderNumber">[[${wxRepair.workOrderNumber}]]</td>
                                             
                                             <!-- 可编辑列：报修学校 -->
@@ -729,49 +727,7 @@
                                             <td class="numeric" data-column-id="description">
                                                 [[${#strings.isEmpty(wxRepair?.description) ? '无' : wxRepair.description}]]
                                             </td>
-                                            <td class="numeric" data-column-id="operation">
-                                                <shiro:hasPermission name="wxRepair:edit">
-                                                    <button class="btn btn-primary btn-xs"
-                                                            th:onclick="|return toeditPage('${wxRepair.id}','wxRepair')|">
-                                                        <i class="fa fa-edit"> </i>编辑
-                                                    </button>
-                                                </shiro:hasPermission>
-
-                                                <shiro:hasPermission name="wxRepair:assign">
-                                                    <button class="btn btn-success btn-xs"
-                                                           th:if="${wxRepair.status == 2 or wxRepair.status == 3 or wxRepair.status == 1}"
-                                                            th:onclick="|completeRepairModal('${wxRepair.id}')|">
-                                                        <i class="fa fa-check-circle"> </i>直接完成
-                                                    </button>
-                                                    <button class="btn btn-info btn-xs"
-                                                            th:if="${wxRepair.status == 1}"
-                                                            th:onclick="|assignWorkerModal('${wxRepair.id}')|">
-                                                        <i class="fa fa-user-plus"> </i>分配
-                                                    </button>
-                                                    <button class="btn btn-warning btn-xs" th:if="${wxRepair.status == 2}"
-                                                            th:onclick="|showConfirmModal('cancelAssign', '${wxRepair.id}')|">
-                                                        <i class="fa fa-user-times"> </i>取消分配
-                                                    </button>
-                                                     <button class="btn btn-danger btn-xs"
-											                th:if="${(wxRepair.status == 2 or wxRepair.status == 3) and wxRepair.worker != null}"
-											                th:onclick="|remindWorkerModal('${wxRepair.id}')|">
-											            <i class="fa fa-bell"> </i>催单
-											        </button>
-                                                </shiro:hasPermission>
-                                                <shiro:hasPermission name="wxRepair:cancel">
-                                                    <button class="btn btn-default btn-xs"
-                                                            th:if="${wxRepair.status == 1 or wxRepair.status == 2 or wxRepair.status == 3}"
-                                                            th:onclick="|showConfirmModal('cancelRepair', '${wxRepair.id}')|">
-                                                        <i class="fa fa-ban"> </i>维修取消
-                                                    </button>
-                                                </shiro:hasPermission>
-                                                <shiro:hasPermission name="wxRepair:delete">
-                                                    <button class="btn btn-danger btn-xs"
-                                                            th:onclick="|return del('@{/wxRepair/}${wxRepair.id}','')|">
-                                                        <i class="fa fa-trash-o"> </i>删除
-                                                    </button>
-                                                </shiro:hasPermission>
-                                            </td>
+                                          
                                         </tr>
                                         </tbody>
                                     </table>
@@ -1041,14 +997,6 @@
         <!-- 公共模态框 -->
         <div th:replace="public/public::myModal"></div>
     </div>
-    <div class="custom-contextmenu" id="customContextMenu">
-    <ul id="contextMenuItems">
-        <!-- 动态生成菜单项 -->
-        <li>11</li>
-        <li>22</li>
-    </ul>
-</div>
-    
 </div>
 
 <!-- 右侧边栏 -->
@@ -1697,247 +1645,8 @@ function submitAssignWorker() {
         });
     }
 
-    
-    
- // 全局变量存储当前右键点击的报修单ID
-  // 全局变量存储当前右键点击的报修单ID
-let currentRepairId = null;
-
-// 初始化自定义右键菜单
-function initContextMenu() {
-    // 禁用默认右键菜单（仅在表格行上）
-    $(document).on('contextmenu', function(e) {
-        const $target = $(e.target);
-        // 只在表格数据行上禁用默认右键菜单
-        if ($target.closest('tbody tr').length > 0) {
-            e.preventDefault();
-            showContextMenu(e);
-        }
-    });
-
-    // 点击页面其他区域关闭右键菜单
-    $(document).on('click', function(e) {
-        if (!$(e.target).closest('#customContextMenu').length) {
-            $('#customContextMenu').hide();
-        }
-    });
-
-    // ESC键关闭右键菜单
-    $(document).on('keydown', function(e) {
-        if (e.key === 'Escape') {
-            $('#customContextMenu').hide();
-        }
-    });
-}
-
-// 显示自定义右键菜单
-function showContextMenu(e) {
-    const $menu = $('#customContextMenu');
-    const $target = $(e.target);
-    const $row = $target.closest('tbody tr');
-    
-    // 清空菜单
-    $('#contextMenuItems').empty();
-    
-    // 如果不是表格行，不显示菜单
-    if (!$row.length) {
-        $menu.hide();
-        return;
-    }
-
-    // 获取当前报修单ID（核心：从当前行的复选框获取）
-    currentRepairId = $row.find('input[name="ids"]').val();
-    if (!currentRepairId) {
-        $menu.hide();
-        return;
-    }
-
-    // ===== 1. 获取当前行的状态和相关信息 =====
-    // 获取状态数值（直接从状态列的span标签判断，更准确）
-    const $statusSpan = $row.find('td[data-column-id="status"] span');
-    let status = 0;
-    if ($statusSpan.hasClass('label-primary')) status = 1; // 待处理
-    else if ($statusSpan.hasClass('label-warning')) status = 2; // 已分配
-    else if ($statusSpan.hasClass('label-info')) status = 3; // 处理中
-    else if ($statusSpan.hasClass('label-success')) status = 4; // 已完成
-    else if ($statusSpan.hasClass('label-default')) status = 5; // 已取消
-    
-    // 获取维修人员信息
-    const $workerTd = $row.find('td[data-column-id="worker"]');
-    const worker = $workerTd.text().trim();
-    const hasWorker = worker && worker !== '未分配';
-
-    // ===== 2. 权限判断（核心修复：通过操作列的按钮是否存在判断权限）=====
-    // 获取当前行的操作列按钮
-    const $operationTd = $row.find('td[data-column-id="operation"]');
-    // 判断各权限（通过操作列是否有对应按钮）
-    const hasEditPermission = $operationTd.find('button:contains("编辑")').length > 0;
-    const hasAssignPermission = $operationTd.find('button:contains("分配"), button:contains("直接完成"), button:contains("取消分配"), button:contains("催单")').length > 0;
-    const hasCancelPermission = $operationTd.find('button:contains("维修取消")').length > 0;
-    const hasDeletePermission = $operationTd.find('button:contains("删除")').length > 0;
-
-    // ===== 3. 构建菜单项（完全复刻操作列功能）=====
-    const menuItems = [];
-
-    // 3.1 编辑（有编辑权限）
-    if (hasEditPermission) {
-        menuItems.push({
-            text: '编辑',
-            icon: 'fa-edit',
-            action: function() {
-                toeditPage(currentRepairId, 'wxRepair');
-            }
-        });
-    }
-
-    // 3.2 分配相关操作（有分配权限）
-    if (hasAssignPermission) {
-        // 直接完成（待处理/已分配/处理中状态）
-        if (status === 1 || status === 2 || status === 3) {
-            menuItems.push({
-                text: '直接完成',
-                icon: 'fa-check-circle',
-                action: function() {
-                    completeRepairModal(currentRepairId);
-                }
-            });
-        }
-        
-        // 分配（仅待处理状态）
-        if (status === 1) {
-            menuItems.push({
-                text: '分配',
-                icon: 'fa-user-plus',
-                action: function() {
-                    assignWorkerModal(currentRepairId);
-                }
-            });
-        }
-        
-        // 取消分配（仅已分配状态）
-        if (status === 2) {
-            menuItems.push({
-                text: '取消分配',
-                icon: 'fa-user-times',
-                action: function() {
-                    showConfirmModal('cancelAssign', currentRepairId);
-                }
-            });
-        }
-        
-        // 催单（已分配/处理中且有维修人员）
-        if ((status === 2 || status === 3) && hasWorker) {
-            menuItems.push({
-                text: '催单',
-                icon: 'fa-bell',
-                action: function() {
-                    remindWorkerModal(currentRepairId);
-                }
-            });
-        }
-    }
-
-    // 3.3 取消维修（有取消权限，且状态为待处理/已分配/处理中）
-    if (hasCancelPermission && (status === 1 || status === 2 || status === 3)) {
-        menuItems.push({
-            text: '维修取消',
-            icon: 'fa-ban',
-            action: function() {
-                showConfirmModal('cancelRepair', currentRepairId);
-            }
-        });
-    }
-
-    // 3.4 删除（有删除权限）
-    if (hasDeletePermission) {
-        // 添加分隔线（如果有其他菜单项）
-        if (menuItems.length > 0) {
-            menuItems.push({
-                type: 'divider'
-            });
-        }
-        // 删除菜单项
-        menuItems.push({
-            text: '删除',
-            icon: 'fa-trash-o',
-            action: function() {
-                del(`[[@{/wxRepair/}]]${currentRepairId}`, '');
-            },
-            style: 'color: #dc3545;' // 红色字体
-        });
-    }
-
-    // ===== 4. 生成菜单HTML =====
-    if (menuItems.length === 0) {
-        $('#contextMenuItems').html('<li><a class="disabled">无可用操作</a></li>');
-    } else {
-        // 存储菜单项的操作函数（供点击时调用）
-        window.contextMenuActions = [];
-        
-        menuItems.forEach(item => {
-            if (item.type === 'divider') {
-                // 添加分隔线
-                $('#contextMenuItems').append('<li class="divider"></li>');
-            } else {
-                // 存储有效操作
-                window.contextMenuActions.push(item.action);
-                
-                // 生成菜单项HTML
-                const style = item.style ? `style="${item.style}"` : '';
-                const menuIndex = window.contextMenuActions.length - 1;
-                const html = `
-                    <li>
-                        <a ${style} onclick="executeContextMenuAction(${menuIndex})">
-                            <i class="fa ${item.icon}"></i> ${item.text}
-                        </a>
-                    </li>
-                `;
-                $('#contextMenuItems').append(html);
-            }
-        });
-    }
-
-    // ===== 5. 定位并显示菜单（防止超出视口）=====
-    const winWidth = $(window).width();
-    const winHeight = $(window).height();
-    const menuWidth = $menu.outerWidth();
-    const menuHeight = $menu.outerHeight();
-
-    // 计算菜单位置
-    let left = e.clientX;
-    let top = e.clientY;
-
-    // 右边界检查
-    if (left + menuWidth > winWidth) {
-        left = winWidth - menuWidth - 10;
-    }
-    // 下边界检查
-    if (top + menuHeight > winHeight) {
-        top = winHeight - menuHeight - 10;
-    }
-
-    // 设置菜单位置并显示
-    $menu.css({
-        left: left + 'px',
-        top: top + 'px',
-        display: 'block'
-    });
-}
-
-// 执行右键菜单操作
-function executeContextMenuAction(index) {
-    // 执行对应的操作函数
-    const action = window.contextMenuActions[index];
-    if (typeof action === 'function') {
-        action();
-    }
-    // 执行后关闭菜单
-    $('#customContextMenu').hide();
-}
     // 页面加载完成初始化
     $(document).ready(function() {
-    	
-    	initContextMenu();
         // 初始化可编辑单元格
         initEditableTd();
         

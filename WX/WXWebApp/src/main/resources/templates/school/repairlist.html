@@ -1,69 +1,209 @@
 <!DOCTYPE html>
 <html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="UTF-8"><title>我的报修 - 设备报修系统</title>
+<meta charset="UTF-8">
+<title>我的报修 - 设备报修系统</title>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
-<link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
-<script type="text/javascript" th:src="@{/assets/js/tailwindcs-3.4.17.js}"></script>
-<script>tailwind.config={theme:{extend:{colors:{primary:'#3B82F6',secondary:'#10B981',accent:'#F59E0B',danger:'#EF4444',neutral:'#6B7280'},fontFamily:{sans:['Inter','system-ui','sans-serif']}}}}</script>
-<style type="text/tailwindcss">@layer utilities{.content-auto{content-visibility:auto;}.form-input-focus{@apply focus:ring-2 focus:ring-primary/50 focus:border-primary focus:outline-none;}.shadow-soft{box-shadow:0 2px 8px rgba(0,0,0,0.08);}.status-badge{@apply text-xs font-semibold px-2.5 py-0.5 rounded-full;}.card-hover{@apply transition-all duration-300 hover:shadow-md hover:-translate-y-0.5;}}</style>
+<!-- 核心修复：引入Font Awesome 4.7.0官方CDN（兼容所有环境，解决图标不显示） -->
+<link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+/* 移除原不完整的内联图标样式，改用CDN完整样式 */
+
+/* 保留原有所有优化样式，无修改 */
+:root { --primary: #3B82F6; --secondary: #10B981; --accent: #F59E0B; --danger: #EF4444; --neutral: #6B7280; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background-color: #f9fafb; font-family: system-ui, sans-serif; color: #1f2937; min-height: 100vh; }
+header { background: white; box-shadow: 0 1px 2px rgba(0,0,0,0.05); position: fixed; top: 0; left: 0; right: 0; z-index: 50; transition: all 0.3s; padding: 0.75rem 0; }
+.container { max-width: 1280px; margin: 0 auto; padding: 0 1rem; }
+.header-content { display: flex; justify-content: space-between; align-items: center; }
+.h1-title { font-size: 1.125rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; }
+.h1-title .fa { margin-right: 0.5rem; }
+.main-content { padding-top: 5rem; padding-bottom: 1.5rem; }
+.title-section { margin-bottom: 1.5rem; padding-top: 1rem; }
+.title-wrap { display: flex; flex-direction: column; gap: 0.75rem; }
+@media (min-width: 640px) { .title-wrap { flex-direction: row; align-items: center; justify-content: space-between; } }
+.page-title { font-size: 1.25rem; font-weight: 700; color: #1f2937; }
+.page-desc { font-size: 0.875rem; color: #6b7280; }
+.btn-primary { display: inline-flex; align-items: center; justify-content: center; padding: 0.5rem 1rem; border: none; font-size: 0.875rem; font-weight: 500; border-radius: 0.5rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); color: white; background-color: var(--primary); transition: background-color 0.2s; }
+.btn-primary:hover { background-color: #2563eb; }
+.btn-primary .fa { margin-right: 0.5rem; }
+.card-list { gap: 1rem; display: flex; flex-direction: column; }
+.card-item { background: white; border-radius: 0.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; transition: all 0.2s; }
+.card-item:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); transform: translateY(-1px); }
+.card-content { padding: 1rem; }
+.card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem; }
+.order-number-label { font-size: 0.75rem; font-weight: 500; color: #6b7280; }
+.order-number { font-weight: 500; }
+.status-badge { font-size: 0.75rem; font-weight: 600; padding: 0.125rem 0.625rem; border-radius: 9999px; }
+.fault-info { margin-bottom: 0.75rem; }
+.fault-label { font-size: 0.75rem; font-weight: 500; color: #6b7280; display: block; margin-bottom: 0.25rem; }
+.fault-text { font-size: 0.875rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin-bottom: 0.75rem; }
+@media (min-width: 768px) { .info-grid { grid-template-columns: repeat(4, 1fr); } }
+.info-item { font-size: 0.75rem; }
+.info-item-label { display: block; margin-bottom: 0.25rem; font-weight: 500; color: #6b7280; }
+.info-item-value { color: #6b7280; }
+.time-value { font-size: 0.875rem; color: #1f2937; }
+.time-sub { font-size: 0.75rem; color: #6b7280; }
+.priority-wrap { display: flex; align-items: center; font-size: 0.875rem; }
+.priority-wrap .fa { margin-right: 0.25rem; }
+.progress-section { margin-top: 0.5rem; }
+.progress-label { font-size: 0.75rem; font-weight: 500; color: #6b7280; display: block; margin-bottom: 0.25rem; }
+.progress-bar { width: 100%; height: 0.5rem; background-color: #e5e7eb; border-radius: 9999px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 9999px; }
+.progress-text { font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem; }
+.empty-state { padding: 4rem 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.empty-icon { width: 6rem; height: 6rem; border-radius: 50%; background-color: rgba(59, 130, 246, 0.1); display: flex; align-items: center; justify-content: center; color: var(--primary); margin-bottom: 1rem; }
+.empty-icon .fa { font-size: 2rem; }
+.empty-title { font-size: 1.25rem; font-weight: 700; color: #1f2937; margin-bottom: 0.5rem; }
+.empty-desc { font-size: 0.875rem; color: #6b7280; max-width: 24rem; margin-bottom: 1.5rem; }
+
+/* 状态样式常量 */
+.status-pending { background-color: #facc15; color: white; }
+.status-assigned { background-color: #60a5fa; color: white; }
+.status-processing { background-color: #3b82f6; color: white; }
+.status-completed { background-color: #22c55e; color: white; }
+.status-canceled { background-color: #9ca3af; color: white; }
+.progress-pending { background-color: #facc15; }
+.progress-assigned { background-color: #60a5fa; }
+.progress-processing { background-color: #3b82f6; }
+.progress-completed { background-color: #22c55e; }
+.progress-canceled { background-color: #9ca3af; }
+.priority-normal { color: #9ca3af; }
+.priority-urgent { color: #f97316; }
+.priority-emergency { color: #ef4444; }
+</style>
 </head>
-<body class="bg-gray-50 font-sans text-gray-800 min-h-screen">
-<header class="bg-white shadow-sm fixed top-0 left-0 right-0 z-50 transition-all duration-300">
-<div class="container mx-auto px-4 py-3 flex justify-between items-center">
-<h1 class="text-lg font-bold text-primary flex items-center"><i class="fa fa-wrench mr-2"></i>我的报修</h1>
-<div class="flex items-center space-x-4"><div class="relative"></div></div>
-</div>
+<body>
+<header>
+  <div class="container header-content">
+    <h1 class="h1-title"><i class="fa fa-wrench"></i>我的报修</h1>
+    <div class="flex items-center space-x-4"><div class="relative"></div></div>
+  </div>
 </header>
-<main class="container mx-auto px-4 pt-20 pb-6">
-<div class="mb-6 pt-4">
-<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-<div><h2 class="text-xl font-bold text-gray-800">报修工单管理</h2><p class="text-gray-500 text-sm">查看和管理您的所有报修工单</p></div>
-<a href="../wechatrp/repair" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-primary hover:bg-primary/90 transition-colors transform hover:scale-105"><i class="fa fa-plus mr-2"></i> 发起新报修</a>
-</div>
-</div>
-<div class="space-y-4" th:each="repair : ${repairList}">
-    <!-- 核心修改：添加th:if条件过滤已完成和已取消的工单 -->
-    <div class="bg-white rounded-lg shadow-soft overflow-hidden card-hover" 
-         th:with="statusEnum=${T(zhongchiedu.common.utils.enums.RepairStatus).fromCode(repair.status)},
-                  progressWidth=${statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).PENDING ? '25%' : statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).ASSIGNED ? '40%' : statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).PROCESSING ? '70%' : statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).COMPLETED ? '100%' : '0%'},
-                  progressColor=${statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).PENDING ? 'bg-yellow-500' : statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).ASSIGNED ? 'bg-blue-400' : statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).PROCESSING ? 'bg-blue-500' : statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).COMPLETED ? 'bg-green-500' : 'bg-gray-400'},
-                  progressText=${statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).PENDING ? '待分配维修人员' : statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).ASSIGNED ? '已分配维修人员' : statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).PROCESSING ? '处理中' : statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).COMPLETED ? '已完成' : '已取消'}"
-         <!-- 过滤条件：排除已完成(COMPLETED)和已取消(其他未匹配状态)的工单 -->
-         th:if="${statusEnum != T(zhongchiedu.common.utils.enums.RepairStatus).COMPLETED && 
-                 !(statusEnum != T(zhongchiedu.common.utils.enums.RepairStatus).PENDING && 
-                   statusEnum != T(zhongchiedu.common.utils.enums.RepairStatus).ASSIGNED && 
-                   statusEnum != T(zhongchiedu.common.utils.enums.RepairStatus).PROCESSING && 
-                   statusEnum != T(zhongchiedu.common.utils.enums.RepairStatus).COMPLETED)}">
-        <div class="p-4">
-        <div class="flex justify-between items-start mb-3">
-        <div><span class="text-xs font-medium text-gray-500">工单编号</span><p class="font-medium" th:text="${repair.workOrderNumber}">#WX20230601001</p></div>
-        <span class="status-badge" th:classappend="${statusEnum?.cssClass}" th:text="${statusEnum?.description ?: '未知状态'}"></span>
-        </div>
-        <div class="mb-3"><span class="text-xs font-medium text-gray-500 block mb-1">报修内容</span><p class="text-sm line-clamp-2" th:text="${repair.faultInformation}"></p></div>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
-        <div><span class="text-xs font-medium text-gray-500 block mb-1">报修设备</span><p class="text-xs text-gray-500" th:text="${repair.equipmentRepair}"></p><span class="text-xs font-medium text-gray-500 block mb-1">设备位置</span><p class="text-xs text-gray-500" th:text="${repair.reportClassroomRepair}"></p></div>
-        <div><span class="text-xs font-medium text-gray-500 block mb-1">提交时间</span><p class="text-sm" th:text="${repair.createTime != null ? #dates.format(repair.createTime ,'yyyy-MM-dd') : '暂无时间'}"></p><p class="text-xs text-gray-500" th:text="${repair.createTime != null ? #dates.format(repair.createTime, 'HH:mm') : ''}"></p></div>
-        <div><span class="text-xs font-medium text-gray-500 block mb-1">优先级</span><p class="text-sm flex items-center"><i class="fa fa-exclamation-circle" th:classappend="${repair.urgencyLevel == '一般' ? 'text-gray-400' : repair.urgencyLevel == '紧急' ? 'text-orange-500' : 'text-red-500'}"></i><span th:text="${repair.urgencyLevel}">中</span></p></div>
-        <div th:if="${repair.worker != null}"><span class="text-xs font-medium text-gray-500 block mb-1">处理人员</span><p class="text-xs text-gray-500" th:text="${repair.worker.name}"></p></div>
-        </div>
-        <div><span class="text-xs font-medium text-gray-500 block mb-1">处理进度</span><div class="w-full bg-gray-200 rounded-full h-2"><div class="h-2 rounded-full" th:classappend="${progressColor}" th:style="'width: ' + ${progressWidth}"></div></div><p class="text-xs text-gray-500 mt-1" th:text="${progressText}"></p></div>
-        </div>
+
+<main class="container main-content">
+  <div class="title-section">
+    <div class="title-wrap">
+      <div>
+        <h2 class="page-title">报修工单管理</h2>
+        <p class="page-desc">查看和管理您的所有报修工单</p>
+      </div>
+      <a href="../wechatrp/repair" class="btn-primary"><i class="fa fa-plus"></i> 发起新报修</a>
     </div>
-</div>
-<div id="emptyState" class="py-16 flex flex-col items-center justify-center text-center" th:if="${repairList == null or repairList.isEmpty()}">
-<div class="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4"><i class="fa fa-file-text-o text-4xl"></i></div>
-<h3 class="text-xl font-bold text-gray-800 mb-2">暂无报修工单</h3>
-<p class="text-gray-500 max-w-md mb-6">您还没有提交任何报修工单，点击下方按钮发起您的第一个报修。</p>
-<a href="../wechatrp/repair" class="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-primary hover:bg-primary/90 transition-colors"><i class="fa fa-plus mr-2"></i> 发起新报修</a>
-</div>
+  </div>
+
+  <div class="card-list" th:if="${repairList != null}">
+    <div th:each="repair : ${repairList}">
+      <div th:if="${T(zhongchiedu.common.utils.enums.RepairStatus).fromCode(repair.status) != T(zhongchiedu.common.utils.enums.RepairStatus).COMPLETED}">
+        <div class="card-item" 
+             th:with="statusEnum=${T(zhongchiedu.common.utils.enums.RepairStatus).fromCode(repair.status)},
+                      progressClass=${statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).PENDING ? 'progress-pending' : 
+                                     statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).ASSIGNED ? 'progress-assigned' : 
+                                     statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).PROCESSING ? 'progress-processing' : 
+                                     statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).COMPLETED ? 'progress-completed' : 'progress-canceled'},
+                      statusBadgeClass=${statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).PENDING ? 'status-pending' : 
+                                        statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).ASSIGNED ? 'status-assigned' : 
+                                        statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).PROCESSING ? 'status-processing' : 
+                                        statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).COMPLETED ? 'status-completed' : 'status-canceled'},
+                      progressWidth=${statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).PENDING ? '25%' : 
+                                     statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).ASSIGNED ? '40%' : 
+                                     statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).PROCESSING ? '70%' : 
+                                     statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).COMPLETED ? '100%' : '0%'},
+                      progressText=${statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).PENDING ? '待分配维修人员' : 
+                                     statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).ASSIGNED ? '已分配维修人员' : 
+                                     statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).PROCESSING ? '处理中' : 
+                                     statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).COMPLETED ? '已完成' : '已取消'},
+                      priorityClass=${repair.urgencyLevel == '一般' ? 'priority-normal' : 
+                                     repair.urgencyLevel == '紧急' ? 'priority-urgent' : 'priority-emergency'}">
+          <div class="card-content">
+            <div class="card-header">
+              <div>
+                <span class="order-number-label">工单编号</span>
+                <p class="order-number" th:text="${repair.workOrderNumber}">#WX20230601001</p>
+              </div>
+              <span class="status-badge" th:classappend="${statusBadgeClass}" th:text="${statusEnum?.description ?: '未知状态'}"></span>
+            </div>
+
+            <div class="fault-info">
+              <span class="fault-label">报修内容</span>
+              <p class="fault-text" th:text="${repair.faultInformation}"></p>
+            </div>
+
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="info-item-label">报修设备</span>
+                <p class="info-item-value" th:text="${repair.equipmentRepair}"></p>
+                <span class="info-item-label">设备位置</span>
+                <p class="info-item-value" th:text="${repair.reportClassroomRepair}"></p>
+              </div>
+              <div class="info-item">
+                <span class="info-item-label">提交时间</span>
+                <p class="time-value" th:text="${repair.createTime != null ? #dates.format(repair.createTime ,'yyyy-MM-dd') : '暂无时间'}"></p>
+                <p class="time-sub" th:text="${repair.createTime != null ? #dates.format(repair.createTime, 'HH:mm') : ''}"></p>
+              </div>
+              <div class="info-item">
+                <span class="info-item-label">优先级</span>
+                <p class="priority-wrap">
+                  <i class="fa fa-exclamation-circle" th:classappend="${priorityClass}"></i>
+                  <span th:text="${repair.urgencyLevel}">中</span>
+                </p>
+              </div>
+              <div class="info-item" th:if="${repair.worker != null}">
+                <span class="info-item-label">处理人员</span>
+                <p class="info-item-value" th:text="${repair.worker.name}"></p>
+              </div>
+            </div>
+
+            <div class="progress-section">
+              <span class="progress-label">处理进度</span>
+              <div class="progress-bar">
+                <div class="progress-fill" th:classappend="${progressClass}" th:style="'width: ' + ${progressWidth}"></div>
+              </div>
+              <p class="progress-text" th:text="${progressText}"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="empty-state" th:if="${repairList == null or #lists.isEmpty(repairList)}">
+    <div class="empty-icon"><i class="fa fa-file-text-o"></i></div>
+    <h3 class="empty-title">暂无报修工单</h3>
+    <p class="empty-desc">您还没有提交任何报修工单，点击下方按钮发起您的第一个报修。</p>
+    <a href="../wechatrp/repair" class="btn-primary"><i class="fa fa-plus"></i> 发起新报修</a>
+  </div>
 </main>
+
 <script>
-document.getElementById('filterForm')?.addEventListener('submit',function(e){e.preventDefault();const searchTerm=document.getElementById('search')?.value,status=document.getElementById('statusFilter')?.value,dateRange=document.getElementById('dateFilter')?.value;console.log('搜索:',searchTerm);console.log('状态:',status);console.log('日期范围:',dateRange);alert(`正在搜索: "${searchTerm}", 状态: "${status || '全部'}", 日期范围: "${dateRange || '全部'}"`);const items=document.querySelectorAll('.card-hover'),hasFilter=searchTerm||status||dateRange;items.forEach((item,index)=>{if(hasFilter&&index>=2)item.classList.add('hidden');else item.classList.remove('hidden');});const emptyState=document.getElementById('emptyState');const isAllHidden=Array.from(items).every(item=>item.classList.contains('hidden'));if(hasFilter&&items.length>0&&isAllHidden)emptyState.classList.remove('hidden');else emptyState.classList.add('hidden');});
-document.getElementById('resetFilter')?.addEventListener('click',function(){document.getElementById('filterForm')?.reset();document.getElementById('filterForm')?.dispatchEvent(new Event('submit'));});
-document.getElementById('statusFilter')?.addEventListener('change',function(){this.form.dispatchEvent(new Event('submit'));});
-document.getElementById('dateFilter')?.addEventListener('change',function(){this.form.dispatchEvent(new Event('submit'));});
-window.addEventListener('scroll',function(){const header=document.querySelector('header');if(window.scrollY>10){header.classList.add('shadow');header.classList.add('py-2');header.classList.remove('py-3');}else{header.classList.remove('shadow');header.classList.add('py-3');header.classList.remove('py-2');}});
+// 节流scroll事件，减少触发频率
+function throttle(fn, delay) {
+  let timer = null;
+  return function() {
+    if (!timer) {
+      timer = setTimeout(() => {
+        fn.apply(this, arguments);
+        timer = null;
+      }, delay);
+    }
+  };
+}
+
+// 仅在header存在时绑定事件，避免无效执行
+const header = document.querySelector('header');
+if (header) {
+  const scrollHandler = throttle(function() {
+    if (window.scrollY > 10) {
+      header.style.padding = '0.5rem 0';
+      header.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+    } else {
+      header.style.padding = '0.75rem 0';
+      header.style.boxShadow = '0 1px 2px rgba(0,0,0,0.05)';
+    }
+  }, 50); // 50ms节流，大幅减少触发次数
+  window.addEventListener('scroll', scrollHandler);
+}
 </script>
 </body>
 </html>

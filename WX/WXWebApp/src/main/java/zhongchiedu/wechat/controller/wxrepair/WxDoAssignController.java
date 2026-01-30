@@ -4,7 +4,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -120,8 +122,8 @@ public class WxDoAssignController {
 
 	            // 1. thing4：学校+校区（避免null拼接）
 	            String schoolName = Common.isNotEmpty(reporter.getSchoolName()) ? reporter.getSchoolName() : "未知学校";
-	            String campus = Common.isNotEmpty(reporter.getCampus()) ? reporter.getCampus() : "未知校区";
-	            map.put("thing4", schoolName + "校区：" + campus);
+//	            String campus = Common.isNotEmpty(reporter.getCampus()) ? reporter.getCampus() : "未知校区";
+	            map.put("thing4", schoolName );
 
 	            // 2. thing5：报修人姓名+联系电话
 	            String userName = Common.isNotEmpty(reporter.getUserName()) ? reporter.getUserName() : "未知报修人";
@@ -190,5 +192,105 @@ public class WxDoAssignController {
 	    }
 	    return result;
 	}
+	
+	
+	
+	
+	  @PostMapping("/remindWorker")
+	    @SystemControllerLog(description = "报修单催单")
+	    @ResponseBody
+	    public BasicDataResult remindWorker(@RequestParam("repairId") String repairId) {
+	        try {
+	            // 1. 校验报修单是否存在
+	            WxRepair wxRepair = wxRepairService.findOneById(repairId,WxRepair.class);
+	            if (Objects.isNull(wxRepair)) {
+	                String errorMsg = "催单失败：未找到对应的报修单";
+	                log.error(errorMsg);
+	                return BasicDataResult.build(500, errorMsg, null);
+	            }
+
+	            // 2. 校验报修单状态
+	            Integer status = wxRepair.getStatus();
+	            if (!Objects.equals(status, 2) && !Objects.equals(status, 3)) {
+	                String errorMsg = "催单失败：仅已分配（状态2）/处理中（状态3）的报修单可催单";
+	                log.error(errorMsg);
+	                return BasicDataResult.build(500, errorMsg, null);
+	            }
+
+	            // 3. 校验维修人员（核心：Worker而非WxReporter）
+	            WxReporter worker = wxRepair.getWxReporter();
+	            if (Objects.isNull(worker) || Common.isEmpty(worker.getOpenId())) {
+	                String errorMsg = "催单失败：该报修单未分配维修人员，无法推送催单消息";
+	                log.error(errorMsg);
+	                return BasicDataResult.build(500, errorMsg, null);
+	            }
+
+	            // 4. 构建催单消息模板参数（确保所有必填字段非空）
+	            Map<String, String> map = new HashMap<>();
+	            WxReporter reporter = wxRepair.getWxReporter() == null ? new WxReporter() : wxRepair.getWxReporter();
+	            
+	            // 4.1 学校+校区（非空兜底）
+	            String schoolName = Common.isNotEmpty(reporter.getSchoolName()) ? reporter.getSchoolName() : "未知学校";
+//	            String campus = Common.isNotEmpty(reporter.getCampus()) ? reporter.getCampus() : "未知校区";
+	            map.put("thing4", "催单通知："+schoolName );
+	            // 4.6 报修人（必填：解决微信47003错误）
+	            String userName = Common.isNotEmpty(reporter.getUserName()) ? reporter.getUserName() : "未知报修人";
+	            
+	            map.put("thing5", userName);
+	            // 4.4 催单时间（非空）
+	            map.put("time2", Common.getDateYMDHM(new Date()));
+
+	            // 4.5 紧急程度（非空兜底）
+	            String urgencyLevel = Common.isNotEmpty(wxRepair.getUrgencyLevel()) ? wxRepair.getUrgencyLevel() : "普通";
+	            map.put("thing16", urgencyLevel);
+
+	   
+	            
+	            String faultInfo = Common.isNotEmpty(wxRepair.getFaultInformation()) ? wxRepair.getFaultInformation()
+                        : "无详细故障描述";
+                map.put("thing11", faultInfo);
+
+	            // 5. 推送催单消息（核心：精准捕获微信异常）
+	            try {
+	                // 前置校验：模板ID/OpenId非空
+	                if (Common.isEmpty(templateId5)) {
+	                    String errorMsg = "催单失败：微信模板ID未配置";
+	                    log.error(errorMsg);
+	                    return BasicDataResult.build(500, errorMsg, null);
+	                }
+	                if (Common.isEmpty(worker.getOpenId())) {
+	                    String errorMsg = "催单失败：维修人员OpenId为空";
+	                    log.error(errorMsg);
+	                    return BasicDataResult.build(500, errorMsg, null);
+	                }
+	                
+	                // 执行微信推送
+	                String sendWxMessage = this.wxMsgPush.sendWxMessage(
+	                    templateId5, 
+	                    worker.getOpenId(),
+	                    weburl + "/wechatrp/findWxRepairByWorker/" + wxRepair.getId(), 
+	                    map
+	                );
+	                log.info("报修单[{}]催单消息推送成功：{}", repairId, sendWxMessage);
+
+	                // 只有推送成功，才返回200
+	                return BasicDataResult.build(200, "催单消息已推送至维修人员", wxRepair);
+	                
+	            } catch (Exception msgE) {
+	                // 捕获其他推送异常
+	                String errorMsg = "催单失败：消息推送异常 - " + msgE.getMessage();
+	                log.error(errorMsg, msgE);
+	                return BasicDataResult.build(500, errorMsg, null);
+	            }
+
+	        } catch (Exception e) {
+	            // 兜底捕获所有异常
+	            String errorMsg = "催单失败：系统异常 - " + e.getMessage();
+	            log.error(errorMsg, e);
+	            return BasicDataResult.build(500, errorMsg, null);
+	        }
+	    }
+	
+	
 
 }
