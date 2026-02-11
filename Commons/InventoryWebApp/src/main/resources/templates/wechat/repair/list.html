@@ -1450,12 +1450,14 @@ function submitAssignWorker() {
             const $td = $(this);
             if ($td.find('input').length > 0) return;
             
-            const reporterId = $td.data('reporter-id');
+            // 修改1：获取报修单ID而非reporterId
+            const repairId = $td.closest('tr').find('input[name="ids"]').val();
             const field = $td.data('field');
             const originalText = $td.text().trim();
             const inputValue = originalText === '无' ? '' : originalText;
             
             $td.data('original-text', originalText);
+            $td.data('repair-id', repairId); // 存储报修单ID
             
             const editHtml = `
                 <input type="text" class="form-control input-sm edit-input" value="${inputValue}" style="width: 80%; display: inline-block;">
@@ -1470,8 +1472,7 @@ function submitAssignWorker() {
             e.stopPropagation();
             const $btn = $(this);
             const $td = $btn.closest('.editable-td');
-            const $tr = $td.closest('tr');
-            const oldOpenId = $td.data('reporter-id');
+            const repairId = $td.data('repair-id'); // 获取报修单ID
             const field = $td.data('field');
             const $input = $td.find('.edit-input');
             const newValue = $input.val().trim();
@@ -1482,59 +1483,20 @@ function submitAssignWorker() {
                 return;
             }
 
-            const userName = $tr.find('td[data-column-id="reporterName"]').text().trim().replace('无', '');
-            const contactNumber = $tr.find('td[data-column-id="contactNumber"]').text().trim().replace('无', '');
-            const schoolName = $tr.find('td[data-column-id="schoolName"]').text().trim().replace('无', '');
-            const campus = $tr.find('td[data-column-id="campus"]').text().trim().replace('无', '');
-            const schoolAddress = $tr.find('td[data-column-id="schoolAddress"]').text().trim().replace('无', '');
-
-            if (!oldOpenId) {
-                if (!userName || !contactNumber || !schoolName) {
-                    swal("提示", "新增报修人时，姓名、联系电话、学校不能为空！", "warning");
-                    return;
-                }
-            }
-
+            // 修改2：构造WxRepair的修改参数
             const params = {
-                openId: oldOpenId,
-                userName: userName,
-                contactNumber: contactNumber,
-                schoolName: schoolName,
-                campus: campus,
-                schoolAddress: schoolAddress
+                repairId: repairId,
+                field: field,
+                value: newValue
             };
-            params[field] = newValue;
 
-            $.post("[[@{/wxRepair/editWxReporter}]]", params, function(res) {
+            // 修改3：调用新的后端接口修改WxRepair
+            $.post("[[@{/wxRepair/editWxRepairField}]]", params, function(res) {
                 if (res.status === 200) {
                     swal("成功", res.msg, "success");
-                    
-                    const newOpenId = res.data?.openId || oldOpenId;
-                    const fieldToColumnIdMap = {
-                        userName: 'reporterName',
-                        contactNumber: 'contactNumber',
-                        schoolName: 'schoolName',
-                        campus: 'campus',
-                        schoolAddress: 'schoolAddress'
-                    };
-                    const targetColumnId = fieldToColumnIdMap[field];
-
-                    $(`.editable-td[data-reporter-id="${newOpenId}"][data-column-id="${targetColumnId}"]`).each(function() {
-                        const $targetTd = $(this);
-                        if ($targetTd[0] !== $td[0]) {
-                            $targetTd.html(newValue);
-                        }
-                    });
-
+                    // 仅更新当前单元格，不再联动其他行
                     $td.html(newValue);
                     $td.removeData('original-text');
-
-                    if (!oldOpenId && newOpenId) {
-                        $tr.find('.editable-td').each(function() {
-                            $(this).data('reporter-id', newOpenId);
-                            $(this).attr('data-reporter-id', newOpenId);
-                        });
-                    }
                 } else {
                     swal("失败", res.msg, "error");
                     const originalText = $td.data('original-text');

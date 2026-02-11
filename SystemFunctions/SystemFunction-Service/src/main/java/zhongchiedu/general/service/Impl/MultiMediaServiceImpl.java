@@ -15,13 +15,17 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import lombok.extern.slf4j.Slf4j;
 import zhongchiedu.common.utils.Common;
 import zhongchiedu.common.utils.Contents;
 import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.common.utils.ImageTool;
+import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralServiceImpl;
 import zhongchiedu.general.pojo.MultiMedia;
 import zhongchiedu.general.service.MultiMediaService;
+import zhongchiedu.log.annotation.SystemServiceLog;
+@Slf4j
 @Service
 public class MultiMediaServiceImpl  extends GeneralServiceImpl<MultiMedia> implements MultiMediaService{
 
@@ -241,4 +245,42 @@ public class MultiMediaServiceImpl  extends GeneralServiceImpl<MultiMedia> imple
 		}
 		
 	}
+	
+	
+	// 在 zhongchiedu.general.service.Impl.MultiMediaServiceImpl 中添加
+	@Override
+	@SystemServiceLog(description = "分页查询多媒体资源信息")
+	public Pagination<MultiMedia> findMultiMediaPagination(Integer pageNo, Integer pageSize, String fileType) {
+	    Pagination<MultiMedia> pagination = null;
+	    try {
+	        Query query = new Query();
+	        query.addCriteria(Criteria.where("isDelete").is(false)); // 排除已删除的资源
+
+	        // 按文件类型筛选（可选）
+	        if (fileType != null && !fileType.isEmpty()) {
+	            query.addCriteria(Criteria.where("fileType").is(fileType));
+	        }
+
+	        // 分页查询
+	        pagination = this.findPaginationByQuery(query, pageNo, pageSize, MultiMedia.class);
+	        if (pagination == null) {
+	            pagination = new Pagination<MultiMedia>();
+	        }
+	        return pagination;
+	    } catch (Exception e) {
+	        log.error("分页查询多媒体资源失败", e);
+	        e.printStackTrace();
+	    }
+	    return pagination;
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }

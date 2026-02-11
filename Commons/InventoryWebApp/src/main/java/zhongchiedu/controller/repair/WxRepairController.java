@@ -452,59 +452,132 @@ public class WxRepairController {
     /**
      * 编辑报修人信息（整合版）
      */
-    @PostMapping("/wxRepair/editWxReporter")
+//    @PostMapping("/wxRepair/editWxReporter")
+//    @ResponseBody
+//    //@RequiresPermissions("wxRepair:editReporter")
+//    public BasicDataResult editWxReporter(WxReporter wxReporter) {
+//        try {
+//            // 参数校验
+//            if (wxReporter == null) {
+//                return BasicDataResult.build(500, "报修人信息不能为空", null);
+//            }
+//
+//            // 区分新增（无ID）和编辑（有ID）
+//            if (wxReporter.getId() == null ) {
+//                // 新增时校验所有必填字段
+//                if (wxReporter.getUserName() == null || wxReporter.getUserName().trim().isEmpty()) {
+//                    return BasicDataResult.build(500, "报修人姓名不能为空", null);
+//                }
+//                if (wxReporter.getContactNumber() == null || wxReporter.getContactNumber().trim().isEmpty()) {
+//                    return BasicDataResult.build(500, "联系电话不能为空", null);
+//                }
+//                if (wxReporter.getSchoolName() == null || wxReporter.getSchoolName().trim().isEmpty()) {
+//                    return BasicDataResult.build(500, "报修学校不能为空", null);
+//                }
+//            } else {
+//                // 编辑时仅校验修改的字段（非空则校验格式）
+//                if (wxReporter.getContactNumber() != null && !wxReporter.getContactNumber().trim().isEmpty()) {
+//                    // 可选：校验手机号格式
+//                    if (!wxReporter.getContactNumber().matches("^1[3-9]\\d{9}$")) {
+//                        return BasicDataResult.build(500, "联系电话格式不正确", null);
+//                    }
+//                }
+//                // 其他字段编辑时仅判空（如果传了值则不能为空）
+//                if (wxReporter.getUserName() != null && wxReporter.getUserName().trim().isEmpty()) {
+//                    return BasicDataResult.build(500, "报修人姓名不能为空", null);
+//                }
+//                if (wxReporter.getSchoolName() != null && wxReporter.getSchoolName().trim().isEmpty()) {
+//                    return BasicDataResult.build(500, "报修学校不能为空", null);
+//                }
+//            }
+//
+//            // 调用服务层方法
+//            WxReporter saveOrUpdate = wxReporterService.saveOrUpdate(wxReporter);
+//            if (saveOrUpdate != null) {
+//                // 修复：返回新增的ID，供前端同步
+//                return BasicDataResult.build(200, "编辑报修人信息成功", saveOrUpdate);
+//            } else {
+//                return BasicDataResult.build(500, "编辑报修人信息失败", null);
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return BasicDataResult.build(500, "编辑报修人信息异常：" + e.getMessage(), null);
+//        }
+//    }
+
+    
+    /**
+     * 编辑WxRepair单个字段（双击单元格修改）
+     */
+    @PostMapping("/wxRepair/editWxRepairField")
+//    @RequiresPermissions(value = "wxRepair:edit")
+    @SystemControllerLog(description = "编辑报修单单个字段")
     @ResponseBody
-    //@RequiresPermissions("wxRepair:editReporter")
-    public BasicDataResult editWxReporter(WxReporter wxReporter) {
+    public BasicDataResult editWxRepairField(
+            @RequestParam("repairId") String repairId,
+            @RequestParam("field") String field,
+            @RequestParam("value") String value) {
         try {
-            // 参数校验
+            // 1. 校验参数
+            if (Common.isEmpty(repairId)) {
+                return BasicDataResult.build(500, "报修单ID不能为空", null);
+            }
+            if (Common.isEmpty(field)) {
+                return BasicDataResult.build(500, "修改字段不能为空", null);
+            }
+            if (Common.isEmpty(value)) {
+                return BasicDataResult.build(500, "修改值不能为空", null);
+            }
+
+            // 2. 查询报修单
+            WxRepair wxRepair = wxRepairService.findOneById(repairId, WxRepair.class);
+            if (wxRepair == null) {
+                return BasicDataResult.build(500, "报修单不存在", null);
+            }
+
+            // 3. 获取WxReporter（不存在则创建）
+            WxReporter wxReporter = wxRepair.getWxReporter();
             if (wxReporter == null) {
-                return BasicDataResult.build(500, "报修人信息不能为空", null);
+                wxReporter = new WxReporter();
+                wxRepair.setWxReporter(wxReporter);
             }
 
-            // 区分新增（无ID）和编辑（有ID）
-            if (wxReporter.getId() == null ) {
-                // 新增时校验所有必填字段
-                if (wxReporter.getUserName() == null || wxReporter.getUserName().trim().isEmpty()) {
-                    return BasicDataResult.build(500, "报修人姓名不能为空", null);
-                }
-                if (wxReporter.getContactNumber() == null || wxReporter.getContactNumber().trim().isEmpty()) {
-                    return BasicDataResult.build(500, "联系电话不能为空", null);
-                }
-                if (wxReporter.getSchoolName() == null || wxReporter.getSchoolName().trim().isEmpty()) {
-                    return BasicDataResult.build(500, "报修学校不能为空", null);
-                }
-            } else {
-                // 编辑时仅校验修改的字段（非空则校验格式）
-                if (wxReporter.getContactNumber() != null && !wxReporter.getContactNumber().trim().isEmpty()) {
-                    // 可选：校验手机号格式
-                    if (!wxReporter.getContactNumber().matches("^1[3-9]\\d{9}$")) {
-                        return BasicDataResult.build(500, "联系电话格式不正确", null);
+            // 4. 根据字段名设置值
+            switch (field) {
+                case "schoolName":
+                    wxReporter.setSchoolName(value);
+                    break;
+                case "campus":
+                    wxReporter.setCampus(value);
+                    break;
+                case "schoolAddress":
+                    wxReporter.setSchoolAddress(value);
+                    break;
+                case "userName":
+                    wxReporter.setUserName(value);
+                    break;
+                case "contactNumber":
+                    wxReporter.setContactNumber(value);
+                    // 可选：手机号格式校验
+                    if (!value.matches("^1[3-9]\\d{9}$")) {
+                        return BasicDataResult.build(500, "手机号格式不正确", null);
                     }
-                }
-                // 其他字段编辑时仅判空（如果传了值则不能为空）
-                if (wxReporter.getUserName() != null && wxReporter.getUserName().trim().isEmpty()) {
-                    return BasicDataResult.build(500, "报修人姓名不能为空", null);
-                }
-                if (wxReporter.getSchoolName() != null && wxReporter.getSchoolName().trim().isEmpty()) {
-                    return BasicDataResult.build(500, "报修学校不能为空", null);
-                }
+                    break;
+                default:
+                    return BasicDataResult.build(500, "不支持的修改字段：" + field, null);
             }
 
-            // 调用服务层方法
-            WxReporter saveOrUpdate = wxReporterService.saveOrUpdate(wxReporter);
-            if (saveOrUpdate != null) {
-                // 修复：返回新增的ID，供前端同步
-                return BasicDataResult.build(200, "编辑报修人信息成功", saveOrUpdate);
-            } else {
-                return BasicDataResult.build(500, "编辑报修人信息失败", null);
-            }
+            // 5. 保存报修单（级联保存WxReporter）
+            wxRepairService.save(wxRepair);
+            
+            return BasicDataResult.build(200, "修改成功", wxRepair);
+            
         } catch (Exception e) {
-            e.printStackTrace();
-            return BasicDataResult.build(500, "编辑报修人信息异常：" + e.getMessage(), null);
+            log.error("编辑报修单字段失败：", e);
+            return BasicDataResult.build(500, "修改失败：" + e.getMessage(), null);
         }
     }
-
+    
     
     @PostMapping("/wxRepair/cancelRepairToComplete")
     @RequiresPermissions(value = "wxRepair:cancel")

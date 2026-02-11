@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head th:include="public/public_css::pub_css"></head>
+
+<head >
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/js/progress-bar/number-pb.css}">
+    <link th:href="@{/plugs/sweetalert/sweetalert.css}" rel="stylesheet">
+    <style>
+        /* 资源预览样式 */
+        .preview-img {
+            max-width: 100px;
+            max-height: 80px;
+            cursor: pointer;
+        }
+        .file-type-tag {
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+        .tag-img {
+            background-color: #5cb85c;
+            color: white;
+        }
+        .tag-video {
+            background-color: #f0ad4e;
+            color: white;
+        }
+        .tag-qrcode {
+            background-color: #337ab7;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+<!-- Preloader -->
+<div id="preloader">
+    <div id="status">&nbsp;</div>
+</div>
+<!-- TOP NAVBAR -->
+<div th:replace="public/public::top"></div>
+<!-- /END OF TOP NAVBAR -->
+
+<!-- SIDE MENU - 核心修复：激活URI改为multimedia（原是basic，导致菜单样式错乱） -->
+<div th:replace="public/public::left(activeUri='multimedia')"></div>
+<!-- END OF SIDE MENU -->
+
+<!--  PAPER WRAP -->
+<div class="wrap-fluid">
+    <div class="container-fluid paper-wrap bevel tlbr">
+
+        <!-- CONTENT -->
+        <!--TITLE -->
+        <div th:replace="public/public::title"></div>
+        <!--/ TITLE -->
+
+        <!-- BREADCRUMB -->
+        <div th:replace="public/public::menu"></div>
+        <!-- END OF BREADCRUMB -->
+
+        <div class="content-wrap">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="nest" id="tableStaticClose">
+                        <div class="title-alt">
+                            <div>
+                                <!-- 筛选条件 - 保留原有筛选，对齐area页面布局 -->
+                                <div class="form-inline pull-left" style="margin-right: 20px;">
+                                    <select class="form-control input-sm" id="fileTypeSelect" onchange="filterByFileType()">
+                                        <option value="">全部类型</option>
+                                        <option value="IMG" th:selected="${selectedFileType == 'IMG'}">图片</option>
+                                        <option value="Video" th:selected="${selectedFileType == 'Video'}">视频</option>
+                                        <option value="QRCODE" th:selected="${selectedFileType == 'QRCODE'}">二维码</option>
+                                    </select>
+                                </div>
+
+                                <!-- 按钮区域 - 对齐area页面写法 -->
+                                <shiro:hasPermission name="multimedia:add">
+                                    <button class="btn btn-default btn-sm"
+                                            th:onclick="|window.location.href='@{/multimedia}'|">
+                                        <i class="glyphicon glyphicon-plus"> </i> 添加
+                                    </button>
+                                </shiro:hasPermission>
+
+                                <shiro:hasPermission name="multimedia:edit">
+                                    <button class="btn btn-primary btn-sm"
+                                            onclick="return toeditPage('','multimedia')">
+                                        <i class="fa fa-edit"> </i>编辑
+                                    </button>
+                                </shiro:hasPermission>
+
+                                <shiro:hasPermission name="multimedia:delete">
+                                    <button class="btn btn-danger btn-sm"
+                                            th:onclick="|return del('','@{/multimedia/}')|">
+                                        <i class="fa fa-trash-o"> </i>删除
+                                    </button>
+                                </shiro:hasPermission>
+                            </div>
+
+                            <div class="titleClose">
+                                <a class="gone" href="#tableStaticClose"> <span class="entypo-cancel"></span> </a>
+                            </div>
+                            <div class="titleToggle">
+                                <a class="nav-toggle-alt" href="#tableStatic"> <span class="entypo-up-open"></span> </a>
+                            </div>
+                        </div>
+
+                        <div class="body-nest" id="tableStatic">
+                            <section id="flip-scroll">
+                                <table class="table table-bordered table-striped cf">
+                                    <thead class="cf">
+                                    <tr>
+                                        <th class="numeric" style="width: 20px;">
+                                            <div class="checkbox checkbox-inline" style="margin-top: 0px;">
+                                                <input type="checkbox" id="checkall" name="checkall" />
+                                                <label for="checkall"></label>
+                                            </div>
+                                        </th>
+                                        <th class="numeric">资源名称</th>
+                                        <th class="numeric">文件类型</th>
+                                        <th class="numeric">文件大小</th>
+                                        <th class="numeric">归属</th>
+                                        <th class="numeric">预览</th>
+                                        <th class="numeric">使用状态</th>
+                                        <th class="numeric">操作</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <!-- 数据循环 - 对齐area页面的语法写法 -->
+                                    <th:block th:each="media:${pageList.datas}">
+                                        <tr>
+                                            <td class="numeric">
+                                                <div class="checkbox checkbox-inline" style="margin-top: 0px;">
+                                                    <input type="checkbox" name="ids" th:id="${media.id}"
+                                                           class="numeric" th:value="${media.id}">
+                                                    <label th:for="${media.id}"></label>
+                                                </div>
+                                            </td>
+                                            <td class="numeric">[[${media.originalName}]]</td>
+                                            <td class="numeric">
+                                                <span th:class="|file-type-tag tag-${media.fileType == 'IMG' ? 'img' : (media.fileType == 'Video' ? 'video' : 'qrcode')}|"
+                                                      th:text="${media.fileType == 'IMG' ? '图片' : (media.fileType == 'Video' ? '视频' : '二维码')}"></span>
+                                            </td>
+                                            <td class="numeric">[[${media.fileSize}]] [[${media.fileSizeStr}]]</td>
+                                            <td class="numeric">[[${media.belong}]]</td>
+                                            <td class="numeric">
+                                                <shiro:hasPermission name="multimedia:preview">
+                                                    <a th:href="|@{/multimedia/preview/${media.id}}|">
+                                                        <img th:if="${media.fileType == 'IMG'}"
+                                                             th:src="|@{/}${media.savePath}/${media.compressPicName}|"
+                                                             class="preview-img" alt="预览图片"
+                                                             onerror="this.src='@{/assets/images/nopic.png}'"/>
+                                                        <span th:unless="${media.fileType == 'IMG'}" class="btn btn-xs btn-default">查看</span>
+                                                    </a>
+                                                </shiro:hasPermission>
+                                            </td>
+                                            <!-- 使用状态 - 完全对齐area页面的写法 -->
+                                            <td class="numeric" th:id="disBtn+${media.id}" shiro:hasPermission="|multimedia:disable|"
+                                                th:utext="${media.isDisable eq true }?|<button type='button' onclick=toDisable('${media.id}','multimedia') class='btn btn-danger'>禁用</button>|:|<button type='button' onclick=toDisable('${media.id}','multimedia') class='btn btn-success'>启用</button>|"></td>
+                                            <td class="numeric">
+                                                <shiro:hasPermission name="multimedia:edit">
+                                                    <button class="btn btn-primary btn-xs"
+                                                            th:onclick="|return toeditPage('${media.id}','multimedia')|">
+                                                        <i class="fa fa-edit"> </i>编辑
+                                                    </button>
+                                                </shiro:hasPermission>
+                                                <shiro:hasPermission name="multimedia:delete">
+                                                    <button class="btn btn-danger btn-xs"
+                                                            th:onclick="|return del('@{/multimedia/}${media.id}/${media.fileType}','')|">
+                                                        <i class="fa fa-trash-o"> </i>删除
+                                                    </button>
+                                                </shiro:hasPermission>
+                                            </td>
+                                        </tr>
+                                    </th:block>
+                                    <!-- 空数据提示 -->
+                                    <tr th:if="${pageList.totalCount == 0}">
+                                        <td colspan="8" class="text-center">暂无多媒体资源数据</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+
+                                <!-- 删除表单 - 对齐area页面 -->
+                                <form method="post" id="deleteForm">
+                                    <input name="_method" value="delete" type="hidden">
+                                </form>
+
+                                <!-- 分页 - 修复参数拼接语法（避免URL解析异常） -->
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="col-md-6">
+                                            <div class="dataTables_info hidden-xs" style="margin-top: 0px;" role="status" aria-live="polite"
+                                                 th:text="|每页显示${pageList.pageSize}行 － 当前页${pageList.pageNo}页 － 共${pageList.totalPage}页|"></div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <ul class="pagination pagination-split pull-right" style="margin-top: 0px;">
+                                                <li th:class="${pageList.pageNo eq 1 ? 'disabled' : ''}">
+                                                    <a th:href="@{/multimedia/list(pageNo=${pageList.upPage},fileType=${selectedFileType})}"
+                                                       th:onclick="${pageList.pageNo eq 1 ? 'return false;' : ''}">上一页</a>
+                                                </li>
+                                                <li th:each="page:${pageList.navigatepageNums}"
+                                                    th:class="${page == pageList.pageNo ? 'active' : ''}">
+                                                    <a th:href="@{/multimedia/list(pageNo=${page},fileType=${selectedFileType})}"
+                                                       th:onclick="${page == pageList.pageNo ? 'return false;' : ''}">[[${page}]]</a>
+                                                </li>
+                                                <li th:class="${pageList.pageNo eq pageList.totalPage ? 'disabled' : ''}">
+                                                    <a th:href="@{/multimedia/list(pageNo=${pageList.nextPage},fileType=${selectedFileType})}"
+                                                       th:onclick="${pageList.pageNo eq pageList.totalPage ? 'return false;' : ''}">下一页</a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 通用弹窗 -->
+        <div th:replace="public/public::myModal"></div>
+    </div>
+</div>
+<!--  END OF PAPER WRAP -->
+
+<!-- 筛选方法 - 补充（原代码误删） -->
+<script type="text/javascript">
+    function filterByFileType() {
+        var fileType = $("#fileTypeSelect").val();
+        window.location.href = [[@{/multimedia/list}]] + (fileType ? '?fileType=' + fileType : '');
+    }
+</script>
+
+<!-- 引入JS - 对齐area页面的引入顺序和写法 -->
+<script type="text/javascript" th:src="@{/plugs/prettyfile/bootstrap-prettyfile.js}"></script>
+<!-- 右侧隐藏菜单 -->
+<div th:replace="public/public::right"></div>
+<!-- 底部js -->
+<div th:replace="public/public_js::pub_js"></div>
+<div th:replace="public/public_js::public_script"></div>
+<div th:replace="public/public::footer"></div>
+<!-- Sweet alert -->
+<script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
+<div th:replace="public/public_js::validator"></div>
+
+</body>
+</html>

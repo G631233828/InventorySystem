@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>报修人编辑</title>
+    <!-- 公共CSS -->
+    <th:block th:include="public/public_css::pub_css"></th:block>
+    <link th:href="@{/plugs/sweetalert/sweetalert.css}" rel="stylesheet">
+</head>
+<body>
+<!-- Preloader -->
+<div id="preloader">
+    <div id="status">&nbsp;</div>
+</div>
+
+<!-- TOP NAVBAR -->
+<div th:replace="public/public::top"></div>
+
+<!-- SIDE MENU -->
+<div th:replace="public/public::left(activeUri='wxReporter')"></div>
+
+<!-- PAPER WRAP -->
+<div class="wrap-fluid">
+    <div class="container-fluid paper-wrap bevel tlbr">
+        <!-- CONTENT -->
+        <!-- TITLE -->
+        <div th:replace="public/public::title(title='报修人编辑',subtitle='WxReporter Edit')"></div>
+        <!-- /TITLE -->
+
+        <!-- BREADCRUMB -->
+        <div th:replace="public/public::menu(menu='报修人管理',submenu='报修人编辑')"></div>
+        <!-- END OF BREADCRUMB -->
+
+        <div class="content-wrap">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="nest">
+                        <div class="body-nest">
+                            <form id="editForm" class="form-horizontal" method="post">
+                                <!-- 隐藏字段：ID和OpenId（OpenId不可编辑） -->
+                                <input type="hidden" name="id" th:value="${wxReporter?.id}">
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">微信OpenId</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" name="openId" th:value="${wxReporter?.openId}" 
+                                               class="form-control" placeholder="请输入微信OpenId" 
+                                               th:readonly="${wxReporter?.openId != null}" >
+                                        <small class="text-muted">OpenId一旦填写不可修改，系统会根据OpenId自动判断是否新增/更新</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">报修人姓名 <span style="color:red">*</span></label>
+                                    <div class="col-sm-8">
+                                        <input type="text" name="userName" th:value="${wxReporter?.userName}" 
+                                               class="form-control" placeholder="请输入报修人姓名" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">联系电话 <span style="color:red">*</span></label>
+                                    <div class="col-sm-8">
+                                        <input type="text" name="contactNumber" th:value="${wxReporter?.contactNumber}" 
+                                               class="form-control" placeholder="请输入11位手机号" required pattern="^1[3-9]\d{9}$">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">学校名称 <span style="color:red">*</span></label>
+                                    <div class="col-sm-8">
+                                        <input type="text" name="schoolName" th:value="${wxReporter?.schoolName}" 
+                                               class="form-control" placeholder="请输入学校名称" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">校区</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" name="campus" th:value="${wxReporter?.campus}" 
+                                               class="form-control" placeholder="请输入校区（选填）">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="col-sm-2 control-label">学校地址</label>
+                                    <div class="col-sm-8">
+                                        <textarea name="schoolAddress" class="form-control" rows="3" 
+                                                  placeholder="请输入学校地址（选填）" th:text="${wxReporter?.schoolAddress}"></textarea>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <div class="col-sm-offset-2 col-sm-8">
+                                        <button type="button" class="btn btn-default" onclick="history.back()">返回</button>
+                                        <button type="submit" class="btn btn-primary">保存</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 右侧边栏 -->
+<div th:replace="public/public::right"></div>
+
+<!-- 底部JS -->
+<div th:replace="public/public_js::pub_js"></div>
+<div th:replace="public/public_js::public_script"></div>
+<div th:replace="public/public::footer"></div>
+<script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
+<div th:replace="public/public_js::validator"></div>
+
+<script type="text/javascript">
+    $(function() {
+        // 表单提交（适配Service的saveOrUpdate逻辑）
+        $("#editForm").submit(function(e) {
+            e.preventDefault();
+            
+            $.post("[[@{/wxReporter/saveOrUpdate}]]", $(this).serialize(), function(res) {
+                if (res.status === 200) {
+                    swal("成功", res.msg, "success");
+                    setTimeout(function() {
+                        window.location.href = "[[@{/wxReporters}]]";
+                    }, 1500);
+                } else {
+                    swal("失败", res.msg, "error");
+                }
+            }, "json").fail(function() {
+                swal("错误", "提交失败，请联系管理员", "error");
+            });
+        });
+    });
+</script>
+</body>
+</html>

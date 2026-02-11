@@ -97,7 +97,7 @@ public class WxRepairController {
 	 * @param search
 	 * @return
 	 */
-	@GetMapping(value = "/repairlist")
+//	@GetMapping(value = "/repairlist")
 	public String repairlist(HttpServletRequest request, Model model, HttpSession session,
 			   @RequestParam(required = false) String status,
 	            @RequestParam(required = false) String dateRange,
@@ -191,7 +191,7 @@ public class WxRepairController {
 //		return "school/repair";
 //	}
 
-	@GetMapping(value = "/repair")
+	@GetMapping(value = {"/repair","repairlist"})
 	public String torepair(HttpServletRequest request, Model model) {
 	    // 1. 先从 Session 中获取 openid，看看用户是否已经登录
 	    String openId = (String) request.getSession().getAttribute("openId");

@@ -30,7 +30,7 @@ public class WxRepair extends GeneralBean<WxRepair> {
 	private String urgencyLevel;//紧急程度
 	private String expectedVisitTime;//期望上门时间
 	private Integer status;//维修状态  1.待处理 2.已分配 3.处理中 4.已完成 5.已取消
-	@DBRef
+
 	private WxReporter wxReporter; //报修人信息保存
 	
 	@DBRef

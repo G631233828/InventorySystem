@@ -453,6 +453,8 @@ public class WxRepairToOperListController {
 	                
 	                String redirect_uri = redirectUriBuilder.toString();
 	                
+	              
+	                
 	                return "redirect:https://open.weixin.qq.com/connect/oauth2/authorize?" +
 	                        "appid=" + wxMpProperties.getConfigs().get(0).getAppId() +
 	                        "&redirect_uri=" + URLEncoder.encode(redirect_uri, "UTF-8") +
@@ -508,13 +510,13 @@ public class WxRepairToOperListController {
 	        }
 
 	        // 获取用户信息
-	        WxMpUser userInfo = wxMpService.getUserService().userInfo(openId);
-	        session.setAttribute("userInfo", userInfo);
+//	        WxMpUser userInfo = wxMpService.getUserService().userInfo(openId);
+//	        session.setAttribute("userInfo", userInfo);
 
 	        // 修复分页对象传递错误：传递完整的分页对象而非数据列表
 	        model.addAttribute("pagination", repairPagination); // 关键修复：传整个分页对象
 	        model.addAttribute("openId", openId);
-	        model.addAttribute("userInfo", userInfo);
+//	        model.addAttribute("userInfo", userInfo);
 	        model.addAttribute("search", search);
 	        model.addAttribute("status", status);
 	        model.addAttribute("workerId", workerId);
