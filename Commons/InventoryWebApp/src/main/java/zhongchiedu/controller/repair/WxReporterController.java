@@ -48,7 +48,9 @@ public class WxReporterController {
         
         // 1. 基础分页查询
         Pagination<WxReporter> pagination = wxReporterService.findpagination(pageNo, pageSize);
-           
+        session.setAttribute("pageNo", pageNo);
+	    session.setAttribute("pageSize", pageSize);
+	    session.setAttribute("search", search);
         // 3. 回显参数
         model.addAttribute("pageList", pagination);
         model.addAttribute("pageNo", pageNo);

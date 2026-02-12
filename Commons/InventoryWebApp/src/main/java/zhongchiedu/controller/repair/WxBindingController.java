@@ -46,7 +46,7 @@ public class WxBindingController {
 		log.info("删除" + id);
 		this.wxBindingService.delete(id);
 		log.info("删除" + id + "成功");
-		return "redirect:wxRepairs";
+		return "redirect:/wxBinding";
 	}
 
 	@RequiresPermissions("wxBinding:audit")

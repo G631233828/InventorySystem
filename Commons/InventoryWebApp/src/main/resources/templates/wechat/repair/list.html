@@ -547,12 +547,12 @@
             </button>
         </shiro:hasPermission>
 
-        <shiro:hasPermission name="wxRepair:delete">
+<!--         <shiro:hasPermission name="wxRepair:delete">
             <button type="button" class="btn btn-danger btn-sm"
                     th:onclick="|return del('','@{/wxRepair/}')|">
                 <i class="fa fa-trash-o"> </i>删除
             </button>
-        </shiro:hasPermission>
+        </shiro:hasPermission> -->
 
         <button type="button" class="btn btn-default btn-sm column-setting-btn"
                 onclick="openColumnSetting()">
@@ -766,10 +766,11 @@
                                                     </button>
                                                 </shiro:hasPermission>
                                                 <shiro:hasPermission name="wxRepair:delete">
-                                                    <button class="btn btn-danger btn-xs"
-                                                            th:onclick="|return del('@{/wxRepair/}${wxRepair.id}','')|">
-                                                        <i class="fa fa-trash-o"> </i>删除
-                                                    </button>
+                                                   <button class="btn btn-danger btn-xs"
+													        th:if="${wxRepair.status != 2}"
+													        th:onclick="|return del('@{/wxRepair/}${wxRepair.id}','')|">
+													    <i class="fa fa-trash-o"> </i>删除
+													</button>
                                                 </shiro:hasPermission>
                                             </td>
                                         </tr>
