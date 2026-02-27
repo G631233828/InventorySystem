@@ -147,7 +147,9 @@
                                                 <td class="numeric" onclick="return selectColumn('inprice');"><input type="checkbox" th:checked="${#lists.contains(listColums,'inprice')}?'checked':'false'" id="ch_inprice"></td>
                                              --><td class="numeric">分类</td>
                                                 <td class="numeric" onclick="return selectColumn('ssC');"><input type="checkbox" th:checked="${#lists.contains(listColums,'ssC')}?'checked':'false'" id="ch_ssC"></td>
-                                           
+                                           <td class="numeric">单价</td>
+                                                <td class="numeric" onclick="return selectColumn('price');"><input type="checkbox" th:checked="${#lists.contains(listColums,'price')}?'checked':'false'" id="inprice"></td>
+                                             
                                              <!-- 	<td class="numeric">销售发票号</td>
                                                 <td class="numeric" onclick="return selectColumn('sailesInvoiceNo');"><input type="checkbox" th:checked="${#lists.contains(listColums,'sailesInvoiceNo')}?'checked':'false'" id="ch_sailesInvoiceNo"></td> -->
                                                  </tr>

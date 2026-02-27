@@ -653,6 +653,7 @@ public class StockStatisticsController {
 	public BasicDataResult batchPaymentOrderNo(HttpSession session,
 			@RequestParam(value = "stockid", defaultValue = "") String stockid,
 			@RequestParam(value = "inprice", defaultValue = "null") String inprice,
+			@RequestParam(value = "price", defaultValue = "null") String price,
 			@RequestParam(value = "purchaseInvoiceNo", defaultValue = "null") String purchaseInvoiceNo,
 			@RequestParam(value = "receiptNo", defaultValue = "null") String receiptNo,
 			@RequestParam(value = "paymentOrderNo", defaultValue = "null") String paymentOrderNo,
@@ -690,7 +691,7 @@ public class StockStatisticsController {
 
 		}
 			User user = (User) session.getAttribute(Contents.USER_SESSION);
-			this.stockStatisticsService.updateStockStatistics(stockid, dinprice, purchaseInvoiceNo, receiptNo, paymentOrderNo,sailesInvoiceNo,sailesInvoiceDate,user,
+			this.stockStatisticsService.updateStockStatistics(stockid,price, dinprice, purchaseInvoiceNo, receiptNo, paymentOrderNo,sailesInvoiceNo,sailesInvoiceDate,user,
 					purchaseInvoiceDate,dsailPrice,newItemNo,description);
 			
 			return new BasicDataResult(200, "修改统计数据成功", "");

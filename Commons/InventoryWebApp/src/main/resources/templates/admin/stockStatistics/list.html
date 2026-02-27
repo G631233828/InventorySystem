@@ -409,8 +409,11 @@
 													th:style="${#lists.contains(listColums,'brand')}?'':'display:none;'">品牌</th>
 												<th class="numeric storageTime"
 													th:style="${#lists.contains(listColums,'storageTime')}?'':'display:none;'">入库时间</th>
+												<th class="numeric price"
+													th:style="${#lists.contains(listColums,'price')}?'':'display:none;'">单价</th>
 												<th class="numeric inNum"
 													th:style="${#lists.contains(listColums,'inNum')}?'':'display:none;'">入库数量</th>
+											
 												<th class="numeric depotTime"
 													th:style="${#lists.contains(listColums,'depotTime')}?'':'display:none;'">出库时间</th>
 												<th class="numeric outNum"
@@ -523,6 +526,11 @@
 													<td class="numeric storageTime" id="storageTime"
 														th:style="${#lists.contains(listColums,'storageTime')}?'':'display:none;'"
 														th:text="${stockStatistics.storageTime!=null}?${stockStatistics?.storageTime}:'--------'"></td>
+														
+													<td class="numeric price"
+														th:id="|price_${stockStatistics?.id}|"
+														th:ondblclick="|return change('${stockStatistics?.id}','price',${stockStatistics?.confirm})|"
+														th:style="${#lists.contains(listColums,'price')}?'':'display:none;'">[[${stockStatistics?.price}]]</td>	
 													<td class="numeric inNum"
 														th:id="|inNum_${stockStatistics?.id}|"
 														th:style="${#lists.contains(listColums,'inNum')}?'':'display:none;'"
@@ -744,6 +752,8 @@
 														th:style="${#lists.contains(listColums,'brand')}?'':'display:none;'"></th>
 													<th class="numeric storageTime"
 														th:style="${#lists.contains(listColums,'storageTime')}?'':'display:none;'"></th>
+													<th class="numeric price"
+														th:style="${#lists.contains(listColums,'price')}?'':'display:none;'"></th>
 													<th class="numeric inNum" id="inNumHJ"
 														th:style="${#lists.contains(listColums,'inNum')}?'':'display:none;'">[[${#numbers.formatDecimal(#aggregates.sum(pageList?.datas.![inOrOut?num:0]), 1, 'COMMA', 2, 'POINT')}]]</th>
 													<th class="numeric depotTime"

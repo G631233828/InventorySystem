@@ -267,19 +267,25 @@ function batchOut() {
 			if (data.status == 200) {
 				var prestocklist = "";
 				$.each(data.data, function(index, item) {
-					prestocklist += ` <tr id=stock_` + item.id + `>
-                               <td class="numeric">`+ item.name + `</td>
-                               <td class="numeric">`+ item.model + `</td>
-                               <td class="numeric">`+ item.actualReceiptQuantity + `</td>
-                               <td class="numeric">
-							   <input type="hidden" name="batchid" value="`+ item.id + `"> 
-                               <input type="text"  value="`+ item.actualReceiptQuantity + `" onblur="return setStockNum('`+ item.id + `')"  class="form-control stockval batchout" id=stocknum_` + item.id + `   name="batchnum" >
-                               </td>
-                               <td class="numeric">
-                               <button class="btn " type="button" onclick="return deleteStock('`+ item.id + `')" > <i  class="fa fa-trash-o">移除 </i>
-							  </button>
-                                </td>  </tr>`
-				});
+    // 格式化数值，保留2位小数，处理空值/非数字情况
+    const actualReceiptQuantity = item.actualReceiptQuantity !== null && !isNaN(item.actualReceiptQuantity) 
+        ? Number(item.actualReceiptQuantity).toFixed(2) 
+        : '0.00';
+    
+    prestocklist += ` <tr id=stock_` + item.id + `>
+        <td class="numeric">`+ item.name + `</td>
+        <td class="numeric">`+ item.model + `</td>
+        <td class="numeric">`+ actualReceiptQuantity + `</td>
+        <td class="numeric">
+            <input type="hidden" name="batchid" value="`+ item.id + `"> 
+            <input type="text"  value="`+ actualReceiptQuantity + `" onblur="return setStockNum('`+ item.id + `')"  class="form-control stockval batchout" id=stocknum_` + item.id + `   name="batchnum" >
+        </td>
+        <td class="numeric">
+            <button class="btn " type="button" onclick="return deleteStock('`+ item.id + `')" > <i  class="fa fa-trash-o">移除 </i>
+            </button>
+        </td>  
+    </tr>`;
+});
 				$("#prestocklist").html(prestocklist)
 				$("#mystockbatchout").modal('show');
 			} else {

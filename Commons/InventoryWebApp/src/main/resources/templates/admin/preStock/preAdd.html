@@ -267,11 +267,11 @@
 											<input type="hidden" name="estimatedInventoryQuantity" th:value="${stock?.estimatedInventoryQuantity}">
 
 											<div class="form-group">
-												<label class="col-lg-1 control-label">剩余库存：</label>
-												<div class="col-lg-6">
-													<input class="form-control" readonly="readonly"
-														th:value="${stock?.estimatedInventoryQuantity}-${stock?.actualReceiptQuantity}">
-												</div>
+											    <label class="col-lg-1 control-label">剩余库存：</label>
+											    <div class="col-lg-6">
+											        <input class="form-control" readonly="readonly"
+											               th:value="${#numbers.formatDecimal((stock?.estimatedInventoryQuantity ?: 0) - (stock?.actualReceiptQuantity ?: 0), 0, 2)}">
+											    </div>
 											</div>
 
 

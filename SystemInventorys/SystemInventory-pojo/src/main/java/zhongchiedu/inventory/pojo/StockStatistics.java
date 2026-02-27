@@ -131,5 +131,8 @@ public class StockStatistics extends GeneralBean<StockStatistics> {
 	
 	@DBRef
 	private User publisher;//发布人
+	
+	//2026年2月27日10:30:29 添加入库的单价
+	private String price; 
 
 }

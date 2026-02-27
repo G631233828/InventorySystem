@@ -3,6 +3,8 @@ package zhongchiedu.controller.inventory;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -80,14 +82,13 @@ public class PreStockController {
 
 	private @Autowired InventoryRoleService inventoryRoleService;
 
-	private @Autowired SystemClassificationServiceImpl  ssCService;
+	private @Autowired SystemClassificationServiceImpl ssCService;
 
 	private @Autowired WxMsgPush wxMsgPush;
 
 	private @Autowired ColumnServiceImpl columnService;
 
 	private @Autowired PnameServiceImpl pnameService;
-
 
 	private @Autowired UserServiceImpl userService;
 	@Value("${templateId1}")
@@ -96,8 +97,6 @@ public class PreStockController {
 	private String templateId2;
 	@Value("${qrcode.weburl}")
 	private String weburl;
-
-
 
 	@GetMapping("preStocks")
 	@RequiresPermissions(value = "preStock:list")
@@ -108,31 +107,32 @@ public class PreStockController {
 			@RequestParam(value = "status", defaultValue = "1") String status,
 //			@RequestParam(value = "searchArea", defaultValue = "") String searchArea,
 //			@RequestParam(value = "ssC", defaultValue = "") String ssC,
-			@ModelAttribute RequestBo requestBo,
-			@ModelAttribute("errorMsg") String errorMsg) throws JsonProcessingException {
+			@ModelAttribute RequestBo requestBo, @ModelAttribute("errorMsg") String errorMsg)
+			throws JsonProcessingException {
 
-		ObjectMapper objectMapper=new ObjectMapper();
-		String jsonString=objectMapper.writeValueAsString(requestBo);
-		model.addAttribute("Bo",jsonString);
-		model.addAttribute("requestBo",requestBo);
-		List<Pname> pnames=this.pnameService.findAllName(false);
-		model.addAttribute("pnames",pnames);
-		Query query=new Query();
+		ObjectMapper objectMapper = new ObjectMapper();
+		String jsonString = objectMapper.writeValueAsString(requestBo);
+		model.addAttribute("Bo", jsonString);
+		model.addAttribute("requestBo", requestBo);
+		List<Pname> pnames = this.pnameService.findAllName(false);
+		model.addAttribute("pnames", pnames);
+		Query query = new Query();
 		query.addCriteria(Criteria.where("cardId").is("publisher"));
-		List<User> users=userService.find(query,User.class);
-		model.addAttribute("publishers",users);
+		List<User> users = userService.find(query, User.class);
+		model.addAttribute("publishers", users);
 		List<Supplier> syslist = this.supplierService.findAllSupplier(false);
 		model.addAttribute("suppliers", syslist);
 //		Pagination<PreStock> pagination = this.preStockService.findpagination(pageNo, pageSize, search, searchArea,
 //				Integer.valueOf(status),ssC);
-		Pagination<PreStock> pagination = this.preStockService.findpagination(pageNo, pageSize, requestBo,Integer.valueOf(status));
+		Pagination<PreStock> pagination = this.preStockService.findpagination(pageNo, pageSize, requestBo,
+				Integer.valueOf(status));
 		model.addAttribute("pageList", pagination);
-		List<SystemClassification>  ssCs=this.ssCService.findAllSystemClassification(false);
-		model.addAttribute("ssCs",ssCs);
+		List<SystemClassification> ssCs = this.ssCService.findAllSystemClassification(false);
+		model.addAttribute("ssCs", ssCs);
 		List<Area> areas = this.areaService.findAllArea(false);
 		model.addAttribute("areas", areas);
 		User user = (User) session.getAttribute(Contents.USER_SESSION);
-		List<String> listColums = this.columnService.findColumns("prestock",user.getId());
+		List<String> listColums = this.columnService.findColumns("prestock", user.getId());
 
 		model.addAttribute("listColums", listColums);
 		session.setAttribute("prepageNo", pageNo);
@@ -167,8 +167,8 @@ public class PreStockController {
 		model.addAttribute("units", listUnits);
 		List<Pname> findAllName = this.pnameService.findAllName(false);
 		model.addAttribute("pnames", findAllName);
-		List<SystemClassification>  ssCs=this.ssCService.findAllSystemClassification(false);
-		model.addAttribute("ssCs",ssCs);
+		List<SystemClassification> ssCs = this.ssCService.findAllSystemClassification(false);
+		model.addAttribute("ssCs", ssCs);
 		return "admin/preStock/add";
 	}
 
@@ -188,8 +188,8 @@ public class PreStockController {
 		model.addAttribute("stock", stock);
 		List<Pname> findAllName = this.pnameService.findAllName(false);
 		model.addAttribute("pnames", findAllName);
-		List<SystemClassification>  ssCs=this.ssCService.findAllSystemClassification(false);
-		model.addAttribute("ssCs",ssCs);
+		List<SystemClassification> ssCs = this.ssCService.findAllSystemClassification(false);
+		model.addAttribute("ssCs", ssCs);
 		if (Common.isNotEmpty(stock.getArea())) {
 			// 所有货架
 			List<GoodsStorage> list = this.goodsStorageService.findAllGoodsStorage(false, stock.getArea().getId());
@@ -215,13 +215,13 @@ public class PreStockController {
 		List<Area> areas = this.areaService.findAllArea(false);
 		model.addAttribute("areas", areas);
 
-		List<Pname> pnames=this.pnameService.findAllName(false);
-		model.addAttribute("pnames",pnames);
+		List<Pname> pnames = this.pnameService.findAllName(false);
+		model.addAttribute("pnames", pnames);
 		PreStock stock = this.preStockService.findOneById(id, PreStock.class);
 		model.addAttribute("stock", stock);
 
-		List<SystemClassification>  ssCs=this.ssCService.findAllSystemClassification(false);
-		model.addAttribute("ssCs",ssCs);
+		List<SystemClassification> ssCs = this.ssCService.findAllSystemClassification(false);
+		model.addAttribute("ssCs", ssCs);
 		if (Common.isNotEmpty(stock.getArea())) {
 			// 所有货架
 			List<GoodsStorage> list = this.goodsStorageService.findAllGoodsStorage(false, stock.getArea().getId());
@@ -233,7 +233,6 @@ public class PreStockController {
 		return "admin/preStock/preAdd";
 	}
 
-	
 	@PostMapping("/preStock")
 	@RequiresPermissions(value = "preStock:add")
 	@SystemControllerLog(description = "添加预库存")
@@ -250,16 +249,16 @@ public class PreStockController {
 		String ssC = (String) session.getAttribute("ssC");
 
 		return "redirect:/preStocks?pageNo=" + pageNo + "&pageSize=" + pageSize + "&search="
-				+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea + "&ssC=" +ssC;
+				+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea + "&ssC=" + ssC;
 
 	}
 
 	@PutMapping("/preStockAdd")
 	@RequiresPermissions(value = "preStock:in")
 	@SystemControllerLog(description = "预库存添加至库存")
-	public String addPreStockAdd(@ModelAttribute("preStock") PreStock preStock, @ModelAttribute("num")Double num, HttpSession session,RedirectAttributes attr)
-			throws UnsupportedEncodingException {
-		
+	public String addPreStockAdd(@ModelAttribute("preStock") PreStock preStock, @ModelAttribute("num") Double num,
+			HttpSession session, RedirectAttributes attr) throws UnsupportedEncodingException {
+
 		Integer pageNo = (Integer) session.getAttribute("prepageNo");
 		Integer pageSize = (Integer) session.getAttribute("prepageSize");
 		String search = (String) session.getAttribute("presearch");
@@ -267,94 +266,88 @@ public class PreStockController {
 		String status = "1";
 		String ssC = (String) session.getAttribute("ssC");
 
-		//获取预入库设备状态
+		// 获取预入库设备状态
 		PreStock getpreStock = this.preStockService.findOneById(preStock.getId(), PreStock.class);
-		if(getpreStock.getStatus()!=1) {
-			//已经处理完
+		if (getpreStock.getStatus() != 1) {
+			// 已经处理完
 			attr.addFlashAttribute("errorMsg", "当前订单已由他人处理，无需重复添加！");
 
 			return "redirect:/preStocks?pageNo=" + pageNo + "&pageSize=" + pageSize + "&search="
-					+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea+ "&status=" + status + "&ssC=" +ssC;
+					+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea + "&status=" + status + "&ssC="
+					+ ssC;
 		}
-		if(num<=0 || Common.isEmpty(num)){
-			//入库数量有问题
+		if (num <= 0 || Common.isEmpty(num)) {
+			// 入库数量有问题
 			attr.addFlashAttribute("errorMsg", "入库数量有问题");
 
 			return "redirect:/preStocks?pageNo=" + pageNo + "&pageSize=" + pageSize + "&search="
-					+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea+ "&status=" + status + "&ssC=" +ssC;
+					+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea + "&status=" + status + "&ssC="
+					+ ssC;
 		}
 
 		User suser = (User) session.getAttribute(Contents.USER_SESSION);
 		preStock.setHandler(suser);
 		preStock.setActualReceiptQuantity(num);
-		this.stockService.preStockToStock(preStock,getpreStock.getActualReceiptQuantity());
+		this.stockService.preStockToStock(preStock, getpreStock.getActualReceiptQuantity());
 //		this.stockService.preStockToStock(preStock,num);
-		
-		//创建通知
-	Set<User> users = this.inventoryRoleService.findAllUserInInventoryRole();
+
+		// 创建通知
+		Set<User> users = this.inventoryRoleService.findAllUserInInventoryRole();
 
 //		InventoryRole inventoryRole = this.inventoryRoleService.findByType("HANDLER");
 //		List<User> users = inventoryRole.getUsers();
-		
-		
+
 		StringBuilder errorMsg = new StringBuilder("");
 		Map<String, String> map = new HashMap<>();
 		map.put("first", "设备入库提醒！");
 		map.put("keyword1", getpreStock.getName());
-		String unit =Common.isNotEmpty(getpreStock.getUnit())?getpreStock.getUnit().getName():"个";
-		map.put("keyword2", preStock.getActualReceiptQuantity()+unit);
-		if(Common.isNotEmpty(getpreStock.getGoodsStorage())) {
-			String area=Common.isNotEmpty(getpreStock.getArea().getName())?getpreStock.getArea().getName():"";
-			String address =Common.isNotEmpty(getpreStock.getGoodsStorage().getAddress())? getpreStock.getGoodsStorage().getAddress():"";
-			String shelfNumber=Common.isNotEmpty(getpreStock.getGoodsStorage().getShelfNumber())?getpreStock.getGoodsStorage().getShelfNumber():"";
-			String shelflevel =Common.isNotEmpty(getpreStock.getGoodsStorage().getShelflevel())?"/"+getpreStock.getGoodsStorage().getShelflevel():"";
+		String unit = Common.isNotEmpty(getpreStock.getUnit()) ? getpreStock.getUnit().getName() : "个";
+		map.put("keyword2", preStock.getActualReceiptQuantity() + unit);
+		if (Common.isNotEmpty(getpreStock.getGoodsStorage())) {
+			String area = Common.isNotEmpty(getpreStock.getArea().getName()) ? getpreStock.getArea().getName() : "";
+			String address = Common.isNotEmpty(getpreStock.getGoodsStorage().getAddress())
+					? getpreStock.getGoodsStorage().getAddress()
+					: "";
+			String shelfNumber = Common.isNotEmpty(getpreStock.getGoodsStorage().getShelfNumber())
+					? getpreStock.getGoodsStorage().getShelfNumber()
+					: "";
+			String shelflevel = Common.isNotEmpty(getpreStock.getGoodsStorage().getShelflevel())
+					? "/" + getpreStock.getGoodsStorage().getShelflevel()
+					: "";
 
-			map.put("keyword3", area+"仓库，地址：" + address + "存放在"+shelfNumber+shelflevel);
-		}else {
-			map.put("keyword3", "设备已经存放在:"+getpreStock.getArea().getName());
+			map.put("keyword3", area + "仓库，地址：" + address + "存放在" + shelfNumber + shelflevel);
+		} else {
+			map.put("keyword3", "设备已经存放在:" + getpreStock.getArea().getName());
 		}
 
-		map.put("remark", "预计入库数量："+getpreStock.getEstimatedInventoryQuantity()+"\n实际入库:"+preStock.getActualReceiptQuantity()+"\n入库操作已完成!");
-		users.stream().filter(user->Common.isEmpty(user.getOpenId())).forEach(user->{
-			errorMsg.append("用户："+user.getUserName()+"尚未绑定微信<BR/>");
+		map.put("remark", "预计入库数量：" + getpreStock.getEstimatedInventoryQuantity() + "\n实际入库:"
+				+ preStock.getActualReceiptQuantity() + "\n入库操作已完成!");
+		users.stream().filter(user -> Common.isEmpty(user.getOpenId())).forEach(user -> {
+			errorMsg.append("用户：" + user.getUserName() + "尚未绑定微信<BR/>");
 		});
-		users.stream().filter(user->Common.isNotEmpty(user.getOpenId())).forEach(user->{
+		users.stream().filter(user -> Common.isNotEmpty(user.getOpenId())).forEach(user -> {
 			String sendWxMessage = this.wxMsgPush.sendWxMessage(templateId2, user.getOpenId(), "", map);
-			if(sendWxMessage=="-1") {
-				errorMsg.append("用户："+user.getUserName()+"消息发送失败！<BR/>");
+			if (sendWxMessage == "-1") {
+				errorMsg.append("用户：" + user.getUserName() + "消息发送失败！<BR/>");
 			}
-			//			this.wxMsgPush.sendWxMessage(templateId1, "ooiMKv7cqR-2EgkeC9LdATpr-mbY", "www.baidu.com", map);
+			// this.wxMsgPush.sendWxMessage(templateId1, "ooiMKv7cqR-2EgkeC9LdATpr-mbY",
+			// "www.baidu.com", map);
 		});
 
-		
 		attr.addFlashAttribute("errorMsg", errorMsg);
-		
+
 		return "redirect:/preStocks?pageNo=" + pageNo + "&pageSize=" + pageSize + "&search="
-				+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea+ "&status=" + status + "&ssC=" +ssC;
+				+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea + "&status=" + status + "&ssC="
+				+ ssC;
 
 	}
 
-
-	
-		
-		
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	@PutMapping("/preStock")
 	@RequiresPermissions(value = "preStock:edit")
 	@SystemControllerLog(description = "修改预库存")
 	public String editPreStock(@ModelAttribute("preStock") PreStock preStock, HttpSession session)
 			throws UnsupportedEncodingException {
 		this.preStockService.saveOrUpdate(preStock);
-
 
 		return "redirect:/preStocks";
 
@@ -375,7 +368,8 @@ public class PreStockController {
 		String ssC = (String) session.getAttribute("ssC");
 
 		return "redirect:/preStocks?pageNo=" + pageNo + "&pageSize=" + pageSize + "&search="
-				+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea+ "&status=" + status + "&ssC=" +ssC;
+				+ URLEncoder.encode(search, "UTF-8") + "&searchArea=" + searchArea + "&status=" + status + "&ssC="
+				+ ssC;
 	}
 
 	@RequestMapping("/preStock/clearSearch")
@@ -407,25 +401,25 @@ public class PreStockController {
 				: "";
 		map.put("keyword3", "采购的" + preStock.getName() + model + estimatedWarehousingTime + "请注意查收及入库。");
 		map.put("remark", "点击此条信息可以通过手机进行入库操作！");
-		users.stream().filter(user->Common.isEmpty(user.getOpenId())).forEach(user->{
-			errorMsg.append("用户："+user.getUserName()+"尚未绑定微信<BR/>");
+		users.stream().filter(user -> Common.isEmpty(user.getOpenId())).forEach(user -> {
+			errorMsg.append("用户：" + user.getUserName() + "尚未绑定微信<BR/>");
 		});
-		users.stream().filter(user->Common.isNotEmpty(user.getOpenId())).forEach(user->{
-			String sendWxMessage = this.wxMsgPush.sendWxMessage(templateId1, user.getOpenId(), weburl+"/wechat/preStockToStock/"+preStock.getId(), map);
-			if(sendWxMessage=="-1") {
-				errorMsg.append("用户："+user.getUserName()+"消息发送失败！<BR/>");
+		users.stream().filter(user -> Common.isNotEmpty(user.getOpenId())).forEach(user -> {
+			String sendWxMessage = this.wxMsgPush.sendWxMessage(templateId1, user.getOpenId(),
+					weburl + "/wechat/preStockToStock/" + preStock.getId(), map);
+			if (sendWxMessage == "-1") {
+				errorMsg.append("用户：" + user.getUserName() + "消息发送失败！<BR/>");
 			}
-			//			this.wxMsgPush.sendWxMessage(templateId1, "ooiMKv7cqR-2EgkeC9LdATpr-mbY", "www.baidu.com", map);
+			// this.wxMsgPush.sendWxMessage(templateId1, "ooiMKv7cqR-2EgkeC9LdATpr-mbY",
+			// "www.baidu.com", map);
 		});
-		if(errorMsg.length()>0) {
+		if (errorMsg.length() > 0) {
 			return new BasicDataResult().build(201, "部分人员推送成功", errorMsg);
-			
+
 		}
-		
-		
+
 		return new BasicDataResult().build(200, "消息推送成功", null);
 	}
-
 
 	/**
 	 * 模版下载
@@ -487,8 +481,8 @@ public class PreStockController {
 //	}
 
 	@RequestMapping(value = "/prestock/export")
-	public void exportpreStock(HttpServletResponse response,HttpServletRequest request,
-							@ModelAttribute RequestBo requestBo)  throws Exception{
+	public void exportpreStock(HttpServletResponse response, HttpServletRequest request,
+			@ModelAttribute RequestBo requestBo) throws Exception {
 		String exportName = Common.fromDateYMD() + "预库存报表";
 
 		response.setContentType("application/vnd.ms-excel");
@@ -503,10 +497,9 @@ public class PreStockController {
 
 	}
 
-
 	@RequestMapping(value = "/prestock/getItems", method = RequestMethod.POST)
 	@ResponseBody
-	public BasicDataResult getItems(HttpSession session,String id) {
+	public BasicDataResult getItems(HttpSession session, String id) {
 //		List list = (List) session.getAttribute(Contents.STOCK_LIST);
 //		if(list==null&& Common.isEmpty(id)) {
 //			return new BasicDataResult(400, "获取出库列表失败，请先添加或选中出库商品！", null);
@@ -533,27 +526,27 @@ public class PreStockController {
 //
 //		}
 
-		List list=new ArrayList<>();
+		List list = new ArrayList<>();
 
-		if(Common.isNotEmpty(id)) {
+		if (Common.isNotEmpty(id)) {
 			list = Arrays.asList(id.split(","));
 
 		}
 
-		if(Common.isNotEmpty(list)&&list.size()>0) {
+		if (Common.isNotEmpty(list) && list.size() > 0) {
 			List<PreStock> stocks = this.preStockService.findStocksByIds(list);
 			List<PreStock> liststock = new ArrayList<>();
-			//便利 数据过滤
-			stocks.forEach(s->{
+			// 便利 数据过滤
+			stocks.forEach(s -> {
 				PreStock stock = new PreStock();
 				stock.setName(s.getName());
-				stock.setActualReceiptQuantity(s.getEstimatedInventoryQuantity()-s.getActualReceiptQuantity());//用actualReceiptQuantity代替库存量
+				stock.setActualReceiptQuantity(s.getEstimatedInventoryQuantity() - s.getActualReceiptQuantity());// 用actualReceiptQuantity代替库存量
 				stock.setModel(s.getModel());
 				stock.setId(s.getId());
 				liststock.add(stock);
 			});
 			return new BasicDataResult(200, "获取入库列表", liststock);
-		}else {
+		} else {
 			return new BasicDataResult(400, "获取入库列表失败，请先添加入库商品！", null);
 		}
 
@@ -561,19 +554,26 @@ public class PreStockController {
 
 	@RequestMapping(value = "/prestock/checkNum", method = RequestMethod.POST)
 	@ResponseBody
-	public BasicDataResult checkNum(HttpSession session,
-									@RequestParam(value = "id", defaultValue = "") String id,
-									@RequestParam(value = "num", defaultValue = "") String num) {
-		if(Common.isNotEmpty(id)) {
+	public BasicDataResult checkNum(HttpSession session, @RequestParam(value = "id", defaultValue = "") String id,
+			@RequestParam(value = "num", defaultValue = "") String num) {
+		if (Common.isNotEmpty(id)) {
 
 			boolean isnum = Common.isValidDecimal(num);
-			if(!isnum) {
+			if (!isnum) {
 				return new BasicDataResult(400, "请输入有效的出库数量，小数点只支持2位！！", "");
 			}
-			//根据id获取库存商品
+
+//根据id获取库存商品
 			PreStock stock = this.preStockService.findOneById(id, PreStock.class);
-			Double eaqu=stock.getEstimatedInventoryQuantity()-stock.getActualReceiptQuantity();
-			if(eaqu<Double.valueOf(num)) {
+// 1. 计算剩余库存（原始值）
+			Double originalEaqu = stock.getEstimatedInventoryQuantity() - stock.getActualReceiptQuantity();
+// 2. 将剩余库存和输入数量都转换为BigDecimal，保留2位小数（四舍五入）
+			BigDecimal eaqu = new BigDecimal(originalEaqu.toString()).setScale(2, RoundingMode.HALF_UP);
+			BigDecimal inputNum = new BigDecimal(num).setScale(2, RoundingMode.HALF_UP);
+
+// 3. 使用BigDecimal的compareTo方法进行精确比较
+// compareTo返回值：-1(小于)、0(等于)、1(大于)
+			if (eaqu.compareTo(inputNum) < 0) {
 				return new BasicDataResult(400, "入库数量大于库存数量，请检查！", "");
 			}
 			return new BasicDataResult(200, "库存无误！", "");
@@ -596,56 +596,53 @@ public class PreStockController {
 		User user = (User) session.getAttribute(Contents.USER_SESSION);
 		List<Object> list = new ArrayList<>();
 		for (int i = 0; i < batchidList.size(); i++) {
-			PreStock preStock=this.preStockService.findOneById(batchidList.get(i),PreStock.class);
+			PreStock preStock = this.preStockService.findOneById(batchidList.get(i), PreStock.class);
 			preStock.setHandler(user);
-			PreStock stock=new PreStock();
+			PreStock stock = new PreStock();
 			stock.setId(preStock.getId());
 			stock.setEstimatedInventoryQuantity(preStock.getEstimatedInventoryQuantity());
-			Double actnum=preStock.getActualReceiptQuantity();//之前入库的数量
-			stock.setActualReceiptQuantity(actnum+Double.valueOf(batchnumList.get(i)));
+			Double actnum = preStock.getActualReceiptQuantity();// 之前入库的数量
+			stock.setActualReceiptQuantity(actnum + Double.valueOf(batchnumList.get(i)));
 			preStock.setActualReceiptQuantity(Double.valueOf(batchnumList.get(i)));
-			this.stockService.preStockToStock(preStock,actnum);
+			this.stockService.preStockToStock(preStock, actnum);
 			list.add(stock);
 		}
-
 
 		return new BasicDataResult(200, "批量入库成功!", list);
 	}
 
-
-
 	@RequestMapping(value = "/prestock/batchEditprestock", method = RequestMethod.POST)
 	@ResponseBody
 	public BasicDataResult batchPaymentOrderNo(HttpSession session,
-											   @RequestParam(value = "stockid", defaultValue = "") String stockid,
-											   @RequestParam(value = "inprice", defaultValue = "null") String inprice,
-											   @RequestParam(value = "purchaseInvoiceNo", defaultValue = "null") String purchaseInvoiceNo,
-											   @RequestParam(value = "paymentOrderNo", defaultValue = "null") String paymentOrderNo,
-											   @RequestParam(value = "purchaseInvoiceDate", defaultValue = "null") String purchaseInvoiceDate,
-											   @RequestParam(value = "itemNo", defaultValue = "null") String itemNo,
-											   @RequestParam(value = "pname.id",required = false,defaultValue = "null")String pnameId,
-											   @RequestParam(value = "description",required = false,defaultValue = "")String description,
-											   @RequestParam(value = "supplier.id",required = false,defaultValue = "null")String supplierId
+			@RequestParam(value = "stockid", defaultValue = "") String stockid,
+			@RequestParam(value = "inprice", defaultValue = "null") String inprice,
+			@RequestParam(value = "purchaseInvoiceNo", defaultValue = "null") String purchaseInvoiceNo,
+			@RequestParam(value = "paymentOrderNo", defaultValue = "null") String paymentOrderNo,
+			@RequestParam(value = "purchaseInvoiceDate", defaultValue = "null") String purchaseInvoiceDate,
+			@RequestParam(value = "itemNo", defaultValue = "null") String itemNo,
+			@RequestParam(value = "pname.id", required = false, defaultValue = "null") String pnameId,
+			@RequestParam(value = "description", required = false, defaultValue = "") String description,
+			@RequestParam(value = "supplier.id", required = false, defaultValue = "null") String supplierId
 
 	) {
 
-		Double dinprice=null;
-		Double dsailPrice=null;
+		Double dinprice = null;
+		Double dsailPrice = null;
 
 		try {
-			if(!inprice.equals("null")) {
+			if (!inprice.equals("null")) {
 				dinprice = Double.parseDouble(inprice);
-			}else {
-				dinprice=null;
+			} else {
+				dinprice = null;
 			}
-		}catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			return new BasicDataResult(400, "入库金额输入有误，请输入正确的数字", "");
 
 		}
 
 		User user = (User) session.getAttribute(Contents.USER_SESSION);
-		this.preStockService.updateStockStatistics(stockid,itemNo,pnameId,supplierId,description);
+		this.preStockService.updateStockStatistics(stockid, itemNo, pnameId, supplierId, description);
 		return new BasicDataResult(200, "修改统计数据成功", "");
 
 	}
@@ -653,11 +650,10 @@ public class PreStockController {
 	@RequestMapping(value = "/prestock/columns", method = RequestMethod.GET, produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public BasicDataResult editColumns(@RequestParam(value = "column", defaultValue = "") String column,
-									   @RequestParam(value = "flag", defaultValue = "") boolean flag,HttpSession session) {
+			@RequestParam(value = "flag", defaultValue = "") boolean flag, HttpSession session) {
 		User user = (User) session.getAttribute(Contents.USER_SESSION);
-		return this.columnService.editColumns("prestock", column, flag,user.getId());
+		return this.columnService.editColumns("prestock", column, flag, user.getId());
 	}
-
 
 	/**
 	 * 通过ajax判断是否有同一个预库存数据
@@ -669,14 +665,12 @@ public class PreStockController {
 	@RequestMapping(value = "/prestock/ajaxgetRepletes", method = RequestMethod.POST)
 	@ResponseBody
 	public BasicDataResult ajaxgetRepletes(@RequestParam(value = "name", defaultValue = "") String name,
-										   @RequestParam(value = "areaId", defaultValue = "") String areaId,
-										   @RequestParam(value = "supplierId", defaultValue = "") String supplierId,
-										   @RequestParam(value = "model", defaultValue = "") String model,
-										   @RequestParam(value = "entryname", defaultValue = "") String entryname) {
-		return this.preStockService.ajaxgetRepletes(name, areaId, model,supplierId,entryname);
+			@RequestParam(value = "areaId", defaultValue = "") String areaId,
+			@RequestParam(value = "supplierId", defaultValue = "") String supplierId,
+			@RequestParam(value = "model", defaultValue = "") String model,
+			@RequestParam(value = "entryname", defaultValue = "") String entryname) {
+		return this.preStockService.ajaxgetRepletes(name, areaId, model, supplierId, entryname);
 	}
-
-
 
 //	@RequestMapping(value = "/prestock/batchEditpreStocks", method = RequestMethod.POST)
 //	@ResponseBody
@@ -726,10 +720,9 @@ public class PreStockController {
 //
 //	}
 
-public static void main(String[] args) {
-	StringBuilder errorMsg = new StringBuilder();
-	System.out.println(errorMsg.length()==0);
-}
-
+	public static void main(String[] args) {
+		StringBuilder errorMsg = new StringBuilder();
+		System.out.println(errorMsg.length() == 0);
+	}
 
 }

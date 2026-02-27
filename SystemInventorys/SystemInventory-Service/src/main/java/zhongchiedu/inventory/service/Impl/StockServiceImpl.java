@@ -1235,6 +1235,9 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 			stockStatistics.setPreStockId(preStock.getId());
 			stockStatistics.setNum(preStock.getActualReceiptQuantity());// 设置实际入库数量
 
+			if (Common.isNotEmpty(preStock.getPrice())) {
+				stockStatistics.setPrice(preStock.getPrice());
+			}
 			if (Common.isNotEmpty(preStock.getInprice())) {
 				stockStatistics.setInprice(preStock.getInprice());// 入库总金额
 			}
