@@ -38,5 +38,7 @@ public class MonthEndStatistics   extends GeneralBean<MonthEndStatistics>{/**
 	
 	private String date;//日期
 	
+	private String price;//记录当月库存设备的平均价格
+	
 
 }

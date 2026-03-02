@@ -1,5 +1,6 @@
 package zhongchiedu.inventory.service.Impl;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,12 +15,17 @@ import zhongchiedu.inventory.pojo.MonthEndStatistics;
 import zhongchiedu.inventory.pojo.Stock;
 import zhongchiedu.inventory.service.MonthEndStatisticsService;
 import zhongchiedu.inventory.service.StockService;
+import zhongchiedu.inventory.service.StockStatisticsService;
+import zhongchiedu.inventory.service.Impl.StockStatisticsServiceImpl.TimeRangeType;
 @Service
 @Slf4j
 public class MonthEndStatisticsServiceImpl extends GeneralServiceImpl<MonthEndStatistics> implements MonthEndStatisticsService {
 	
 	@Autowired
 	private StockService stockService;
+	
+	@Autowired
+	private StockStatisticsService stockStatisticsService;
 
 	@Override
 	public void automaticStatistics(String date) {
@@ -35,6 +41,16 @@ public class MonthEndStatisticsServiceImpl extends GeneralServiceImpl<MonthEndSt
 			ms.setStockSuppier(stock.getSupplier().getName());
 			ms.setStockArea(stock.getArea().getName());
 			ms.setStock(stock);
+			// 1. 接收计算结果
+			BigDecimal price = stockStatisticsService.calculateAveragePriceByStockId(stock.getId(), TimeRangeType.CURRENT_MONTH);
+			// 2. 空值处理 + 避免科学计数法
+			String priceStr = (price == null) ? stock.getPrice() : price.toPlainString();
+			// 3. 设置值
+			ms.setPrice(priceStr);
+			//月末更新最新单价
+			Stock getstock = this.stockService.findOneById(stock.getId(), Stock.class);
+			getstock.setPrice(priceStr);
+			this.stockService.save(getstock);
 			this.save(ms);
 		});
 		

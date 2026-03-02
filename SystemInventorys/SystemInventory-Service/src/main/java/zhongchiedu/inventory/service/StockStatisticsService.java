@@ -1,5 +1,6 @@
 package zhongchiedu.inventory.service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +19,7 @@ import zhongchiedu.inventory.pojo.Pname;
 import zhongchiedu.inventory.pojo.RequestBo;
 import zhongchiedu.inventory.pojo.Stock;
 import zhongchiedu.inventory.pojo.StockStatistics;
+import zhongchiedu.inventory.service.Impl.StockStatisticsServiceImpl.TimeRangeType;
 
 public interface StockStatisticsService extends GeneralService<StockStatistics> {
 	
@@ -62,7 +64,9 @@ public interface StockStatisticsService extends GeneralService<StockStatistics> 
 	
 	public List<StockStatistics> findStockStatisticsToCreateQrcode(Pname pname,NewCustomer newcustomer,String accepter,String depotTime);
 	
-	public List<StockStatistics> findStockStatisByStockId(String id);
+	public List<StockStatistics> findStockStatisByStockId(String id, TimeRangeType timeRangeType);
+	
+	 public BigDecimal calculateAveragePriceByStockId(String stockId,TimeRangeType t);
 	
 	
 }

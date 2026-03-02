@@ -8,12 +8,14 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.TimeZone;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
@@ -1612,7 +1614,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 			StockStatistics gs = entry.getValue().get(entry.getValue().size() - 1);
 			// 获取设备其他信息
-			outmap.put("area", Common.isEmpty(gs.getArea()) ? "" : gs.getArea().getName());
+			outmap.put("area", Common.isEmpty(gs.getStock().getArea()) ? "" : gs.getStock().getArea().getName());
 			outmap.put("stockName", Common.isEmpty(gs.getStock().getName()) ? "" : gs.getStock().getName());
 			outmap.put("modelName", Common.isEmpty(gs.getStock().getModel()) ? "" : gs.getStock().getModel());
 			outmap.put("scope", Common.isEmpty(gs.getStock().getScope()) ? "" : gs.getStock().getScope());
@@ -1648,22 +1650,20 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			}
 
 			if (Common.isNotEmpty(gs.getStock().getPrice())) {
-				
-				//TODO
-				//String price = gs.getStock().getPrice();
+				String price = gs.getStock().getPrice();
 				//根据stock的id去统计路面拿单价
-				dj = this.calculateAveragePriceByStockId(gs.getStock().getId());
-				
-				
-//				boolean numeric = StringUtils.isNumeric(price);
-//				if (!numeric) {
-//					price = "0";
-//				}
-
-				//dj = new BigDecimal(price);// 期初单价
+				boolean numeric = StringUtils.isNumeric(price);
+				if (!numeric) {
+					price = "0.00";
+				}
+				dj = new BigDecimal(price);// 期初单价
 				zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);// 出库总额
+			}else {
+				dj = this.calculateAveragePriceByStockId(gs.getStock().getId(),TimeRangeType.CURRENT_MONTH);
 			}
 
+				
+				
 			outmap.put("oldprice", dj);
 			outmap.put("oldinventory", qcnum);
 			outmap.put("oldpriceall", zj);
@@ -1691,6 +1691,8 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			}
 
 //			BigDecimal a = new BigDecimal(inpriceall);
+			//获取最新平均单价来生成本月入库 
+			dj = this.calculateAveragePriceByStockId(gs.getStock().getId(),TimeRangeType.CURRENT_MONTH);
 			BigDecimal a = dj;
 			BigDecimal b = new BigDecimal(in);
 
@@ -1841,17 +1843,28 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				// 如果是出库 需要吧出库数量加回去
 				qcnum = newNum.add(num);// 获得期初库存数量
 			}
+			
+			
 			if (Common.isNotEmpty(gs.getStock().getPrice())) {
 				String price = gs.getStock().getPrice();
 				boolean numeric = StringUtils.isNumeric(price);
 				if (!numeric) {
-					price = "0";
+					price = "0.00";
 				}
 
 				dj = new BigDecimal(price);// 期初单价
+				
+				
+				
 				zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);// 出库总额
+			}else {
+				dj = this.calculateAveragePriceByStockId(gs.getStock().getId(),TimeRangeType.CURRENT_MONTH);
 			}
-
+			
+			
+//			dj = this.calculateAveragePriceByStockId(gs.getStock().getId(),TimeRangeType.CURRENT_MONTH);
+//			zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);// 出库总额
+			
 			outmap.put("oldprice", dj);
 			outmap.put("oldinventory", qcnum);
 			outmap.put("oldpriceall", zj);
@@ -2155,21 +2168,122 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	
 	
 	
-	public List<StockStatistics> findStockStatisByStockId(String id) {
-		Query query  = new Query();
-		query.addCriteria(Criteria.where("revoke").is(false));
-		query.addCriteria(Criteria.where("isDelete").is(false));
-		query.addCriteria(Criteria.where("isDisable").is(false));
-		query.addCriteria(Criteria.where("inOrOut").is(true));
-		query.addCriteria(Criteria.where("stock.$id").is(new ObjectId(id)));
-		return this.find(query, StockStatistics.class);
-		
-	}
+//	public List<StockStatistics> findStockStatisByStockId(String id) {
+//		Query query  = new Query();
+//		query.addCriteria(Criteria.where("revoke").is(false));
+//		query.addCriteria(Criteria.where("isDelete").is(false));
+//		query.addCriteria(Criteria.where("isDisable").is(false));
+//		query.addCriteria(Criteria.where("inOrOut").is(true));
+//		query.addCriteria(Criteria.where("stock.$id").is(new ObjectId(id)));
+//		return this.find(query, StockStatistics.class);
+//		
+//	}
+//	
+	
+	
+	
+	
+	
+//	 public List<StockStatistics> findStockStatisByStockId(String id) {
+//	        Query query = new Query();
+//	        // 原有过滤条件（保持不变）
+//	        query.addCriteria(Criteria.where("revoke").is(false));
+//	        query.addCriteria(Criteria.where("isDelete").is(false));
+//	        query.addCriteria(Criteria.where("isDisable").is(false));
+//	        query.addCriteria(Criteria.where("inOrOut").is(true));
+//	        query.addCriteria(Criteria.where("stock.$id").is(new ObjectId(id)));
+//
+//	        // 新增：过滤当前年份1月1日至今的数据
+//	        // 1. 获取当前年份的1月1日 00:00:00 时间点
+//	        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai")); // 指定时区（避免时区偏差）
+//	        calendar.set(Calendar.MONTH, Calendar.JANUARY); // 月份设为1月（Calendar.JANUARY=0）
+//	        calendar.set(Calendar.DAY_OF_MONTH, 1); // 日期设为1号
+//	        calendar.set(Calendar.HOUR_OF_DAY, 0); // 小时设为0
+//	        calendar.set(Calendar.MINUTE, 0); // 分钟设为0
+//	        calendar.set(Calendar.SECOND, 0); // 秒设为0
+//	        calendar.set(Calendar.MILLISECOND, 0); // 毫秒设为0
+//	        Date startOfYear = calendar.getTime(); // 当年1月1日 00:00:00
+//
+//	        // 2. 添加时间条件：数据的时间字段 >= 当年1月1日
+//	        // 注意：将 "createTime" 替换为你 StockStatistics 实体中实际的时间字段名（如 updateTime/statisTime 等）
+//	        query.addCriteria(Criteria.where("createTime").gte(startOfYear));
+//
+//	        return this.find(query, StockStatistics.class);
+//	    }
 
 	
+	 // 定义枚举类，明确查询范围类型（比字符串更规范，避免传参错误）
+    public enum TimeRangeType {
+        CURRENT_YEAR,  // 当年1月1日至今
+        CURRENT_MONTH  // 当月1日至今
+    }
+
+    /**
+     * 根据stockId和时间范围查询数据
+     * @param id 库存ID
+     * @param timeRangeType 时间范围类型（CURRENT_YEAR/CURRENT_MONTH）
+     * @return 符合条件的统计数据
+     */
+    public List<StockStatistics> findStockStatisByStockId(String id, TimeRangeType timeRangeType) {
+        Query query = new Query();
+        // 原有过滤条件（保持不变）
+        query.addCriteria(Criteria.where("revoke").is(false));
+        query.addCriteria(Criteria.where("isDelete").is(false));
+        query.addCriteria(Criteria.where("isDisable").is(false));
+        query.addCriteria(Criteria.where("inOrOut").is(true));
+        query.addCriteria(Criteria.where("stock.$id").is(new ObjectId(id)));
+
+        // 根据时间范围类型，计算对应的起始时间
+        Date startTime = calculateStartTime(timeRangeType);
+        // 添加时间过滤条件（替换为你实际的时间字段名，比如statisTime/updateTime）
+        query.addCriteria(Criteria.where("createTime").gte(startTime));
+
+        return this.find(query, StockStatistics.class);
+    }
+
+    /**
+     * 封装时间计算逻辑，按类型返回起始时间（当年/当月1日 00:00:00）
+     * @param timeRangeType 时间范围类型
+     * @return 起始时间
+     */
+    private Date calculateStartTime(TimeRangeType timeRangeType) {
+        // 指定北京时间，避免时区偏差
+        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai"));
+        // 重置时分秒毫秒为0，确保起始时间是当天零点
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+
+        switch (timeRangeType) {
+            case CURRENT_YEAR:
+                // 当年1月1日
+                calendar.set(Calendar.MONTH, Calendar.JANUARY);
+                calendar.set(Calendar.DAY_OF_MONTH, 1);
+                break;
+            case CURRENT_MONTH:
+                // 当月1日
+                calendar.set(Calendar.DAY_OF_MONTH, 1);
+                break;
+            default:
+                // 默认返回当年1月1日（避免空值）
+                calendar.set(Calendar.MONTH, Calendar.JANUARY);
+                calendar.set(Calendar.DAY_OF_MONTH, 1);
+                break;
+        }
+        return calendar.getTime();
+    }
+
+    // 兼容原有方法（无参数时默认查当年数据）
+//    public List<StockStatistics> findStockStatisByStockId(String id ) {
+//        return findStockStatisByStockId(id, TimeRangeType.CURRENT_YEAR);
+//    }
+//	
+	
+	
 	  // 修复后的平均单价计算方法
-    public BigDecimal calculateAveragePriceByStockId(String stockId) {
-        List<StockStatistics> stockStatsList = findStockStatisByStockId(stockId);
+    public BigDecimal calculateAveragePriceByStockId(String stockId,TimeRangeType t) {
+        List<StockStatistics> stockStatsList = findStockStatisByStockId(stockId,t);
         
         BigDecimal totalPriceNum = BigDecimal.ZERO; // price*num 的总和
         int totalNum = 0; // num 的总和
