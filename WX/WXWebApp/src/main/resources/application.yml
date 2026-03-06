@@ -9,8 +9,8 @@ wx:
         
    
 #    server-url: http://zhongchi.top
-#    server-url: http://cored.zhongchiedu.com
-    server-url: https://r5tm53y8.xiaomy.net
+    server-url: https://cored.zhongchiedu.com
+#    server-url: https://r5tm53y8.xiaomy.net
 
 logging:
   level:
@@ -25,8 +25,8 @@ qrcode:
   height: 300
   width: 300
 #  weburl: http://zhongchi.top/WXWebApp/
-#  weburl: http://cored.zhongchiedu.com/WXWebApp/
-  weburl: https://r5tm53y8.xiaomy.net/WXWebApp/
+  weburl: https://cored.zhongchiedu.com/WXWebApp/
+#  weburl: https://r5tm53y8.xiaomy.net/WXWebApp/
   format: png
   qrcodepath: upload/qrcode/
 upload:

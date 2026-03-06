@@ -64,6 +64,12 @@ public class WxRepairExportDTO {
     @ExcelProperty("施工队人员")
     @ColumnWidth(20)
     private String workerName;
+    
+    @ExcelProperty("第一次打开时间")
+    @ColumnWidth(20)
+    private String findReadTime;//第一次打开时间
+    
+    
 
     @ExcelProperty("维修内容")
     @ColumnWidth(30)
@@ -80,6 +86,12 @@ public class WxRepairExportDTO {
     @ExcelProperty("维修单描述")
     @ColumnWidth(20)
     private String description;
+    
+    @ExcelProperty("用时")
+    @ColumnWidth(20)
+    private String useTime;
+    
+    
     
     
 

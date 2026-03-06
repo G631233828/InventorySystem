@@ -1,6 +1,7 @@
 package zhongchiedu.wechat.controller.wxrepair;
 
 import java.net.URLEncoder;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -180,6 +181,12 @@ public class WxRepairDetailController {
 				//维修人员ID不匹配
 				return "school/error"; // 跳转至自定义错误页面
 			}
+			//设置维修人员已读时间
+			if(Common.isEmpty(wxRepair.getFindReadTime())) {
+				wxRepair.setFindReadTime(Common.getDateYMDHM(new Date()));
+				this.wxRepairService.save(wxRepair);
+			}
+			
 			
 			// 2. 校验报修单是否存在
 			if (wxRepair == null) {

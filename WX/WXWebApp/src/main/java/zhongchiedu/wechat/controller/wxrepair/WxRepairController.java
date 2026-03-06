@@ -6,7 +6,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -40,9 +42,11 @@ import zhongchiedu.common.utils.enums.PersonJoinAuditStatusEnum;
 import zhongchiedu.common.utils.enums.PersonnelType;
 import zhongchiedu.common.utils.enums.RepairStatus;
 import zhongchiedu.general.pojo.MultiMedia;
+import zhongchiedu.inventory.pojo.CommonRepairItem;
 import zhongchiedu.inventory.pojo.WxBinding;
 import zhongchiedu.inventory.pojo.WxRepair;
 import zhongchiedu.inventory.pojo.WxReporter;
+import zhongchiedu.inventory.service.CommonRepairItemService;
 import zhongchiedu.inventory.service.WxBindingService;
 import zhongchiedu.inventory.service.WxRepairService;
 import zhongchiedu.inventory.service.WxReporterService;
@@ -298,8 +302,7 @@ public class WxRepairController {
             WxReporter wxReporter = wxReporterService.saveOrUpdate(reporter);
 			WxRepair wxRepair = new WxRepair();
 			// 2. 生成唯一工单号
-			String workOrderNumber = "WX" + System.currentTimeMillis()
-					+ UUID.randomUUID().toString().replace("-", "").substring(0, 8);
+			String workOrderNumber = Common.generateWorkOrderNumber();
 			wxRepair.setWorkOrderNumber(workOrderNumber);
 			// 3. 设置业务属性
 			wxRepair.setOpenId(openId); // 将OpenID存入对象
@@ -428,7 +431,67 @@ public class WxRepairController {
 
 	
 
+	  // 注入Service层（根据你的项目实际结构调整）
+    @Autowired
+    private CommonRepairItemService commonRepairItemService;
 
+    /**
+     * 获取所有报修设备名称（去重）
+     * @return 封装后的设备名称列表，返回类型为BasicDataResult
+     */
+    @GetMapping("/getAllDeviceNames")
+    @ResponseBody
+    public BasicDataResult getAllDeviceNames() {
+        try {
+            // 1. 查询所有报修项数据
+            List<CommonRepairItem> items = commonRepairItemService.findAllEnabledItems();
+            
+            // 2. 提取设备名称，去重并过滤空值，最后排序
+            Set<String> deviceNameSet = items.stream()
+                    .map(CommonRepairItem::getDeviceName) // 假设实体类中有getDeviceName()方法
+                    .filter(name -> name != null && !name.trim().isEmpty()) // 过滤空值和空白字符串
+                    .collect(Collectors.toSet()); // 去重
+            
+            List<String> deviceNames = deviceNameSet.stream().sorted().collect(Collectors.toList());
+            
+            // 3. 使用BasicDataResult.ok()返回成功结果（status=200, msg="OK"）
+            return BasicDataResult.ok(deviceNames);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            // 4. 异常时返回错误结果（status=200, msg=错误信息）
+            // 如果需要自定义错误状态码，可使用build方法：BasicDataResult.build(500, "获取失败", null)
+            return BasicDataResult.error("获取报修设备名称失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 根据设备名称获取故障详情
+     * @param deviceName 设备名称（前端传入）
+     * @return 该设备对应的故障详情列表
+     */
+    @GetMapping("/getFaultDetails")
+    @ResponseBody
+    public BasicDataResult getFaultDetails(@RequestParam String deviceName) {
+        try {
+            // 1. 参数校验
+            if (deviceName == null || deviceName.trim().isEmpty()) {
+                return BasicDataResult.error("设备名称不能为空");
+                // 若需要自定义状态码，可使用：
+                // return BasicDataResult.build(400, "设备名称不能为空", null);
+            }
+            
+            // 2. 根据设备名称查询故障详情
+            List<CommonRepairItem> faultDetails = commonRepairItemService.listByDeviceName(deviceName);
+            
+            // 3. 返回成功结果
+            return BasicDataResult.ok(faultDetails);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            return BasicDataResult.error("获取故障详情失败：" + e.getMessage());
+        }
+    }
 	
 	
 

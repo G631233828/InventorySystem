@@ -421,6 +421,7 @@ public class WxRepairServiceImpl extends GeneralServiceImpl<WxRepair> implements
 
 		// 3. 清空维修人员，状态改为待处理（状态1）
 		wxRepair.setWorker(null);
+		wxRepair.setFindReadTime(null);
 		wxRepair.setStatus(RepairStatus.PENDING.getCode()); 
 		wxRepair.setAssignTime(null);
 

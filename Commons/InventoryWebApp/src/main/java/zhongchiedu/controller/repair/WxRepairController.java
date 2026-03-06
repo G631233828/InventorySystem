@@ -348,20 +348,23 @@ public class WxRepairController {
             @RequestParam(required = false) Integer status,
             @RequestParam(required = false) String search,
             HttpServletResponse response) throws Exception {
-        
+
         // 设置响应头
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setCharacterEncoding("utf-8");
         String fileName = URLEncoder.encode("报修单数据_" + System.currentTimeMillis(), "UTF-8");
         response.setHeader("Content-disposition", "attachment;filename=" + fileName + ".xlsx");
-        
+
         // 查询导出数据
         List<WxRepair> repairList = wxRepairService.findExportData(startTime, endTime, workerId, status, search);
+
+        // 定义时间格式化器（避免重复创建）
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         
         // 转换为DTO
         List<WxRepairExportDTO> exportList = repairList.stream().map(repair -> {
             WxRepairExportDTO dto = new WxRepairExportDTO();
-            
+
             dto.setWorkOrderNumber(repair.getWorkOrderNumber());
             dto.setUserName(repair.getWxReporter().getUserName());
             dto.setContactNumber(repair.getWxReporter().getContactNumber());
@@ -375,14 +378,22 @@ public class WxRepairController {
             dto.setCompleteTime(repair.getCompleteTime()!=null?repair.getCompleteTime():"未完成");
             dto.setWorkDept(repair.getWorkDept()!=null?repair.getWorkDept():"无");
             dto.setDescription(repair.getDescription()!=null?repair.getDescription():"无");
-            // 格式化日期
-            if (repair.getCreateTime() != null) {
-                dto.setCreateTime(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(repair.getCreateTime()));
+            dto.setFindReadTime(repair.getFindReadTime()!=null?repair.getFindReadTime():"未打开");
+            
+            // 格式化创建时间，并补全默认值
+            String formattedCreateTime = "无";
+            Date createTime = repair.getCreateTime();
+            if (createTime != null) {
+                formattedCreateTime = sdf.format(createTime);
+                dto.setCreateTime(formattedCreateTime);
+            } else {
+                dto.setCreateTime(formattedCreateTime);
             }
+            
             if (repair.getExpectedVisitTime() != null) {
                 dto.setExpectedVisitTime(repair.getExpectedVisitTime());
             }
-            
+
             // 状态描述
             switch (repair.getStatus()) {
                 case 1: dto.setStatusDesc("待处理"); break;
@@ -392,19 +403,21 @@ public class WxRepairController {
                 case 5: dto.setStatusDesc("已取消"); break;
                 default: dto.setStatusDesc("未知");
             }
-            
+
             dto.setWorkerName(repair.getWorker() != null ? repair.getWorker().getName() : "未分配");
             dto.setRepairContent(repair.getRepairContent() != null ? repair.getRepairContent() : "无");
+            dto.setUseTime(Common.calculateUseTime(createTime, repair.getCompleteTime(), sdf));
+            
             return dto;
         }).collect(Collectors.toList());
-        
+
         // 写入Excel并返回
         EasyExcel.write(response.getOutputStream(), WxRepairExportDTO.class)
                 .sheet("报修单数据")
                 .doWrite(exportList);
     }
-    
-    
+
+  
     
     
     @PostMapping("/wxRepair/cancelAssign")

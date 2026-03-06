@@ -46,7 +46,7 @@
 									th:action="@{/afterSalesProject}" 
 									method="post" th:object="${afterSalesProjects}">
 									<input type="hidden" name="_method" th:value="${afterSalesProjects?.id} != null ? 'PUT' : 'POST'"/>
-		
+									<input type="hidden" name="id" th:value="${afterSalesProjects?.id}"/>
 									
 									<!-- 项目名称 -->
 									<div class="form-group">

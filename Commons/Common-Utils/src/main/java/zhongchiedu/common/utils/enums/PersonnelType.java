@@ -7,6 +7,7 @@ import java.util.Optional;
  * 1: 施工队（维修人员）
  * 2: 调度人员
  * 3: 销售人员
+ * 4: 工程部
  */
 public enum PersonnelType {
 
@@ -23,7 +24,12 @@ public enum PersonnelType {
     /**
      * 销售人员（值为3）
      */
-    SALESPERSON(3, "销售人员");
+    SALESPERSON(3, "销售人员"),
+
+    /**
+     * 工程部（值为4）
+     */
+    ENGINEERING_DEPARTMENT(4, "工程部");
 
     /**
      * 人员类型编码（数据库存储用）

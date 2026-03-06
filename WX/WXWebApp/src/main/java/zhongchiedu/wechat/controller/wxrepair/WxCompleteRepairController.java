@@ -1,5 +1,6 @@
 package zhongchiedu.wechat.controller.wxrepair;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -72,71 +73,87 @@ public class WxCompleteRepairController {
 	@PostMapping("/completeRepair")
 	@ResponseBody
 	public BasicDataResult completeRepair(@RequestParam("repairId") String repairId,
-			@RequestParam("openId") String openId,
-			@RequestParam(value = "repairPhotos", required = false) MultipartFile[] repairPhotos,
-			@RequestParam("repairContent") String repairContent, HttpSession session) {
+	        @RequestParam("openId") String openId,
+	        @RequestParam(value = "repairPhotos", required = false) MultipartFile[] repairPhotos,
+	        @RequestParam("repairContent") String repairContent, HttpSession session) {
 
-		try {
-			if (Common.isEmpty(openId)) {
-				return BasicDataResult.build(400, "该报修单状态异常，请返回维修列表页面重新进入", null);
-			}
-			// 1. 参数校验（避免空指针或无效ID）
-			if (Common.isEmpty(repairId)) {
-				return BasicDataResult.build(400, "报修单ID无效", null);
-			}
-			// 2. 调用业务层执行分配逻辑（核心业务，需你自行实现Service层）
-			WxRepair wxRepair = this.wxRepairService.findOneById(repairId, WxRepair.class);
+	    try {
+	        if (Common.isEmpty(openId)) {
+	            return BasicDataResult.build(400, "该报修单状态异常，请返回维修列表页面重新进入", null);
+	        }
+	        // 1. 参数校验（避免空指针或无效ID）
+	        if (Common.isEmpty(repairId)) {
+	            return BasicDataResult.build(400, "报修单ID无效", null);
+	        }
+	        // 2. 调用业务层执行分配逻辑（核心业务，需你自行实现Service层）
+	        WxRepair wxRepair = this.wxRepairService.findOneById(repairId, WxRepair.class);
 
-			String workerOpenId = wxRepair.getWorker().getOpenId();
-			if (!openId.equals(workerOpenId)) {
-				return BasicDataResult.build(400, "该报修单状态异常请联系管理人员！", null);
-			}
+	        String workerOpenId = wxRepair.getWorker().getOpenId();
+	        if (!openId.equals(workerOpenId)) {
+	            return BasicDataResult.build(400, "该报修单状态异常请联系管理人员！", null);
+	        }
 
-			// 获取保修单的状态 状态必须要为3
-			RepairStatus status = RepairStatus.fromCode(wxRepair.getStatus());
-			if (status != RepairStatus.PROCESSING)
-				return BasicDataResult.build(400, "该报修单状态异常请联系管理人员！", null);
+	        // 获取保修单的状态 状态必须要为3
+	        RepairStatus status = RepairStatus.fromCode(wxRepair.getStatus());
+	        if (status != RepairStatus.PROCESSING)
+	            return BasicDataResult.build(400, "该报修单状态异常请联系管理人员！", null);
 
-			wxRepair.setRepairContent(repairContent);
-			// 执行维修完成逻辑
-			boolean res = this.wxRepairService.completeRepair(wxRepair, repairPhotos, imgPath, dir);
+	        wxRepair.setRepairContent(repairContent);
+	        // 执行维修完成逻辑
+	        boolean res = this.wxRepairService.completeRepair(wxRepair, repairPhotos, imgPath, dir);
 
-			// 3. 根据业务结果返回对应信息
-			if (res) {
-//				客户名称				{{thing12.DATA}}
-//				维修单号				{{character_string11.DATA}}
-//				处理人				{{thing8.DATA}}
-//				申请时间				{{time2.DATA}}
-//				完成时间				{{time3.DATA}}
-				// 分配成功 執行推送消息
-				List<WxBinding> findBindingsByPersonnelType = this.wxBindingService.findBindingsByPersonnelType(PersonnelType.DISPATCHER,PersonJoinAuditStatusEnum.APPROVED);// 拿到所有调度人员
-				if (findBindingsByPersonnelType.size() > 0) {
-					Map<String, String> map = new HashMap<>();
-					map.put("thing12", Common.getOrDefault(wxRepair.getWxReporter().getSchoolName(), "")
-							+ Common.getOrDefault(wxRepair.getWxReporter().getUserName(), "老师"));
-					map.put("character_string11", Common.getOrDefault(wxRepair.getWorkOrderNumber(), "0000"));
-					map.put("thing8", Common.getOrDefault(
-							wxRepair.getWorker().getName() + wxRepair.getWorker().getContactNumber(), "维修人员"));
-					map.put("time2", Common.getDateYMDHM(wxRepair.getCreateTime()));
-					map.put("time3", Common.getDateYMDHM(new Date()));
-					// 执行推送 给商务
-					findBindingsByPersonnelType.stream().filter(user -> Common.isNotEmpty(user.getOpenId()))
-							.forEach(user -> {
-								String sendWxMessage = this.wxMsgPush.sendWxMessage(templateId7, user.getOpenId(),
-										weburl + "/wechatrp/findWxRepair/" + repairId, map);
-								log.info("维修单{}维修成功，消息推送成功：{}", repairId, sendWxMessage);
-							});
-				}
-				return BasicDataResult.ok("维修成功"); // 状态200，消息"分配成功"，无额外数据
-			} else {
-				return BasicDataResult.build(500, "提交失败，请联系管理员反馈问题", null);
-			}
+	        // 3. 根据业务结果返回对应信息
+	        if (res) {
+	            // 构造推送消息的参数
+	            Map<String, String> map = new HashMap<>();
+	            map.put("thing12", Common.getOrDefault(wxRepair.getWxReporter().getSchoolName(), "")
+	                    + Common.getOrDefault(wxRepair.getWxReporter().getUserName(), "老师"));
+	            map.put("character_string11", Common.getOrDefault(wxRepair.getWorkOrderNumber(), "0000"));
+	            map.put("thing8", Common.getOrDefault(
+	                    wxRepair.getWorker().getName() + wxRepair.getWorker().getContactNumber(), "维修人员"));
+	            map.put("time2", Common.getDateYMDHM(wxRepair.getCreateTime()));
+	            map.put("time3", Common.getDateYMDHM(new Date()));
 
-		} catch (Exception e) {
-			// 4. 全局异常捕获（避免程序崩溃，返回友好提示）
-			e.printStackTrace(); // 实际生产环境建议用日志框架记录（如Logback/SLF4J）
-			return BasicDataResult.build(500, "系统异常，提交失败", null);
-		}
+	            // ========== 核心修改：同时获取调度人员和工程部人员 ==========
+	            // 1. 获取所有审核通过的调度人员
+	            List<WxBinding> dispatcherList = this.wxBindingService.findBindingsByPersonnelType(
+	                    PersonnelType.DISPATCHER, 
+	                    PersonJoinAuditStatusEnum.APPROVED);
+	            // 2. 获取所有审核通过的工程部人员
+	            List<WxBinding> engineeringDeptList = this.wxBindingService.findBindingsByPersonnelType(
+	                    PersonnelType.ENGINEERING_DEPARTMENT, 
+	                    PersonJoinAuditStatusEnum.APPROVED);
+	            
+	            // 3. 合并两个列表（避免重复推送逻辑）
+	            List<WxBinding> pushTargetList = new ArrayList<>();
+	            pushTargetList.addAll(dispatcherList);
+	            pushTargetList.addAll(engineeringDeptList);
+
+	            // 4. 统一执行消息推送
+	            if (!pushTargetList.isEmpty()) {
+	                pushTargetList.stream()
+	                        .filter(user -> Common.isNotEmpty(user.getOpenId())) // 过滤空OpenId
+	                        .forEach(user -> {
+	                            String sendWxMessage = this.wxMsgPush.sendWxMessage(
+	                                    templateId7, 
+	                                    user.getOpenId(),
+	                                    weburl + "/wechatrp/findWxRepair/" + repairId, 
+	                                    map);
+	                            log.info("维修单{}维修成功，向{}({})推送消息结果：{}", 
+	                                    repairId, user.getName(), user.getOpenId(), sendWxMessage);
+	                        });
+	            }
+
+	            return BasicDataResult.ok("维修成功");
+	        } else {
+	            return BasicDataResult.build(500, "提交失败，请联系管理员反馈问题", null);
+	        }
+
+	    } catch (Exception e) {
+	        // 4. 全局异常捕获（避免程序崩溃，返回友好提示）
+	        e.printStackTrace(); // 实际生产环境建议用日志框架记录（如Logback/SLF4J）
+	        return BasicDataResult.build(500, "系统异常，提交失败", null);
+	    }
 	}
 
 }

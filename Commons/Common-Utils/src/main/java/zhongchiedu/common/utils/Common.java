@@ -48,6 +48,7 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -1414,5 +1415,67 @@ public class Common {
 	        }
 		
 	}
+
+	 public static String generateWorkOrderNumber() {
+        // 1. 判断上午/下午（最前面）
+        int hour = new Date().getHours();
+        String periodPart = hour < 12 ? "AM" : "PM";
+
+        // 2. 格式化年月日
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyyMMdd");
+        String datePart = dateFormatter.format(new Date());
+
+        // 3. 8位随机串
+        String randomPart = UUID.randomUUID().toString().replace("-", "").substring(0, 8);
+
+        // 拼接：AM/PM + 年月日 + 随机串
+        return periodPart + datePart + randomPart;
+    }
+
+	  /**
+     * 计算报修处理耗时，返回「X天X小时」格式
+     * @param createTime 报修创建时间（Date类型）
+     * @param completeTimeStr 完成时间（字符串：yyyy-MM-dd HH:mm:ss 或 "未完成"）
+     * @param sdf 时间格式化器（复用避免重复创建）
+     * @return 耗时描述（如"1天3小时"、"0天2小时"、"未完成"、"数据异常"）
+     */
+    public static String calculateUseTime(Date createTime, String completeTimeStr, SimpleDateFormat sdf) {
+        // 1. 处理空值/未完成场景
+        if (createTime == null || completeTimeStr == null || "未完成".equals(completeTimeStr)) {
+            return "未完成";
+        }
+
+        try {
+            // 2. 将字符串类型的完成时间转为Date
+            Date completeTime = sdf.parse(completeTimeStr);
+            
+            // 3. 计算时间差（毫秒），防止完成时间早于创建时间
+            long timeDiffMs = completeTime.getTime() - createTime.getTime();
+            if (timeDiffMs < 0) {
+                return "数据异常";
+            }
+
+            // 4. 转换为天和小时
+            long days = TimeUnit.MILLISECONDS.toDays(timeDiffMs);
+            long hours = TimeUnit.MILLISECONDS.toHours(timeDiffMs) - days * 24;
+
+            // 5. 拼接成「X天X小时」格式
+            return days + "天" + hours + "小时";
+        } catch (Exception e) {
+            // 捕获时间解析异常（如格式不匹配）
+            return "数据异常";
+        }
+    }
+
+	public static boolean isNumeric(String price) {
+		   if (StringUtils.isBlank(price)) {
+		        return false;
+		    }
+		    // 正则规则：^\\d+ 以数字开头（整数部分），(\\.\\d+)? 可选的小数部分（. + 至少1位数字）
+		    // 适配场景：123、123.45、0.99 等合法价格；拒绝 123.、.45、12.34.56 等非法格式
+		    return price.matches("^\\d+(\\.\\d+)?$");
+	}
+	
+
 
 }

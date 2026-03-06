@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head th:include="public/public_css::pub_css"></head>
+<head>
+<meta charset="utf-8">
+</head>
+<body>
+	<div id="preloader">
+		<div id="status">&nbsp;</div>
+	</div>
+	<div th:replace="public/public::top"></div>
+	<div th:replace="public/public::left(activeUri='basic')"></div>
+	<div class="wrap-fluid">
+		<div class="container-fluid paper-wrap bevel tlbr">
+			<div th:replace="public/public::title"></div>
+			<div th:replace="public/public::menu"></div>
+			<div class="content-wrap">
+				<div class="row">
+					<div class="col-sm-12">
+						<div class="nest" id="ValidationClose">
+							<div class="title-alt">
+								<h6>常见报修项信息</h6>
+								<div class="titleClose">
+									<a class="gone" href="#ValidationClose"> <span class="entypo-cancel"></span>
+									</a>
+								</div>
+								<div class="titleToggle">
+									<a class="nav-toggle-alt" href="#Validation"> <span class="entypo-up-open"></span>
+									</a>
+								</div>
+							</div>
+							<div class="body-nest" id="Validation">
+								<form class="form-horizontal row-border" id="commonRepairItemForm" 
+									th:action="@{/commonRepairItem}" 
+									method="post" th:object="${commonRepairItem}">
+									<input type="hidden" name="_method" th:value="${commonRepairItem?.id} != null ? 'PUT' : 'POST'"/>
+								<input type="hidden" name="id" th:value="${commonRepairItem?.id}"/>
+												
+									<!-- 设备名称 -->
+									<div class="form-group">
+										<label class="col-sm-2 control-label">设备名称 <span class="text-danger">*</span></label>
+										<div class="col-sm-10">
+											<input type="text" class="form-control" id="deviceName" name="deviceName" 
+												th:value="${commonRepairItem?.deviceName}" placeholder="请输入设备名称（如：打印机、电脑、水龙头）">
+										</div>
+									</div>
+									
+									<!-- 故障描述 -->
+									<div class="form-group">
+										<label class="col-sm-2 control-label">故障描述 <span class="text-danger">*</span></label>
+										<div class="col-sm-10">
+											<input type="text" class="form-control" name="faultDesc" 
+												th:value="${commonRepairItem?.faultDesc}" placeholder="请输入故障描述（如：卡纸、蓝屏、漏水）">
+										</div>
+									</div>
+									
+									<!-- 排序号 -->
+									<div class="form-group">
+										<label class="col-sm-2 control-label">排序号</label>
+										<div class="col-sm-10">
+											<input type="number" class="form-control" name="sort" 
+												th:value="${commonRepairItem?.sort ?: 0}" placeholder="数字越小越靠前，默认0">
+										</div>
+									</div>
+									
+									<div class="form-actions">
+										<div class="row">
+											<div class="col-sm-12">
+												<div class="pull-right">
+													<button type="submit" class="btn btn-primary">提交</button>
+													<button type="button" class="btn btn-default" onclick="window.location.href='@{/commonRepairItems}'">返回</button>
+												</div>
+											</div>
+										</div>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div th:replace="public/public::footer"></div>
+	<div th:replace="public/public_js::pub_js"></div>
+	<div th:replace="public/public_js::validator"></div>
+	<script type="text/javascript" th:src="@{/js/admin/commonRepairItem/commonRepairItem.js}"></script>
+</body>
+</html>

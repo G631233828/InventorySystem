@@ -1652,7 +1652,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			if (Common.isNotEmpty(gs.getStock().getPrice())) {
 				String price = gs.getStock().getPrice();
 				//根据stock的id去统计路面拿单价
-				boolean numeric = StringUtils.isNumeric(price);
+				boolean numeric = Common.isNumeric(price);
 				if (!numeric) {
 					price = "0.00";
 				}
@@ -1660,6 +1660,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);// 出库总额
 			}else {
 				dj = this.calculateAveragePriceByStockId(gs.getStock().getId(),TimeRangeType.CURRENT_MONTH);
+				zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);// 出库总额
 			}
 
 				
@@ -1847,18 +1848,15 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			
 			if (Common.isNotEmpty(gs.getStock().getPrice())) {
 				String price = gs.getStock().getPrice();
-				boolean numeric = StringUtils.isNumeric(price);
+				boolean numeric = Common.isNumeric(price);
 				if (!numeric) {
 					price = "0.00";
 				}
-
 				dj = new BigDecimal(price);// 期初单价
-				
-				
-				
 				zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);// 出库总额
 			}else {
 				dj = this.calculateAveragePriceByStockId(gs.getStock().getId(),TimeRangeType.CURRENT_MONTH);
+				zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);// 出库总额
 			}
 			
 			
@@ -2345,6 +2343,6 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
         }
     }
 
-	
+
 
 }

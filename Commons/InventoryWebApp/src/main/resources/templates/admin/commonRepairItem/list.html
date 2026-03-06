@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org"
+      xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <th:block th:include="public/public_css::pub_css"></th:block>
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/js/progress-bar/number-pb.css}">
+    <link th:href="@{/plugs/sweetalert/sweetalert.css}" rel="stylesheet">
+    <style>
+        .table-scroll-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            width: 100%;
+            margin: 0 auto;
+            scrollbar-width: thin;
+            scrollbar-color: #888 #f1f1f1;
+        }
+        .table-scroll-container::-webkit-scrollbar {
+            height: 8px;
+        }
+        .table-scroll-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        .table-scroll-container::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        .table-scroll-container::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        .table-scroll-container table {
+            width: 100%;
+            table-layout: auto;
+            min-width: max-content;
+            border-collapse: collapse;
+        }
+        .table-scroll-container table th,
+        .table-scroll-container table td {
+            vertical-align: middle;
+            overflow: visible;
+            text-overflow: clip;
+            padding: 8px 12px;
+            white-space: nowrap;
+            word-wrap: normal;
+            word-break: keep-all;
+        }
+        .table-scroll-container table th[data-column-id="checkbox"] { min-width: 40px !important; text-align: center; }
+        .table-scroll-container table th[data-column-id="deviceName"] { min-width: 150px; }
+        .table-scroll-container table th[data-column-id="faultDesc"] { min-width: 200px; }
+        .table-scroll-container table th[data-column-id="sort"] { min-width: 80px; text-align: center; }
+        .table-scroll-container table th[data-column-id="status"] { min-width: 100px; text-align: center; }
+        .table-scroll-container table th[data-column-id="operation"] { min-width: 200px; text-align: center; }
+        
+        .search-form {
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .column-setting-btn {
+            margin-left: 10px !important;
+            order: 999;
+        }
+        @media (max-width: 992px) {
+            .search-form {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .column-setting-btn {
+                margin-left: 0 !important;
+                margin-top: 8px;
+                align-self: flex-start;
+            }
+            .search-form .form-inline {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div id="preloader">
+    <div id="status">&nbsp;</div>
+</div>
+<div th:replace="public/public::top"></div>
+<div th:replace="public/public::left(activeUri='repair')"></div>
+<div class="wrap-fluid">
+    <div class="container-fluid paper-wrap bevel tlbr">
+        <div th:replace="public/public::title"></div>
+        <div th:replace="public/public::menu"></div>
+        <div class="content-wrap">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="body-nest" id="alert" th:if="${errorImport!=''}">
+                        <div class="alert alert-danger">
+                            <button data-dismiss="alert" class="close" type="button">×</button>
+                            <th:block th:utext="${errorImport}"></th:block>
+                        </div>
+                    </div>
+
+                    <div class="nest" id="tableStaticClose">
+                        <div class="title-alt">
+                            <div class="search-form">
+                                <shiro:hasPermission name="commonRepairItems:add">
+                                    <button class="btn btn-default btn-sm"
+                                            th:onclick="|window.location.href='@{/commonRepairItem}'|">
+                                        <i class="glyphicon glyphicon-plus"> </i> 添加
+                                    </button>
+                                </shiro:hasPermission>
+                                <shiro:hasPermission name="commonRepairItems:edit">
+                                    <button class="btn btn-primary btn-sm"
+                                            onclick="return toeditPage('','commonRepairItem')">
+                                        <i class="fa fa-edit"> </i>编辑
+                                    </button>
+                                </shiro:hasPermission>
+                                <shiro:hasPermission name="commonRepairItems:delete">
+                                    <button class="btn btn-danger btn-sm"
+                                            th:onclick="|return del('','@{/commonRepairItem/}')|">
+                                        <i class="fa fa-trash-o"> </i>删除
+                                    </button>
+                                </shiro:hasPermission>
+                                <shiro:hasPermission name="commonRepairItems:batch">
+                                    <button class="btn btn-success" onclick="return batchImput()">
+                                        <i class="fontawesome-upload"> </i>批量导入
+                                    </button>
+                                </shiro:hasPermission>
+
+                                <div class="form-inline ml-auto">
+                                    <select class="filter-status form-control input-sm" id="pageSize"
+                                            onchange="return searchSize()">
+                                        <option value="10" th:selected="${pageSize == 10}">10</option>
+                                        <option value="20" th:selected="${pageSize == 20}">20</option>
+                                        <option value="50" th:selected="${pageSize == 50}">50</option>
+                                        <option value="100" th:selected="${pageSize == 100}">100</option>
+                                    </select>
+                                    <input class="form-control input-sm ml-2" id="serach" placeholder="模糊搜索设备名称/故障描述"
+                                           th:value="${search}" type="text" style="width: 200px;">
+                                    <button class="btn btn-default btn-sm ml-2"
+                                            onclick="return searchVal()">
+                                        <i class="entypo-search"> </i> 搜索
+                                    </button>
+                                </div>
+
+                                <button type="button" class="btn btn-default btn-sm column-setting-btn"
+                                        onclick="openColumnSetting()">
+                                    <i class="fa fa-cog"> </i>列设置
+                                </button>
+                            </div>
+                            <div class="titleClose">
+                                <a class="gone" href="#tableStaticClose"> <span class="entypo-cancel"></span>
+                                </a>
+                            </div>
+                            <div class="titleToggle">
+                                <a class="nav-toggle-alt" href="#tableStatic"> <span class="entypo-up-open"></span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="body-nest" id="tableStatic">
+                            <div class="table-scroll-container">
+                                <section id="flip-scroll">
+                                    <table class="table table-bordered table-striped cf">
+                                        <thead class="cf">
+                                        <tr>
+                                            <th class="numeric" data-column-id="checkbox" style="width: 20px; text-align: center;">
+                                                <div class="checkbox checkbox-inline" style="margin-top: 0px;">
+                                                    <input type="checkbox" id="checkall" name="checkall" />
+                                                    <label for="checkall"></label>
+                                                </div>
+                                            </th>
+                                            <th class="numeric" data-column-id="deviceName">设备名称</th>
+                                            <th class="numeric" data-column-id="faultDesc">故障描述</th>
+                                            <th class="numeric" data-column-id="sort" style="text-align: center;">排序</th>
+                                            <!-- 修复：增加状态列的文本对齐，和参考页面保持一致 -->
+                                            <th class="numeric" data-column-id="status" style="text-align: center;">使用状态</th>
+                                            <th class="numeric" data-column-id="operation" style="text-align: center;">操作</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <th:block th:each="item:${pageList.datas}">
+                                            <tr>
+                                                <td class="numeric" data-column-id="checkbox" style="text-align: center;">
+                                                    <div class="checkbox checkbox-inline" style="margin-top: 0px;">
+                                                        <input type="checkbox" name="ids" th:id="${item.id}"
+                                                               class="numeric" th:value="${item.id}">
+                                                        <label th:for="${item.id}"></label>
+                                                    </div>
+                                                </td>
+                                                <td class="numeric" data-column-id="deviceName">[[${item?.deviceName} ?: '-']]</td>
+                                                <td class="numeric" data-column-id="faultDesc">[[${item?.faultDesc} ?: '-']]</td>
+                                                <td class="numeric" data-column-id="sort" style="text-align: center;">[[${item?.sort} ?: 0]]</td>
+                                              <td class="numeric" th:id="disBtn+${item.id}"  style="text-align: center;"
+										            th:utext="${item.isDisable eq true }?|<button type='button' onclick=toDisable('${item.id}','commonRepairItem') class='btn btn-danger btn-xs'>禁用</button>|:|<button type='button' onclick=toDisable('${item.id}','commonRepairItem') class='btn btn-success btn-xs'>启用</button>|">
+										        </td>
+                                                <td class="numeric" data-column-id="operation" style="text-align: center;">
+                                                    <shiro:hasPermission name="commonRepairItems:edit">
+                                                        <button class="btn btn-primary btn-xs"
+                                                                th:onclick="|return toeditPage('${item.id}','commonRepairItem')|">
+                                                            <i class="fa fa-edit"> </i>编辑
+                                                        </button>
+                                                    </shiro:hasPermission>
+                                                    <shiro:hasPermission name="commonRepairItems:delete">
+                                                        <button class="btn btn-danger btn-xs"
+                                                                th:onclick="|return del('@{/commonRepairItem/}${item.id}','')|">
+                                                            <i class="fa fa-trash-o"> </i>删除
+                                                        </button>
+                                                    </shiro:hasPermission>
+                                                </td>
+                                            </tr>
+                                        </th:block>
+                                        </tbody>
+                                    </table>
+                                </section>
+                            </div>
+
+                            <form method="post" id="deleteForm">
+                                <input name="_method" value="delete" type="hidden">
+                            </form>
+                            <div class="row mt-2">
+                                <div class="col-md-12">
+                                    <div class="col-md-6">
+                                        <div class="dataTables_info hidden-xs"
+                                             style="margin-top: 0px;" role="status" aria-live="polite"
+                                             th:text="|每页显示${pageList.pageSize}行 － 当前页${pageList.pageNo}页 － 共${pageList.totalPage}页|">
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <ul class="pagination pagination-split pull-right"
+                                            style="margin-top: 0px;">
+                                            <li th:class="${pageList.pageNo } eq 1 ?disabled:''">
+                                                <a th:href="${pageList.pageNo} eq 1?'javascript:void(0);':@{/commonRepairItems(pageNo=${pageList.upPage},pageSize=${pageSize},search=${search})}">上一页</a>
+                                            </li>
+                                            <li th:each="page:${pageList.navigatepageNums}"
+                                                th:class="${page  == pageList.pageNo}?active:''">
+                                                <a th:href="${page eq pageList.pageNo}?'javascript:void(0)':@{/commonRepairItems(pageNo=${page},pageSize=${pageSize},search=${search})}">[[${page}]]</a>
+                                            </li>
+                                            <li th:class="${pageList.pageNo eq pageList.totalPage}?disabled:''">
+                                                <a th:href="${pageList.pageNo eq pageList.totalPage}?'javascript:void(0);':@{/commonRepairItems(pageNo=${pageList.nextPage},pageSize=${pageSize},search=${search})}">下一页</a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" id="columnSettingModal" tabindex="-1" role="dialog" aria-labelledby="columnSettingModalLabel">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h4 class="modal-title" id="columnSettingModalLabel">自定义列显示</h4>
+                    </div>
+                    <div class="modal-body">
+                        <div id="columnCheckboxes" class="checkbox-list">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                        <button type="button" class="btn btn-primary" onclick="saveColumnSettings()">保存设置</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:replace="public/public::myModal"></div>
+        <div th:replace="admin/commonRepairItem/batch::mybatch"></div>
+    </div>
+</div>
+<script type="text/javascript" th:inline="javascript"
+        th:src="@{/js/admin/commonRepairItem/commonRepairItemlist.js}"></script>
+<script type="text/javascript" th:src="@{/plugs/prettyfile/bootstrap-prettyfile.js}"></script>
+<div th:replace="public/public::right"></div>
+<div th:replace="public/public_js::pub_js"></div>
+<div th:replace="public/public_js::public_script"></div>
+<div th:replace="public/public::footer"></div>
+<script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
+<div th:replace="public/public_js::validator"></div>
+
+<script type="text/javascript">
+    var columnConfigs = [
+        {id: 'checkbox', name: '复选框'},
+        {id: 'deviceName', name: '设备名称'},
+        {id: 'faultDesc', name: '故障描述'},
+        {id: 'sort', name: '排序'},
+        {id: 'status', name: '使用状态'},
+        {id: 'operation', name: '操作'}
+    ];
+
+    function openColumnSetting() {
+        var columnCheckboxes = $('#columnCheckboxes');
+        columnCheckboxes.empty();
+        var savedSettings = JSON.parse(localStorage.getItem('commonRepairItemColumnSettings')) || {};
+
+        columnConfigs.forEach(function(column) {
+            var isChecked = savedSettings[column.id] !== false;
+            var checkboxHtml = '<div class="checkbox checkbox-inline mb-1">'
+                    + '<input type="checkbox" id="col_' + column.id
+                    + '" name="column" value="' + column.id + '" '
+                    + (isChecked ? 'checked' : '') + '>'
+                    + '<label for="col_' + column.id + '">' + column.name
+                    + '</label>' + '</div>';
+            columnCheckboxes.append(checkboxHtml);
+        });
+
+        $('#columnSettingModal').modal('show');
+    }
+
+    function saveColumnSettings() {
+        var selectedColumns = {};
+        $('input[name="column"]').each(function() {
+            selectedColumns[$(this).val()] = $(this).is(':checked');
+        });
+
+        localStorage.setItem('commonRepairItemColumnSettings', JSON.stringify(selectedColumns));
+        applyColumnSettings(selectedColumns);
+        $('#columnSettingModal').modal('hide');
+        swal("成功", "列设置已保存！", "success");
+    }
+
+    function applyColumnSettings(settings) {
+        $('th[data-column-id]').each(function() {
+            var columnId = $(this).data('column-id');
+            $(this).toggle(settings[columnId] !== false);
+        });
+
+        $('tbody tr').each(function() {
+            $(this).find('td[data-column-id]').each(function() {
+                var columnId = $(this).data('column-id');
+                $(this).toggle(settings[columnId] !== false);
+            });
+        });
+    }
+
+    $(document).ready(function() {
+        var savedSettings = JSON.parse(localStorage.getItem('commonRepairItemColumnSettings')) || {};
+        applyColumnSettings(savedSettings);
+
+        $('.pagination a').each(function() {
+            var href = $(this).attr('href');
+            if (href && href.indexOf('javascript') === -1) {
+                var searchVal = $('#serach').val();
+                var pageSizeVal = $('#pageSize').val();
+                if (searchVal) {
+                    href += (href.indexOf('?') > -1 ? '&' : '?') + 'search=' + encodeURIComponent(searchVal);
+                }
+                if (pageSizeVal) {
+                    href += (href.indexOf('?') > -1 ? '&' : '?') + 'pageSize=' + encodeURIComponent(pageSizeVal);
+                }
+                $(this).attr('href', href);
+            }
+        });
+    });
+</script>
+</body>
+</html>

@@ -287,6 +287,13 @@
 		 word-wrap: normal;
 		 word-break: keep-all;
 		}
+		/* 新增：首次打开时间列宽度 */
+		.table-scroll-container table th[data-column-id="findReadTime"],
+		.table-scroll-container table td[data-column-id="findReadTime"] { 
+		    white-space: nowrap;
+		    word-wrap: normal;
+		    word-break: keep-all;
+		}
 		.table-scroll-container table th[data-column-id="useTime"],
 		.table-scroll-container table td[data-column-id="useTime"] {
    		 white-space: nowrap;
@@ -599,6 +606,7 @@
                                             <th class="numeric" data-column-id="expectedVisitTime">期望完成时间</th>
                                             <th class="numeric" data-column-id="status">维修状态</th>
                                             <th class="numeric" data-column-id="assignTime">分配时间</th>
+                                            <th class="numeric" data-column-id="findReadTime">首次打开时间</th>
                                             <th class="numeric" data-column-id="useTime">用时</th>
                                             <th class="numeric" data-column-id="reportPhotos">报修照片</th>
                                             <th class="numeric" data-column-id="repairContent">维修内容</th>
@@ -686,6 +694,10 @@
                                             </td>
                                             <td class="numeric" data-column-id="assignTime">
    												 [[${wxRepair.assignTime != null ? wxRepair.assignTime : '未分配'}]]
+											</td>
+											<!-- 新增：首次打开时间列 -->
+											<td class="numeric" data-column-id="findReadTime">
+											    [[${wxRepair.findReadTime != null ? wxRepair.findReadTime : '未打开'}]]
 											</td>
 											<td class="numeric" data-column-id="useTime">
 											    <span th:if="${wxRepair.assignTime != null and wxRepair.assignTime != ''}" 
@@ -1549,6 +1561,7 @@ function submitAssignWorker() {
         {id: 'expectedVisitTime', name: '期望完成时间'},
         {id: 'status', name: '维修状态'},
         {id: 'assignTime', name: '分配时间'},
+        {id: 'findReadTime', name: '首次打开时间'},
         {id: 'reportPhotos', name: '报修照片'},
         {id: 'repairContent', name: '维修内容'},
         {id: 'repairPhotos', name: '维修完成照片'},

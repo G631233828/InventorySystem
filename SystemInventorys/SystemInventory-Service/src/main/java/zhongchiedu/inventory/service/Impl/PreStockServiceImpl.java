@@ -512,20 +512,25 @@ public class PreStockServiceImpl extends GeneralServiceImpl<PreStock> implements
 //						continue;
 //					}
 
-				String pname1 = resultexcel[i][j + 7].trim();
-				if (Common.isEmpty(pname1)) {
-					error += "<span class='entypo-attention'></span>导入文件过程中，第<b>&nbsp&nbsp" + (i + 1)
-							+ "行</b>出现项目名称为空，请添加！&nbsp&nbsp</br>";
-					continue;
-				}
-				// 根据项目名称
-				pname = this.pnameService.findByName(pname1);
-				if (Common.isEmpty(pname)) {
-					error += "<span class='entypo-attention'></span>导入文件过程中出现不存在的项目名称<b>&nbsp;&nbsp;" + pname1
-							+ "&nbsp;&nbsp;</b>，请先添加项目名称，第<b>&nbsp&nbsp" + (i + 1) + "请手动去修改该条信息！&nbsp&nbsp</b></br>";
-					continue;
+				String pname1 = resultexcel[i][j + 7];
+				// 1. 先判空（防止原始值为null），再清理所有空白字符（普通空格、全角空格、制表符等）
+				String cleanPname = (pname1 == null) ? "" : pname1.replaceAll("\\s", "").trim();
+
+				// 2. 判断清理后的字符串是否为空（空字符串/仅空白字符都算空）
+				if (Common.isEmpty(cleanPname)) {
+				    error += "<span class='entypo-attention'></span>导入文件过程中，第<b>&nbsp&nbsp" + (i + 1)
+				            + "行</b>出现项目名称为空，请添加！&nbsp&nbsp</br>";
+				    continue;
 				}
 
+				// 3. 用原始trim()后的名称做业务查询（保留正常的首尾空格，仅清理非法空白）
+				String queryPname = pname1.trim();
+				pname = this.pnameService.findByName(queryPname);
+				if (Common.isEmpty(pname)) {
+				    error += "<span class='entypo-attention'></span>导入文件过程中出现不存在的项目名称<b>&nbsp;&nbsp;" + queryPname
+				            + "&nbsp;&nbsp;</b>，请先添加项目名称，第<b>&nbsp&nbsp" + (i + 1) + "行</b>请手动去修改该条信息！&nbsp&nbsp</br>";
+				    continue;
+				}
 				importPreStock.setSystemClassification(ssC);
 				importPreStock.setSupplier(supplier);
 				importPreStock.setEntryName(pname1);

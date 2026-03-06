@@ -123,9 +123,9 @@ canvas#canvas4 {
 												<td class="numeric">[[${wxBinding.team}]]</td>
 												<td class="numeric">[[${wxBinding.name}]]</td>
 												<td class="numeric">[[${wxBinding.contactNumber}]]</td>
-												<!-- 核心修改：添加销售人员的判断逻辑 -->
+												<!-- 核心修改：添加工程部的判断逻辑（编码4） -->
 												<td class="numeric" 
-													th:text="${wxBinding.personnelType eq 1 ? '维修人员' : (wxBinding.personnelType eq 2 ? '调度人员' : (wxBinding.personnelType eq 3 ? '销售人员' : '未知类型'))}">
+													th:text="${wxBinding.personnelType eq 1 ? '维修人员' : (wxBinding.personnelType eq 2 ? '调度人员' : (wxBinding.personnelType eq 3 ? '销售人员' : (wxBinding.personnelType eq 4 ? '工程部' : '未知类型')))}">
 												</td>
 												<td class="numeric">
 													<span th:switch="${wxBinding.auditStatus}">

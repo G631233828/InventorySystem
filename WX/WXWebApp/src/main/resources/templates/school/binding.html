@@ -34,6 +34,8 @@
                             <option value="1">维修人员</option>
                             <option value="2">调度人员</option>
                             <option value="3">销售人员</option>
+                            <!-- 新增：工程部选项（编码4） -->
+                            <option value="4">工程部</option>
                         </select>
                         <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
                             <i class="fa fa-chevron-down"></i>
@@ -119,11 +121,9 @@
             if (userType === '1') { // 维修人员：显示并清空选中值（避免残留）
                 teamContainer.classList.remove('hidden');
                 teamSelect.value = ''; // 重置选择
-            } else if (userType === '2') { // 调度人员：隐藏并清空值（避免提交无效数据）
+            } else { // 调度人员/销售人员/工程部/未选择：隐藏并清空值
                 teamContainer.classList.add('hidden');
                 teamSelect.value = ''; // 清空值，防止后端校验报错
-            } else { // 未选择用户类型：隐藏
-                teamContainer.classList.add('hidden');
             }
         }
 
@@ -217,12 +217,12 @@
                     return;
                 }
 
-                // 构造请求数据（调度人员自动忽略team字段，或传空字符串）
+                // 构造请求数据（仅维修人员添加team字段）
                 const formData = {
                     openId: document.getElementById('openId').value,
                     name: name,
                     contactNumber: contactNumber,
-                    personnelType: parseInt(personnelType)
+                    personnelType: parseInt(personnelType) // 工程部会传4
                 };
                 // 仅维修人员添加team字段
                 if (userType === '1') {
