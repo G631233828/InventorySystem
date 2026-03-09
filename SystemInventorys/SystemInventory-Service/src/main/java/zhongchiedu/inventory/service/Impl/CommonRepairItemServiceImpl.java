@@ -16,6 +16,7 @@ import zhongchiedu.common.utils.ExcelReadUtil;
 import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralServiceImpl;
+import zhongchiedu.inventory.pojo.Area;
 import zhongchiedu.inventory.pojo.CommonRepairItem;
 import zhongchiedu.inventory.pojo.ProcessInfo;
 import zhongchiedu.inventory.pojo.WxReporter;
@@ -88,33 +89,19 @@ public class CommonRepairItemServiceImpl extends GeneralServiceImpl<CommonRepair
 	@Override
 	@SystemServiceLog(description = "编辑常见报修项信息")
 	public void saveOrUpdate(CommonRepairItem commonRepairItem) {
-		if (Common.isEmpty(commonRepairItem)) {
-			log.warn("保存常见报修项失败：入参为空");
-			return;
-		}
-
-		try {
-			if (Common.isNotEmpty(commonRepairItem.getId())) {
-				CommonRepairItem oldEntity = this.findOneById(commonRepairItem.getId(), CommonRepairItem.class);
-				if (oldEntity != null) {
-					BeanUtils.copyProperties(commonRepairItem, oldEntity);
-					this.save(oldEntity);
-					log.info("更新常见报修项成功：ID={}", commonRepairItem.getId());
+			if (Common.isNotEmpty(commonRepairItem)) {
+				if (Common.isNotEmpty(commonRepairItem.getId())) {
+					// update
+					CommonRepairItem ed = this.findOneById(commonRepairItem.getId(), CommonRepairItem.class);
+					BeanUtils.copyProperties(commonRepairItem, ed);
+					this.save(commonRepairItem);
+					log.info("修改成功");
 				} else {
-					log.warn("更新常见报修项失败：未找到ID={}的记录", commonRepairItem.getId());
+					// insert
+					this.insert(commonRepairItem);
+					log.info("添加成功");
 				}
-			} else {
-				// 默认排序号为0
-				if (commonRepairItem.getSort() == null) {
-				}
-				this.insert(commonRepairItem);
-				log.info("新增常见报修项成功：设备名称={}，故障描述={}", 
-						commonRepairItem.getDeviceName(), commonRepairItem.getFaultDesc());
 			}
-		} catch (Exception e) {
-			log.error("保存/更新常见报修项失败", e);
-			e.printStackTrace();
-		}
 	}
 
 	/**

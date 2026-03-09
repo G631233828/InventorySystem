@@ -169,17 +169,17 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 					query.addCriteria(Criteria.where("revoke").is(false));
 				}
 			}
-			if(Common.isNotEmpty(requestBo.getMysign())){
-				if(requestBo.getMysign().equals("1")){
+			if (Common.isNotEmpty(requestBo.getMysign())) {
+				if (requestBo.getMysign().equals("1")) {
 					query.addCriteria(Criteria.where("mysign").exists(true));
-				}else if(requestBo.getMysign().equals("2")){
+				} else if (requestBo.getMysign().equals("2")) {
 					query.addCriteria(Criteria.where("mysign").exists(false));
 				}
 			}
-			if(Common.isNotEmpty(requestBo.getOthersign())){
-				if(requestBo.getOthersign().equals("1")){
+			if (Common.isNotEmpty(requestBo.getOthersign())) {
+				if (requestBo.getOthersign().equals("1")) {
 					query.addCriteria(Criteria.where("othersign").exists(true));
-				}else if(requestBo.getOthersign().equals("2")){
+				} else if (requestBo.getOthersign().equals("2")) {
 					query.addCriteria(Criteria.where("othersign").exists(false));
 				}
 			}
@@ -336,7 +336,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				return BasicDataResult.build(400, "操作的数据有误！", null);
 			}
 		}
-		//对num进行小数点四舍五入
+		// 对num进行小数点四舍五入
 		num = Math.round(num * 100) / 100.0;
 
 		String id = stockStatistics.getStock().getId();// 获取库存设备id
@@ -350,30 +350,26 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				if (!stockStatistics.isYck()) {
 					List<PickUpApplication> pickUpApplication = this.pickUpApplicationService
 							.findPickUpApplicationsByStockId(stock.getId());
-					
+
 //					ycknum = pickUpApplication.stream().map(PickUpApplication::getEstimatedIssueQuantity)
 //							.reduce((double) 0, Double::sum);
 //
 //					acnum = pickUpApplication.stream().map(PickUpApplication::getActualIssueQuantity).reduce((double) 0,
 //							Double::sum);
-					
-					 ycknum = pickUpApplication.stream()
-					        // 过滤集合中的null对象
-					        .filter(Objects::nonNull)
-					        // 映射为数量，并过滤null结果
-					        .map(PickUpApplication::getEstimatedIssueQuantity)
-					        .filter(Objects::nonNull)
-					        // 累加（初始值0.0，避免空流时返回null）
-					        .reduce(0.0, Double::sum);
-					
-					 acnum = pickUpApplication.stream()
-					        .filter(Objects::nonNull)
-					        .map(PickUpApplication::getActualIssueQuantity)
-					        .filter(Objects::nonNull)
-					        .reduce(0.0, Double::sum);
 
-					
-					ycknum =  Math.round((ycknum - acnum) * 100) / 100.0 ;
+					ycknum = pickUpApplication.stream()
+							// 过滤集合中的null对象
+							.filter(Objects::nonNull)
+							// 映射为数量，并过滤null结果
+							.map(PickUpApplication::getEstimatedIssueQuantity).filter(Objects::nonNull)
+							// 累加（初始值0.0，避免空流时返回null）
+							.reduce(0.0, Double::sum);
+
+					acnum = pickUpApplication.stream().filter(Objects::nonNull)
+							.map(PickUpApplication::getActualIssueQuantity).filter(Objects::nonNull)
+							.reduce(0.0, Double::sum);
+
+					ycknum = Math.round((ycknum - acnum) * 100) / 100.0;
 
 					if (stock.getInventory() - ycknum - num < 0) {
 						// 出货数量不够
@@ -401,7 +397,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			} else {
 
 				// 出库
-				Double newNum = this.updateStock(stock,num, false);
+				Double newNum = this.updateStock(stock, num, false);
 				if (newNum == -1.0) {
 					// 出货数量不够
 					return BasicDataResult.build(400, "货物库存数量不足", null);
@@ -444,7 +440,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		try {
 			if (inOrOut) {
 				// 入库
-				newnum =  Math.round((oldnum + num) * 100) / 100.0;
+				newnum = Math.round((oldnum + num) * 100) / 100.0;
 				stock.setInventory(newnum);
 				stock.setIsDelete(false);
 				stock.setUpdateTime(new Date());
@@ -455,7 +451,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				if ((oldnum - num) < 0) {
 					return -1.0;
 				}
-				newnum = Math.round((oldnum - num) * 100) / 100.0; 
+				newnum = Math.round((oldnum - num) * 100) / 100.0;
 				stock.setInventory(newnum);
 				stock.setIsDelete(false);
 				this.stockService.save(stock);
@@ -507,7 +503,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		if (st.getStock() == null) {
 			return BasicDataResult.build(400, "未能获取到设备信息", null);
 		}
-		if (num <=0.0) {
+		if (num <= 0.0) {
 			num = st.getNum();
 		}
 
@@ -533,7 +529,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			}
 			// 更新统计
 			st.setRevoke(true);
-			st.setRevokeNum(st.getRevokeNum() == null?0.0:st.getRevokeNum() + num);
+			st.setRevokeNum(st.getRevokeNum() == null ? 0.0 : st.getRevokeNum() + num);
 
 			StockStatistics stockStatistics = updateStockStatistics(st);
 
@@ -641,10 +637,12 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				if (st.getStock() != null) {
 					if (stock.getId().equals(st.getStock().getId())) {
 						if (st.isInOrOut()) {
-							
+
 							Double num = Common.isNotEmpty(st.getNum()) ? st.getNum() : 0.0;
-							Double dj = Common.isNotEmpty(st.getStock().getPrice()) ? Double.parseDouble(st.getStock().getPrice()) : 0.0;
-						
+							Double dj = Common.isNotEmpty(st.getStock().getPrice())
+									? Double.parseDouble(st.getStock().getPrice())
+									: 0.0;
+
 							// 入库统计
 							Map<String, Object> in = new HashMap<>();
 							in.put("t1", Common.isEmpty(stock.getArea()) ? "" : stock.getArea().getName());
@@ -653,15 +651,16 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 							in.put("t4", st.getStorageTime());
 							in.put("t5", num);
 							in.put("t6", dj);
-							in.put("t7", Common.isEmpty(st.getStock().getUnit()) ? "" : st.getStock().getUnit().getName());
+							in.put("t7",
+									Common.isEmpty(st.getStock().getUnit()) ? "" : st.getStock().getUnit().getName());
 							in.put("t8", Common.isEmpty(st.getStock().getItemNo()) ? "" : st.getStock().getItemNo());
-							in.put("t9",  Common.isEmpty(st.getStock().getSupplier()) ? "": st.getStock().getSupplier().getName());
+							in.put("t9", Common.isEmpty(st.getStock().getSupplier()) ? ""
+									: st.getStock().getSupplier().getName());
 							in.put("t10", num * dj);
 							in.put("t11", Common.isEmpty(st.getPname()) ? "" : st.getPname().getName());
 							in.put("t12", st.getDescription());
 							in.put("t13", Common.isEmpty(st.getUser()) ? "" : st.getUser().getUserName());
-							
-							
+
 //							in.put("area", Common.isEmpty(stock.getArea()) ? "" : stock.getArea().getName());
 //							in.put("projectName", Common.isEmpty(st.getProjectName()) ? "" : st.getProjectName());
 //							in.put("stockName", Common.isEmpty(st.getStock().getName()) ? "" : st.getStock().getName());
@@ -688,7 +687,9 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 						} else {
 							Map<String, Object> out = new HashMap<>();
 							Double num = Common.isNotEmpty(st.getNum()) ? st.getNum() : 0.0;
-							Double dj = Common.isNotEmpty(st.getStock().getPrice()) ? Double.parseDouble(st.getStock().getPrice()) : 0.0;
+							Double dj = Common.isNotEmpty(st.getStock().getPrice())
+									? Double.parseDouble(st.getStock().getPrice())
+									: 0.0;
 							out.put("ta", Common.isEmpty(stock.getArea()) ? "" : stock.getArea().getName());
 							out.put("b", Common.isEmpty(st.getPname()) ? "" : st.getPname().getName());
 							out.put("t1", Common.isEmpty(st.getStock().getName()) ? "" : st.getStock().getName());
@@ -696,16 +697,20 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 							out.put("t3", Common.isEmpty(st.getStock().getPrice()) ? "" : st.getStock().getPrice());
 							out.put("t4", st.getDepotTime());
 							out.put("t5", num);
-							out.put("t6", Common.isEmpty(st.getStock().getUnit()) ? "" : st.getStock().getUnit().getName());
-							out.put("t7",num * dj);
+							out.put("t6",
+									Common.isEmpty(st.getStock().getUnit()) ? "" : st.getStock().getUnit().getName());
+							out.put("t7", num * dj);
 							out.put("t8", Common.isEmpty(st.getNewCustomer()) ? "" : st.getNewCustomer().getName());
-							out.put("t9",  Common.isEmpty(st.getStock().getSupplier()) ? "": st.getStock().getSupplier().getName());
-							out.put("t10", Common.isEmpty(st.getUser().getUserName()) ? "" : st.getUser().getUserName());
-							out.put("t11", Common.isEmpty(st.getPname().getPm()) ? "" : st.getPname().getPm());;
+							out.put("t9", Common.isEmpty(st.getStock().getSupplier()) ? ""
+									: st.getStock().getSupplier().getName());
+							out.put("t10",
+									Common.isEmpty(st.getUser().getUserName()) ? "" : st.getUser().getUserName());
+							out.put("t11", Common.isEmpty(st.getPname().getPm()) ? "" : st.getPname().getPm());
+							;
 							out.put("t12", st.getAccepter());
-							out.put("t13",st.getDescription());
-							out.put("t14",Common.isEmpty(st.getSign())?"未签名":"已签名");
-							out.put("t15",Common.isEmpty(st.getOthersign())?"未签名":"已签名");
+							out.put("t13", st.getDescription());
+							out.put("t14", Common.isEmpty(st.getSign()) ? "未签名" : "已签名");
+							out.put("t15", Common.isEmpty(st.getOthersign()) ? "未签名" : "已签名");
 //							out.put("itemNo", Common.isEmpty(stock.getItemNo()) ? "" : stock.getItemNo());
 //							out.put("area", Common.isEmpty(stock.getArea()) ? "" : stock.getArea().getName());
 //							out.put("projectName", Common.isEmpty(st.getProjectName()) ? "" : st.getProjectName());
@@ -1185,7 +1190,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		// 通过项目id 客户id 领料人来获取数据 new
 		// 根据单号获取所有出库数据
 		List<StockStatistics> stockStatisticsList = this.findStockStatisticsToCreateQrcode(stockStatistics.getPname(),
-				stockStatistics.getNewCustomer(), stockStatistics.getAccepter(),stockStatistics.getDepotTime());
+				stockStatistics.getNewCustomer(), stockStatistics.getAccepter(), stockStatistics.getDepotTime());
 
 		for (int i = 0; i < stockStatisticsList.size(); i++) {
 			stock = new HashMap<>();
@@ -1308,7 +1313,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		String time = "";
 		if (Common.isNotEmpty(stockStatisticsId)) {
 			stock = this.findOneById(stockStatisticsId, StockStatistics.class);
-			time=stock.getDepotTime().replaceAll(":", "");
+			time = stock.getDepotTime().replaceAll(":", "");
 			if (stock.getQrCode() != null) {
 				// 判断二维码是否存在，不存在则重新创建
 				String downLoadPath = stock.getQrCode().getQrcode().getDir()
@@ -1339,17 +1344,17 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				String projectname = Common.isNotEmpty(stock.getPname()) ? stock.getPname().getName() : "";
 				String customer = Common.isNotEmpty(stock.getNewCustomer()) ? stock.getNewCustomer().getName() : "";
 				String accepter = Common.isNotEmpty(stock.getAccepter()) ? stock.getAccepter() : "";
-				projectname=projectname.replaceAll("[\\/:*?\"<>|]", "@");
-				customer=customer.replaceAll("[\\/:*?\"<>|]", "@");
-				accepter=accepter.replaceAll("[\\/:*?\"<>|]", "@");
+				projectname = projectname.replaceAll("[\\/:*?\"<>|]", "@");
+				customer = customer.replaceAll("[\\/:*?\"<>|]", "@");
+				accepter = accepter.replaceAll("[\\/:*?\"<>|]", "@");
 //				if (stock.getOutboundOrder() != null) {
-				File outputFile = new File(path + "-" + projectname + "-" + customer + "-" + accepter +time+ ".png");
+				File outputFile = new File(path + "-" + projectname + "-" + customer + "-" + accepter + time + ".png");
 				MatrixToImageWriter.writeToFile(bitMatrix, format, outputFile);
 				// 保存图片信息
 				MultiMedia saveQrCode = this.multiMediaService.saveQrCode(outputFile, dir, qrcodepath, "PHOTO");
 				qrcode.setQrcode(saveQrCode);
 				qrcode.setPath(urlpath);
-				qrcode.setName(projectname + customer+time);
+				qrcode.setName(projectname + customer + time);
 				qrcode.setType("STOCKSTATISTICS");
 				this.qrCodeServce.insert(qrcode);
 				stock.setQrCode(qrcode);
@@ -1376,7 +1381,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		// 通过出库统计中 项目id 客户id 领料人 来获取所有出库统计作为一个出库二维码
 
 		List<StockStatistics> sts = this.findStockStatisticsToCreateQrcode(stockStatistics.getPname(),
-				stockStatistics.getNewCustomer(), stockStatistics.getAccepter(),stockStatistics.getDepotTime());
+				stockStatistics.getNewCustomer(), stockStatistics.getAccepter(), stockStatistics.getDepotTime());
 
 		sts.forEach(o -> {
 			this.createStockStatisticsQrCode(o.getId());
@@ -1394,7 +1399,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 //		String outboundOrder = stockStatistics.getOutboundOrder();
 //		List<StockStatistics> st = this.findByoutboundOrder(outboundOrder);
 		List<StockStatistics> findStockStatisticsToCreateQrcode = this.findStockStatisticsToCreateQrcode(st.getPname(),
-				st.getNewCustomer(), st.getAccepter(),st.getDepotTime());
+				st.getNewCustomer(), st.getAccepter(), st.getDepotTime());
 
 		Map<Object, Object> map = new HashMap<>();
 		map.put("personInCharge", Common.isNotEmpty(st.getPname()) ? st.getPname().getPm() : "");
@@ -1463,15 +1468,15 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	}
 
 	@Override
-	public void updateStockStatistics(String ids,String price, Double inprice, String purchaseInvoiceNo, String receiptNo,
-			String paymentOrderNo, String sailesInvoiceNo, String sailesInvoiceDate, User user,
+	public void updateStockStatistics(String ids, String price, Double inprice, String purchaseInvoiceNo,
+			String receiptNo, String paymentOrderNo, String sailesInvoiceNo, String sailesInvoiceDate, User user,
 			String purchaseInvoiceDate, Double sailPrice, String newItemNo, String description) {
 
 		List<String> array = Arrays.asList(ids.split(","));
 
 		for (String id : array) {
 			StockStatistics stockStatistics = this.findOneById(id, StockStatistics.class);
-			
+
 			if (inprice != null) {
 				stockStatistics.setInprice(inprice);
 			}
@@ -1512,23 +1517,20 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 	}
 
-	
-	//TODO
+	// TODO //AI修改
 	@Override
 	public Workbook newExport2(HttpServletRequest request, RequestBo requestBo) {
-		// Query query=newQueryByRequestBo(requestBo);
 		Query query = new Query();
-		String end= "";
+		String end = "";
+		boolean isCurrentMonth = false; // 【新增】标记是否为当月查询
 		if (Common.isNotEmpty(requestBo.getStart()) && Common.isNotEmpty(requestBo.getEnd())) {
-
-//			String end = requestBo.getEnd();
 			end = requestBo.getEnd() + " 23:59:59";
+			isCurrentMonth = Common.isDateTimeInCurrentMonth(end); // 【新增】判断是否为当月
 
 			Criteria ca = new Criteria();
 			ca.orOperator(Criteria.where("storageTime").gte(requestBo.getStart()).lte(end),
 					Criteria.where("depotTime").gte(requestBo.getStart()).lte(end));
 			query.addCriteria(ca);
-
 		}
 
 		query.addCriteria(Criteria.where("revoke").is(false));
@@ -1536,23 +1538,17 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		List<StockStatistics> list = this.find(query, StockStatistics.class);
 		List<Map<String, Object>> outlist = new ArrayList<>();
 
-		// 根据当前查询的开始日期 获取上月的最后一天年月日
+		// 查询历史月度统计数据
 		String lastDayOfPreviousMonthAsString = Common.getLastDayOfPreviousMonthAsString(requestBo.getStart());
-
 		List<MonthEndStatistics> findMonthEndStatisticsByDate = this.monthEndStatisticsService
 				.findMonthEndStatisticsByDate(lastDayOfPreviousMonthAsString);
-
 		Map<String, MonthEndStatistics> listMonthEndStatisticsToMap = listMonthEndStatisticsToMap(
 				findMonthEndStatisticsByDate);
 
-		// 获取 start时间 （第一天）库存的初始数量 出库数量+剩余库存数量 num+newNum
-		// 获取所有的设备
+		// 获取所有库存设备
 		Map<String, List<StockStatistics>> map = new HashMap<String, List<StockStatistics>>();
-
-		// 获取到所有库存的设备信息
-		//判断查询的是当月还是前面月份的 如果是当月的直接查询所有库存，如果是查询之前月份的直接调用查询月末记录数据
 		List<Stock> findAllStock = new ArrayList<Stock>();
-		if(Common.isDateTimeInCurrentMonth(end)) {
+		if (Common.isDateTimeInCurrentMonth(end)) {
 			findAllStock = this.stockService.findAllStock();
 			List<StockStatistics> list2 = findAllStock.stream().map(stock -> {
 				StockStatistics st = new StockStatistics();
@@ -1561,9 +1557,8 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				st.setStock(stock);
 				return st;
 			}).collect(Collectors.toList());
-
 			list.addAll(list2);
-		}else {
+		} else {
 			findAllStock = this.stockService.findAllStock();
 			List<StockStatistics> list2 = findMonthEndStatisticsByDate.stream().map(stock -> {
 				StockStatistics st = new StockStatistics();
@@ -1572,24 +1567,10 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				st.setStock(stock.getStock());
 				return st;
 			}).collect(Collectors.toList());
-
 			list.addAll(list2);
 		}
-		
-		
-		
-		
-//		List<StockStatistics> list2 = findAllStock.stream().map(stock -> {
-//			StockStatistics st = new StockStatistics();
-//			st.setNewNum(0);
-//			st.setNum(0);
-//			st.setStock(stock);
-//			return st;
-//		}).collect(Collectors.toList());
-//
-//		list.addAll(list2);
 
-		// 在库存统计中获取遍历所有设备
+		// 构建设备库存统计Map
 		for (StockStatistics st : list) {
 			String stockId = st.getStock().getId();
 			boolean containsKey = map.containsKey(stockId);
@@ -1603,17 +1584,12 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			}
 		}
 
-		// 集合的最后一条数据就是起初日期
-		// 遍历map ，将map数据放到outlist中
-
+		// 遍历处理每个设备的统计数据
 		for (Map.Entry<String, List<StockStatistics>> entry : map.entrySet()) {
-
-			Map<String, Object> outmap = new HashMap<>();// 定义输出到excel的map
-
-			// 期初库存 获取集合的最后一条数据为第一条记录
-
+			Map<String, Object> outmap = new HashMap<>();
 			StockStatistics gs = entry.getValue().get(entry.getValue().size() - 1);
-			// 获取设备其他信息
+
+			// 设备基础信息赋值
 			outmap.put("area", Common.isEmpty(gs.getStock().getArea()) ? "" : gs.getStock().getArea().getName());
 			outmap.put("stockName", Common.isEmpty(gs.getStock().getName()) ? "" : gs.getStock().getName());
 			outmap.put("modelName", Common.isEmpty(gs.getStock().getModel()) ? "" : gs.getStock().getModel());
@@ -1624,132 +1600,130 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 								? "/" + gs.getStock().getGoodsStorage().getShelflevel()
 								: "");
 			}
-
 			outmap.put("agent", Common.isEmpty(gs.getStock().isAgent()) ? "" : gs.getStock().isAgent() ? "是" : "否");
 			outmap.put("unit", Common.isEmpty(gs.getStock().getUnit()) ? "" : gs.getStock().getUnit().getName());
 
-//			BigDecimal qcnum ;//期初库存 为当前时间的前一次库存数量  // new 包含本期未出入库，但有期末余额的库存，数量取期末余额。
+			// 初始化变量
 			BigDecimal dj = new BigDecimal(0);// 单价
 			BigDecimal zj = new BigDecimal(0);// 总金额
 			BigDecimal newNum = new BigDecimal(gs.getNewNum());
 			BigDecimal num = new BigDecimal(gs.getNum());
-//			if(gs.isInOrOut()) {
-//				//如果是入库，需要减去入库数量
-//				qcnum =  newNum.subtract(num);
-//			}else if(!gs.isInOrOut()){
-//				//如果是出库 需要吧出库数量加回去
-//				qcnum = newNum.add(num) ;//获得期初库存数量
-//			}else {
-//				qcnum = newNum;
-//			}
 			BigDecimal qcnum = new BigDecimal(0);
-			// 从定时任务统计的数据中拿到期初库存数据
 			MonthEndStatistics monthEndStatistics = listMonthEndStatisticsToMap.get(gs.getStock().getId());
 			if (Common.isNotEmpty(monthEndStatistics)) {
 				qcnum = new BigDecimal(monthEndStatistics.getMonthEndStockNum());
 			}
 
-			if (Common.isNotEmpty(gs.getStock().getPrice())) {
-				String price = gs.getStock().getPrice();
-				//根据stock的id去统计路面拿单价
-				boolean numeric = Common.isNumeric(price);
-				if (!numeric) {
-					price = "0.00";
+			// ====================== 核心修改：非当月单价降级逻辑 ======================
+			if (isCurrentMonth) {
+				// 当月：维持原有逻辑
+				if (Common.isNotEmpty(gs.getStock().getPrice())) {
+					String price = gs.getStock().getPrice();
+					boolean numeric = Common.isNumeric(price);
+					if (!numeric) {
+						price = "0.00";
+					}
+					dj = new BigDecimal(price);
+					zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);
+				} else {
+					dj = this.calculateAveragePriceByStockId(gs.getStock().getId(), TimeRangeType.CURRENT_MONTH);
+					zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);
 				}
-				dj = new BigDecimal(price);// 期初单价
-				zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);// 出库总额
-			}else {
-				dj = this.calculateAveragePriceByStockId(gs.getStock().getId(),TimeRangeType.CURRENT_MONTH);
-				zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);// 出库总额
+			} else {
+				// 非当月：优先历史价格，零值/空值则降级到Stock
+				boolean useHistoryPrice = false;
+				if (Common.isNotEmpty(monthEndStatistics) && Common.isNotEmpty(monthEndStatistics.getPrice())) {
+					String historyPrice = monthEndStatistics.getPrice();
+					// 校验历史价格有效性 + 判断是否为0/0.00
+					boolean isValidPrice = Common.isNumeric(historyPrice);
+					BigDecimal historyPriceBig = isValidPrice ? new BigDecimal(historyPrice) : new BigDecimal("0.00");
+					// 仅当历史价格有效且≠0时使用
+					if (isValidPrice && historyPriceBig.compareTo(BigDecimal.ZERO) != 0) {
+						dj = historyPriceBig;
+						zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);
+						useHistoryPrice = true;
+					}
+				}
+				// 降级逻辑：历史价格为0/空/无效时，从Stock获取
+				if (!useHistoryPrice) {
+					if (Common.isNotEmpty(gs.getStock().getPrice())) {
+						String stockPrice = gs.getStock().getPrice();
+						boolean numeric = Common.isNumeric(stockPrice);
+						if (!numeric) {
+							stockPrice = "0.00";
+						}
+						dj = new BigDecimal(stockPrice);
+						zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);
+					} else {
+						dj = this.calculateAveragePriceByStockId(gs.getStock().getId(), TimeRangeType.CURRENT_MONTH);
+						zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);
+					}
+				}
 			}
+			// ====================== 核心修改结束 ======================
 
-				
-				
 			outmap.put("oldprice", dj);
 			outmap.put("oldinventory", qcnum);
 			outmap.put("oldpriceall", zj);
 
-//			//20221123 添加出库入库总价
-//			private Double inprice;
-
-			long in = 0;// 入库数量
-			// long inpriceall =0;//入库总价
-			long out = 0;// 出库数量
-//			int insize =0; //获入库次数
-//			int outsize =0;//获取出库次数
-
+			// 计算入库/出库数量
+			long in = 0;
+			long out = 0;
 			for (StockStatistics st : entry.getValue()) {
-
 				if (st.isInOrOut()) {
-					in += st.getNum();// 入库总数
-//					insize++;//入库量计数
-					// inpriceall+=Common.isNotEmpty(st.getInprice())?st.getInprice():0;//所有入库总额
+					in += st.getNum();
 				} else {
-					out += st.getNum();// 出库总数
-//					outsize++;//出库量计数
-
+					out += st.getNum();
 				}
 			}
 
-//			BigDecimal a = new BigDecimal(inpriceall);
-			//获取最新平均单价来生成本月入库 
-			dj = this.calculateAveragePriceByStockId(gs.getStock().getId(),TimeRangeType.CURRENT_MONTH);
-			BigDecimal a = dj;
-			BigDecimal b = new BigDecimal(in);
+			// 【修改】入库/出库单价：非当月沿用最终的dj（已处理降级逻辑）
+			if (isCurrentMonth) {
+				dj = this.calculateAveragePriceByStockId(gs.getStock().getId(), TimeRangeType.CURRENT_MONTH);
+			} else {
+				// 非当月无需额外兜底，dj已通过降级逻辑处理
+				if (dj.compareTo(BigDecimal.ZERO) == 0) {
+					// 最终兜底：若dj仍为0，从Stock获取
+					if (Common.isNotEmpty(gs.getStock().getPrice())) {
+						String stockPrice = gs.getStock().getPrice();
+						dj = Common.isNumeric(stockPrice) ? new BigDecimal(stockPrice) : new BigDecimal("0.00");
+					} else {
+						dj = this.calculateAveragePriceByStockId(gs.getStock().getId(), TimeRangeType.CURRENT_MONTH);
+					}
+				}
+			}
 
-//			BigDecimal crkdj = new BigDecimal(0);
-//			if(in>0) {
-//				crkdj =  a.divide(b,2,BigDecimal.ROUND_HALF_UP);
-//			}
-
+			// 计算入库/出库金额
 			BigDecimal e = new BigDecimal(in);
 			if (in > 0) {
 				BigDecimal inpriceall = e.multiply(dj);
-				outmap.put("inpriceall", inpriceall);// 入库总额
+				outmap.put("inpriceall", inpriceall);
 			} else {
-				outmap.put("inpriceall", 0);// 入库总额
+				outmap.put("inpriceall", 0);
 			}
-
-			outmap.put("in", in);// 入库数量
-			outmap.put("inprice", dj);// 入库单价=所有入库总额/入库数量
+			outmap.put("in", in);
+			outmap.put("inprice", dj);
 
 			BigDecimal d = new BigDecimal(out);
-			BigDecimal outpriceall = d.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);// 出库总额
-			outmap.put("out", out);// 出库数量
-			outmap.put("outprice", dj);// 出库单价=所有入库总额/入库数量
-			outmap.put("outpriceall", outpriceall);// 出库总额
+			BigDecimal outpriceall = d.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);
+			outmap.put("out", out);
+			outmap.put("outprice", dj);
+			outmap.put("outpriceall", outpriceall);
 
-			// 期末库存数量 单价 金额
+			// 计算期末库存
 			StockStatistics gsend = entry.getValue().get(0);
-//			long qmnum =0;//期初库存
-//			long qmdj =0;//单价
-//			long qmzj =0;//总金额
-
-			// qmnum = gsend.getNewNum();//期末库存数量
-			// 期初库存+入库-出库
 			BigDecimal qmnum = qcnum.add(e).subtract(d);
-
-			//期末总价  期初库存+入库数量-出库数量
-	
 			BigDecimal qmzj = dj.multiply(qmnum).setScale(2, BigDecimal.ROUND_HALF_UP);
-			
-			
-//			BigDecimal qmzj =zj.add(a).subtract(outpriceall);//期末总价
-//			BigDecimal qmdj = new BigDecimal(0);
-//			if(qmnum>0) {
-//				 qmdj =  qmzj.divide(new BigDecimal(qmnum),2,BigDecimal.ROUND_HALF_UP);
-//			}
 			outmap.put("newprice", dj);
 			outmap.put("newinventory", qmnum);
 			outmap.put("newpriceall", qmzj);
 			outmap.put("purchaseInvoiceDate",
 					Common.isEmpty(gs.getPurchaseInvoiceDate()) ? "" : gs.getPurchaseInvoiceDate());
 			outlist.add(outmap);
-
 		}
 
+		// 导出Excel
 		Map<String, Object> dataMap = new HashMap<>();
-
 		dataMap.put("inlist", outlist);
 		dataMap.put("title", requestBo.getStart() + "~" + requestBo.getEnd() + "库存统计");
 
@@ -1760,24 +1734,271 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 		try {
 			doc = ExcelExportUtil.exportExcel(params, dataMap);
-//							WordUtil.exportWord(ctxPath+fileName, dataMap);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 		return doc;
-
 	}
-
-
+//	public Workbook newExport2(HttpServletRequest request, RequestBo requestBo) {
+//		// Query query=newQueryByRequestBo(requestBo);
+//		Query query = new Query();
+//		String end= "";
+//		if (Common.isNotEmpty(requestBo.getStart()) && Common.isNotEmpty(requestBo.getEnd())) {
+//
+////			String end = requestBo.getEnd();
+//			end = requestBo.getEnd() + " 23:59:59";
+//
+//			Criteria ca = new Criteria();
+//			ca.orOperator(Criteria.where("storageTime").gte(requestBo.getStart()).lte(end),
+//					Criteria.where("depotTime").gte(requestBo.getStart()).lte(end));
+//			query.addCriteria(ca);
+//
+//		}
+//
+//		query.addCriteria(Criteria.where("revoke").is(false));
+//		query.addCriteria(Criteria.where("byRevoke").is(false));
+//		List<StockStatistics> list = this.find(query, StockStatistics.class);
+//		List<Map<String, Object>> outlist = new ArrayList<>();
+//
+//		// 根据当前查询的开始日期 获取上月的最后一天年月日
+//		String lastDayOfPreviousMonthAsString = Common.getLastDayOfPreviousMonthAsString(requestBo.getStart());
+//
+//		List<MonthEndStatistics> findMonthEndStatisticsByDate = this.monthEndStatisticsService
+//				.findMonthEndStatisticsByDate(lastDayOfPreviousMonthAsString);
+//
+//		Map<String, MonthEndStatistics> listMonthEndStatisticsToMap = listMonthEndStatisticsToMap(
+//				findMonthEndStatisticsByDate);
+//
+//		// 获取 start时间 （第一天）库存的初始数量 出库数量+剩余库存数量 num+newNum
+//		// 获取所有的设备
+//		Map<String, List<StockStatistics>> map = new HashMap<String, List<StockStatistics>>();
+//
+//		// 获取到所有库存的设备信息
+//		//判断查询的是当月还是前面月份的 如果是当月的直接查询所有库存，如果是查询之前月份的直接调用查询月末记录数据
+//		List<Stock> findAllStock = new ArrayList<Stock>();
+//		if(Common.isDateTimeInCurrentMonth(end)) {
+//			findAllStock = this.stockService.findAllStock();
+//			List<StockStatistics> list2 = findAllStock.stream().map(stock -> {
+//				StockStatistics st = new StockStatistics();
+//				st.setNewNum(0.0);
+//				st.setNum(0.0);
+//				st.setStock(stock);
+//				return st;
+//			}).collect(Collectors.toList());
+//
+//			list.addAll(list2);
+//		}else {
+//			findAllStock = this.stockService.findAllStock();
+//			List<StockStatistics> list2 = findMonthEndStatisticsByDate.stream().map(stock -> {
+//				StockStatistics st = new StockStatistics();
+//				st.setNewNum(stock.getMonthEndStockNum());
+//				st.setNum(0.0);
+//				st.setStock(stock.getStock());
+//				return st;
+//			}).collect(Collectors.toList());
+//
+//			list.addAll(list2);
+//		}
+//		
+//		
+//		
+//		
+////		List<StockStatistics> list2 = findAllStock.stream().map(stock -> {
+////			StockStatistics st = new StockStatistics();
+////			st.setNewNum(0);
+////			st.setNum(0);
+////			st.setStock(stock);
+////			return st;
+////		}).collect(Collectors.toList());
+////
+////		list.addAll(list2);
+//
+//		// 在库存统计中获取遍历所有设备
+//		for (StockStatistics st : list) {
+//			String stockId = st.getStock().getId();
+//			boolean containsKey = map.containsKey(stockId);
+//			if (containsKey) {
+//				List<StockStatistics> mlist = map.get(stockId);
+//				mlist.add(st);
+//			} else {
+//				List<StockStatistics> ls = new ArrayList<StockStatistics>();
+//				ls.add(st);
+//				map.put(stockId, ls);
+//			}
+//		}
+//
+//		// 集合的最后一条数据就是起初日期
+//		// 遍历map ，将map数据放到outlist中
+//
+//		for (Map.Entry<String, List<StockStatistics>> entry : map.entrySet()) {
+//
+//			Map<String, Object> outmap = new HashMap<>();// 定义输出到excel的map
+//
+//			// 期初库存 获取集合的最后一条数据为第一条记录
+//
+//			StockStatistics gs = entry.getValue().get(entry.getValue().size() - 1);
+//			// 获取设备其他信息
+//			outmap.put("area", Common.isEmpty(gs.getStock().getArea()) ? "" : gs.getStock().getArea().getName());
+//			outmap.put("stockName", Common.isEmpty(gs.getStock().getName()) ? "" : gs.getStock().getName());
+//			outmap.put("modelName", Common.isEmpty(gs.getStock().getModel()) ? "" : gs.getStock().getModel());
+//			outmap.put("scope", Common.isEmpty(gs.getStock().getScope()) ? "" : gs.getStock().getScope());
+//			if (Common.isNotEmpty(gs.getStock().getGoodsStorage())) {
+//				outmap.put("goodsStorage",
+//						Common.isNotEmpty(gs.getStock().getGoodsStorage().getShelflevel())
+//								? "/" + gs.getStock().getGoodsStorage().getShelflevel()
+//								: "");
+//			}
+//
+//			outmap.put("agent", Common.isEmpty(gs.getStock().isAgent()) ? "" : gs.getStock().isAgent() ? "是" : "否");
+//			outmap.put("unit", Common.isEmpty(gs.getStock().getUnit()) ? "" : gs.getStock().getUnit().getName());
+//
+////			BigDecimal qcnum ;//期初库存 为当前时间的前一次库存数量  // new 包含本期未出入库，但有期末余额的库存，数量取期末余额。
+//			BigDecimal dj = new BigDecimal(0);// 单价
+//			BigDecimal zj = new BigDecimal(0);// 总金额
+//			BigDecimal newNum = new BigDecimal(gs.getNewNum());
+//			BigDecimal num = new BigDecimal(gs.getNum());
+////			if(gs.isInOrOut()) {
+////				//如果是入库，需要减去入库数量
+////				qcnum =  newNum.subtract(num);
+////			}else if(!gs.isInOrOut()){
+////				//如果是出库 需要吧出库数量加回去
+////				qcnum = newNum.add(num) ;//获得期初库存数量
+////			}else {
+////				qcnum = newNum;
+////			}
+//			BigDecimal qcnum = new BigDecimal(0);
+//			// 从定时任务统计的数据中拿到期初库存数据
+//			MonthEndStatistics monthEndStatistics = listMonthEndStatisticsToMap.get(gs.getStock().getId());
+//			if (Common.isNotEmpty(monthEndStatistics)) {
+//				qcnum = new BigDecimal(monthEndStatistics.getMonthEndStockNum());
+//			}
+//
+//			if (Common.isNotEmpty(gs.getStock().getPrice())) {
+//				String price = gs.getStock().getPrice();
+//				//根据stock的id去统计路面拿单价
+//				boolean numeric = Common.isNumeric(price);
+//				if (!numeric) {
+//					price = "0.00";
+//				}
+//				dj = new BigDecimal(price);// 期初单价
+//				zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);// 出库总额
+//			}else {
+//				dj = this.calculateAveragePriceByStockId(gs.getStock().getId(),TimeRangeType.CURRENT_MONTH);
+//				zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);// 出库总额
+//			}
+//
+//				
+//				
+//			outmap.put("oldprice", dj);
+//			outmap.put("oldinventory", qcnum);
+//			outmap.put("oldpriceall", zj);
+//
+////			//20221123 添加出库入库总价
+////			private Double inprice;
+//
+//			long in = 0;// 入库数量
+//			// long inpriceall =0;//入库总价
+//			long out = 0;// 出库数量
+////			int insize =0; //获入库次数
+////			int outsize =0;//获取出库次数
+//
+//			for (StockStatistics st : entry.getValue()) {
+//
+//				if (st.isInOrOut()) {
+//					in += st.getNum();// 入库总数
+////					insize++;//入库量计数
+//					// inpriceall+=Common.isNotEmpty(st.getInprice())?st.getInprice():0;//所有入库总额
+//				} else {
+//					out += st.getNum();// 出库总数
+////					outsize++;//出库量计数
+//
+//				}
+//			}
+//
+////			BigDecimal a = new BigDecimal(inpriceall);
+//			//获取最新平均单价来生成本月入库 
+//			dj = this.calculateAveragePriceByStockId(gs.getStock().getId(),TimeRangeType.CURRENT_MONTH);
+//			BigDecimal a = dj;
+//			BigDecimal b = new BigDecimal(in);
+//
+////			BigDecimal crkdj = new BigDecimal(0);
+////			if(in>0) {
+////				crkdj =  a.divide(b,2,BigDecimal.ROUND_HALF_UP);
+////			}
+//
+//			BigDecimal e = new BigDecimal(in);
+//			if (in > 0) {
+//				BigDecimal inpriceall = e.multiply(dj);
+//				outmap.put("inpriceall", inpriceall);// 入库总额
+//			} else {
+//				outmap.put("inpriceall", 0);// 入库总额
+//			}
+//
+//			outmap.put("in", in);// 入库数量
+//			outmap.put("inprice", dj);// 入库单价=所有入库总额/入库数量
+//
+//			BigDecimal d = new BigDecimal(out);
+//			BigDecimal outpriceall = d.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);// 出库总额
+//			outmap.put("out", out);// 出库数量
+//			outmap.put("outprice", dj);// 出库单价=所有入库总额/入库数量
+//			outmap.put("outpriceall", outpriceall);// 出库总额
+//
+//			// 期末库存数量 单价 金额
+//			StockStatistics gsend = entry.getValue().get(0);
+////			long qmnum =0;//期初库存
+////			long qmdj =0;//单价
+////			long qmzj =0;//总金额
+//
+//			// qmnum = gsend.getNewNum();//期末库存数量
+//			// 期初库存+入库-出库
+//			BigDecimal qmnum = qcnum.add(e).subtract(d);
+//
+//			//期末总价  期初库存+入库数量-出库数量
+//	
+//			BigDecimal qmzj = dj.multiply(qmnum).setScale(2, BigDecimal.ROUND_HALF_UP);
+//			
+//			
+////			BigDecimal qmzj =zj.add(a).subtract(outpriceall);//期末总价
+////			BigDecimal qmdj = new BigDecimal(0);
+////			if(qmnum>0) {
+////				 qmdj =  qmzj.divide(new BigDecimal(qmnum),2,BigDecimal.ROUND_HALF_UP);
+////			}
+//			outmap.put("newprice", dj);
+//			outmap.put("newinventory", qmnum);
+//			outmap.put("newpriceall", qmzj);
+//			outmap.put("purchaseInvoiceDate",
+//					Common.isEmpty(gs.getPurchaseInvoiceDate()) ? "" : gs.getPurchaseInvoiceDate());
+//			outlist.add(outmap);
+//
+//		}
+//
+//		Map<String, Object> dataMap = new HashMap<>();
+//
+//		dataMap.put("inlist", outlist);
+//		dataMap.put("title", requestBo.getStart() + "~" + requestBo.getEnd() + "库存统计");
+//
+//		String ctxPath = request.getServletContext().getRealPath("/WEB-INF/Templates/");
+//		String fileName = "新库存统计导出模板.xlsx";
+//		TemplateExportParams params = new TemplateExportParams(ctxPath + fileName, true);
+//		Workbook doc = null;
+//
+//		try {
+//			doc = ExcelExportUtil.exportExcel(params, dataMap);
+////							WordUtil.exportWord(ctxPath+fileName, dataMap);
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//
+//		return doc;
+//
+//	}
 
 	@Override
 	public Workbook newExport3(HttpServletRequest request, String search, String start, String end, String type,
 			String name, String areaId, String searchAgent) {
 
-		// List<Stock> listStock = this.findStocksBySearch(search, areaId, searchAgent);
-		// 获取选择月份的统计数据
 		List<StockStatistics> list1 = this.findStockStatistics(search, start, end, type, areaId, searchAgent);
 
 		Map<String, String> findDateByInputDate = Common.findDateByInputDate(start);
@@ -1788,13 +2009,23 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		List<StockStatistics> list = list1.stream().filter(item -> list2.stream().map(e -> e.getStock().getId())
 				.collect(Collectors.toList()).contains(item.getStock().getId())).collect(Collectors.toList());
 
-		// 获取所有的库存
+// 【新增】当月判断 + 历史数据查询
+		String endWithTime = Common.isNotEmpty(end) ? end + " 23:59:59" : "";
+		boolean isCurrentMonth = Common.isNotEmpty(endWithTime) ? Common.isDateTimeInCurrentMonth(endWithTime) : false;
+		String lastDayOfPreviousMonthAsString = Common.getLastDayOfPreviousMonthAsString(start);
+		List<MonthEndStatistics> findMonthEndStatisticsByDate = this.monthEndStatisticsService
+				.findMonthEndStatisticsByDate(lastDayOfPreviousMonthAsString);
+		Map<String, MonthEndStatistics> monthEndStatisticsMap = new HashMap<>();
+		if (Common.isNotEmpty(findMonthEndStatisticsByDate)) {
+			for (MonthEndStatistics mes : findMonthEndStatisticsByDate) {
+				if (Common.isNotEmpty(mes.getStock()) && Common.isNotEmpty(mes.getStock().getId())) {
+					monthEndStatisticsMap.put(mes.getStock().getId(), mes);
+				}
+			}
+		}
 
 		List<Map<String, Object>> outlist = new ArrayList<>();
-		// 获取 start时间 （第一天）库存的初始数量 出库数量+剩余库存数量 num+newNum
-		// 获取所有的设备
 		Map<String, List<StockStatistics>> map = new HashMap<String, List<StockStatistics>>();
-		// 在库存统计中获取遍历所有设备
 		for (StockStatistics st : list) {
 			String stockId = st.getStock().getId();
 			boolean containsKey = map.containsKey(stockId);
@@ -1807,17 +2038,12 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 				map.put(stockId, ls);
 			}
 		}
-		// 集合的最后一条数据就是起初日期
-		// 遍历map ，将map数据放到outlist中
 
 		for (Map.Entry<String, List<StockStatistics>> entry : map.entrySet()) {
-
-			Map<String, Object> outmap = new HashMap<>();// 定义输出到excel的map
-
-			// 期初库存 获取集合的最后一条数据为第一条记录
-
+			Map<String, Object> outmap = new HashMap<>();
 			StockStatistics gs = entry.getValue().get(entry.getValue().size() - 1);
-			// 获取设备其他信息
+
+// 设备基础信息
 			outmap.put("area", Common.isEmpty(gs.getArea()) ? "" : gs.getArea().getName());
 			outmap.put("stockName", Common.isEmpty(gs.getStock().getName()) ? "" : gs.getStock().getName());
 			outmap.put("modelName", Common.isEmpty(gs.getStock().getModel()) ? "" : gs.getStock().getModel());
@@ -1828,94 +2054,113 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 								? "/" + gs.getStock().getGoodsStorage().getShelflevel()
 								: "");
 			}
-
 			outmap.put("agent", Common.isEmpty(gs.getStock().isAgent()) ? "" : gs.getStock().isAgent() ? "是" : "否");
 			outmap.put("unit", Common.isEmpty(gs.getStock().getUnit()) ? "" : gs.getStock().getUnit().getName());
 
-			BigDecimal qcnum;// 期初库存 为当前时间的前一次库存数量
-			BigDecimal dj = new BigDecimal(0);// 单价
-			BigDecimal zj = new BigDecimal(0);// 总金额
+// 期初库存数量计算
+			BigDecimal qcnum;
+			BigDecimal dj = new BigDecimal(0);
+			BigDecimal zj = new BigDecimal(0);
 			BigDecimal newNum = new BigDecimal(gs.getNewNum());
 			BigDecimal num = new BigDecimal(gs.getNum());
 			if (gs.isInOrOut()) {
-				// 如果是入库，需要减去入库数量
 				qcnum = newNum.subtract(num);
 			} else {
-				// 如果是出库 需要吧出库数量加回去
-				qcnum = newNum.add(num);// 获得期初库存数量
+				qcnum = newNum.add(num);
 			}
-			
-			
-			if (Common.isNotEmpty(gs.getStock().getPrice())) {
-				String price = gs.getStock().getPrice();
-				boolean numeric = Common.isNumeric(price);
-				if (!numeric) {
-					price = "0.00";
+
+// ====================== 核心修改：非当月单价降级逻辑 ======================
+			MonthEndStatistics monthEndStatistics = monthEndStatisticsMap.get(gs.getStock().getId());
+			if (isCurrentMonth) {
+// 当月：原逻辑
+				if (Common.isNotEmpty(gs.getStock().getPrice())) {
+					String price = gs.getStock().getPrice();
+					boolean numeric = Common.isNumeric(price);
+					if (!numeric) {
+						price = "0.00";
+					}
+					dj = new BigDecimal(price);
+					zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);
+				} else {
+					dj = this.calculateAveragePriceByStockId(gs.getStock().getId(), TimeRangeType.CURRENT_MONTH);
+					zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);
 				}
-				dj = new BigDecimal(price);// 期初单价
-				zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);// 出库总额
-			}else {
-				dj = this.calculateAveragePriceByStockId(gs.getStock().getId(),TimeRangeType.CURRENT_MONTH);
-				zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);// 出库总额
+			} else {
+// 非当月：优先历史价格，失败则降级到Stock
+				boolean useHistoryPrice = false;
+				if (Common.isNotEmpty(monthEndStatistics) && Common.isNotEmpty(monthEndStatistics.getPrice())) {
+					String historyPrice = monthEndStatistics.getPrice();
+					boolean isValidPrice = Common.isNumeric(historyPrice);
+					BigDecimal historyPriceBig = isValidPrice ? new BigDecimal(historyPrice) : new BigDecimal("0.00");
+					// 历史价格有效且≠0时使用
+					if (isValidPrice && historyPriceBig.compareTo(BigDecimal.ZERO) != 0) {
+						dj = historyPriceBig;
+						zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);
+						useHistoryPrice = true;
+					}
+				}
+// 降级：从Stock获取
+				if (!useHistoryPrice) {
+					if (Common.isNotEmpty(gs.getStock().getPrice())) {
+						String stockPrice = gs.getStock().getPrice();
+						boolean numeric = Common.isNumeric(stockPrice);
+						if (!numeric) {
+							stockPrice = "0.00";
+						}
+						dj = new BigDecimal(stockPrice);
+						zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);
+					} else {
+						dj = this.calculateAveragePriceByStockId(gs.getStock().getId(), TimeRangeType.CURRENT_MONTH);
+						zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);
+					}
+				}
 			}
-			
-			
-//			dj = this.calculateAveragePriceByStockId(gs.getStock().getId(),TimeRangeType.CURRENT_MONTH);
-//			zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);// 出库总额
-			
+// ====================== 核心修改结束 ======================
+
 			outmap.put("oldprice", dj);
 			outmap.put("oldinventory", qcnum);
 			outmap.put("oldpriceall", zj);
 
-//			//20221123 添加出库入库总价
-//			private Double inprice;
-
-			long in = 0;// 入库数量
-			long inpriceall = 0;// 入库总价
-			long out = 0;// 出库数量
-//			int insize =0; //获入库次数
-//			int outsize =0;//获取出库次数
-
+// 入库/出库数量&金额计算
+			long in = 0;
+			long inpriceall = 0;
+			long out = 0;
 			for (StockStatistics st : entry.getValue()) {
-
 				if (st.isInOrOut()) {
-					in += st.getNum();// 入库总数
-//					insize++;//入库量计数
-					inpriceall += Common.isNotEmpty(st.getInprice()) ? st.getInprice() : 0;// 所有入库总额
+					in += st.getNum();
+					inpriceall += Common.isNotEmpty(st.getInprice()) ? st.getInprice() : 0;
 				} else {
-					out += st.getNum();// 出库总数
-//					outsize++;//出库量计数
-
+					out += st.getNum();
 				}
 			}
 
 			BigDecimal a = new BigDecimal(inpriceall);
 			BigDecimal b = new BigDecimal(in);
-
 			BigDecimal crkdj = new BigDecimal(0);
 			if (in > 0) {
 				crkdj = a.divide(b, 2, BigDecimal.ROUND_HALF_UP);
 			}
 
-			outmap.put("in", in);// 入库数量
-			outmap.put("inprice", crkdj);// 入库单价=所有入库总额/入库数量
-			outmap.put("inpriceall", inpriceall);// 入库总额
+// 非当月沿用历史单价（dj）
+			BigDecimal finalCrkdj = crkdj;
+			if (!isCurrentMonth && dj.compareTo(BigDecimal.ZERO) != 0) {
+				finalCrkdj = dj;
+			}
+
+			outmap.put("in", in);
+			outmap.put("inprice", finalCrkdj);
+			outmap.put("inpriceall", inpriceall);
 
 			BigDecimal d = new BigDecimal(out);
-//			BigDecimal e = new BigDecimal(in);
-			BigDecimal outpriceall = d.multiply(crkdj).setScale(2, BigDecimal.ROUND_HALF_UP);// 出库总额
-			outmap.put("out", out);// 出库数量
-			outmap.put("outprice", crkdj);// 出库单价=所有入库总额/入库数量
-			outmap.put("outpriceall", outpriceall);// 出库总额
+			BigDecimal outpriceall = d.multiply(finalCrkdj).setScale(2, BigDecimal.ROUND_HALF_UP);
+			outmap.put("out", out);
+			outmap.put("outprice", finalCrkdj);
+			outmap.put("outpriceall", outpriceall);
 
-			// 期末库存数量 单价 金额
+// 期末库存计算
 			StockStatistics gsend = entry.getValue().get(0);
-			Double qmnum = 0.0;// 期初库存
-//			long qmdj =0;//单价
-//			long qmzj =0;//总金额
-
-			qmnum = gsend.getNewNum();// 期末库存数量
-			BigDecimal qmzj = zj.add(a).subtract(outpriceall);// 期末总价
+			Double qmnum = gsend.getNewNum();
+			BigDecimal qmzj = zj.add(a).subtract(outpriceall);
 			BigDecimal qmdj = new BigDecimal(0);
 			if (qmnum > 0) {
 				qmdj = qmzj.divide(new BigDecimal(qmnum), 2, BigDecimal.ROUND_HALF_UP);
@@ -1926,11 +2171,9 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			outmap.put("purchaseInvoiceDate",
 					Common.isEmpty(gs.getPurchaseInvoiceDate()) ? "" : gs.getPurchaseInvoiceDate());
 			outlist.add(outmap);
-
 		}
 
 		Map<String, Object> dataMap = new HashMap<>();
-
 		dataMap.put("inlist", outlist);
 		dataMap.put("title", start + "~" + end + "库存统计");
 
@@ -1941,15 +2184,189 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 		try {
 			doc = ExcelExportUtil.exportExcel(params, dataMap);
-//							WordUtil.exportWord(ctxPath+fileName, dataMap);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 		return doc;
-
 	}
+//	public Workbook newExport3(HttpServletRequest request, String search, String start, String end, String type,
+//			String name, String areaId, String searchAgent) {
+//
+//		// List<Stock> listStock = this.findStocksBySearch(search, areaId, searchAgent);
+//		// 获取选择月份的统计数据
+//		List<StockStatistics> list1 = this.findStockStatistics(search, start, end, type, areaId, searchAgent);
+//
+//		Map<String, String> findDateByInputDate = Common.findDateByInputDate(start);
+//		String ostart = findDateByInputDate.get("startDate");
+//		String oend = findDateByInputDate.get("endDate");
+//
+//		List<StockStatistics> list2 = this.findStockStatistics(search, ostart, oend, type, areaId, searchAgent);
+//		List<StockStatistics> list = list1.stream().filter(item -> list2.stream().map(e -> e.getStock().getId())
+//				.collect(Collectors.toList()).contains(item.getStock().getId())).collect(Collectors.toList());
+//
+//		// 获取所有的库存
+//
+//		List<Map<String, Object>> outlist = new ArrayList<>();
+//		// 获取 start时间 （第一天）库存的初始数量 出库数量+剩余库存数量 num+newNum
+//		// 获取所有的设备
+//		Map<String, List<StockStatistics>> map = new HashMap<String, List<StockStatistics>>();
+//		// 在库存统计中获取遍历所有设备
+//		for (StockStatistics st : list) {
+//			String stockId = st.getStock().getId();
+//			boolean containsKey = map.containsKey(stockId);
+//			if (containsKey) {
+//				List<StockStatistics> mlist = map.get(stockId);
+//				mlist.add(st);
+//			} else {
+//				List<StockStatistics> ls = new ArrayList<StockStatistics>();
+//				ls.add(st);
+//				map.put(stockId, ls);
+//			}
+//		}
+//		// 集合的最后一条数据就是起初日期
+//		// 遍历map ，将map数据放到outlist中
+//
+//		for (Map.Entry<String, List<StockStatistics>> entry : map.entrySet()) {
+//
+//			Map<String, Object> outmap = new HashMap<>();// 定义输出到excel的map
+//
+//			// 期初库存 获取集合的最后一条数据为第一条记录
+//
+//			StockStatistics gs = entry.getValue().get(entry.getValue().size() - 1);
+//			// 获取设备其他信息
+//			outmap.put("area", Common.isEmpty(gs.getArea()) ? "" : gs.getArea().getName());
+//			outmap.put("stockName", Common.isEmpty(gs.getStock().getName()) ? "" : gs.getStock().getName());
+//			outmap.put("modelName", Common.isEmpty(gs.getStock().getModel()) ? "" : gs.getStock().getModel());
+//			outmap.put("scope", Common.isEmpty(gs.getStock().getScope()) ? "" : gs.getStock().getScope());
+//			if (Common.isNotEmpty(gs.getStock().getGoodsStorage())) {
+//				outmap.put("goodsStorage",
+//						Common.isNotEmpty(gs.getStock().getGoodsStorage().getShelflevel())
+//								? "/" + gs.getStock().getGoodsStorage().getShelflevel()
+//								: "");
+//			}
+//
+//			outmap.put("agent", Common.isEmpty(gs.getStock().isAgent()) ? "" : gs.getStock().isAgent() ? "是" : "否");
+//			outmap.put("unit", Common.isEmpty(gs.getStock().getUnit()) ? "" : gs.getStock().getUnit().getName());
+//
+//			BigDecimal qcnum;// 期初库存 为当前时间的前一次库存数量
+//			BigDecimal dj = new BigDecimal(0);// 单价
+//			BigDecimal zj = new BigDecimal(0);// 总金额
+//			BigDecimal newNum = new BigDecimal(gs.getNewNum());
+//			BigDecimal num = new BigDecimal(gs.getNum());
+//			if (gs.isInOrOut()) {
+//				// 如果是入库，需要减去入库数量
+//				qcnum = newNum.subtract(num);
+//			} else {
+//				// 如果是出库 需要吧出库数量加回去
+//				qcnum = newNum.add(num);// 获得期初库存数量
+//			}
+//			
+//			
+//			if (Common.isNotEmpty(gs.getStock().getPrice())) {
+//				String price = gs.getStock().getPrice();
+//				boolean numeric = Common.isNumeric(price);
+//				if (!numeric) {
+//					price = "0.00";
+//				}
+//				dj = new BigDecimal(price);// 期初单价
+//				zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);// 出库总额
+//			}else {
+//				dj = this.calculateAveragePriceByStockId(gs.getStock().getId(),TimeRangeType.CURRENT_MONTH);
+//				zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);// 出库总额
+//			}
+//			
+//			
+////			dj = this.calculateAveragePriceByStockId(gs.getStock().getId(),TimeRangeType.CURRENT_MONTH);
+////			zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);// 出库总额
+//			
+//			outmap.put("oldprice", dj);
+//			outmap.put("oldinventory", qcnum);
+//			outmap.put("oldpriceall", zj);
+//
+////			//20221123 添加出库入库总价
+////			private Double inprice;
+//
+//			long in = 0;// 入库数量
+//			long inpriceall = 0;// 入库总价
+//			long out = 0;// 出库数量
+////			int insize =0; //获入库次数
+////			int outsize =0;//获取出库次数
+//
+//			for (StockStatistics st : entry.getValue()) {
+//
+//				if (st.isInOrOut()) {
+//					in += st.getNum();// 入库总数
+////					insize++;//入库量计数
+//					inpriceall += Common.isNotEmpty(st.getInprice()) ? st.getInprice() : 0;// 所有入库总额
+//				} else {
+//					out += st.getNum();// 出库总数
+////					outsize++;//出库量计数
+//
+//				}
+//			}
+//
+//			BigDecimal a = new BigDecimal(inpriceall);
+//			BigDecimal b = new BigDecimal(in);
+//
+//			BigDecimal crkdj = new BigDecimal(0);
+//			if (in > 0) {
+//				crkdj = a.divide(b, 2, BigDecimal.ROUND_HALF_UP);
+//			}
+//
+//			outmap.put("in", in);// 入库数量
+//			outmap.put("inprice", crkdj);// 入库单价=所有入库总额/入库数量
+//			outmap.put("inpriceall", inpriceall);// 入库总额
+//
+//			BigDecimal d = new BigDecimal(out);
+////			BigDecimal e = new BigDecimal(in);
+//			BigDecimal outpriceall = d.multiply(crkdj).setScale(2, BigDecimal.ROUND_HALF_UP);// 出库总额
+//			outmap.put("out", out);// 出库数量
+//			outmap.put("outprice", crkdj);// 出库单价=所有入库总额/入库数量
+//			outmap.put("outpriceall", outpriceall);// 出库总额
+//
+//			// 期末库存数量 单价 金额
+//			StockStatistics gsend = entry.getValue().get(0);
+//			Double qmnum = 0.0;// 期初库存
+////			long qmdj =0;//单价
+////			long qmzj =0;//总金额
+//
+//			qmnum = gsend.getNewNum();// 期末库存数量
+//			BigDecimal qmzj = zj.add(a).subtract(outpriceall);// 期末总价
+//			BigDecimal qmdj = new BigDecimal(0);
+//			if (qmnum > 0) {
+//				qmdj = qmzj.divide(new BigDecimal(qmnum), 2, BigDecimal.ROUND_HALF_UP);
+//			}
+//			outmap.put("newprice", qmdj);
+//			outmap.put("newinventory", qmnum);
+//			outmap.put("newpriceall", qmzj);
+//			outmap.put("purchaseInvoiceDate",
+//					Common.isEmpty(gs.getPurchaseInvoiceDate()) ? "" : gs.getPurchaseInvoiceDate());
+//			outlist.add(outmap);
+//
+//		}
+//
+//		Map<String, Object> dataMap = new HashMap<>();
+//
+//		dataMap.put("inlist", outlist);
+//		dataMap.put("title", start + "~" + end + "库存统计");
+//
+//		String ctxPath = request.getServletContext().getRealPath("/WEB-INF/Templates/");
+//		String fileName = "新库存统计导出模板.xlsx";
+//		TemplateExportParams params = new TemplateExportParams(ctxPath + fileName, true);
+//		Workbook doc = null;
+//
+//		try {
+//			doc = ExcelExportUtil.exportExcel(params, dataMap);
+////							WordUtil.exportWord(ctxPath+fileName, dataMap);
+//		} catch (Exception e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//
+//		return doc;
+//
+//	}
 
 	public Query newQueryByRequestBo(RequestBo requestBo) {
 		Query query = new Query();
@@ -1957,8 +2374,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 		if (Common.isNotEmpty(requestBo.getName()) || Common.isNotEmpty(requestBo.getSupplier())
 				|| Common.isNotEmpty(requestBo.getPaymentOrderNo()) || Common.isNotEmpty(requestBo.getSearchArea())
-				||Common.isNotEmpty(requestBo.getModel())
-				) {
+				|| Common.isNotEmpty(requestBo.getModel())) {
 			Query querys = new Query();
 			querys = this.stockService.findByRequestBo(requestBo, querys);
 //			querys.addCriteria(Criteria.where("isDelete").is(false));
@@ -2008,7 +2424,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			squery.addCriteria(Criteria.where("name").regex(requestBo.getCustomer(), "i"));
 			List<NewCustomer> customerList = this.newCustomerService.find(squery, NewCustomer.class);
 			if (!customerList.isEmpty()) {
-				query=query.addCriteria(Criteria.where("newCustomer.$id").in(customerList.stream()
+				query = query.addCriteria(Criteria.where("newCustomer.$id").in(customerList.stream()
 						.map(newCustomer -> new ObjectId(newCustomer.getId())).collect(Collectors.toList())));
 //				ca.orOperator(Criteria.where("newCustomer.$id").in(customerList.stream()
 //						.map(newCustomer -> new ObjectId(newCustomer.getId())).collect(Collectors.toList())));
@@ -2063,7 +2479,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	 */
 	@Override
 	public List<StockStatistics> findStockStatisticsToCreateQrcode(Pname pname, NewCustomer newcustomer,
-			String accepter,String depotTime) {
+			String accepter, String depotTime) {
 
 		Query query = new Query();
 		query.addCriteria(Criteria.where("revoke").is(false));
@@ -2078,7 +2494,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 		if (Common.isNotEmpty(accepter)) {
 			query.addCriteria(Criteria.where("accepter").is(accepter));
 		}
-		if(Common.isNotEmpty(depotTime)) {
+		if (Common.isNotEmpty(depotTime)) {
 //			try {
 //				String dateYMD = Common.getDateYMD(depotTime);
 //				query.addCriteria(Criteria.where("depotTime").regex(dateYMD));
@@ -2086,8 +2502,8 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 //				// TODO Auto-generated catch block
 //				e.printStackTrace();
 //			}
-				query.addCriteria(Criteria.where("depotTime").is(depotTime));
-			
+			query.addCriteria(Criteria.where("depotTime").is(depotTime));
+
 		}
 
 		return this.find(query, StockStatistics.class);
@@ -2096,7 +2512,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	public Workbook exportStockStatistics(HttpServletRequest request, String start, String end) {
 		// List<Stock> listStock = this.findStocksBySearch(search, areaId, searchAgent);
 		// 获取选择月份的统计数据
-		List<StockStatistics> list = this.findStockStatisticsbySE(start,end);
+		List<StockStatistics> list = this.findStockStatisticsbySE(start, end);
 
 		List<Map<String, Object>> inlist = new ArrayList<>();
 //				项目名称	供应商	设备名称	品名型号	出库时间	出库数量	单价	     总价	    单位	    负责人	客户	    领料人	项目助理	操作人
@@ -2106,7 +2522,8 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			Map<String, Object> in = new HashMap<>();
 
 			Double num = Common.isNotEmpty(st.getNum()) ? st.getNum() : 0.0;
-			Double dj = Common.isNotEmpty(st.getStock().getPrice()) ? Double.parseDouble(st.getStock().getPrice()) : 0.0;
+			Double dj = Common.isNotEmpty(st.getStock().getPrice()) ? Double.parseDouble(st.getStock().getPrice())
+					: 0.0;
 			Double allprice = num * dj;
 			in.put("t1", Common.isNotEmpty(st.getPname()) ? st.getPname().getName() : "");
 			in.put("t2", Common.isNotEmpty(st.getStock().getSupplier()) ? st.getStock().getSupplier().getName() : "");
@@ -2147,25 +2564,22 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 
 	}
 
-	//根据开始 结束时间查看出库统计
+	// 根据开始 结束时间查看出库统计
 	private List<StockStatistics> findStockStatisticsbySE(String start, String end) {
-		
-		Query query  = new Query();
-		
+
+		Query query = new Query();
+
 		end = end + " 23:59:59";
 		query.addCriteria(Criteria.where("revoke").is(false));
 		query.addCriteria(Criteria.where("isDelete").is(false));
 		query.addCriteria(Criteria.where("isDisable").is(false));
 		query.addCriteria(Criteria.where("inOrOut").is(false));
 		query.addCriteria(Criteria.where("depotTime").gte(start).lte(end));
-		
+
 		return this.find(query, StockStatistics.class);
-		
-		
+
 	}
-	
-	
-	
+
 //	public List<StockStatistics> findStockStatisByStockId(String id) {
 //		Query query  = new Query();
 //		query.addCriteria(Criteria.where("revoke").is(false));
@@ -2177,11 +2591,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 //		
 //	}
 //	
-	
-	
-	
-	
-	
+
 //	 public List<StockStatistics> findStockStatisByStockId(String id) {
 //	        Query query = new Query();
 //	        // 原有过滤条件（保持不变）
@@ -2209,140 +2619,138 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 //	        return this.find(query, StockStatistics.class);
 //	    }
 
-	
-	 // 定义枚举类，明确查询范围类型（比字符串更规范，避免传参错误）
-    public enum TimeRangeType {
-        CURRENT_YEAR,  // 当年1月1日至今
-        CURRENT_MONTH  // 当月1日至今
-    }
+	// 定义枚举类，明确查询范围类型（比字符串更规范，避免传参错误）
+	public enum TimeRangeType {
+		CURRENT_YEAR, // 当年1月1日至今
+		CURRENT_MONTH // 当月1日至今
+	}
 
-    /**
-     * 根据stockId和时间范围查询数据
-     * @param id 库存ID
-     * @param timeRangeType 时间范围类型（CURRENT_YEAR/CURRENT_MONTH）
-     * @return 符合条件的统计数据
-     */
-    public List<StockStatistics> findStockStatisByStockId(String id, TimeRangeType timeRangeType) {
-        Query query = new Query();
-        // 原有过滤条件（保持不变）
-        query.addCriteria(Criteria.where("revoke").is(false));
-        query.addCriteria(Criteria.where("isDelete").is(false));
-        query.addCriteria(Criteria.where("isDisable").is(false));
-        query.addCriteria(Criteria.where("inOrOut").is(true));
-        query.addCriteria(Criteria.where("stock.$id").is(new ObjectId(id)));
+	/**
+	 * 根据stockId和时间范围查询数据
+	 * 
+	 * @param id            库存ID
+	 * @param timeRangeType 时间范围类型（CURRENT_YEAR/CURRENT_MONTH）
+	 * @return 符合条件的统计数据
+	 */
+	public List<StockStatistics> findStockStatisByStockId(String id, TimeRangeType timeRangeType) {
+		Query query = new Query();
+		// 原有过滤条件（保持不变）
+		query.addCriteria(Criteria.where("revoke").is(false));
+		query.addCriteria(Criteria.where("isDelete").is(false));
+		query.addCriteria(Criteria.where("isDisable").is(false));
+		query.addCriteria(Criteria.where("inOrOut").is(true));
+		query.addCriteria(Criteria.where("stock.$id").is(new ObjectId(id)));
 
-        // 根据时间范围类型，计算对应的起始时间
-        Date startTime = calculateStartTime(timeRangeType);
-        // 添加时间过滤条件（替换为你实际的时间字段名，比如statisTime/updateTime）
-        query.addCriteria(Criteria.where("createTime").gte(startTime));
+		// 根据时间范围类型，计算对应的起始时间
+		Date startTime = calculateStartTime(timeRangeType);
+		// 添加时间过滤条件（替换为你实际的时间字段名，比如statisTime/updateTime）
+		query.addCriteria(Criteria.where("createTime").gte(startTime));
 
-        return this.find(query, StockStatistics.class);
-    }
+		return this.find(query, StockStatistics.class);
+	}
 
-    /**
-     * 封装时间计算逻辑，按类型返回起始时间（当年/当月1日 00:00:00）
-     * @param timeRangeType 时间范围类型
-     * @return 起始时间
-     */
-    private Date calculateStartTime(TimeRangeType timeRangeType) {
-        // 指定北京时间，避免时区偏差
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai"));
-        // 重置时分秒毫秒为0，确保起始时间是当天零点
-        calendar.set(Calendar.HOUR_OF_DAY, 0);
-        calendar.set(Calendar.MINUTE, 0);
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
+	/**
+	 * 封装时间计算逻辑，按类型返回起始时间（当年/当月1日 00:00:00）
+	 * 
+	 * @param timeRangeType 时间范围类型
+	 * @return 起始时间
+	 */
+	private Date calculateStartTime(TimeRangeType timeRangeType) {
+		// 指定北京时间，避免时区偏差
+		Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai"));
+		// 重置时分秒毫秒为0，确保起始时间是当天零点
+		calendar.set(Calendar.HOUR_OF_DAY, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
 
-        switch (timeRangeType) {
-            case CURRENT_YEAR:
-                // 当年1月1日
-                calendar.set(Calendar.MONTH, Calendar.JANUARY);
-                calendar.set(Calendar.DAY_OF_MONTH, 1);
-                break;
-            case CURRENT_MONTH:
-                // 当月1日
-                calendar.set(Calendar.DAY_OF_MONTH, 1);
-                break;
-            default:
-                // 默认返回当年1月1日（避免空值）
-                calendar.set(Calendar.MONTH, Calendar.JANUARY);
-                calendar.set(Calendar.DAY_OF_MONTH, 1);
-                break;
-        }
-        return calendar.getTime();
-    }
+		switch (timeRangeType) {
+		case CURRENT_YEAR:
+			// 当年1月1日
+			calendar.set(Calendar.MONTH, Calendar.JANUARY);
+			calendar.set(Calendar.DAY_OF_MONTH, 1);
+			break;
+		case CURRENT_MONTH:
+			// 当月1日
+			calendar.set(Calendar.DAY_OF_MONTH, 1);
+			break;
+		default:
+			// 默认返回当年1月1日（避免空值）
+			calendar.set(Calendar.MONTH, Calendar.JANUARY);
+			calendar.set(Calendar.DAY_OF_MONTH, 1);
+			break;
+		}
+		return calendar.getTime();
+	}
 
-    // 兼容原有方法（无参数时默认查当年数据）
+	// 兼容原有方法（无参数时默认查当年数据）
 //    public List<StockStatistics> findStockStatisByStockId(String id ) {
 //        return findStockStatisByStockId(id, TimeRangeType.CURRENT_YEAR);
 //    }
 //	
-	
-	
-	  // 修复后的平均单价计算方法
-    public BigDecimal calculateAveragePriceByStockId(String stockId,TimeRangeType t) {
-        List<StockStatistics> stockStatsList = findStockStatisByStockId(stockId,t);
-        
-        BigDecimal totalPriceNum = BigDecimal.ZERO; // price*num 的总和
-        int totalNum = 0; // num 的总和
-        
-        for (StockStatistics stats : stockStatsList) {
-            // 1. 先校验核心字段非空且数量有效
-            if (stats == null || stats.getPrice() == null || stats.getNum() == null || stats.getNum() <= 0) {
-                continue;
-            }
 
-            try {
-                // 2. 统一转换为BigDecimal，兼容Double/Integer/BigDecimal类型
-                BigDecimal priceBigDecimal = convertToBigDecimal(stats.getPrice());
-                BigDecimal numBigDecimal = BigDecimal.valueOf(stats.getNum());
+	// 修复后的平均单价计算方法
+	public BigDecimal calculateAveragePriceByStockId(String stockId, TimeRangeType t) {
+		List<StockStatistics> stockStatsList = findStockStatisByStockId(stockId, t);
 
-                // 3. 安全计算 price*num 并累加
-                BigDecimal currentPriceNum = priceBigDecimal.multiply(numBigDecimal);
-                totalPriceNum = totalPriceNum.add(currentPriceNum);
-                totalNum += stats.getNum();
-                
-            } catch (Exception e) {
-                // 捕获类型转换/计算异常，跳过这条无效数据
-                System.err.println("处理数据异常，跳过：" + e.getMessage());
-                continue;
-            }
-        }
-        
-        // 防止除数为0
-        if (totalNum == 0) {
-            return BigDecimal.ZERO;
-        }
-        
-        // 保留2位小数，四舍五入
-        return totalPriceNum.divide(BigDecimal.valueOf(totalNum), 2, RoundingMode.HALF_UP);
-    }
+		BigDecimal totalPriceNum = BigDecimal.ZERO; // price*num 的总和
+		int totalNum = 0; // num 的总和
 
-    // 新增：通用类型转换方法，将任意数值类型转为BigDecimal
-    private BigDecimal convertToBigDecimal(Object value) {
-        if (value == null) {
-            return BigDecimal.ZERO;
-        }
-        if (value instanceof BigDecimal) {
-            return (BigDecimal) value;
-        } else if (value instanceof Double) {
-            return BigDecimal.valueOf((Double) value);
-        } else if (value instanceof Integer) {
-            return BigDecimal.valueOf((Integer) value);
-        } else if (value instanceof Float) {
-            return BigDecimal.valueOf((Float) value);
-        } else if (value instanceof Long) {
-            return BigDecimal.valueOf((Long) value);
-        } else {
-            // 尝试将字符串转为数值（如果price是字符串类型）
-            try {
-                return new BigDecimal(value.toString());
-            } catch (Exception e) {
-                throw new IllegalArgumentException("不支持的价格类型：" + value.getClass().getName());
-            }
-        }
-    }
+		for (StockStatistics stats : stockStatsList) {
+			// 1. 先校验核心字段非空且数量有效
+			if (stats == null || stats.getPrice() == null || stats.getNum() == null || stats.getNum() <= 0) {
+				continue;
+			}
 
+			try {
+				// 2. 统一转换为BigDecimal，兼容Double/Integer/BigDecimal类型
+				BigDecimal priceBigDecimal = convertToBigDecimal(stats.getPrice());
+				BigDecimal numBigDecimal = BigDecimal.valueOf(stats.getNum());
 
+				// 3. 安全计算 price*num 并累加
+				BigDecimal currentPriceNum = priceBigDecimal.multiply(numBigDecimal);
+				totalPriceNum = totalPriceNum.add(currentPriceNum);
+				totalNum += stats.getNum();
+
+			} catch (Exception e) {
+				// 捕获类型转换/计算异常，跳过这条无效数据
+				System.err.println("处理数据异常，跳过：" + e.getMessage());
+				continue;
+			}
+		}
+
+		// 防止除数为0
+		if (totalNum == 0) {
+			return BigDecimal.ZERO;
+		}
+
+		// 保留2位小数，四舍五入
+		return totalPriceNum.divide(BigDecimal.valueOf(totalNum), 2, RoundingMode.HALF_UP);
+	}
+
+	// 新增：通用类型转换方法，将任意数值类型转为BigDecimal
+	private BigDecimal convertToBigDecimal(Object value) {
+		if (value == null) {
+			return BigDecimal.ZERO;
+		}
+		if (value instanceof BigDecimal) {
+			return (BigDecimal) value;
+		} else if (value instanceof Double) {
+			return BigDecimal.valueOf((Double) value);
+		} else if (value instanceof Integer) {
+			return BigDecimal.valueOf((Integer) value);
+		} else if (value instanceof Float) {
+			return BigDecimal.valueOf((Float) value);
+		} else if (value instanceof Long) {
+			return BigDecimal.valueOf((Long) value);
+		} else {
+			// 尝试将字符串转为数值（如果price是字符串类型）
+			try {
+				return new BigDecimal(value.toString());
+			} catch (Exception e) {
+				throw new IllegalArgumentException("不支持的价格类型：" + value.getClass().getName());
+			}
+		}
+	}
 
 }

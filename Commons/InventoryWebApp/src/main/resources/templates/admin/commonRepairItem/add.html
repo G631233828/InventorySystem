@@ -35,7 +35,7 @@
 									th:action="@{/commonRepairItem}" 
 									method="post" th:object="${commonRepairItem}">
 									<input type="hidden" name="_method" th:value="${commonRepairItem?.id} != null ? 'PUT' : 'POST'"/>
-								<input type="hidden" name="id" th:value="${commonRepairItem?.id}"/>
+								<input type="hidden" name="id" th:if="${commonRepairItem!=null}" th:value="${commonRepairItem?.id}"/>
 												
 									<!-- 设备名称 -->
 									<div class="form-group">

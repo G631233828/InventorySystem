@@ -16,6 +16,7 @@ import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralServiceImpl;
 import zhongchiedu.inventory.pojo.AfterSalesProjects;
+import zhongchiedu.inventory.pojo.CommonRepairItem;
 import zhongchiedu.inventory.pojo.ProcessInfo;
 import zhongchiedu.inventory.pojo.WxReporter;
 import zhongchiedu.inventory.service.AfterSalesProjectsService;
@@ -113,31 +114,18 @@ public class AfterSalesProjectsServiceImpl extends GeneralServiceImpl<AfterSales
 	@Override
 	@SystemServiceLog(description = "编辑售后项目保障信息")
 	public void saveOrUpdate(AfterSalesProjects afterSalesProjects) {
-		if (Common.isEmpty(afterSalesProjects)) {
-			log.warn("保存售后项目保障失败：入参为空");
-			return;
-		}
-
-		try {
-
+		if (Common.isNotEmpty(afterSalesProjects)) {
 			if (Common.isNotEmpty(afterSalesProjects.getId())) {
-				// 更新逻辑：查询原数据并拷贝属性
-				AfterSalesProjects oldEntity = this.findOneById(afterSalesProjects.getId(), AfterSalesProjects.class);
-				if (oldEntity != null) {
-					// 拷贝属性（忽略主键和创建时间）
-					BeanUtils.copyProperties(afterSalesProjects, oldEntity, "id", "createTime");
-					this.save(oldEntity);
-					log.info("更新售后项目保障成功：ID={}", afterSalesProjects.getId());
-				} else {
-					log.warn("更新售后项目保障失败：未找到ID={}的记录", afterSalesProjects.getId());
-				}
+				// update
+				AfterSalesProjects ed = this.findOneById(afterSalesProjects.getId(), AfterSalesProjects.class);
+				BeanUtils.copyProperties(afterSalesProjects, ed);
+				this.save(afterSalesProjects);
+				log.info("修改成功");
 			} else {
+				// insert
 				this.insert(afterSalesProjects);
-				log.info("新增售后项目保障成功：项目名称={}", afterSalesProjects.getProjectName());
+				log.info("添加成功");
 			}
-		} catch (Exception e) {
-			log.error("保存/更新售后项目保障失败", e);
-			e.printStackTrace();
 		}
 	}
 

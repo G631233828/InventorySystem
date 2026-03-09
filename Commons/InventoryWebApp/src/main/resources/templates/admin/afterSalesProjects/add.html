@@ -4,6 +4,9 @@
 <head th:include="public/public_css::pub_css"></head>
 <head>
 <meta charset="utf-8">
+<!-- 引入foundation-datepicker样式（与参考页面路径一致） -->
+<link th:href="@{/plugs/fdatapicker/css/foundation-datepicker.css}"
+	rel="stylesheet" type="text/css">
 </head>
 <body>
 	<!-- Preloader -->
@@ -46,7 +49,7 @@
 									th:action="@{/afterSalesProject}" 
 									method="post" th:object="${afterSalesProjects}">
 									<input type="hidden" name="_method" th:value="${afterSalesProjects?.id} != null ? 'PUT' : 'POST'"/>
-									<input type="hidden" name="id" th:value="${afterSalesProjects?.id}"/>
+									<input type="hidden" th:if="${afterSalesProjects!=null}" name="id" th:value="${afterSalesProjects?.id}"/>
 									
 									<!-- 项目名称 -->
 									<div class="form-group">
@@ -111,21 +114,21 @@
 										</div>
 									</div>
 									
-									<!-- 保修开始时间 -->
+									<!-- 保修开始时间：添加唯一ID + readonly，与参考页面保持一致 -->
 									<div class="form-group">
 										<label class="col-sm-2 control-label">保修开始时间</label>
 										<div class="col-sm-10">
-											<input type="text" class="form-control" name="warrantyStartTime" 
-												th:value="${afterSalesProjects?.warrantyStartTime}" placeholder="请输入保修开始时间（格式：yyyy-MM-dd）">
+											<input type="text" class="form-control" id="warrantyStartTime" name="warrantyStartTime" 
+												th:value="${afterSalesProjects?.warrantyStartTime}" placeholder="请选择保修开始时间" readonly="readonly">
 										</div>
 									</div>
 									
-									<!-- 保修截止时间 -->
+									<!-- 保修截止时间：添加唯一ID + readonly，与参考页面保持一致 -->
 									<div class="form-group">
 										<label class="col-sm-2 control-label">保修截止时间</label>
 										<div class="col-sm-10">
-											<input type="text" class="form-control" name="warrantyEndTime" 
-												th:value="${afterSalesProjects?.warrantyEndTime}" placeholder="请输入保修截止时间（格式：yyyy-MM-dd）">
+											<input type="text" class="form-control" id="warrantyEndTime" name="warrantyEndTime" 
+												th:value="${afterSalesProjects?.warrantyEndTime}" placeholder="请选择保修截止时间" readonly="readonly">
 										</div>
 									</div>
 									
@@ -161,6 +164,39 @@
 	<!-- 底部js -->
 	<div th:replace="public/public_js::pub_js"></div>
 	<div th:replace="public/public_js::validator"></div>
+	
+	<!-- 引入foundation-datepicker核心JS（与参考页面路径一致） -->
+	<script th:src="@{/plugs/fdatapicker/js/foundation-datepicker.js}"></script>
+	<script th:src="@{/plugs/fdatapicker/js/locales/foundation-datepicker.zh-CN.js}"></script>
+	
 	<script type="text/javascript" th:src="@{/js/admin/afterSalesProjects/afterSalesProjects.js}"></script>
+	
+	<!-- 初始化日期选择器（参考预计取货时间的初始化逻辑） -->
+	<script type="text/javascript">
+		// 页面加载完成后初始化
+		$(function() {
+			// 初始化保修开始时间
+			$('#warrantyStartTime').fdatepicker({
+				format: 'yyyy-mm-dd', // 与参考页面一致的日期格式
+				language: 'zh-CN',    // 中文显示
+				autoclose: true,      // 选择后自动关闭
+				todayHighlight: true, // 高亮今日
+				readonly: true        // 只读，仅通过控件选择
+			});
+			
+			// 初始化保修截止时间
+			$('#warrantyEndTime').fdatepicker({
+				format: 'yyyy-mm-dd',
+				language: 'zh-CN',
+				autoclose: true,
+				todayHighlight: true,
+				readonly: true,
+				// 可选：限制截止时间不能早于开始时间
+				minDate: function() {
+					return $('#warrantyStartTime').val() || new Date();
+				}
+			});
+		});
+	</script>
 </body>
 </html>
