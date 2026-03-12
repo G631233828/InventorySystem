@@ -1242,6 +1242,11 @@ public class Common {
 		
 	}
 	
+	/**
+	 * 获取上月最后一天
+	 * @param inputDateString
+	 * @return
+	 */
 	 public static String getLastDayOfPreviousMonthAsString(String inputDateString) {
 		 
 		 	String dateFormat = "yyyy-MM-dd";
@@ -1260,6 +1265,25 @@ public class Common {
 	        // 将LocalDate对象格式化为字符串
 	        return lastDayOfPreviousMonth.format(formatter);
 	    }
+	 
+	 /*
+	  * 获取当月最后一天
+	  */
+	 public static String getLastDayOfCurrentMonthAsString(String inputDateString) {
+		    String dateFormat = "yyyy-MM-dd";
+		    DateTimeFormatter formatter = DateTimeFormatter.ofPattern(dateFormat);
+		    
+		    try {
+		        LocalDate inputDate = LocalDate.parse(inputDateString, formatter);
+		        LocalDate lastDayOfCurrentMonth = inputDate.with(TemporalAdjusters.lastDayOfMonth());
+		        return lastDayOfCurrentMonth.format(formatter);
+		    } catch (Exception e) {
+		        // 格式错误时返回null或抛出自定义异常，根据业务需求调整
+		        System.err.println("日期格式错误，必须为yyyy-MM-dd：" + inputDateString);
+		        return null;
+		    }
+		}
+	 
 	
 	
 		/**

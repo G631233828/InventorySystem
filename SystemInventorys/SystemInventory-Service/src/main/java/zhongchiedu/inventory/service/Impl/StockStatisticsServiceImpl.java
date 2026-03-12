@@ -422,6 +422,25 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 					// 出货数量不够
 					return BasicDataResult.build(400, "货物库存数量不足", null);
 				}
+				
+				String dj =stock.getPrice();
+				
+				System.out.println(stock.getPrice());
+				System.out.println(stock.getPrice() == null);
+				System.out.println(stock.getPrice() == "");
+				if(Common.isEmpty(stock.getPrice())) {
+					 try {
+	                     BigDecimal avgPrice = this.calculateAveragePriceByStockId(stock.getId(), TimeRangeType.CURRENT_MONTH);
+	                     if (avgPrice != null && avgPrice.compareTo(BigDecimal.ZERO) > 0) {
+	                         dj = String.valueOf(avgPrice.doubleValue());
+	                     }
+	                 } catch (Exception e) {
+	                     // 调用失败则设为0.0，避免导出中断
+	                     dj = "0.0";
+	                 }
+				}
+				
+				stockStatistics.setPrice(dj);
 				stockStatistics.setRemainingNum(newNum - ycknum);
 				stockStatistics.setDepotTime(Common.fromDateH());
 				stockStatistics.setNewNum(newNum);
@@ -666,10 +685,8 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	        // 获取所有的设备
 	        for (StockStatistics st : list) {
 	            if (st.getStock() != null && stock.getId().equals(st.getStock().getId())) {
-	                if (st.isInOrOut()) {
-	                    // ========== 入库逻辑：保留原有逻辑，仅增加数据转换防护 ==========
-	                    Double num = Common.isNotEmpty(st.getNum()) ? st.getNum() : 0.0;
-	                    Double dj = 0.0;
+	            	
+	            	  Double dj = 0.0;
 	                    // 增加非数字转换异常防护
 	                    if (Common.isNotEmpty(st.getPrice())) {
 	                        try {
@@ -678,6 +695,10 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	                            dj = 0.0; // 非数字则设为0.0
 	                        }
 	                    }
+	                if (st.isInOrOut()) {
+	                    // ========== 入库逻辑：保留原有逻辑，仅增加数据转换防护 ==========
+	                    Double num = Common.isNotEmpty(st.getNum()) ? st.getNum() : 0.0;
+	                 
 
 	                    // 入库统计（原有字段结构不变）
 	                    Map<String, Object> in = new HashMap<>();
@@ -698,33 +719,33 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	                } else {
 	                    // ========== 出库逻辑：核心修改 - 分当月/历史月份取单价 ==========
 	                    Double num = Common.isNotEmpty(st.getNum()) ? st.getNum() : 0.0;
-	                    Double dj = 0.0; // 最终出库单价
+	                   // Double dj = 0.0; // 最终出库单价
 	                    String stockId = stock.getId();
 
-	                    // 分场景获取单价
-	                    if (isCurrentMonth) {
-	                        // 当月：调用calculateAveragePriceByStockId获取本月平均单价（BigDecimal转Double）
-	                        try {
-	                            BigDecimal avgPrice = this.calculateAveragePriceByStockId(stockId, TimeRangeType.CURRENT_MONTH);
-	                            if (avgPrice != null && avgPrice.compareTo(BigDecimal.ZERO) > 0) {
-	                                dj = avgPrice.doubleValue();
-	                            }
-	                        } catch (Exception e) {
-	                            // 调用失败则设为0.0，避免导出中断
-	                            dj = 0.0;
-	                        }
-	                    } else {
-	                        // 历史月份：从MonthEndStatistics获取单价
-	                        MonthEndStatistics historyStat = stockIdToHistoryStats.get(stockId);
-	                        if (historyStat != null && Common.isNotEmpty(historyStat.getPrice())) {
-	                            try {
-	                                // 历史单价转Double，非数字则设为0.0
-	                                dj = Double.parseDouble(historyStat.getPrice());
-	                            } catch (NumberFormatException e) {
-	                                dj = 0.0;
-	                            }
-	                        }
-	                    }
+//	                    // 分场景获取单价
+//	                    if (isCurrentMonth) {
+//	                        // 当月：调用calculateAveragePriceByStockId获取本月平均单价（BigDecimal转Double）
+//	                        try {
+//	                            BigDecimal avgPrice = this.calculateAveragePriceByStockId(stockId, TimeRangeType.CURRENT_MONTH);
+//	                            if (avgPrice != null && avgPrice.compareTo(BigDecimal.ZERO) > 0) {
+//	                                dj = avgPrice.doubleValue();
+//	                            }
+//	                        } catch (Exception e) {
+//	                            // 调用失败则设为0.0，避免导出中断
+//	                            dj = 0.0;
+//	                        }
+//	                    } else {
+//	                        // 历史月份：从MonthEndStatistics获取单价
+//	                        MonthEndStatistics historyStat = stockIdToHistoryStats.get(stockId);
+//	                        if (historyStat != null && Common.isNotEmpty(historyStat.getPrice())) {
+//	                            try {
+//	                                // 历史单价转Double，非数字则设为0.0
+//	                                dj = Double.parseDouble(historyStat.getPrice());
+//	                            } catch (NumberFormatException e) {
+//	                                dj = 0.0;
+//	                            }
+//	                        }
+//	                    }
 
 	                    // 出库统计（仅调整dj取值，原有字段结构不变）
 	                    Map<String, Object> out = new HashMap<>();
@@ -1681,226 +1702,485 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	// TODO //AI修改
 	@Override
 	public Workbook newExport2(HttpServletRequest request, RequestBo requestBo) {
-		Query query = new Query();
-		String end = "";
-		boolean isCurrentMonth = false; // 【新增】标记是否为当月查询
-		if (Common.isNotEmpty(requestBo.getStart()) && Common.isNotEmpty(requestBo.getEnd())) {
-			end = requestBo.getEnd() + " 23:59:59";
-			isCurrentMonth = Common.isDateTimeInCurrentMonth(end); // 【新增】判断是否为当月
+	    Query query = new Query();
+	    String end = "";
+	    boolean isCurrentMonth = false; // 【新增】标记是否为当月查询
+	    if (Common.isNotEmpty(requestBo.getStart()) && Common.isNotEmpty(requestBo.getEnd())) {
+	        end = requestBo.getEnd() + " 23:59:59";
+	        isCurrentMonth = Common.isDateTimeInCurrentMonth(end); // 【新增】判断是否为当月
 
-			Criteria ca = new Criteria();
-			ca.orOperator(Criteria.where("storageTime").gte(requestBo.getStart()).lte(end),
-					Criteria.where("depotTime").gte(requestBo.getStart()).lte(end));
-			query.addCriteria(ca);
-		}
+	        Criteria ca = new Criteria();
+	        ca.orOperator(Criteria.where("storageTime").gte(requestBo.getStart()).lte(end),
+	                Criteria.where("depotTime").gte(requestBo.getStart()).lte(end));
+	        query.addCriteria(ca);
+	    }
 
-		query.addCriteria(Criteria.where("revoke").is(false));
-		query.addCriteria(Criteria.where("byRevoke").is(false));
-		List<StockStatistics> list = this.find(query, StockStatistics.class);
-		List<Map<String, Object>> outlist = new ArrayList<>();
+	    query.addCriteria(Criteria.where("revoke").is(false));
+	    query.addCriteria(Criteria.where("byRevoke").is(false));
+	    List<StockStatistics> list = this.find(query, StockStatistics.class);
+	    List<Map<String, Object>> outlist = new ArrayList<>();
 
-		// 查询历史月度统计数据
-		String lastDayOfPreviousMonthAsString = Common.getLastDayOfPreviousMonthAsString(requestBo.getStart());
-		List<MonthEndStatistics> findMonthEndStatisticsByDate = this.monthEndStatisticsService
-				.findMonthEndStatisticsByDate(lastDayOfPreviousMonthAsString);
-		Map<String, MonthEndStatistics> listMonthEndStatisticsToMap = listMonthEndStatisticsToMap(
-				findMonthEndStatisticsByDate);
+	    // ========== 1. 查询历史月度统计数据（原有逻辑保留） ==========
+	    String lastDayOfPreviousMonthAsString = Common.getLastDayOfPreviousMonthAsString(requestBo.getStart());
+	    List<MonthEndStatistics> findMonthEndStatisticsByDate = this.monthEndStatisticsService
+	            .findMonthEndStatisticsByDate(lastDayOfPreviousMonthAsString);
+	    Map<String, MonthEndStatistics> listMonthEndStatisticsToMap = listMonthEndStatisticsToMap(
+	            findMonthEndStatisticsByDate);
 
-		// 获取所有库存设备
-		Map<String, List<StockStatistics>> map = new HashMap<String, List<StockStatistics>>();
-		List<Stock> findAllStock = new ArrayList<Stock>();
-		if (Common.isDateTimeInCurrentMonth(end)) {
-			findAllStock = this.stockService.findAllStock();
-			List<StockStatistics> list2 = findAllStock.stream().map(stock -> {
-				StockStatistics st = new StockStatistics();
-				st.setNewNum(0.0);
-				st.setNum(0.0);
-				st.setStock(stock);
-				return st;
-			}).collect(Collectors.toList());
-			list.addAll(list2);
-		} else {
-			findAllStock = this.stockService.findAllStock();
-			List<StockStatistics> list2 = findMonthEndStatisticsByDate.stream().map(stock -> {
-				StockStatistics st = new StockStatistics();
-				st.setNewNum(stock.getMonthEndStockNum());
-				st.setNum(0.0);
-				st.setStock(stock.getStock());
-				return st;
-			}).collect(Collectors.toList());
-			list.addAll(list2);
-		}
+	    // ========== 2. 新增：查询当前查询月份的月度统计数据 ==========
+	    Map<String, MonthEndStatistics> currentQueryMonthStatsMap = new HashMap<>();
+	    if (!isCurrentMonth && Common.isNotEmpty(requestBo.getEnd())) {
+	        // 获取查询月份最后一天（复用Common工具类方法）
+	        String queryMonthLastDay = Common.getLastDayOfCurrentMonthAsString(requestBo.getEnd());
+	        // 查询该日期的月度统计数据
+	        List<MonthEndStatistics> currentMonthStatsList = this.monthEndStatisticsService
+	                .findMonthEndStatisticsByDate(queryMonthLastDay);
+	        // 转换为Map（设备ID为key）
+	        currentQueryMonthStatsMap = listMonthEndStatisticsToMap(currentMonthStatsList);
+	    }
 
-		// 构建设备库存统计Map
-		for (StockStatistics st : list) {
-			String stockId = st.getStock().getId();
-			boolean containsKey = map.containsKey(stockId);
-			if (containsKey) {
-				List<StockStatistics> mlist = map.get(stockId);
-				mlist.add(st);
-			} else {
-				List<StockStatistics> ls = new ArrayList<StockStatistics>();
-				ls.add(st);
-				map.put(stockId, ls);
-			}
-		}
+	    // 获取所有库存设备
+	    Map<String, List<StockStatistics>> map = new HashMap<String, List<StockStatistics>>();
+	    List<Stock> findAllStock = new ArrayList<Stock>();
+	    if (Common.isDateTimeInCurrentMonth(end)) {
+	        findAllStock = this.stockService.findAllStock();
+	        List<StockStatistics> list2 = findAllStock.stream().map(stock -> {
+	            StockStatistics st = new StockStatistics();
+	            st.setNewNum(0.0);
+	            st.setNum(0.0);
+	            st.setStock(stock);
+	            return st;
+	        }).collect(Collectors.toList());
+	        list.addAll(list2);
+	    } else {
+	        findAllStock = this.stockService.findAllStock();
+	        List<StockStatistics> list2 = findMonthEndStatisticsByDate.stream().map(stock -> {
+	            StockStatistics st = new StockStatistics();
+	            st.setNewNum(stock.getMonthEndStockNum());
+	            st.setNum(0.0);
+	            st.setStock(stock.getStock());
+	            return st;
+	        }).collect(Collectors.toList());
+	        list.addAll(list2);
+	    }
 
-		// 遍历处理每个设备的统计数据
-		for (Map.Entry<String, List<StockStatistics>> entry : map.entrySet()) {
-			Map<String, Object> outmap = new HashMap<>();
-			StockStatistics gs = entry.getValue().get(entry.getValue().size() - 1);
+	    // 构建设备库存统计Map
+	    for (StockStatistics st : list) {
+	        String stockId = st.getStock().getId();
+	        boolean containsKey = map.containsKey(stockId);
+	        if (containsKey) {
+	            List<StockStatistics> mlist = map.get(stockId);
+	            mlist.add(st);
+	        } else {
+	            List<StockStatistics> ls = new ArrayList<StockStatistics>();
+	            ls.add(st);
+	            map.put(stockId, ls);
+	        }
+	    }
 
-			// 设备基础信息赋值
-			outmap.put("area", Common.isEmpty(gs.getStock().getArea()) ? "" : gs.getStock().getArea().getName());
-			outmap.put("stockName", Common.isEmpty(gs.getStock().getName()) ? "" : gs.getStock().getName());
-			outmap.put("modelName", Common.isEmpty(gs.getStock().getModel()) ? "" : gs.getStock().getModel());
-			outmap.put("scope", Common.isEmpty(gs.getStock().getScope()) ? "" : gs.getStock().getScope());
-			if (Common.isNotEmpty(gs.getStock().getGoodsStorage())) {
-				outmap.put("goodsStorage",
-						Common.isNotEmpty(gs.getStock().getGoodsStorage().getShelflevel())
-								? "/" + gs.getStock().getGoodsStorage().getShelflevel()
-								: "");
-			}
-			outmap.put("agent", Common.isEmpty(gs.getStock().isAgent()) ? "" : gs.getStock().isAgent() ? "是" : "否");
-			outmap.put("unit", Common.isEmpty(gs.getStock().getUnit()) ? "" : gs.getStock().getUnit().getName());
+	    // 遍历处理每个设备的统计数据
+	    for (Map.Entry<String, List<StockStatistics>> entry : map.entrySet()) {
+	        Map<String, Object> outmap = new HashMap<>();
+	        StockStatistics gs = entry.getValue().get(entry.getValue().size() - 1);
 
-			// 初始化变量
-			BigDecimal dj = new BigDecimal(0);// 单价
-			BigDecimal zj = new BigDecimal(0);// 总金额
-			BigDecimal newNum = new BigDecimal(gs.getNewNum());
-			BigDecimal num = new BigDecimal(gs.getNum());
-			BigDecimal qcnum = new BigDecimal(0);
-			MonthEndStatistics monthEndStatistics = listMonthEndStatisticsToMap.get(gs.getStock().getId());
-			if (Common.isNotEmpty(monthEndStatistics)) {
-				qcnum = new BigDecimal(monthEndStatistics.getMonthEndStockNum());
-			}
+	        // 设备基础信息赋值
+	        outmap.put("area", Common.isEmpty(gs.getStock().getArea()) ? "" : gs.getStock().getArea().getName());
+	        outmap.put("stockName", Common.isEmpty(gs.getStock().getName()) ? "" : gs.getStock().getName());
+	        outmap.put("modelName", Common.isEmpty(gs.getStock().getModel()) ? "" : gs.getStock().getModel());
+	        outmap.put("scope", Common.isEmpty(gs.getStock().getScope()) ? "" : gs.getStock().getScope());
+	        if (Common.isNotEmpty(gs.getStock().getGoodsStorage())) {
+	            outmap.put("goodsStorage",
+	                    Common.isNotEmpty(gs.getStock().getGoodsStorage().getShelflevel())
+	                            ? "/" + gs.getStock().getGoodsStorage().getShelflevel()
+	                            : "");
+	        }
+	        outmap.put("agent", Common.isEmpty(gs.getStock().isAgent()) ? "" : gs.getStock().isAgent() ? "是" : "否");
+	        outmap.put("unit", Common.isEmpty(gs.getStock().getUnit()) ? "" : gs.getStock().getUnit().getName());
 
-			// ====================== 核心修改：非当月单价降级逻辑 ======================
-			if (isCurrentMonth) {
-				// 当月：维持原有逻辑
-				if (Common.isNotEmpty(gs.getStock().getPrice())) {
-					String price = gs.getStock().getPrice();
-					boolean numeric = Common.isNumeric(price);
-					if (!numeric) {
-						price = "0.00";
-					}
-					dj = new BigDecimal(price);
-					zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);
-				} else {
-					dj = this.calculateAveragePriceByStockId(gs.getStock().getId(), TimeRangeType.CURRENT_MONTH);
-					zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);
-				}
-			} else {
-				// 非当月：优先历史价格，零值/空值则降级到Stock
-				boolean useHistoryPrice = false;
-				if (Common.isNotEmpty(monthEndStatistics) && Common.isNotEmpty(monthEndStatistics.getPrice())) {
-					String historyPrice = monthEndStatistics.getPrice();
-					// 校验历史价格有效性 + 判断是否为0/0.00
-					boolean isValidPrice = Common.isNumeric(historyPrice);
-					BigDecimal historyPriceBig = isValidPrice ? new BigDecimal(historyPrice) : new BigDecimal("0.00");
-					// 仅当历史价格有效且≠0时使用
-					if (isValidPrice && historyPriceBig.compareTo(BigDecimal.ZERO) != 0) {
-						dj = historyPriceBig;
-						zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);
-						useHistoryPrice = true;
-					}
-				}
-				// 降级逻辑：历史价格为0/空/无效时，从Stock获取
-				if (!useHistoryPrice) {
-					if (Common.isNotEmpty(gs.getStock().getPrice())) {
-						String stockPrice = gs.getStock().getPrice();
-						boolean numeric = Common.isNumeric(stockPrice);
-						if (!numeric) {
-							stockPrice = "0.00";
-						}
-						dj = new BigDecimal(stockPrice);
-						zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);
-					} else {
-						dj = this.calculateAveragePriceByStockId(gs.getStock().getId(), TimeRangeType.CURRENT_MONTH);
-						zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);
-					}
-				}
-			}
-			// ====================== 核心修改结束 ======================
+	        // 初始化变量
+	        BigDecimal oldDj = new BigDecimal(0);// 期初单价
+	        BigDecimal zj = new BigDecimal(0);// 期初总金额
+	        BigDecimal newNum = new BigDecimal(gs.getNewNum());
+	        BigDecimal num = new BigDecimal(gs.getNum());
+	        BigDecimal qcnum = new BigDecimal(0);
+	        MonthEndStatistics monthEndStatistics = listMonthEndStatisticsToMap.get(gs.getStock().getId());
+	        if (Common.isNotEmpty(monthEndStatistics)) {
+	            qcnum = new BigDecimal(monthEndStatistics.getMonthEndStockNum());
+	        }
 
-			outmap.put("oldprice", dj);
-			outmap.put("oldinventory", qcnum);
-			outmap.put("oldpriceall", zj);
+	        // ====================== 期初单价逻辑（原有逻辑保留） ======================
+	        if (isCurrentMonth) {
+	            // 当月：维持原有逻辑
+	            if (Common.isNotEmpty(gs.getStock().getPrice())) {
+	                String price = gs.getStock().getPrice();
+	                boolean numeric = Common.isNumeric(price);
+	                if (!numeric) {
+	                    price = "0.00";
+	                }
+	                oldDj = new BigDecimal(price);
+	                zj = qcnum.multiply(oldDj).setScale(2, BigDecimal.ROUND_HALF_UP);
+	            } else {
+	                oldDj = this.calculateAveragePriceByStockId(gs.getStock().getId(), TimeRangeType.CURRENT_MONTH);
+	                zj = qcnum.multiply(oldDj).setScale(2, BigDecimal.ROUND_HALF_UP);
+	            }
+	        } else {
+	            // 非当月：优先历史价格，零值/空值则降级到Stock
+	            boolean useHistoryPrice = false;
+	            if (Common.isNotEmpty(monthEndStatistics) && Common.isNotEmpty(monthEndStatistics.getPrice())) {
+	                String historyPrice = monthEndStatistics.getPrice();
+	                // 校验历史价格有效性 + 判断是否为0/0.00
+	                boolean isValidPrice = Common.isNumeric(historyPrice);
+	                BigDecimal historyPriceBig = isValidPrice ? new BigDecimal(historyPrice) : new BigDecimal("0.00");
+	                // 仅当历史价格有效且≠0时使用
+	                if (isValidPrice && historyPriceBig.compareTo(BigDecimal.ZERO) != 0) {
+	                    oldDj = historyPriceBig;
+	                    zj = qcnum.multiply(oldDj).setScale(2, BigDecimal.ROUND_HALF_UP);
+	                    useHistoryPrice = true;
+	                }
+	            }
+	            // 降级逻辑：历史价格为0/空/无效时，从Stock获取
+	            if (!useHistoryPrice) {
+	                if (Common.isNotEmpty(gs.getStock().getPrice())) {
+	                    String stockPrice = gs.getStock().getPrice();
+	                    boolean numeric = Common.isNumeric(stockPrice);
+	                    if (!numeric) {
+	                        stockPrice = "0.00";
+	                    }
+	                    oldDj = new BigDecimal(stockPrice);
+	                    zj = qcnum.multiply(oldDj).setScale(2, BigDecimal.ROUND_HALF_UP);
+	                } else {
+	                    oldDj = this.calculateAveragePriceByStockId(gs.getStock().getId(), TimeRangeType.CURRENT_MONTH);
+	                    zj = qcnum.multiply(oldDj).setScale(2, BigDecimal.ROUND_HALF_UP);
+	                }
+	            }
+	        }
 
-			// 计算入库/出库数量
-			long in = 0;
-			long out = 0;
-			for (StockStatistics st : entry.getValue()) {
-				if (st.isInOrOut()) {
-					in += st.getNum();
-				} else {
-					out += st.getNum();
-				}
-			}
+	        // 期初数据存入map（保持原有正确数据）
+	        outmap.put("oldprice", oldDj);
+	        outmap.put("oldinventory", qcnum);
+	        outmap.put("oldpriceall", zj);
 
-			// 【修改】入库/出库单价：非当月沿用最终的dj（已处理降级逻辑）
-			if (isCurrentMonth) {
-				dj = this.calculateAveragePriceByStockId(gs.getStock().getId(), TimeRangeType.CURRENT_MONTH);
-			} else {
-				// 非当月无需额外兜底，dj已通过降级逻辑处理
-				if (dj.compareTo(BigDecimal.ZERO) == 0) {
-					// 最终兜底：若dj仍为0，从Stock获取
-					if (Common.isNotEmpty(gs.getStock().getPrice())) {
-						String stockPrice = gs.getStock().getPrice();
-						dj = Common.isNumeric(stockPrice) ? new BigDecimal(stockPrice) : new BigDecimal("0.00");
-					} else {
-						dj = this.calculateAveragePriceByStockId(gs.getStock().getId(), TimeRangeType.CURRENT_MONTH);
-					}
-				}
-			}
+	        // 计算入库/出库数量
+	        long in = 0;
+	        long out = 0;
+	        for (StockStatistics st : entry.getValue()) {
+	            if (st.isInOrOut()) {
+	                in += st.getNum();
+	            } else {
+	                out += st.getNum();
+	            }
+	        }
 
-			// 计算入库/出库金额
-			BigDecimal e = new BigDecimal(in);
-			if (in > 0) {
-				BigDecimal inpriceall = e.multiply(dj);
-				outmap.put("inpriceall", inpriceall);
-			} else {
-				outmap.put("inpriceall", 0);
-			}
-			outmap.put("in", in);
-			outmap.put("inprice", dj);
+	        // ====================== 重构变动单价逻辑（核心修改） ======================
+	        BigDecimal changeDj = BigDecimal.ZERO; // 入库/期末使用的变动单价
+	        if (isCurrentMonth) {
+	            // 当月：获取当月平均单价
+	            changeDj = this.calculateAveragePriceByStockId(gs.getStock().getId(), TimeRangeType.CURRENT_MONTH);
+	        } else {
+	            // 历史月份：从已构建的Map中获取查询月份的月末单价（复用原有查询逻辑）
+	            MonthEndStatistics historyMonthStats = currentQueryMonthStatsMap.get(gs.getStock().getId());
+	            
+	            if (historyMonthStats != null && Common.isNotEmpty(historyMonthStats.getPrice()) 
+	                    && Common.isNumeric(historyMonthStats.getPrice())) {
+	                // 使用历史月份月末单价
+	                changeDj = new BigDecimal(historyMonthStats.getPrice());
+	            } else if (oldDj.compareTo(BigDecimal.ZERO) != 0) {
+	                // 降级使用期初单价
+	                changeDj = oldDj;
+	            } else if (Common.isNotEmpty(gs.getStock().getPrice()) && Common.isNumeric(gs.getStock().getPrice())) {
+	                // 最终降级使用Stock中的价格
+	                changeDj = new BigDecimal(gs.getStock().getPrice());
+	            } else {
+	                // 兜底计算平均单价
+	                changeDj = this.calculateAveragePriceByStockId(gs.getStock().getId(), TimeRangeType.CURRENT_MONTH);
+	            }
+	        }
 
-			BigDecimal d = new BigDecimal(out);
-			BigDecimal outpriceall = d.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);
-			outmap.put("out", out);
-			outmap.put("outprice", dj);
-			outmap.put("outpriceall", outpriceall);
+	        // 计算入库金额
+	        BigDecimal inBig = new BigDecimal(in);
+	        BigDecimal inpriceall = BigDecimal.ZERO;
+	        if (in > 0) {
+	            inpriceall = inBig.multiply(changeDj).setScale(2, BigDecimal.ROUND_HALF_UP);
+	        }
+	        outmap.put("in", in);
+	        outmap.put("inprice", changeDj);
+	        outmap.put("inpriceall", inpriceall);
 
-			// 计算期末库存
-			StockStatistics gsend = entry.getValue().get(0);
-			BigDecimal qmnum = qcnum.add(e).subtract(d);
-			BigDecimal qmzj = dj.multiply(qmnum).setScale(2, BigDecimal.ROUND_HALF_UP);
-			outmap.put("newprice", dj);
-			outmap.put("newinventory", qmnum);
-			outmap.put("newpriceall", qmzj);
-			outmap.put("purchaseInvoiceDate",
-					Common.isEmpty(gs.getPurchaseInvoiceDate()) ? "" : gs.getPurchaseInvoiceDate());
-			outlist.add(outmap);
-		}
+	        // 计算出库单价：(期初总金额 + 入库总金额) / (期初数量 + 入库数量)
+	        BigDecimal outprice = BigDecimal.ZERO;
+	        BigDecimal denominator = qcnum.add(inBig); // 分母：期初数量 + 入库数量
+	        if (denominator.compareTo(BigDecimal.ZERO) > 0) { // 防止除数为0
+	            outprice = zj.add(inpriceall).divide(denominator, 2, BigDecimal.ROUND_HALF_UP);
+	        } else if (changeDj.compareTo(BigDecimal.ZERO) > 0) { // 降级使用变动单价
+	            outprice = changeDj;
+	        } else {
+	            outprice = oldDj; // 最终降级使用期初单价
+	        }
 
-		// 导出Excel
-		Map<String, Object> dataMap = new HashMap<>();
-		dataMap.put("inlist", outlist);
-		dataMap.put("title", requestBo.getStart() + "~" + requestBo.getEnd() + "库存统计");
+	        // 计算出库金额
+	        BigDecimal outBig = new BigDecimal(out);
+	        BigDecimal outpriceall = outBig.multiply(outprice).setScale(2, BigDecimal.ROUND_HALF_UP);
+	        outmap.put("out", out);
+	        outmap.put("outprice", outprice);
+	        outmap.put("outpriceall", outpriceall);
 
-		String ctxPath = request.getServletContext().getRealPath("/WEB-INF/Templates/");
-		String fileName = "新库存统计导出模板.xlsx";
-		TemplateExportParams params = new TemplateExportParams(ctxPath + fileName, true);
-		Workbook doc = null;
+	        // 计算期末库存数量（原有逻辑保留）
+	        BigDecimal qmnum = qcnum.add(inBig).subtract(outBig);
+	        
+	        // ========== 核心修改：期末总价计算逻辑 ==========
+	        // 期末总价 = 期初总金额 + 入库总金额 - 出库总金额
+//	        BigDecimal qmzj = zj.add(inpriceall).subtract(outpriceall).setScale(2, BigDecimal.ROUND_HALF_UP);
+	        // 期末总价 = 期末数量 × 出库单价（保留2位小数，不四舍五入）
+	        BigDecimal qmzj = qmnum.multiply(outprice).setScale(2, BigDecimal.ROUND_DOWN);
+	        
+	        outmap.put("newprice", outprice);
+	        outmap.put("newinventory", qmnum);
+	        outmap.put("newpriceall", qmzj); // 存入修改后的期末总价
+	        outmap.put("purchaseInvoiceDate",
+	                Common.isEmpty(gs.getPurchaseInvoiceDate()) ? "" : gs.getPurchaseInvoiceDate());
+	        outlist.add(outmap);
+	    }
 
-		try {
-			doc = ExcelExportUtil.exportExcel(params, dataMap);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	    // 导出Excel
+	    Map<String, Object> dataMap = new HashMap<>();
+	    dataMap.put("inlist", outlist);
+	    dataMap.put("title", requestBo.getStart() + "~" + requestBo.getEnd() + "库存统计");
 
-		return doc;
+	    String ctxPath = request.getServletContext().getRealPath("/WEB-INF/Templates/");
+	    String fileName = "新库存统计导出模板.xlsx";
+	    TemplateExportParams params = new TemplateExportParams(ctxPath + fileName, true);
+	    Workbook doc = null;
+
+	    try {
+	        doc = ExcelExportUtil.exportExcel(params, dataMap);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+
+	    return doc;
 	}
+//2026年3月12日14:25:18
+//	public Workbook newExport2(HttpServletRequest request, RequestBo requestBo) {
+//		Query query = new Query();
+//		String end = "";
+//		boolean isCurrentMonth = false; // 【新增】标记是否为当月查询
+//		if (Common.isNotEmpty(requestBo.getStart()) && Common.isNotEmpty(requestBo.getEnd())) {
+//			end = requestBo.getEnd() + " 23:59:59";
+//			isCurrentMonth = Common.isDateTimeInCurrentMonth(end); // 【新增】判断是否为当月
+//
+//			Criteria ca = new Criteria();
+//			ca.orOperator(Criteria.where("storageTime").gte(requestBo.getStart()).lte(end),
+//					Criteria.where("depotTime").gte(requestBo.getStart()).lte(end));
+//			query.addCriteria(ca);
+//		}
+//
+//		query.addCriteria(Criteria.where("revoke").is(false));
+//		query.addCriteria(Criteria.where("byRevoke").is(false));
+//		List<StockStatistics> list = this.find(query, StockStatistics.class);
+//		List<Map<String, Object>> outlist = new ArrayList<>();
+//
+//		// 查询历史月度统计数据
+//		String lastDayOfPreviousMonthAsString = Common.getLastDayOfPreviousMonthAsString(requestBo.getStart());
+//		List<MonthEndStatistics> findMonthEndStatisticsByDate = this.monthEndStatisticsService
+//				.findMonthEndStatisticsByDate(lastDayOfPreviousMonthAsString);
+//		Map<String, MonthEndStatistics> listMonthEndStatisticsToMap = listMonthEndStatisticsToMap(
+//				findMonthEndStatisticsByDate);
+//
+//		// 获取所有库存设备
+//		Map<String, List<StockStatistics>> map = new HashMap<String, List<StockStatistics>>();
+//		List<Stock> findAllStock = new ArrayList<Stock>();
+//		if (Common.isDateTimeInCurrentMonth(end)) {
+//			findAllStock = this.stockService.findAllStock();
+//			List<StockStatistics> list2 = findAllStock.stream().map(stock -> {
+//				StockStatistics st = new StockStatistics();
+//				st.setNewNum(0.0);
+//				st.setNum(0.0);
+//				st.setStock(stock);
+//				return st;
+//			}).collect(Collectors.toList());
+//			list.addAll(list2);
+//		} else {
+//			findAllStock = this.stockService.findAllStock();
+//			List<StockStatistics> list2 = findMonthEndStatisticsByDate.stream().map(stock -> {
+//				StockStatistics st = new StockStatistics();
+//				st.setNewNum(stock.getMonthEndStockNum());
+//				st.setNum(0.0);
+//				st.setStock(stock.getStock());
+//				return st;
+//			}).collect(Collectors.toList());
+//			list.addAll(list2);
+//		}
+//
+//		// 构建设备库存统计Map
+//		for (StockStatistics st : list) {
+//			String stockId = st.getStock().getId();
+//			boolean containsKey = map.containsKey(stockId);
+//			if (containsKey) {
+//				List<StockStatistics> mlist = map.get(stockId);
+//				mlist.add(st);
+//			} else {
+//				List<StockStatistics> ls = new ArrayList<StockStatistics>();
+//				ls.add(st);
+//				map.put(stockId, ls);
+//			}
+//		}
+//
+//		// 遍历处理每个设备的统计数据
+//		for (Map.Entry<String, List<StockStatistics>> entry : map.entrySet()) {
+//			Map<String, Object> outmap = new HashMap<>();
+//			StockStatistics gs = entry.getValue().get(entry.getValue().size() - 1);
+//
+//			// 设备基础信息赋值
+//			outmap.put("area", Common.isEmpty(gs.getStock().getArea()) ? "" : gs.getStock().getArea().getName());
+//			outmap.put("stockName", Common.isEmpty(gs.getStock().getName()) ? "" : gs.getStock().getName());
+//			outmap.put("modelName", Common.isEmpty(gs.getStock().getModel()) ? "" : gs.getStock().getModel());
+//			outmap.put("scope", Common.isEmpty(gs.getStock().getScope()) ? "" : gs.getStock().getScope());
+//			if (Common.isNotEmpty(gs.getStock().getGoodsStorage())) {
+//				outmap.put("goodsStorage",
+//						Common.isNotEmpty(gs.getStock().getGoodsStorage().getShelflevel())
+//								? "/" + gs.getStock().getGoodsStorage().getShelflevel()
+//								: "");
+//			}
+//			outmap.put("agent", Common.isEmpty(gs.getStock().isAgent()) ? "" : gs.getStock().isAgent() ? "是" : "否");
+//			outmap.put("unit", Common.isEmpty(gs.getStock().getUnit()) ? "" : gs.getStock().getUnit().getName());
+//
+//			// 初始化变量
+//			BigDecimal dj = new BigDecimal(0);// 单价
+//			BigDecimal zj = new BigDecimal(0);// 总金额
+//			BigDecimal newNum = new BigDecimal(gs.getNewNum());
+//			BigDecimal num = new BigDecimal(gs.getNum());
+//			BigDecimal qcnum = new BigDecimal(0);
+//			MonthEndStatistics monthEndStatistics = listMonthEndStatisticsToMap.get(gs.getStock().getId());
+//			if (Common.isNotEmpty(monthEndStatistics)) {
+//				qcnum = new BigDecimal(monthEndStatistics.getMonthEndStockNum());
+//			}
+//
+//			// ====================== 核心修改：非当月单价降级逻辑 ======================
+//			if (isCurrentMonth) {
+//				// 当月：维持原有逻辑
+//				if (Common.isNotEmpty(gs.getStock().getPrice())) {
+//					String price = gs.getStock().getPrice();
+//					boolean numeric = Common.isNumeric(price);
+//					if (!numeric) {
+//						price = "0.00";
+//					}
+//					dj = new BigDecimal(price);
+//					zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);
+//				} else {
+//					dj = this.calculateAveragePriceByStockId(gs.getStock().getId(), TimeRangeType.CURRENT_MONTH);
+//					zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);
+//				}
+//			} else {
+//				// 非当月：优先历史价格，零值/空值则降级到Stock
+//				boolean useHistoryPrice = false;
+//				if (Common.isNotEmpty(monthEndStatistics) && Common.isNotEmpty(monthEndStatistics.getPrice())) {
+//					String historyPrice = monthEndStatistics.getPrice();
+//					// 校验历史价格有效性 + 判断是否为0/0.00
+//					boolean isValidPrice = Common.isNumeric(historyPrice);
+//					BigDecimal historyPriceBig = isValidPrice ? new BigDecimal(historyPrice) : new BigDecimal("0.00");
+//					// 仅当历史价格有效且≠0时使用
+//					if (isValidPrice && historyPriceBig.compareTo(BigDecimal.ZERO) != 0) {
+//						dj = historyPriceBig;
+//						zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);
+//						useHistoryPrice = true;
+//					}
+//				}
+//				// 降级逻辑：历史价格为0/空/无效时，从Stock获取
+//				if (!useHistoryPrice) {
+//					if (Common.isNotEmpty(gs.getStock().getPrice())) {
+//						String stockPrice = gs.getStock().getPrice();
+//						boolean numeric = Common.isNumeric(stockPrice);
+//						if (!numeric) {
+//							stockPrice = "0.00";
+//						}
+//						dj = new BigDecimal(stockPrice);
+//						zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);
+//					} else {
+//						dj = this.calculateAveragePriceByStockId(gs.getStock().getId(), TimeRangeType.CURRENT_MONTH);
+//						zj = qcnum.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);
+//					}
+//				}
+//			}
+//			// ====================== 核心修改结束 ======================
+//
+//			outmap.put("oldprice", dj);
+//			outmap.put("oldinventory", qcnum);
+//			outmap.put("oldpriceall", zj);
+//
+//			// 计算入库/出库数量
+//			long in = 0;
+//			long out = 0;
+//			for (StockStatistics st : entry.getValue()) {
+//				if (st.isInOrOut()) {
+//					in += st.getNum();
+//				} else {
+//					out += st.getNum();
+//				}
+//			}
+//
+//			// 【修改】入库/出库单价：非当月沿用最终的dj（已处理降级逻辑）
+//			if (isCurrentMonth) {
+//				dj = this.calculateAveragePriceByStockId(gs.getStock().getId(), TimeRangeType.CURRENT_MONTH);
+//			} else {
+//				// 非当月无需额外兜底，dj已通过降级逻辑处理
+//				if (dj.compareTo(BigDecimal.ZERO) == 0) {
+//					// 最终兜底：若dj仍为0，从Stock获取
+//					if (Common.isNotEmpty(gs.getStock().getPrice())) {
+//						String stockPrice = gs.getStock().getPrice();
+//						dj = Common.isNumeric(stockPrice) ? new BigDecimal(stockPrice) : new BigDecimal("0.00");
+//					} else {
+//						dj = this.calculateAveragePriceByStockId(gs.getStock().getId(), TimeRangeType.CURRENT_MONTH);
+//					}
+//				}
+//			}
+//
+//			// 计算入库/出库金额
+//			BigDecimal e = new BigDecimal(in);
+//			if (in > 0) {
+//				BigDecimal inpriceall = e.multiply(dj);
+//				outmap.put("inpriceall", inpriceall);
+//			} else {
+//				outmap.put("inpriceall", 0);
+//			}
+//			outmap.put("in", in);
+//			outmap.put("inprice", dj);
+//
+//			BigDecimal d = new BigDecimal(out);
+//			BigDecimal outpriceall = d.multiply(dj).setScale(2, BigDecimal.ROUND_HALF_UP);
+//			outmap.put("out", out);
+//			outmap.put("outprice", dj);
+//			outmap.put("outpriceall", outpriceall);
+//
+//			// 计算期末库存
+//			StockStatistics gsend = entry.getValue().get(0);
+//			BigDecimal qmnum = qcnum.add(e).subtract(d);
+//			BigDecimal qmzj = dj.multiply(qmnum).setScale(2, BigDecimal.ROUND_HALF_UP);
+//			outmap.put("newprice", dj);
+//			outmap.put("newinventory", qmnum);
+//			outmap.put("newpriceall", qmzj);
+//			outmap.put("purchaseInvoiceDate",
+//					Common.isEmpty(gs.getPurchaseInvoiceDate()) ? "" : gs.getPurchaseInvoiceDate());
+//			outlist.add(outmap);
+//		}
+//
+//		// 导出Excel
+//		Map<String, Object> dataMap = new HashMap<>();
+//		dataMap.put("inlist", outlist);
+//		dataMap.put("title", requestBo.getStart() + "~" + requestBo.getEnd() + "库存统计");
+//
+//		String ctxPath = request.getServletContext().getRealPath("/WEB-INF/Templates/");
+//		String fileName = "新库存统计导出模板.xlsx";
+//		TemplateExportParams params = new TemplateExportParams(ctxPath + fileName, true);
+//		Workbook doc = null;
+//
+//		try {
+//			doc = ExcelExportUtil.exportExcel(params, dataMap);
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//
+//		return doc;
+//	}
 //	public Workbook newExport2(HttpServletRequest request, RequestBo requestBo) {
 //		// Query query=newQueryByRequestBo(requestBo);
 //		Query query = new Query();
