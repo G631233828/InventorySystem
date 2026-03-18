@@ -64,9 +64,11 @@ public interface StockStatisticsService extends GeneralService<StockStatistics> 
 	
 	public List<StockStatistics> findStockStatisticsToCreateQrcode(Pname pname,NewCustomer newcustomer,String accepter,String depotTime);
 	
-	public List<StockStatistics> findStockStatisByStockId(String id, TimeRangeType timeRangeType);
+	public List<StockStatistics> findStockStatisByStockId(String id, TimeRangeType timeRangeType,String date);
 	
-	 public BigDecimal calculateAveragePriceByStockId(String stockId,TimeRangeType t);
+	 public BigDecimal calculateAveragePriceByStockId(String stockId,TimeRangeType t,String date);
+	 
+	 public BigDecimal getCurrentMonthInStockNum(String stockId, TimeRangeType t,String date);
 	
-	
+	 public BigDecimal getQC(String stockId, TimeRangeType t,String date);
 }
