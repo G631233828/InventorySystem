@@ -24,5 +24,6 @@ public class WxReporter extends GeneralBean<WxReporter> {
 	private String userName;//报修人
 	private String contactNumber;//报修人联系电话
 	
-
+	// 新增：是否拉黑字段（默认false：未拉黑）
+	private Boolean isBlocked = false;
 }

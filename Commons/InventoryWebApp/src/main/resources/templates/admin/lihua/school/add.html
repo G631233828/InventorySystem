@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:include="public/public_css::pub_css">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+
+<body>
+	<!-- Preloader -->
+	<div id="preloader">
+		<div id="status">&nbsp;</div>
+	</div>
+	<!-- TOP NAVBAR -->
+	<div th:replace="public/public::top"></div>
+	<!-- /END OF TOP NAVBAR -->
+
+	<!-- SIDE MENU -->
+	<div th:replace="public/public::left(activeUri='param')"></div>
+	<!-- END OF SIDE MENU -->
+
+	<!--  PAPER WRAP -->
+	<div class="wrap-fluid">
+		<div class="container-fluid paper-wrap bevel tlbr">
+
+			<!-- CONTENT -->
+			<!--TITLE -->
+			<div th:replace="public/public::title"></div>
+			<!--/ TITLE -->
+
+			<!-- BREADCRUMB -->
+			<div th:replace="public/public::menu"></div>
+			<!-- END OF BREADCRUMB -->
+
+			<div class="content-wrap">
+				<div class="row">
+					<div class="col-sm-12">
+						<!-- 学校信息表单 -->
+						<div style="margin: -20px 15px;" class="nest" id="SchoolClose">
+							<div class="title-alt">
+								<h6>学校信息</h6>
+								<div class="titleClose">
+									<a class="gone" href="#SchoolClose">
+										<span class="entypo-cancel"></span>
+									</a>
+								</div>
+								<div class="titleToggle">
+									<a class="nav-toggle-alt" href="#School_Content">
+										<span class="entypo-up-open"></span>
+									</a>
+								</div>
+							</div>
+
+							<div class="body-nest" id="School_Content">
+								<div class="row">
+									<div class="col-md-12 personal-info">
+										<form class="form-horizontal"
+											  id="schoolForm"
+											  th:action="@{/school}"
+											  method="post">
+
+											<!-- PUT/POST 提交方式 -->
+											<input type="hidden" name="_method" value="PUT" th:if="${school!=null}" />
+											<input type="hidden" name="id" th:if="${school!=null}" th:value="${school.id}" />
+
+											<!-- 学校名称 -->
+											<div class="form-group">
+												<label class="col-lg-1 control-label">学校名称：</label>
+												<div class="col-lg-6">
+													<input class="form-control"
+														   name="schoolName"
+														   placeholder="请输入学校名称"
+														   th:value="${school?.schoolName}"
+														   required="required">
+												</div>
+											</div>
+
+											<!-- 学校地址 -->
+											<div class="form-group">
+												<label class="col-lg-1 control-label">学校地址：</label>
+												<div class="col-lg-6">
+													<input class="form-control"
+														   name="address"
+														   placeholder="请输入学校地址"
+														   th:value="${school?.address}">
+												</div>
+											</div>
+
+											<!-- 联系人 -->
+											<div class="form-group">
+												<label class="col-lg-1 control-label">联系人：</label>
+												<div class="col-lg-6">
+													<input class="form-control"
+														   name="contact"
+														   placeholder="请输入联系人"
+														   th:value="${school?.contact}">
+												</div>
+											</div>
+
+											<!-- 联系电话 -->
+											<div class="form-group">
+												<label class="col-lg-1 control-label">联系电话：</label>
+												<div class="col-lg-6">
+													<input class="form-control"
+														   name="phone"
+														   placeholder="请输入联系电话"
+														   th:value="${school?.phone}">
+												</div>
+											</div>
+
+						
+				
+
+											<!-- 按钮区域 -->
+											<div class="form-group">
+												<label class="col-lg-1 control-label"></label>
+												<div class="col-md-8">
+													<button type="submit" class="btn btn-success" th:text="${school!=null?'修改':'添加'}"></button>
+													<button type="button" class="btn btn-default" onclick="window.location.href='@{/schools}'">返回</button>
+													<input th:if="${school == null}" class="btn btn-default" value="重置" type="reset">
+												</div>
+											</div>
+										</form>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--  END OF PAPER WRAP -->
+
+	<!-- 右侧隐藏菜单start -->
+	<div th:replace="public/public::right"></div>
+	<!-- 右侧隐藏菜单end-->
+
+	<!-- 底部公共JS -->
+	<div th:replace="public/public_js::pub_js"></div>
+	<div th:replace="public/public::myModal"></div>
+	<div th:replace="public/public_js::public_script"></div>
+	<div th:replace="public/public::footer"></div>
+
+	<!-- 验证插件 -->
+	<script type="text/javascript" th:src="@{/plugs/validate/jquery.validate.min.js}"></script>
+	<script type="text/javascript" th:src="@{/plugs/validate/messages_zh.min.js}"></script>
+	<div th:replace="public/public_js::validator"></div>
+
+</body>
+</html>

@@ -54,6 +54,16 @@
                                         <i class="fa fa-trash-o"> </i>删除
                                     </button>
                                 </shiro:hasPermission>
+                                
+                                <!-- 批量拉黑/解封按钮（权限改为wxReporter:edit） -->
+                                <shiro:hasPermission name="wxReporter:edit">
+                                    <button class="btn btn-warning btn-sm mr-2" onclick="batchBlock(true)">
+                                        <i class="fa fa-ban"> </i>批量拉黑
+                                    </button>
+                                    <button class="btn btn-success btn-sm" onclick="batchBlock(false)">
+                                        <i class="fa fa-check"> </i>批量解封
+                                    </button>
+                                </shiro:hasPermission>
                             </div>
                             
                             <!-- 搜索框 -->
@@ -92,6 +102,8 @@
                                         <th class="numeric">学校名称</th>
                                         <th class="numeric">校区</th>
                                         <th class="numeric">学校地址</th>
+                                        <!-- 新增：拉黑状态列 -->
+                                        <th class="numeric">拉黑状态</th>
                                         <th class="numeric">操作</th>
                                     </tr>
                                     </thead>
@@ -99,7 +111,7 @@
                                     <!-- 适配分页数据，处理空数据场景 -->
                                     <th:block th:if="${#lists.isEmpty(pageList.datas)}">
                                         <tr>
-                                            <td colspan="8" class="text-center">暂无报修人数据</td>
+                                            <td colspan="9" class="text-center">暂无报修人数据</td>
                                         </tr>
                                     </th:block>
                                     <th:block th:each="reporter:${pageList.datas}">
@@ -117,6 +129,13 @@
                                             <td class="numeric">[[${reporter.schoolName}]]</td>
                                             <td class="numeric">[[${reporter.campus ?: '无'}]]</td>
                                             <td class="numeric">[[${reporter.schoolAddress ?: '无'}]]</td>
+                                            <!-- 核心：添加唯一ID（reporter.id + '_block'） -->
+                                            <td class="numeric"  th:id="${reporter.id + '_block'}">
+                                                <span 
+                                                      th:class="${reporter.isBlocked} ? 'label label-danger' : 'label label-success'">
+                                                    [[${reporter.isBlocked} ? '已拉黑' : '正常']]
+                                                </span>
+                                            </td>
                                             <td class="numeric">
                                                 <shiro:hasPermission name="wxReporter:edit">
                                                     <button class="btn btn-primary btn-xs"
@@ -125,11 +144,26 @@
                                                     </button>
                                                 </shiro:hasPermission>
                                                 
-                                                <shiro:hasPermission name="wxReporter:delete">
+                            
+                                                
+                                                  <shiro:hasPermission name="wxReporter:delete">
                                                 
                                                     <button class="btn btn-danger btn-xs"
                                                             th:onclick="|return del('@{/wxReporter/}${reporter.id}','')|">
                                                         <i class="fa fa-trash-o"> </i>删除
+                                                    </button>
+                                                </shiro:hasPermission>
+                                                
+                                                
+                                                <!-- 单个拉黑/解封按钮（权限改为wxReporter:edit） -->
+                                                <shiro:hasPermission name="wxReporter:edit">
+                                                    <button class="btn btn-warning btn-xs" th:if="${!reporter.isBlocked}"
+                                                            th:onclick="|blockReporter('${reporter.id}', true)|">
+                                                        <i class="fa fa-ban"> </i>拉黑
+                                                    </button>
+                                                    <button class="btn btn-success btn-xs" th:if="${reporter.isBlocked}"
+                                                            th:onclick="|blockReporter('${reporter.id}', false)|">
+                                                        <i class="fa fa-check"> </i>解封
                                                     </button>
                                                 </shiro:hasPermission>
                                                 
@@ -187,21 +221,124 @@
 <div th:replace="public/public::footer"></div>
 <script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
 <div th:replace="public/public_js::validator"></div>
-
 <script type="text/javascript">
-    // 搜索功能（适配Service的findIdsBySearch）
-    function searchList() {
-        var searchVal = $("input[name='search']").val().trim();
-        window.location.href = "[[@{/wxReporters}]]?pageNo=1&search=" + encodeURIComponent(searchVal);
-    }
-    
-    // 重置搜索
-    function resetSearch() {
-        $("input[name='search']").val("");
-        window.location.href = "[[@{/wxReporters}]]?pageNo=1&search=";
+    // 初始化全选功能（批量操作需要）
+    $(function() {
+        $("#checkall").click(function() {
+            $("input[name='ids']").prop("checked", $(this).prop("checked"));
+        });
+    });
+
+    // 单个拉黑/解封 - 核心逻辑：通过td的唯一ID修改内部span状态
+    function blockReporter(id, isBlocked) {
+        var msg = isBlocked ? "拉黑" : "解封";
+        var tdId = id + '_block'; // 拼接td的唯一ID
+        
+        swal({
+            title: "确认" + msg + "？",
+            text: "操作后该报修人将" + (isBlocked ? "无法提交报修" : "恢复正常报修") + "！",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "确认" + msg,
+            cancelButtonText: "取消",
+            closeOnConfirm: true
+        }, function (isConfirm) {
+            if (!isConfirm) return;
+            
+            $.ajax({
+                url: "[[@{/wxReporter/block}]]",
+                type: "POST",
+                dataType: "json",
+                data: { id: id, isBlocked: isBlocked },
+                success: function (res) {
+                    if (res && res.status === 200) {
+                        // 1. 获取拉黑状态列的td元素
+                        var tdElement = document.getElementById(tdId);
+                        if (tdElement) {
+                            // 2. 修改td内部span的样式和文本（核心修复）
+                            var spanElement = tdElement.querySelector('span');
+                            if (spanElement) {
+                                spanElement.className = isBlocked ? 'label label-danger' : 'label label-success';
+                                spanElement.textContent = isBlocked ? '已拉黑' : '正常';
+                            }
+                        }
+
+                        // 3. 切换操作按钮（拉黑↔解封）
+                        var row = tdElement.closest('tr');
+                        var operateTd = row.querySelector('td:last-child');
+                        if (operateTd) {
+                            // 移除原有拉黑/解封按钮
+                            var oldBtns = operateTd.querySelectorAll('.btn-warning, .btn-success');
+                            oldBtns.forEach(function(btn) {
+                                if (btn.textContent.includes('拉黑') || btn.textContent.includes('解封')) btn.remove();
+                            });
+                            
+                            // 创建新按钮
+                            var newBtn = document.createElement('button');
+                            newBtn.className = isBlocked ? 'btn btn-success btn-xs' : 'btn btn-warning btn-xs';
+                            newBtn.innerHTML = isBlocked ? '<i class="fa fa-check"></i> 解封' : '<i class="fa fa-ban"></i> 拉黑';
+                            newBtn.onclick = function() { blockReporter(id, !isBlocked); };
+                            
+                            // 插入到删除按钮前
+                            var delBtn = operateTd.querySelector('.btn-danger');
+                            delBtn ? operateTd.insertBefore(newBtn, delBtn) : operateTd.appendChild(newBtn);
+                        }
+
+                        // 操作成功提示
+                        swal({ title: "操作成功！", text: "已成功" + msg + "该报修人", type: "success", timer: 1500, showConfirmButton: false });
+                    } else {
+                        swal({ title: "操作失败！", text: res.msg || "操作失败，请重试", type: "error", timer: 2000, showConfirmButton: false });
+                    }
+                },
+                error: function (xhr, status, error) {
+                    swal({ title: "操作失败！", text: "网络异常：" + error, type: "error", timer: 2000, showConfirmButton: false });
+                }
+            });
+        });
     }
 
+    // 批量拉黑/解封 - 成功后刷新页面
+    function batchBlock(isBlocked) {
+        var ids = [];
+        $("input[name='ids']:checked").each(function () { ids.push($(this).val()); });
+        
+        if (ids.length === 0) {
+            swal({ title: "提示", text: "请选择要操作的报修人！", type: "warning", timer: 1500, showConfirmButton: false });
+            return;
+        }
 
+        var msg = isBlocked ? "拉黑" : "解封";
+        swal({
+            title: "批量" + msg + "？",
+            text: "将对选中的" + ids.length + "个报修人执行" + msg + "操作！",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            confirmButtonText: "确认" + msg,
+            cancelButtonText: "取消",
+            closeOnConfirm: true
+        }, function (isConfirm) {
+            if (!isConfirm) return;
+            
+            $.ajax({
+                url: "[[@{/wxReporter/batchBlock}]]",
+                type: "POST",
+                dataType: "json",
+                data: { ids: ids.join(","), isBlocked: isBlocked },
+                success: function (res) {
+                    if (res && res.status === 200) {
+                        window.location.reload(); // 批量操作后刷新页面
+                    } else {
+                        swal({ title: "操作失败！", text: res.msg || "批量操作失败，请重试", type: "error", timer: 2000, showConfirmButton: false });
+                    }
+                },
+                error: function (xhr, status, error) {
+                    swal({ title: "操作失败！", text: "网络异常：" + error, type: "error", timer: 2000, showConfirmButton: false });
+                }
+            });
+        });
+    }
 </script>
 </body>
 </html>

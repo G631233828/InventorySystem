@@ -1031,13 +1031,56 @@ function showLocationStatus(message, type) {
   DOM.locationStatus.classList.remove('hidden');
 }
 
-/**
- * 图片上传处理（优化18：批量处理预览图，减少重排）
- */
-function handleFileSelect(event) {
+// ==============================================
+// 新增：图片压缩函数（自动压缩到 1MB 以内，质量 0.7）
+// ==============================================
+function compressImage(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (e) => {
+      const img = new Image();
+      img.src = e.target.result;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        // 最大宽度 1920，等比缩放
+        const maxSize = 1920;
+        if (width > height && width > maxSize) {
+          height = (height * maxSize) / width;
+          width = maxSize;
+        } else if (height > maxSize) {
+          width = (width * maxSize) / height;
+          height = maxSize;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // 转 blob，质量 0.7
+        canvas.toBlob(
+          (blob) => {
+            resolve(blob);
+          },
+          'image/jpeg',
+          0.7
+        );
+      };
+    };
+  });
+}
+
+// ==============================================
+// 重写：图片选择 → 自动压缩 → 再预览
+// ==============================================
+async function handleFileSelect(event) {
   const files = event.target.files;
   if (!files || files.length === 0) return;
-  
+
   const totalCount = appState.uploadedFiles.length + files.length;
   if (totalCount > 5) {
     alert(`最多只能上传5张图片，当前已选择${appState.uploadedFiles.length}张，还可上传${5 - appState.uploadedFiles.length}张`);
@@ -1047,23 +1090,26 @@ function handleFileSelect(event) {
 
   DOM.previewContainer.classList.remove('hidden');
   DOM.photoCount.classList.remove('hidden');
-
-  // 优化19：批量添加预览图，减少DOM操作
   const fragment = document.createDocumentFragment();
-  
-  Array.from(files).forEach((file) => {
+
+  for (const file of Array.from(files)) {
     if (!file.type.startsWith('image/')) {
       alert('请上传图片文件（JPG/PNG格式）');
-      return;
-    }
-    
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-      alert(`图片"${file.name}"大小超过5MB，请压缩后上传`);
-      return;
+      continue;
     }
 
-    appState.uploadedFiles.push(file);
+    // ======================
+    // 关键：自动压缩图片
+    // ======================
+    const compressedBlob = await compressImage(file);
+    const compressedFile = new File([compressedBlob], `compressed_${file.name}`, {
+      type: 'image/jpeg',
+    });
+
+    // 把压缩后的图片加入列表
+    appState.uploadedFiles.push(compressedFile);
+
+    // 预览图（不变）
     const previewItem = document.createElement('div');
     previewItem.className = 'relative group bg-gray-100 rounded-lg overflow-hidden aspect-square';
     previewItem.dataset.index = appState.uploadedFiles.length - 1;
@@ -1073,44 +1119,38 @@ function handleFileSelect(event) {
       const img = document.createElement('img');
       img.src = e.target.result;
       img.className = 'w-full h-full object-cover';
-      img.alt = `故障图片${appState.uploadedFiles.length}`;
 
       const deleteBtn = document.createElement('button');
       deleteBtn.type = 'button';
       deleteBtn.className = 'absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white';
       deleteBtn.innerHTML = '<i class="fa fa-trash text-xl"></i>';
       deleteBtn.onclick = () => {
-        const fileIndex = parseInt(previewItem.dataset.index);
-        appState.uploadedFiles.splice(fileIndex, 1);
+        const idx = parseInt(previewItem.dataset.index);
+        appState.uploadedFiles.splice(idx, 1);
         previewItem.remove();
         updatePreviewIndexes();
         updatePhotoCount();
-        
         if (appState.uploadedFiles.length === 0) {
           DOM.previewContainer.classList.add('hidden');
           DOM.photoCount.classList.add('hidden');
         }
       };
 
-      const fileSize = (file.size / 1024).toFixed(1);
-      const fileName = file.name.length > 8 ? `${file.name.substring(0, 8)}...` : file.name;
-      const fileInfo = document.createElement('div');
-      fileInfo.className = 'absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs p-1 truncate';
-      fileInfo.textContent = `${fileName} (${fileSize}KB)`;
+      const size = (compressedFile.size / 1024).toFixed(1);
+      const name = compressedFile.name.length > 8 ? `${compressedFile.name.substring(0, 8)}...` : compressedFile.name;
+      const info = document.createElement('div');
+      info.className = 'absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs p-1 truncate';
+      info.textContent = `${name} (${size}KB)`;
 
       previewItem.appendChild(img);
       previewItem.appendChild(deleteBtn);
-      previewItem.appendChild(fileInfo);
+      previewItem.appendChild(info);
       fragment.appendChild(previewItem);
-      
-      // 批量添加到DOM
-      if (fragment.childNodes.length > 0) {
-        DOM.previewContainer.appendChild(fragment);
-      }
+      DOM.previewContainer.appendChild(fragment);
     };
-    
-    reader.readAsDataURL(file);
-  });
+
+    reader.readAsDataURL(compressedBlob);
+  }
 
   updatePhotoCount();
   event.target.value = '';

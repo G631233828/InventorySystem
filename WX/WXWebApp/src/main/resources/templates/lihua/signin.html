@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>现场签到</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<script type="text/javascript" th:src="@{/assets/js/tailwindcs-3.4.17.js}" async defer></script>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+<script type="text/javascript" th:src="@{/assets/js/tailwindcs-3.4.17.js}"></script>
+<style>
+body { font-family: system-ui, -apple-system, sans-serif; }
+.bg-gray-50 { background-color: #f9fafb; }
+.bg-white { background-color: #ffffff; }
+.fixed { position: fixed; }
+.top-0 { top: 0px; }
+.left-0 { left: 0px; }
+.right-0 { right: 0px; }
+.z-50 { z-index: 50; }
+.container { width: 100%; margin: 0 auto; padding: 0 1rem; max-width: 64rem; }
+.px-4 { padding-left: 1rem; padding-right: 1rem; }
+.py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+.hidden { display: none !important; }
+button:disabled { opacity: 0.7; cursor: not-allowed; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.fa-spin { animation: spin 1s linear infinite; }
+</style>
+<script>
+tailwind.config={
+  theme:{
+    extend:{
+      colors:{
+        primary:'#3B82F6',
+        secondary:'#10B981',
+        accent:'#F59E0B',
+        danger:'#EF4444',
+        neutral:'#6B7280'
+      }
+    }
+  }
+}
+</script>
+<style type="text/tailwindcss">
+@layer utilities{
+  .content-auto{content-visibility:auto;}
+  .form-input-focus{@apply focus:ring-2 focus:ring-primary/50 focus:border-primary focus:outline-none;}
+  .shadow-soft{box-shadow:0 5px 15px rgba(0,0,0,0.05);}
+}
+</style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800 min-h-screen">
+
+<header class="bg-white shadow-sm fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+<div class="container mx-auto px-4 py-3 flex justify-between items-start">
+  <div class="flex flex-col">
+    <h1 class="text-xl font-bold text-primary flex items-center"><i class="fa fa-check-circle mr-2"></i>现场签到</h1>
+  </div>
+  <button id="helpBtn" class="text-neutral hover:text-primary transition-colors mt-1"><i class="fa fa-question-circle text-xl"></i></button>
+</div>
+</header>
+
+<main class="container mx-auto px-4 pt-24 pb-16 max-w-3xl">
+<div class="bg-white rounded-2xl shadow-soft p-6 mb-8 transform transition-all duration-300 hover:shadow-lg">
+<h2 class="text-2xl font-bold mb-6 text-center text-gray-800 border-b pb-3">签到信息填写</h2>
+
+<form id="signForm" enctype="multipart/form-data" class="space-y-5">
+<input type="hidden" th:value="${openId}" id="openId" name="openId">
+<input type="hidden" id="signAddress" name="signAddress">
+<input type="hidden" id="schoolId">
+
+<!-- 姓名 -->
+<div class="form-group">
+<label for="userName" class="block text-sm font-medium text-gray-700 mb-1">签到人姓名 <span class="text-danger">*</span></label>
+<input type="text" id="userName" name="userName" class="w-full px-4 py-2 border border-gray-300 rounded-lg form-input-focus transition-all" placeholder="请输入您的姓名" required>
+</div>
+
+<!-- 搜索学校 -->
+<div class="form-group relative">
+<label class="block text-sm font-medium text-gray-700 mb-1">签到学校 <span class="text-danger">*</span></label>
+<p class="text-sm text-red-600 font-medium mb-1.5"><i class="fa fa-info-circle mr-1"></i>输入学校关键字在下拉框中选择学校</p>
+<input type="text" id="schoolSearch" class="w-full px-4 py-2 border border-gray-300 rounded-lg form-input-focus transition-all" placeholder="输入学校名称搜索..." autocomplete="off">
+<div id="schoolDropdown" class="absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto z-50 hidden"></div>
+</div>
+
+<!-- 负责教室（新增下拉框） -->
+<div class="form-group">
+<label for="classRoom" class="block text-sm font-medium text-gray-700 mb-1">负责教室 <span class="text-danger">*</span></label>
+<select id="classRoom" name="classRoom" class="w-full px-4 py-2 border border-gray-300 rounded-lg form-input-focus transition-all">
+    <option value="">请选择负责教室</option>
+    <option value="物理一">物理一</option>
+    <option value="化学二">化学二</option>
+    <option value="物理三">物理三</option>
+    <option value="化学四">化学四</option>
+</select>
+</div>
+
+<!-- 定位 -->
+<div class="form-group">
+<label class="block text-sm font-medium text-gray-700 mb-1">签到位置 <span class="text-danger">*</span></label>
+<button type="button" id="locateBtn" class="w-full h-12 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center">
+  <i class="fa fa-map-marker mr-2"></i>点击获取精准位置
+</button>
+<div id="locationText" class="mt-2 text-sm text-gray-700 hidden">
+  <i class="fa fa-map-pin text-primary mr-1"></i>
+  <span id="showAddress"></span>
+</div>
+<p id="iosWechatTip" class="text-xs text-accent mt-1 hidden"><i class="fa fa-info-circle mr-1"></i> iOS微信用户请确保已允许定位权限</p>
+<p id="locationStatus" class="text-xs text-neutral mt-1 hidden"></p>
+</div>
+
+<!-- 照片（仅拍照模式，禁止相册选择） -->
+<div class="form-group">
+<label class="block text-sm font-medium text-gray-700 mb-2">签到现场照片 <span class="text-danger">*</span></label>
+<p class="text-sm text-red-600 font-medium mb-1.5"><i class="fa fa-info-circle mr-1"></i>上传负责教室录像机显示器监控画面</p>
+<div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary transition-colors">
+<input type="file" id="photosInput" name="photosInput" accept="image/*" capture="camera" class="hidden">
+<label for="photosInput" class="cursor-pointer">
+<div class="space-y-2">
+<div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 text-primary mb-3"><i class="fa fa-camera text-2xl"></i></div>
+<p class="text-gray-600">点击拍摄现场照片</p>
+<p class="text-xs text-neutral">仅支持现场拍摄，最多5张</p>
+</div>
+</label>
+</div>
+<div id="previewContainer" class="mt-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 hidden"></div>
+<p id="photoCount" class="text-xs text-neutral mt-2 hidden"></p>
+</div>
+
+<!-- 提交 -->
+<div class="pt-4">
+<button type="submit" id="submitBtn" class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-3 px-4 rounded-lg transition-all transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center">
+<i class="fa fa-paper-plane mr-2"></i>确认签到</button>
+</div>
+
+</form>
+</div>
+</main>
+
+<!-- 帮助弹窗 -->
+<div id="helpModal" class="fixed inset-0 bg-black/50 z-50 items-center justify-center hidden">
+<div class="bg-white rounded-xl p-6 max-w-md w-full mx-4 transform transition-all">
+<div class="flex justify-between items-center mb-4">
+<h3 class="text-xl font-bold">签到须知</h3>
+<button id="closeHelpBtn" class="text-neutral hover:text-gray-800"><i class="fa fa-times text-xl"></i></button>
+</div>
+<div class="space-y-3 text-sm text-gray-600">
+<p>1. 请填写真实姓名进行签到</p>
+<p>2. 签到位置必须通过定位获取，不支持手动填写</p>
+<p>3. 请上传现场真实照片</p>
+<p>4. 提交后无法修改，请确认信息无误</p>
+</div>
+</div>
+</div>
+
+<!-- 成功提示 -->
+<div id="successToast" class="fixed bottom-6 left-1/2 transform -translate-x-1/2 bg-secondary text-white px-6 py-3 rounded-lg shadow-lg flex items-center z-50 opacity-0 transition-opacity duration-300 hidden">
+<i class="fa fa-check-circle mr-2"></i>
+<span>签到成功！</span>
+</div>
+
+<script th:src="@{/assets/js/sign.js}" defer></script>
+</body>
+</html>

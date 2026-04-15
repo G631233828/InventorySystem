@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>签到成功</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <script th:src="@{/assets/js/tailwindcs-3.4.17.js}"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <style>
+        body { font-family: system-ui, sans-serif; }
+        .success-animation {
+            animation: scaleIn 0.5s ease-out forwards;
+        }
+        @keyframes scaleIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        success: '#10B981',
+                        warning: '#F59E0B'
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .form-input-focus { @apply focus:ring-2 focus:ring-success/50 focus:border-success outline-none; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+
+<main class="max-w-xl mx-auto px-4 pt-12 pb-20">
+    <div class="bg-white rounded-2xl shadow p-8 text-center success-animation">
+        <!-- 成功图标 -->
+        <div class="w-20 h-20 bg-success/10 rounded-full mx-auto flex items-center justify-center">
+            <i class="fa fa-check text-4xl text-success"></i>
+        </div>
+
+        <h1 class="text-[clamp(1.5rem,3vw,2rem)] font-bold text-gray-800 mt-6">
+            今日已签到成功
+        </h1>
+        <p class="text-gray-500 mt-2">请勿重复签到，感谢配合</p>
+
+        <!-- 今日问题汇总 -->
+        <div class="mt-8 text-left">
+            <label class="block text-sm font-medium text-gray-700 mb-1">
+                <i class="fa fa-exclamation-circle text-warning mr-1"></i>
+                当日问题汇总记录
+            </label>
+            <textarea
+                    class="w-full h-40 px-4 py-3 border border-gray-300 rounded-lg form-input-focus resize-none"
+                    placeholder="请记录今日现场发现的问题、异常情况、需要协调事项..." th:text="${problems}"
+                    id="problemContent"
+            ></textarea>
+        </div>
+
+        <!-- 提交按钮 -->
+        <button id="saveBtn" class="mt-6 w-full py-3 bg-success text-white rounded-lg font-medium hover:bg-success/90 transition">
+            <i class="fa fa-save mr-1"></i>保存问题记录
+        </button>
+
+        <div class="mt-6 text-xs text-gray-400">
+            <p>再次扫码 / 重新进入链接仍会到达本页面</p>
+            <p class="mt-1">问题记录可随时补充修改</p>
+        </div>
+    </div>
+</main>
+
+<script th:inline="javascript">
+    const openId = /*[[${openId}]]*/ '';
+</script>
+<script>
+    // 保存问题汇总
+    document.getElementById('saveBtn').addEventListener('click', async () => {
+        const content = document.getElementById('problemContent').value.trim();
+        if (!content) {
+            alert('请输入问题内容');
+            return;
+        }
+
+        const btn = document.getElementById('saveBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-1"></i>保存中...';
+
+        try {
+            const res = await fetch('../wechatrp/saveProblem', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'openId=' + encodeURIComponent(openId) + '&content=' + encodeURIComponent(content)
+            });
+            const data = await res.json();
+
+            if (data.status === 200) {
+                alert('保存成功！');
+            } else {
+                alert('保存失败：' + data.msg);
+            }
+        } catch (e) {
+            alert('网络异常');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa fa-save mr-1"></i>保存问题记录';
+        }
+    });
+</script>
+
+</body>
+</html>

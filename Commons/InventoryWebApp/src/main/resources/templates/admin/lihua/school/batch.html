@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<body>
+<div th:fragment="mybatch" id="mybatchUpload" class="modal fade" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg" style="width:520px; margin-top:10%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">×</button>
+                <h4>批量导入学校信息</h4>
+            </div>
+            <form th:action="@{/school/upload}" method="post" enctype="multipart/form-data" class="form-horizontal">
+                <div class="modal-body">
+                    <div id="file-pretty">
+                        <div class="form-group">
+                            <div class="col-sm-10">
+                                <input type="file" name="upload" id="upload" style="display:none" onchange="checkfiletype(this);">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-2 control-label">模板下载</label>
+                            <div class="col-sm-10" style="margin-top:8px;">
+                                <a th:href="@{/school/download}"><font color="blue">学校信息模版.xlsx</font></a>
+                            </div>
+                        </div>
+                        <div style="position:relative">
+                            <div id="proBartext"></div>
+                            <div class="progress progress-striped active">
+                                <div id="proBar" class="progress-bar progress-bar-danger"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" id="submit" class="btn btn-primary">导入</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>$(function(){$("#file-pretty input[type='file']").prettyFile();})</script>
+</div>
+</body>
+</html>

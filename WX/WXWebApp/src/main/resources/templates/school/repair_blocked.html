@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>访问受限</title>
+    <style>
+        .block-container {
+            width: 80%;
+            margin: 50px auto;
+            text-align: center;
+            padding: 30px;
+            border: 1px solid #ff4444;
+            border-radius: 10px;
+            background-color: #fff5f5;
+        }
+        .block-msg {
+            color: #ff4444;
+            font-size: 16px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="block-container">
+        <h3>🚫 访问受限</h3>
+        <div class="block-msg" th:text="${blockMsg}">你的账号已被限制使用报修服务</div>
+        <p>如有异议，请联系管理员处理</p>
+    </div>
+</body>
+</html>

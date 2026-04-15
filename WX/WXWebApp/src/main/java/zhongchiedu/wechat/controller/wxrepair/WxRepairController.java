@@ -195,70 +195,106 @@ public class WxRepairController {
 //		return "school/repair";
 //	}
 
-	@GetMapping(value = {"/repair","repairlist"})
-	public String torepair(HttpServletRequest request, Model model) {
-	    // 1. 先从 Session 中获取 openid，看看用户是否已经登录
-	    String openId = (String) request.getSession().getAttribute("openId");
-	    
-	    WxReporter wxReporter = this.wxReporterService.findWxReporterByOpenId(openId);
-        if(wxReporter!=null) {
-        	  model.addAttribute("wxReporter", wxReporter);
-        }
-        
-	    // 如果 Session 中已经有 openid，说明用户已经授权过了，直接跳转到页面即可
-	    if (openId != null && !openId.trim().isEmpty()) {
-	        model.addAttribute("openId", openId);
+	  @GetMapping(value = {"/repair","/repairlist"})
+	    public String torepair(HttpServletRequest request, Model model) {
+	        // ========== 核心新增：第一步先检查OpenID黑名单 ==========
+	        // 1. 优先从Session获取OpenID（已登录场景）
+	        String openId = (String) request.getSession().getAttribute("openId");
+	        
+	        // 2. 如果Session中没有，尝试从请求头/参数获取（兼容其他场景）
+	        if (openId == null || openId.trim().isEmpty()) {
+	            openId = request.getHeader("X-WX-OpenID") != null 
+	                    ? request.getHeader("X-WX-OpenID") 
+	                    : request.getParameter("openid");
+	        }
+	        
+	        // 3. 检查OpenID是否被拉黑（核心拦截逻辑）
+	        if (openId != null && !openId.trim().isEmpty()) {
+	            // 方式1：如果你的wxReporterService有isOpenidBlocked方法，直接用
+	            boolean isBlocked = wxReporterService.isOpenidBlocked(openId);
+	            
+	            // 方式2：如果没有isOpenidBlocked方法，通过findWxReporterByOpenId获取
+	            // WxReporter wxReporter = wxReporterService.findWxReporterByOpenId(openId);
+	            // boolean isBlocked = wxReporter != null && wxReporter.getIsBlocked() == Boolean.TRUE;
+	            
+	            // 拉黑状态：返回错误页，禁止访问
+	            if (isBlocked) {
+	                log.warn("拉黑拦截：OpenID[{}]尝试访问报修页面，已禁止", openId);
+	                // 跳转到自定义的拉黑提示页（需提前创建repair_blocked.html）
+	                model.addAttribute("blockMsg", "你的账号因恶意报修已被限制使用，如有异议请联系管理员");
+	                return "school/repair_blocked"; 
+	            }
+	        }
+	        // ========== 黑名单检查结束 ==========
+
+	        // ========== 原有逻辑：微信授权 + OpenID获取 ==========
+	        WxReporter wxReporter = this.wxReporterService.findWxReporterByOpenId(openId);
+	        if(wxReporter!=null) {
+	            model.addAttribute("wxReporter", wxReporter);
+	        }
+	        
+	        // 如果 Session 中已经有 openid，说明用户已经授权过了，直接跳转到页面即可
+	        if (openId != null && !openId.trim().isEmpty()) {
+	            model.addAttribute("openId", openId);
+	            return "school/repair";
+	        }
+
+	        try {
+	            String code = request.getParameter("code");
+
+	            // 2. 如果 code 为空，说明是首次访问，需要重定向到微信授权页
+	            if (code == null || code.trim().isEmpty()) {
+	                String redirect_uri = weburl + "/wechatrp/repair";
+	                // 注意：这里最好对 redirect_uri 进行 URLEncode
+	                String encodedRedirectUri = URLEncoder.encode(redirect_uri, "UTF-8");
+	                String authUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?"
+	                        + "appid=" + wxMpProperties.getConfigs().get(0).getAppId()
+	                        + "&redirect_uri=" + encodedRedirectUri
+	                        + "&response_type=code"
+	                        + "&scope=snsapi_userinfo"
+	                        + "&state=STATE#wechat_redirect";
+	                return "redirect:" + authUrl;
+	            }
+
+	            // 3. 如果 code 不为空，说明是微信授权后跳转回来的回调请求
+	            WxOAuth2Service oAuth2Service = this.wxMpService.getOAuth2Service();
+	            WxOAuth2AccessToken accessToken = oAuth2Service.getAccessToken(code);
+
+	            openId = accessToken.getOpenId();
+	            //通过openId 去wxReporter 中获取报修人信息
+	            if (openId == null || openId.trim().isEmpty()) {
+	                log.warn("提交报修失败：未获取到用户OpenID");
+	                // 获取失败，可以跳转到一个错误提示页
+	                return "school/repair_error"; 
+	            }
+
+	            // ========== 新增：授权后再次检查拉黑状态（防止授权过程中被拉黑） ==========
+	            boolean isBlocked = wxReporterService.isOpenidBlocked(openId);
+	            if (isBlocked) {
+	                log.warn("拉黑拦截：OpenID[{}]授权后尝试访问报修页面，已禁止", openId);
+	                model.addAttribute("blockMsg", "你的账号因恶意报修已被限制使用，如有异议请联系管理员");
+	                return "school/repair_blocked"; 
+	            }
+
+	            // 4. 关键步骤：将获取到的 openid 存入 Session
+	            request.getSession().setAttribute("openId", openId);
+	            model.addAttribute("openId", openId);
+
+	        } catch (WxErrorException e) {
+	            // 5. 异常处理：如果获取 access_token 失败（比如 code 已使用、过期等）
+	            log.error("获取微信 access_token 失败: {}", e.getMessage());
+	            e.printStackTrace();
+
+	            // 可以考虑清除 session 并重定向到首页，让用户重新发起授权
+	            request.getSession().removeAttribute("openId");
+	            return "redirect:/WXWebApp/wechatrp/repair"; 
+	        } catch (UnsupportedEncodingException e) {
+	            log.error("URL编码失败: {}", e.getMessage());
+	            e.printStackTrace();
+	        }
+
 	        return "school/repair";
 	    }
-
-	    try {
-	        String code = request.getParameter("code");
-
-	        // 2. 如果 code 为空，说明是首次访问，需要重定向到微信授权页
-	        if (code == null || code.trim().isEmpty()) {
-	            String redirect_uri = weburl + "/wechatrp/repair";
-	            // 注意：这里最好对 redirect_uri 进行 URLEncode
-	            String encodedRedirectUri = URLEncoder.encode(redirect_uri, "UTF-8");
-	            String authUrl = "https://open.weixin.qq.com/connect/oauth2/authorize?"
-	                    + "appid=" + wxMpProperties.getConfigs().get(0).getAppId()
-	                    + "&redirect_uri=" + encodedRedirectUri
-	                    + "&response_type=code"
-	                    + "&scope=snsapi_userinfo"
-	                    + "&state=STATE#wechat_redirect";
-	            return "redirect:" + authUrl;
-	        }
-
-	        // 3. 如果 code 不为空，说明是微信授权后跳转回来的回调请求
-	        WxOAuth2Service oAuth2Service = this.wxMpService.getOAuth2Service();
-	        WxOAuth2AccessToken accessToken = oAuth2Service.getAccessToken(code);
-
-	        openId = accessToken.getOpenId();
-	        //通过openId 去wxReporter 中获取报修人信息
-	        if (openId == null || openId.trim().isEmpty()) {
-	            log.warn("提交报修失败：未获取到用户OpenID");
-	            // 获取失败，可以跳转到一个错误提示页
-	            return "school/repair_error"; 
-	        }
-
-	        // 4. 关键步骤：将获取到的 openid 存入 Session
-	        request.getSession().setAttribute("openId", openId);
-	        model.addAttribute("openId", openId);
-
-	    } catch (WxErrorException e) {
-	        // 5. 异常处理：如果获取 access_token 失败（比如 code 已使用、过期等）
-	        log.error("获取微信 access_token 失败: {}", e.getMessage());
-	        e.printStackTrace();
-
-	        // 可以考虑清除 session 并重定向到首页，让用户重新发起授权
-	        request.getSession().removeAttribute("openId");
-	        return "redirect:/WXWebApp/wechatrp/repair"; 
-	    } catch (UnsupportedEncodingException e) {
-	        log.error("URL编码失败: {}", e.getMessage());
-	        e.printStackTrace();
-	    }
-
-	    return "school/repair";
-	}
 	/**
 	 * 提交报修单
 	 *

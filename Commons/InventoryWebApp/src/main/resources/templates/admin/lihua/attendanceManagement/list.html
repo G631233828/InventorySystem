@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org"
+	xmlns:shiro="http://www.pollix.at/thymeleaf/shiro">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>签到打卡管理</title>
+<!-- 公共CSS -->
+<th:block th:include="public/public_css::pub_css"></th:block>
+<link rel="stylesheet" type="text/css"
+	th:href="@{/assets/js/progress-bar/number-pb.css}">
+<link th:href="@{/plugs/sweetalert/sweetalert.css}" rel="stylesheet">
+<link rel="stylesheet" th:href="@{/assets/css/bootstrap-select.css}">
+<link rel="shortcut icon" th:href="@{/assets/ico/minus.png}">
+<style>
+/* 可编辑单元格样式 */
+.editable-td {
+	cursor: pointer;
+	transition: background-color 0.2s ease;
+}
+
+.editable-td:hover {
+	background-color: #f5f5f5;
+}
+/* 编辑状态输入框样式 */
+.edit-input {
+	padding: 2px 5px;
+	border: 1px solid #66afe9;
+	border-radius: 3px;
+	outline: none;
+}
+/* 提交按钮样式 */
+.edit-submit-btn {
+	padding: 2px 8px !important;
+	line-height: 1.2 !important;
+	height: auto !important;
+	background-color: #337ab7 !important;
+	border-color: #2e6da4 !important;
+	color: white !important;
+	margin-left: 5px !important;
+}
+/* 搜索表单样式 */
+.search-form {
+	margin-bottom: 10px;
+	padding: 8px 0;
+	border-bottom: 1px solid #eee;
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 10px;
+}
+
+.search-form .form-group {
+	margin-bottom: 0;
+}
+
+/* 照片缩略图样式 */
+.photo-thumbnail {
+	width: 50px;
+	height: 50px;
+	object-fit: cover;
+	cursor: pointer;
+	margin-right: 5px;
+	border: 1px solid #ddd;
+	padding: 2px;
+	transition: all 0.2s ease;
+}
+
+.photo-thumbnail:hover {
+	border-color: #66afe9;
+	box-shadow: 0 0 5px rgba(102, 175, 233, 0.6);
+}
+
+/* 照片模态框优化 - 全屏显示 */
+.photo-modal .modal-dialog {
+	width: 95%;
+	height: 95vh;
+	margin: 2.5vh auto;
+	max-width: none;
+}
+
+.photo-modal .modal-content {
+	height: 100%;
+	border-radius: 4px;
+	overflow: hidden;
+}
+
+.photo-modal .modal-header {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 10;
+	background: rgba(0, 0, 0, 0.7);
+	color: white;
+	border-bottom: none;
+}
+
+.photo-modal .modal-header .close {
+	color: white;
+	opacity: 1;
+	font-size: 24px;
+}
+
+.photo-modal .modal-body {
+	height: 100%;
+	padding: 60px 20px 80px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	overflow: hidden;
+	background-color: #000;
+	position: relative;
+}
+/* 图片容器 - 支持缩放和平移 */
+.photo-viewer {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%) scale(1);
+	transform-origin: center center;
+	max-width: 100%;
+	max-height: 100%;
+	transition: transform 0.1s ease-out;
+	cursor: zoom-in;
+	user-select: none;
+}
+
+.photo-viewer.zoomed {
+	cursor: move;
+}
+
+.photo-viewer img {
+	max-width: 100%;
+	max-height: 100%;
+	object-fit: contain;
+	display: block;
+}
+
+/* 图片导航控制 */
+.photo-navigation {
+	position: absolute;
+	bottom: 20px;
+	left: 0;
+	right: 0;
+	z-index: 10;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 20px;
+}
+
+.nav-btn {
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	background: rgba(0, 0, 0, 0.7);
+	color: white;
+	border: none;
+	outline: none;
+	cursor: pointer;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 18px;
+	transition: all 0.2s ease;
+}
+
+.nav-btn:disabled {
+	background: rgba(0, 0, 0, 0.3);
+	cursor: not-allowed;
+}
+
+.nav-btn:hover:not(:disabled) {
+	background: rgba(0, 0, 0, 0.9);
+	transform: scale(1.1);
+}
+
+.photo-indicator {
+	color: white;
+	background: rgba(0, 0, 0, 0.7);
+	padding: 5px 15px;
+	border-radius: 20px;
+	font-size: 14px;
+}
+
+/* 缩放控制按钮 */
+.zoom-controls {
+	position: absolute;
+	top: 70px;
+	right: 20px;
+	z-index: 10;
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.zoom-btn {
+	width: 40px;
+	height: 40px;
+	border-radius: 50%;
+	background: rgba(0, 0, 0, 0.7);
+	color: white;
+	border: none;
+	outline: none;
+	cursor: pointer;
+	font-size: 16px;
+	transition: all 0.2s ease;
+}
+
+.zoom-btn:hover {
+	background: rgba(0, 0, 0, 0.9);
+}
+
+/* 表格滚动容器 */
+.table-scroll-container {
+	overflow-x: auto;
+	-webkit-overflow-scrolling: touch;
+	width: 100%;
+	margin: 0 auto;
+	scrollbar-width: thin;
+	scrollbar-color: #888 #f1f1f1;
+}
+
+.table-scroll-container::-webkit-scrollbar {
+	height: 8px;
+}
+
+.table-scroll-container::-webkit-scrollbar-track {
+	background: #f1f1f1;
+	border-radius: 4px;
+}
+
+.table-scroll-container::-webkit-scrollbar-thumb {
+	background: #888;
+	border-radius: 4px;
+}
+
+.table-scroll-container::-webkit-scrollbar-thumb:hover {
+	background: #555;
+}
+
+/* 表格基础样式 */
+.table-scroll-container table {
+	width: 100%;
+	table-layout: auto;
+	min-width: max-content;
+	border-collapse: collapse;
+}
+
+.table-scroll-container table th, .table-scroll-container table td {
+	vertical-align: middle;
+	overflow: visible;
+	text-overflow: clip;
+	padding: 8px 12px;
+}
+
+/* 不换行列配置 */
+.table-scroll-container table th[data-column-id="checkbox"],
+	.table-scroll-container table td[data-column-id="checkbox"],
+	.table-scroll-container table th[data-column-id="name"],
+	.table-scroll-container table td[data-column-id="name"],
+	.table-scroll-container table th[data-column-id="school"],
+	.table-scroll-container table td[data-column-id="school"],
+	.table-scroll-container table th[data-column-id="classRoom"],
+	.table-scroll-container table td[data-column-id="classRoom"],
+	.table-scroll-container table th[data-column-id="signTime"],
+	.table-scroll-container table td[data-column-id="signTime"],
+	.table-scroll-container table th[data-column-id="createTime"],
+	.table-scroll-container table td[data-column-id="createTime"] {
+	white-space: nowrap;
+	word-wrap: normal;
+	word-break: keep-all;
+}
+
+/* 换行列 */
+.table-scroll-container table th[data-column-id="problems"],
+	.table-scroll-container table td[data-column-id="problems"] {
+	white-space: normal;
+	word-wrap: break-word;
+	word-break: break-all;
+}
+
+/* 列最小宽度 */
+.table-scroll-container table th[data-column-id="checkbox"] {
+	min-width: 40px;
+	text-align: center;
+}
+
+.table-scroll-container table th[data-column-id="name"] {
+	min-width: 100px;
+}
+
+.table-scroll-container table th[data-column-id="school"] {
+	min-width: 180px;
+}
+
+.table-scroll-container table th[data-column-id="classRoom"] {
+	min-width: 100px;
+}
+
+.table-scroll-container table th[data-column-id="signTime"] {
+	min-width: 180px;
+}
+
+.table-scroll-container table th[data-column-id="photos"] {
+	min-width: 120px;
+}
+
+.table-scroll-container table th[data-column-id="problems"] {
+	min-width: 250px;
+}
+
+.table-scroll-container table th[data-column-id="createTime"] {
+	min-width: 180px;
+}
+
+.table-scroll-container table th[data-column-id="operation"] {
+	min-width: 120px;
+	text-align: center;
+}
+
+/* 自定义右键菜单 */
+.custom-contextmenu {
+	position: absolute;
+	z-index: 9999;
+	width: 160px;
+	background: #fff;
+	border: 1px solid #e6e6e6;
+	border-radius: 4px;
+	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+	display: none;
+	padding: 5px 0;
+}
+
+.custom-contextmenu ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.custom-contextmenu li a {
+	display: block;
+	padding: 6px 15px;
+	color: #333;
+	cursor: pointer;
+}
+
+.custom-contextmenu li a:hover {
+	background: #f5f5f5;
+}
+
+.custom-contextmenu li.divider {
+	height: 1px;
+	background: #eee;
+	margin: 5px 0;
+}
+
+/* 响应式适配 */
+@media (max-width: 992px) {
+    .search-form {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .btn-group-container {
+        margin-left: 0;
+        margin-top: 10px;
+        width: 100%;
+        justify-content: flex-start;
+    }
+    .photo-modal .modal-body {
+        padding: 50px 10px 70px;
+    }
+    .zoom-controls {
+        top: 60px;
+        right: 10px;
+    }
+    .nav-btn, .zoom-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 14px;
+    }
+}
+</style>
+</head>
+<body>
+	<div id="preloader">
+		<div id="status">&nbsp;</div>
+	</div>
+	<div th:replace="public/public::top"></div>
+	<div th:replace="public/public::left(activeUri='params')"></div>
+
+	<div class="wrap-fluid">
+		<div class="container-fluid paper-wrap bevel tlbr">
+			<div
+				th:replace="public/public::title(title='签到打卡管理',subtitle='Sign-in Management')"></div>
+			<div th:replace="public/public::menu(menu='签到管理',submenu='签到记录')"></div>
+
+			<div class="content-wrap">
+				<div class="row">
+					<div class="col-sm-12">
+						<div class="nest" id="tableStaticClose">
+							<div class="title-alt">
+								<form th:action="@{/attendances}" method="get"
+									class="form-inline search-form">
+									<div class="form-group">
+										<label>姓名：</label>
+										<input type="text" name="name"
+											th:value="${name}" class="form-control input-sm"
+											placeholder="姓名">
+									</div>
+									<div class="form-group">
+										<label>负责教室：</label>
+										<select name="classRoom" class="form-control input-sm">
+											<option value="">全部</option>
+											<option value="物理一" th:selected="${classRoom == '物理一'}">物理一</option>
+											<option value="化学二" th:selected="${classRoom == '化学二'}">化学二</option>
+											<option value="物理三" th:selected="${classRoom == '物理三'}">物理三</option>
+											<option value="化学四" th:selected="${classRoom == '化学四'}">化学四</option>
+										</select>
+									</div>
+									<div class="form-group">
+										<label>签到日期：</label>
+										<input type="date" name="startDate"
+											th:value="${startDate}" class="form-control input-sm">
+										<span> - </span>
+										<input type="date" name="endDate"
+											th:value="${endDate}" class="form-control input-sm">
+									</div>
+									<button type="submit" class="btn btn-sm btn-default">搜索</button>
+									<button type="button" class="btn btn-sm btn-default"
+										onclick="resetSearch()">重置</button>
+
+									<div class="btn-group-container">
+										<shiro:hasPermission name="attendance:export">
+											<button type="button" class="btn btn-success btn-sm"
+												onclick="openExportModal()">
+												<i class="fa fa-download"></i> 导出
+											</button>
+										</shiro:hasPermission>
+										<button class="btn btn-default btn-sm"
+											onclick="openColumnSetting()">
+											<i class="fa fa-cog"></i> 列设置
+										</button>
+									</div>
+								</form>
+							</div>
+
+							<div class="body-nest" id="tableStatic">
+								<div class="table-scroll-container">
+									<table class="table table-bordered table-striped">
+										<thead>
+											<tr>
+												<th data-column-id="checkbox"><input type="checkbox"
+													id="checkall"></th>
+												<th data-column-id="name">姓名</th>
+												<th data-column-id="school">签到学校</th>
+												<th data-column-id="address">定位地址</th>
+												<th data-column-id="classRoom">负责教室</th>
+												<th data-column-id="signTime">签到时间</th>
+												<th data-column-id="photos">签到照片</th>
+												<th data-column-id="problems">现场问题</th>
+												<th data-column-id="createTime">创建时间</th>
+												<th data-column-id="operation">操作</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr th:each="item : ${pageList.datas}">
+												<td data-column-id="checkbox"><input type="checkbox"
+													name="ids" th:value="${item.id}"></td>
+												<td data-column-id="name">[[${item.name}]]</td>
+												<td data-column-id="school">[[${item.school?.schoolName}]]</td>
+												<td data-column-id="address">[[${item.address}]]</td>
+												<td data-column-id="classRoom">[[${item.classRoom} ?: '-']]</td>
+												<td data-column-id="signTime">[[${item.signTime}]]</td>
+
+												<td data-column-id="photos">
+													<div th:if="${item.photos != null and not #lists.isEmpty(item.photos)}">
+														<img th:each="p, pStat : ${item.photos}"
+															th:src="@{|${p.savePath}comp_${p.generateName}|}"
+															class="photo-thumbnail"
+															th:onclick="|showPhotos('${item.id}', 'sign', ${pStat.index})|"
+															th:alt="|签到照片-${p.generateName}|">
+													</div>
+													<span th:if="${item.photos == null or #lists.isEmpty(item.photos)}">无</span>
+												</td>
+
+												<td data-column-id="problems">[[${item.problems} ?: '无']]</td>
+												<td data-column-id="createTime">[[${#dates.format(item.createTime, 'yyyy-MM-dd HH:mm')}]]</td>
+												<td data-column-id="operation">
+													<shiro:hasPermission name="attendance:delete">
+														<button class="btn btn-danger btn-xs"
+															th:onclick="|return del('@{/attendance/}${item.id}','')|">
+															<i class="fa fa-trash-o"> </i>删除
+														</button>
+													</shiro:hasPermission>
+												</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+
+								<form method="post" id="deleteForm">
+									<input name="_method" value="delete" type="hidden">
+								</form>
+
+								<!-- 分页 -->
+								<div class="row mt-2">
+									<div class="col-md-12">
+										<div class="col-md-6">
+											<div class="dataTables_info hidden-xs"
+												th:text="|每页${pageList.pageSize}条 · 当前${pageList.pageNo}页 · 共${pageList.totalPage}页|"></div>
+										</div>
+										<div class="col-md-6">
+											<ul class="pagination pagination-split pull-right">
+												<li th:class="${pageList.pageNo == 1 ? 'disabled' : ''}">
+													<a th:href="@{/attendances(pageNo=${pageList.upPage},pageSize=${pageList.pageSize},name=${name},classRoom=${classRoom},startDate=${startDate},endDate=${endDate})}">上一页</a>
+												</li>
+												<li th:each="p : ${pageList.navigatepageNums}"
+													th:class="${p == pageList.pageNo ? 'active' : ''}">
+													<a th:href="@{/attendances(pageNo=${p},pageSize=${pageList.pageSize},name=${name},classRoom=${classRoom},startDate=${startDate},endDate=${endDate})}">[[${p}]]</a>
+												</li>
+												<li th:class="${pageList.pageNo == pageList.totalPage ? 'disabled' : ''}">
+													<a th:href="@{/attendances(pageNo=${pageList.nextPage},pageSize=${pageList.pageSize},name=${name},classRoom=${classRoom},startDate=${startDate},endDate=${endDate})}">下一页</a>
+												</li>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 照片查看模态框 -->
+			<div class="modal fade photo-modal" id="photoViewModal" tabindex="-1" role="dialog" aria-labelledby="photoViewModalLabel">
+				<div class="modal-dialog modal-lg">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">&times;</button>
+							<h4 class="modal-title" id="photoViewModalLabel">照片查看</h4>
+						</div>
+						<div class="modal-body">
+							<div class="zoom-controls">
+								<button class="zoom-btn" id="zoomInBtn" title="放大">+</button>
+								<button class="zoom-btn" id="zoomOutBtn" title="缩小">-</button>
+								<button class="zoom-btn" id="zoomResetBtn" title="重置">⟳</button>
+							</div>
+							<div class="photo-viewer" id="photoViewer">
+								<img id="currentPhoto">
+							</div>
+							<div class="photo-navigation">
+								<button class="nav-btn" id="prevBtn" title="上一张">←</button>
+								<div class="photo-indicator" id="photoIndicator"></div>
+								<button class="nav-btn" id="nextBtn" title="下一张">→</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 导出模态框 -->
+			<div class="modal fade" id="exportModal">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button class="close" data-dismiss="modal">&times;</button>
+							<h4 class="modal-title">导出签到记录</h4>
+						</div>
+						<form id="exportForm">
+						<div class="modal-body">
+							<div class="form-group">
+								<label>日期范围</label>
+								<div class="row">
+									<div class="col-xs-6">
+										<input type="date" name="startDate" class="form-control">
+									</div>
+									<div class="col-xs-6">
+										<input type="date" name="endDate" class="form-control">
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<label>姓名</label>
+								<input type="text" name="name" class="form-control">
+							</div>
+						</div>
+						</form>
+						<div class="modal-footer">
+							<button class="btn btn-default" data-dismiss="modal">取消</button>
+							<button class="btn btn-primary" onclick="submitExport()">导出</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- 列设置 -->
+			<div class="modal fade" id="columnSettingModal">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<div class="modal-header">
+							<button class="close" data-dismiss="modal">&times;</button>
+							<h4 class="modal-title">列设置</h4>
+						</div>
+						<div class="modal-body" id="columnCheckboxes"></div>
+						<div class="modal-footer">
+							<button class="btn btn-primary" onclick="saveColumnSettings()">保存</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="custom-contextmenu" id="customContextMenu">
+				<ul>
+					<li><a onclick="$('#customContextMenu').hide()">关闭</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+
+	<div th:replace="public/public::right"></div>
+	<div th:replace="public/public_js::pub_js"></div>
+	<div th:replace="public/public_js::public_script"></div>
+	<div th:replace="public/public::footer"></div>
+	<script th:src="@{/plugs/sweetalert/sweetalert.min.js}"></script>
+
+	<script>
+    // 全局图片数据（完全对齐报修页）
+    let photoData = {
+        photos: [],
+        currentIndex: 0,
+        scale: 1,
+        minScale: 1,
+        maxScale: 5,
+        isDragging: false,
+        startX: 0,
+        startY: 0,
+        translateX: 0,
+        translateY: 0
+    };
+
+    // 重置搜索
+    function resetSearch(){
+        $(".search-form")[0].reset();
+        $(".search-form").submit();
+    }
+
+    // 查看照片（完全对齐报修页标准）
+    function showPhotos(id, type, idx){
+        let tr = $("input[value='"+id+"']").closest("tr");
+        let titleText = type === 'sign' ? '签到照片' : '照片查看';
+        $("#photoViewModalLabel").text(titleText);
+        
+        let imgs = tr.find(".photo-thumbnail");
+        photoData = {
+            photos: [],
+            currentIndex: idx,
+            scale: 1,
+            minScale: 1,
+            maxScale: 5,
+            isDragging: false,
+            startX: 0,
+            startY: 0,
+            translateX: 0,
+            translateY: 0
+        };
+        
+        imgs.each(function(){
+            let src = $(this).attr("src").replace("comp_","");
+            let alt = $(this).attr("alt");
+            photoData.photos.push({src:src, alt:alt});
+        });
+        
+        updatePhotoDisplay();
+        $("#photoViewModal").modal("show");
+    }
+
+    // 更新图片显示
+    function updatePhotoDisplay(){
+        let p = photoData.photos[photoData.currentIndex];
+        $("#currentPhoto").attr("src", p.src);
+        $("#currentPhoto").attr("alt", p.alt);
+        $("#photoIndicator").text((photoData.currentIndex+1)+"/"+photoData.photos.length);
+        $("#prevBtn").prop("disabled", photoData.currentIndex===0);
+        $("#nextBtn").prop("disabled", photoData.currentIndex===photoData.photos.length-1);
+        
+        photoData.scale=1;
+        photoData.translateX=0;
+        photoData.translateY=0;
+        updatePhotoTransform();
+        $("#photoViewer").removeClass("zoomed");
+    }
+
+    // 更新图片变换
+    function updatePhotoTransform() {
+        $("#photoViewer").css("transform",
+            `translate(-50%, -50%) translate(${photoData.translateX}px, ${photoData.translateY}px) scale(${photoData.scale})`
+        );
+    }
+
+    // 上一张
+    function showPrevPhoto() {
+        if(photoData.currentIndex>0){
+            photoData.currentIndex--;
+            updatePhotoDisplay();
+        }
+    }
+
+    // 下一张
+    function showNextPhoto() {
+        if(photoData.currentIndex<photoData.photos.length-1){
+            photoData.currentIndex++;
+            updatePhotoDisplay();
+        }
+    }
+
+    // 缩放
+    function zoomPhoto(delta) {
+        let newScale = photoData.scale + delta;
+        newScale = Math.max(photoData.minScale, Math.min(newScale, photoData.maxScale));
+        
+        if (newScale !== photoData.scale) {
+            photoData.scale = newScale;
+            updatePhotoTransform();
+            $("#photoViewer").toggleClass("zoomed", photoData.scale > photoData.minScale);
+        }
+    }
+
+    // 重置缩放
+    function resetZoom() {
+        photoData.scale = photoData.minScale;
+        photoData.translateX = 0;
+        photoData.translateY = 0;
+        updatePhotoTransform();
+        $("#photoViewer").removeClass("zoomed");
+    }
+
+    // 拖拽功能
+    function startDrag(e) {
+        if (photoData.scale <= photoData.minScale) return;
+        photoData.isDragging = true;
+        photoData.startX = e.clientX;
+        photoData.startY = e.clientY;
+        $("#photoViewer").css("cursor", "grabbing");
+        e.preventDefault();
+    }
+
+    function dragMove(e) {
+        if (!photoData.isDragging) return;
+        let dx = e.clientX - photoData.startX;
+        let dy = e.clientY - photoData.startY;
+        
+        photoData.translateX += dx;
+        photoData.translateY += dy;
+        photoData.startX = e.clientX;
+        photoData.startY = e.clientY;
+        
+        updatePhotoTransform();
+        e.preventDefault();
+    }
+
+    function endDrag() {
+        if (photoData.isDragging) {
+            photoData.isDragging = false;
+            $("#photoViewer").css("cursor", "move");
+        }
+    }
+
+    // 导出
+    function openExportModal(){
+        $("#exportModal").modal("show");
+    }
+
+    function submitExport() {
+        const form = $('#exportForm')[0];
+        const formData = new FormData(form);
+        
+        let params = new URLSearchParams();
+        for (let pair of formData.entries()) {
+            if (pair[1]) {
+                params.append(pair[0], pair[1]);
+            }
+        }
+        
+        const url = "[[@{/attendance/export}]]?" + params.toString();
+
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                if (response.headers.get('content-type').includes('application/json')) {
+                    return response.json().then(data => {
+                        throw new Error(data.errorMsg || '导出失败');
+                    });
+                } else {
+                    throw new Error('导出失败，服务器返回异常');
+                }
+            }
+            return response.blob();
+        })
+        .then(blob => {
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            a.download = `签到记录_${new Date().getTime()}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(downloadUrl);
+            document.body.removeChild(a);
+            $('#exportModal').modal('hide');
+            swal("成功", "导出成功！", "success");
+        })
+        .catch(error => {
+            swal("失败", error.message, "error");
+        });
+    }
+
+    // 列设置
+    let cols = [
+        {id:'checkbox',name:'选择'},
+        {id:'name',name:'姓名'},
+        {id:'school',name:'学校'},
+        {id:'address',name:'定位地址'},
+        {id:'classRoom',name:'负责教室'},
+        {id:'signTime',name:'签到时间'},
+        {id:'photos',name:'照片'},
+        {id:'problems',name:'问题'},
+        {id:'createTime',name:'创建时间'},
+        {id:'operation',name:'操作'}
+    ];
+
+    function openColumnSetting(){
+        let box = $("#columnCheckboxes"); box.empty();
+        let set = JSON.parse(localStorage.getItem("attendanceCols")) || {};
+        cols.forEach(c=>{
+            let ck = set[c.id]!==false ? "checked" : "";
+            box.append(`<div class="checkbox"><label><input type="checkbox" value="${c.id}" ${ck}> ${c.name}</label></div>`);
+        });
+        $("#columnSettingModal").modal("show");
+    }
+
+    function saveColumnSettings(){
+        let s = {};
+        $("#columnSettingModal input[type=checkbox]").each(function(){
+            s[$(this).val()] = $(this).is(":checked");
+        });
+        localStorage.setItem("attendanceCols", JSON.stringify(s));
+        applyCols();
+        $("#columnSettingModal").modal("hide");
+    }
+
+    function applyCols(){
+        let s = JSON.parse(localStorage.getItem("attendanceCols")) || {};
+        $("[data-column-id]").each(function(){
+            let id = $(this).data("column-id");
+            $(this).toggle(s[id]!==false);
+        });
+    }
+
+    // 页面加载
+    $(function(){
+        applyCols();
+        
+        // 照片事件绑定
+        $("#prevBtn").click(showPrevPhoto);
+        $("#nextBtn").click(showNextPhoto);
+        $("#zoomInBtn").click(() => zoomPhoto(0.2));
+        $("#zoomOutBtn").click(() => zoomPhoto(-0.2));
+        $("#zoomResetBtn").click(resetZoom);
+        
+        // 滚轮缩放
+        $("#photoViewer").on("wheel", function(e) {
+            e.preventDefault();
+            let delta = e.originalEvent.deltaY > 0 ? -0.1 : 0.1;
+            zoomPhoto(delta);
+        });
+        
+        // 点击图片切换下一张
+        $("#photoViewer").click(function() {
+            if (photoData.scale <= photoData.minScale) {
+                showNextPhoto();
+            }
+        });
+        
+        // 拖拽
+        $("#photoViewer").on("mousedown", startDrag);
+        $(document).on("mousemove", dragMove);
+        $(document).on("mouseup", endDrag);
+        $(document).on("mouseleave", endDrag);
+        
+        // 模态框关闭重置
+        $("#photoViewModal").on("hidden.bs.modal", function() {
+            resetZoom();
+            endDrag();
+        });
+
+        // 图片加载失败处理
+        $(document).on("error", ".photo-thumbnail", function() {
+            $(this).attr("src", "[[@{/assets/img/default-img.png}]]");
+        });
+        $(document).on("error", "#currentPhoto", function() {
+            $(this).attr("src", "[[@{/assets/img/default-img.png}]]");
+            $(this).attr("alt", "图片加载失败");
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:include="public/public_css::pub_css">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+
+<body>
+	<!-- Preloader -->
+	<div id="preloader">
+		<div id="status">&nbsp;</div>
+	</div>
+	<!-- TOP NAVBAR -->
+	<div th:replace="public/public::top"></div>
+	<!-- /END OF TOP NAVBAR -->
+
+	<!-- SIDE MENU -->
+	<div th:replace="public/public::left(activeUri='param')"></div>
+	<!-- END OF SIDE MENU -->
+
+	<!--  PAPER WRAP -->
+	<div class="wrap-fluid">
+		<div class="container-fluid paper-wrap bevel tlbr">
+
+			<!-- CONTENT -->
+			<!--TITLE -->
+			<div th:replace="public/public::title"></div>
+			<!--/ TITLE -->
+
+			<!-- BREADCRUMB -->
+			<div th:replace="public/public::menu"></div>
+			<!-- END OF BREADCRUMB -->
+
+			<div class="content-wrap">
+				<div class="row">
+					<div class="col-sm-12">
+						<!-- 签到任务表单 -->
+						<div style="margin: -20px 15px;" class="nest" id="SignTaskClose">
+							<div class="title-alt">
+								<h6>签到任务信息</h6>
+								<div class="titleClose">
+									<a class="gone" href="#SignTaskClose">
+										<span class="entypo-cancel"></span>
+									</a>
+								</div>
+								<div class="titleToggle">
+									<a class="nav-toggle-alt" href="#SignTask_Content">
+										<span class="entypo-up-open"></span>
+									</a>
+								</div>
+							</div>
+
+							<div class="body-nest" id="SignTask_Content">
+								<div class="row">
+									<div class="col-md-12 personal-info">
+										<form class="form-horizontal"
+											  id="signTaskForm"
+											  th:action="@{/signTask}"
+											  method="post">
+
+											<!-- PUT/POST 提交方式 -->
+											<input type="hidden" name="_method" value="PUT" th:if="${signTask!=null}" />
+											<input type="hidden" name="id" th:if="${signTask!=null}" th:value="${signTask.id}" />
+
+											<!-- 签到任务名称 -->
+											<div class="form-group">
+												<label class="col-lg-1 control-label">任务名称：</label>
+												<div class="col-lg-6">
+													<input class="form-control"
+														   name="taskName"
+														   placeholder="请输入签到任务名称"
+														   th:value="${signTask?.taskName}"
+														   required="required">
+												</div>
+											</div>
+
+											<!-- 开始时间 -->
+											<div class="form-group">
+												<label class="col-lg-1 control-label">开始时间：</label>
+												<div class="col-lg-6">
+													<input type="datetime-local" class="form-control"
+														   name="startTime"
+														   placeholder="请输入签到开始时间"
+														   th:value="${signTask?.startTime}"
+                                                           onclick="this.showPicker()">
+												</div>
+											</div>
+
+											<!-- 结束时间 -->
+											<div class="form-group">
+												<label class="col-lg-1 control-label">结束时间：</label>
+												<div class="col-lg-6">
+													<input type="datetime-local" class="form-control"
+														   name="endTime"
+														   placeholder="请输入签到结束时间"
+														   th:value="${signTask?.endTime}"
+                                                           onclick="this.showPicker()">
+												</div>
+											</div>
+
+											<!-- 按钮区域 -->
+											<div class="form-group">
+												<label class="col-lg-1 control-label"></label>
+												<div class="col-md-8">
+													<button type="submit" class="btn btn-success" th:text="${signTask!=null?'修改':'添加'}"></button>
+													<button type="button" class="btn btn-default" onclick="window.location.href='@{/signTasks}'">返回</button>
+													<input th:if="${signTask == null}" class="btn btn-default" value="重置" type="reset">
+												</div>
+											</div>
+										</form>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!--  END OF PAPER WRAP -->
+
+	<!-- 右侧隐藏菜单start -->
+	<div th:replace="public/public::right"></div>
+	<!-- 右侧隐藏菜单end-->
+
+	<!-- 底部公共JS -->
+	<div th:replace="public/public_js::pub_js"></div>
+	<div th:replace="public/public::myModal"></div>
+	<div th:replace="public/public_js::public_script"></div>
+	<div th:replace="public/public::footer"></div>
+
+	<!-- 验证插件 -->
+	<script type="text/javascript" th:src="@{/plugs/validate/jquery.validate.min.js}"></script>
+	<script type="text/javascript" th:src="@{/plugs/validate/messages_zh.min.js}"></script>
+	<div th:replace="public/public_js::validator"></div>
+
+</body>
+</html>

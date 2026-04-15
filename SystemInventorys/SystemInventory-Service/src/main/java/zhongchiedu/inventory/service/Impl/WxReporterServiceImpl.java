@@ -85,6 +85,9 @@ public class WxReporterServiceImpl extends GeneralServiceImpl<WxReporter> implem
 		        isInfoChanged = true;
 		    } else if (!Objects.equals(getwxReporter.getSchoolName(), wxReporter.getSchoolName())) {
 		        isInfoChanged = true;
+		    } else if (!Objects.equals(getwxReporter.getIsBlocked(), wxReporter.getIsBlocked())) {
+		    	// 新增：检查拉黑状态是否变化
+		        isInfoChanged = true;
 		    }
 		    // 5. 根据判断结果执行更新或跳过
 		    if (isInfoChanged) {
@@ -153,6 +156,64 @@ public class WxReporterServiceImpl extends GeneralServiceImpl<WxReporter> implem
 		
 		
 		return null;
+	}
+
+	// 新增：单个拉黑/解封
+	@Override
+	public boolean blockReporter(String id, boolean isBlocked) {
+		try {
+			lock.lock();
+			WxReporter reporter = this.findOneById(id, WxReporter.class);
+			if (reporter == null || reporter.getIsDelete()) {
+				log.error("报修人ID {} 不存在或已删除", id);
+				return false;
+			}
+			reporter.setIsBlocked(isBlocked);
+			this.save(reporter);
+			log.info("报修人ID {} 拉黑状态更新为：{}", id, isBlocked);
+			return true;
+		} catch (Exception e) {
+			log.error("拉黑/解封报修人失败，ID：{}", id, e);
+			return false;
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	// 新增：批量拉黑/解封
+	@Override
+	public boolean batchBlock(String ids, boolean isBlocked) {
+		try {
+			lock.lock();
+			List<String> idList = Arrays.asList(ids.split(","));
+			for (String id : idList) {
+				WxReporter reporter = this.findOneById(id, WxReporter.class);
+				if (reporter != null && !reporter.getIsDelete()) {
+					reporter.setIsBlocked(isBlocked);
+					this.save(reporter);
+				}
+			}
+			log.info("批量操作：{} 个报修人拉黑状态更新为：{}", idList.size(), isBlocked);
+			return true;
+		} catch (Exception e) {
+			log.error("批量拉黑/解封报修人失败，IDs：{}", ids, e);
+			return false;
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	// 新增：根据openId检查是否被拉黑（供拦截器调用）
+	@Override
+	public boolean isOpenidBlocked(String openId) {
+		if (Common.isEmpty(openId)) {
+			return false;
+		}
+		Query query = new Query();
+		query.addCriteria(Criteria.where("openId").is(openId));
+		query.addCriteria(Criteria.where("isDelete").is(false));
+		WxReporter reporter = this.findOneByQuery(query, WxReporter.class);
+		return reporter != null && reporter.getIsBlocked() != null && reporter.getIsBlocked();
 	}
 
 }

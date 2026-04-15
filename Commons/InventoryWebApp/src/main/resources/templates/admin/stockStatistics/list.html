@@ -206,7 +206,7 @@
 
 
 									<div class="col-sm-12 form-inline" style="margin-bottom: 10px;">
-									<!-- 	<div id="ssprojectName" class="ssprojectName showin-b"
+										<!-- 	<div id="ssprojectName" class="ssprojectName showin-b"
 											th:style="${#lists.contains(listColums,'ssprojectName')}?'':'display:none;'">
 											<label class="control-label text-muted">用于项目：</label> <input
 												class="form-control" name="projectName" placeholder=""
@@ -231,7 +231,7 @@
 										</div>
 
 										<div id="ssaccepter" class="ssaccepter showin-b"
-											 th:style="${#lists.contains(listColums,'ssaccepter')}?'':'display:none;'">
+											th:style="${#lists.contains(listColums,'ssaccepter')}?'':'display:none;'">
 											<label class="control-label text-muted">领料人：</label> <input
 												class="form-control" name="accepter" placeholder=""
 												type="text" th:value="${requestBo?.accepter}">
@@ -248,24 +248,30 @@
 											<option value="10" th:selected="${pageSize == 10}">10
 
 
+
 											
 											<option value="20" th:selected="${pageSize == 20}">20
+
 
 
 											
 											<option value="50" th:selected="${pageSize == 50}">50
 
 
+
 											
 											<option value="100" th:selected="${pageSize == 100}">100
+
 
 
 											
 											<option value="200" th:selected="${pageSize == 200}">200
 
 
+
 											
 											<option value="300" th:selected="${pageSize == 300}">300
+
 
 
 											
@@ -285,28 +291,27 @@
 											th:value="${session.user_session.id}" id="userId"> <select
 											class="filter-status form-control" id="type" name="type">
 											<option value="all" th:selected="${requestBo?.type == 'all'}">所有
+											
 											<option value="in" th:selected="${requestBo?.type == 'in'}">入库
+											
 											<option value="out" th:selected="${requestBo?.type == 'out'}">出库
-										</select>
-										<select class="filter-status form-control" id="revoke"
+											
+										</select> <select class="filter-status form-control" id="revoke"
 											name="revoke">
 											<option value="0" selected>--选择状态--</option>
 											<option value="1" th:selected="${requestBo?.revoke=='1'}">已撤销</option>
 											<option value="2" th:selected="${requestBo?.revoke=='2'}">正常</option>
-										</select>
-										<select class="filter-status form-control" id="mysign"
-												name="mysign">
+										</select> <select class="filter-status form-control" id="mysign"
+											name="mysign">
 											<option value="" selected>--选择签名--</option>
 											<option value="1" th:selected="${requestBo?.mysign=='1'}">已签名</option>
 											<option value="2" th:selected="${requestBo?.mysign=='2'}">未签名</option>
-										</select>
-										<select class="filter-status form-control" id="myothersign"
-												name="myothersign">
+										</select> <select class="filter-status form-control" id="myothersign"
+											name="myothersign">
 											<option value="" selected>--复核签名--</option>
 											<option value="1" th:selected="${requestBo?.othersign=='1'}">已签名</option>
 											<option value="2" th:selected="${requestBo?.othersign=='2'}">未签名</option>
-										</select>
-										<select class="filter-status form-control" id="confirm"
+										</select> <select class="filter-status form-control" id="confirm"
 											name="confirm">
 											<option value="" selected>--是否核对--</option>
 											<option value="true"
@@ -330,47 +335,48 @@
 
 
 							</div>
-								<div class="body-nest" id="showStockStatistics">
-							<shiro:hasPermission name="stockStatistics:edit">
+							<div class="body-nest" id="showStockStatistics">
+								<shiro:hasPermission name="stockStatistics:edit">
 									<button class="btn btn-primary btn-sm"
 										onclick="return editStockStatistics()">
 										<i class="entypo-search"> </i> 批量编辑
 									</button>
-									</shiro:hasPermission>
-									<shiro:hasPermission name="stockStatistics:confirm">
+								</shiro:hasPermission>
+								<shiro:hasPermission name="stockStatistics:confirm">
 									<button class="btn btn-primary btn-sm"
 										onclick="return confirms()">
 										<i class="fa fa-edit"> </i> 批量核对
 									</button>
-									</shiro:hasPermission>
-							 		<button class="btn btn-default" onclick="return toExport()">
-										<i class="entypo-export"> </i>导出库存出入统计报表
-									</button> 
+								</shiro:hasPermission>
+								<button class="btn btn-default" onclick="return toExport()">
+									<i class="entypo-export"> </i>导出库存出入统计报表
+								</button>
 
-									<button class="btn btn-default" onclick="return toExportNew()">
-										<i class="entypo-export"> </i>导出新出入统计报表
-									</button>
-									<!--										<button class="btn btn-default" onclick="return toExport()">-->
-									<!--											<i class="entypo-export"> </i>导出库存出入统计报表-->
-									<!--										</button>-->
+								<button class="btn btn-default" onclick="return toExportNew()">
+									<i class="entypo-export"> </i>导出新出入统计报表
+								</button>
+								<!--										<button class="btn btn-default" onclick="return toExport()">-->
+								<!--											<i class="entypo-export"> </i>导出库存出入统计报表-->
+								<!--										</button>-->
 
-									<!--										<button class="btn btn-default" onclick="return toExportNew3()">-->
-									<!--											<i class="entypo-export"> </i>导出上月结余统计-->
-									<!--										</button>-->
+								<!--										<button class="btn btn-default" onclick="return toExportNew3()">-->
+								<!--											<i class="entypo-export"> </i>导出上月结余统计-->
+								<!--										</button>-->
 
-									<button class="btn btn-default" onclick="return findMineEidt()">
-										<i class="entypo-export"> </i>查看我编辑的
-									</button>
+								<button class="btn btn-default" onclick="return findMineEidt()">
+									<i class="entypo-export"> </i>查看我编辑的
+								</button>
 
 								<!-- 	<button class="btn btn-default" onclick="return toJD()">
 										<i class="entypo-export"> </i>导出库存出入统计报表(金蝶)
 									</button> -->
-									<button class="btn btn-default" onclick="return projectStockStatistics()">
-										<i class="entypo-export"> </i>导出项目统计
-									</button> 
+								<button class="btn btn-default"
+									onclick="return projectStockStatistics()">
+									<i class="entypo-export"> </i>导出项目统计
+								</button>
 
-								</div>
-							
+							</div>
+
 
 
 							<section id="flip-scroll">
@@ -413,7 +419,7 @@
 													th:style="${#lists.contains(listColums,'price')}?'':'display:none;'">单价</th>
 												<th class="numeric inNum"
 													th:style="${#lists.contains(listColums,'inNum')}?'':'display:none;'">入库数量</th>
-											
+
 												<th class="numeric depotTime"
 													th:style="${#lists.contains(listColums,'depotTime')}?'':'display:none;'">出库时间</th>
 												<th class="numeric outNum"
@@ -427,7 +433,7 @@
 													th:style="${#lists.contains(listColums,'revokeNum')}?'':'display:none;'">撤销数量</th>
 												<th class="numeric personInCharge"
 													th:style="${#lists.contains(listColums,'personInCharge')}?'':'display:none;'">负责人</th>
-											<!-- 	<th class="numeric projectName"
+												<!-- 	<th class="numeric projectName"
 													th:style="${#lists.contains(listColums,'projectName')}?'':'display:none;'">用于项目</th> -->
 												<!--												<th class="numeric customer"-->
 												<!--													th:style="${#lists.contains(listColums,'customer')}?'':'display:none;'">客户</th>-->
@@ -526,11 +532,26 @@
 													<td class="numeric storageTime" id="storageTime"
 														th:style="${#lists.contains(listColums,'storageTime')}?'':'display:none;'"
 														th:text="${stockStatistics.storageTime!=null}?${stockStatistics?.storageTime}:'--------'"></td>
-														
-													<td class="numeric price"
+
+													<!-- 													 <td class="numeric price"
 														th:id="|price_${stockStatistics?.id}|"
 														th:ondblclick="|return change('${stockStatistics?.id}','price',${stockStatistics?.confirm})|"
-														th:style="${#lists.contains(listColums,'price')}?'':'display:none;'">[[${stockStatistics?.price}]]</td>	
+														th:style="${#lists.contains(listColums,'price')}?'':'display:none;'">[[${stockStatistics?.price}]]</td>	 -->
+													<!-- 有权限：显示可双击编辑的price列 -->
+													<shiro:hasPermission name="stockStatistics:editprice">
+														<td class="numeric price"
+															th:id="|price_${stockStatistics?.id}|"
+															th:ondblclick="|return change('${stockStatistics?.id}','price',${stockStatistics?.confirm})|"
+															th:style="${#lists.contains(listColums,'price')}?'':'display:none;'">[[${stockStatistics?.price}]]</td>
+													</shiro:hasPermission>
+
+													<!-- 无权限：显示仅查看的price列（无双击事件） -->
+													<shiro:lacksPermission name="stockStatistics:editprice">
+														<td class="numeric price"
+															th:id="|price_${stockStatistics?.id}|"
+															th:style="${#lists.contains(listColums,'price')}?'':'display:none;'">[[${stockStatistics?.price}]]</td>
+													</shiro:lacksPermission>
+
 													<td class="numeric inNum"
 														th:id="|inNum_${stockStatistics?.id}|"
 														th:style="${#lists.contains(listColums,'inNum')}?'':'display:none;'"
@@ -544,25 +565,27 @@
 														th:text="${stockStatistics.depotTime != null}?${#numbers.formatDecimal(stockStatistics?.num, 1, 'COMMA', 2, 'POINT')}:'--------'"></td>
 													<td class="numeric newNum"
 														th:id="|newNum_${stockStatistics?.id}|"
-														th:style="${#lists.contains(listColums,'newNum')}?'':'display:none;'">[[${#numbers.formatDecimal(stockStatistics?.newNum, 1, 'COMMA', 2, 'POINT')}]]</td>
+														th:style="${#lists.contains(listColums,'newNum')}?'':'display:none;'">[[${#numbers.formatDecimal(stockStatistics?.newNum,
+														1, 'COMMA', 2, 'POINT')}]]</td>
 													<td class="numeric unit" id="unit"
 														th:style="${#lists.contains(listColums,'unit')}?'':'display:none;'">
 														[[${stockStatistics?.stock?.unit?.name}]]</td>
 													<td class="numeric revokeNum"
 														th:id="|revokeNum_${stockStatistics?.id}|"
-														th:style="${#lists.contains(listColums,'revokeNum')}?'':'display:none;'">[[${#numbers.formatDecimal(stockStatistics?.revokeNum, 1, 'COMMA', 2, 'POINT')}]]</td>
+														th:style="${#lists.contains(listColums,'revokeNum')}?'':'display:none;'">[[${#numbers.formatDecimal(stockStatistics?.revokeNum,
+														1, 'COMMA', 2, 'POINT')}]]</td>
 													<th:block th:if="${stockStatistics?.storageTime != null}">
-													<td class="numeric personInCharge" id="personInCharge" 
-														th:style="${#lists.contains(listColums,'personInCharge')}?'':'display:none;'"></td>
+														<td class="numeric personInCharge" id="personInCharge"
+															th:style="${#lists.contains(listColums,'personInCharge')}?'':'display:none;'"></td>
 													</th:block>
 													<th:block th:if="${stockStatistics?.storageTime == null}">
-													<td class="numeric personInCharge" id="personInCharge" 
-														th:style="${#lists.contains(listColums,'personInCharge')}?'':'display:none;'"
-														th:text="${stockStatistics?.personInCharge == null}?${stockStatistics?.pname?.pm}:${stockStatistics?.personInCharge}"></td>
+														<td class="numeric personInCharge" id="personInCharge"
+															th:style="${#lists.contains(listColums,'personInCharge')}?'':'display:none;'"
+															th:text="${stockStatistics?.personInCharge == null}?${stockStatistics?.pname?.pm}:${stockStatistics?.personInCharge}"></td>
 													</th:block>
-													
-														
-														
+
+
+
 													<!-- <td class="numeric projectName" id="projectName"
 														th:style="${#lists.contains(listColums,'projectName')}?'':'display:none;'"
 														th:text="${stockStatistics.projectName != null}?${stockStatistics?.projectName}:'--------'"></td> -->
@@ -618,7 +641,7 @@
 
 													<td class="numeric user" id="user"
 														th:style="${#lists.contains(listColums,'user')}?'':'display:none;'">[[${stockStatistics?.user?.userName}]]</td>
-													<td class="numeric publisher" >[[${stockStatistics?.publisher?.userName}]]</td>
+													<td class="numeric publisher">[[${stockStatistics?.publisher?.userName}]]</td>
 													<td class="numeric description"
 														th:id="|description_${stockStatistics?.id}|"
 														th:title="${stockStatistics.description}"
@@ -755,13 +778,16 @@
 													<th class="numeric price"
 														th:style="${#lists.contains(listColums,'price')}?'':'display:none;'"></th>
 													<th class="numeric inNum" id="inNumHJ"
-														th:style="${#lists.contains(listColums,'inNum')}?'':'display:none;'">[[${#numbers.formatDecimal(#aggregates.sum(pageList?.datas.![inOrOut?num:0]), 1, 'COMMA', 2, 'POINT')}]]</th>
+														th:style="${#lists.contains(listColums,'inNum')}?'':'display:none;'">[[${#numbers.formatDecimal(#aggregates.sum(pageList?.datas.![inOrOut?num:0]),
+														1, 'COMMA', 2, 'POINT')}]]</th>
 													<th class="numeric depotTime"
 														th:style="${#lists.contains(listColums,'depotTime')}?'':'display:none;'"></th>
 													<th class="numeric outNum" id="outNumHJ"
-														th:style="${#lists.contains(listColums,'outNum')}?'':'display:none;'">[[${#numbers.formatDecimal(#aggregates.sum(pageList?.datas.![inOrOut?num:0]), 1, 'COMMA', 2, 'POINT')}]]</th>
+														th:style="${#lists.contains(listColums,'outNum')}?'':'display:none;'">[[${#numbers.formatDecimal(#aggregates.sum(pageList?.datas.![inOrOut?num:0]),
+														1, 'COMMA', 2, 'POINT')}]]</th>
 													<th class="numeric newNum"
-														th:style="${#lists.contains(listColums,'newNum')}?'':'display:none;'">[[${#numbers.formatDecimal(#aggregates.sum(pageList?.datas.![newNum==null?0:newNum]), 1, 'COMMA', 2, 'POINT')}]]</th>
+														th:style="${#lists.contains(listColums,'newNum')}?'':'display:none;'">[[${#numbers.formatDecimal(#aggregates.sum(pageList?.datas.![newNum==null?0:newNum]),
+														1, 'COMMA', 2, 'POINT')}]]</th>
 													<th class="numeric unit"
 														th:style="${#lists.contains(listColums,'unit')}?'':'display:none;'"></th>
 													<th class="numeric revokeNum"

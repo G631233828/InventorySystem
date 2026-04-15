@@ -43,7 +43,7 @@ wx:
 #    server-url: http://zhongchiedu.com
 #    server-url: http://zhongchi.top
 #    server-url: http://cored.zhongchiedu.com
-    server-url: https://r5tm53y8.xiaomy.net
+    server-url: https://r5tm53y8.xiaomy.net 
 ##预入库之后发送通知处理
 
 templateId1: t65Pa8jI77ZTyyTX1LnPNgAYKo1sk8idfR72lbe0I10

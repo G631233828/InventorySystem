@@ -27,7 +27,14 @@ public interface WxReporterService extends GeneralService<WxReporter> {
 	
 	public List<ObjectId>  findIdsBySearch(String search);
 	
-	
+	// 新增：单个拉黑/解封
+		public boolean blockReporter(String id, boolean isBlocked);
+		
+		// 新增：批量拉黑/解封
+		public boolean batchBlock(String ids, boolean isBlocked);
+		
+		// 新增：根据openId检查是否被拉黑（供拦截器调用）
+		public boolean isOpenidBlocked(String openId);
 	
 	
 	

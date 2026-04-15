@@ -429,7 +429,8 @@
 																<i class="fa fa-edit"> </i>编辑
 															</button>
 
-														</shiro:hasPermission> <shiro:hasPermission name="preStock:delete">
+														</shiro:hasPermission>
+														 <shiro:hasPermission name="preStock:delete">
 															<button class="btn btn-danger btn-xs"
 																th:onclick="|return del('@{/preStock/}${stock.id}','')|">
 																<i class="fa fa-trash-o"> </i>删除

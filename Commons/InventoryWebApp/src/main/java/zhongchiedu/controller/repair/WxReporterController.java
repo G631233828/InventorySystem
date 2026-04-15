@@ -176,4 +176,57 @@ public class WxReporterController {
         WxReporter wxReporter = wxReporterService.findWxReporterByOpenId(openId);
         return BasicDataResult.build(200, "查询成功", wxReporter);
     }
+    
+    // 新增：单个拉黑/解封接口
+    @PostMapping("/wxReporter/block")
+    @RequiresPermissions(value = "wxReporter:edit") 
+    @SystemControllerLog(description = "拉黑/解封报修人")
+    @ResponseBody
+    public BasicDataResult blockReporter(@RequestParam String id, @RequestParam boolean isBlocked) {
+        try {
+            boolean success = wxReporterService.blockReporter(id, isBlocked);
+            if (success) {
+                String msg = isBlocked ? "拉黑成功" : "解封成功";
+                return BasicDataResult.build(200, msg, null);
+            } else {
+                return BasicDataResult.build(500, "操作失败：报修人不存在或已删除", null);
+            }
+        } catch (Exception e) {
+            log.error("拉黑/解封报修人失败，ID：{}", id, e);
+            return BasicDataResult.build(500, "操作失败：" + e.getMessage(), null);
+        }
+    }
+    
+    // 新增：批量拉黑/解封接口
+    @PostMapping("/wxReporter/batchBlock")
+    @RequiresPermissions(value = "wxReporter:edit") 
+    @SystemControllerLog(description = "批量拉黑/解封报修人")
+    @ResponseBody
+    public BasicDataResult batchBlock(@RequestParam String ids, @RequestParam boolean isBlocked) {
+        try {
+            boolean success = wxReporterService.batchBlock(ids, isBlocked);
+            if (success) {
+                String msg = isBlocked ? "批量拉黑成功" : "批量解封成功";
+                return BasicDataResult.build(200, msg, null);
+            } else {
+                return BasicDataResult.build(500, "批量操作失败", null);
+            }
+        } catch (Exception e) {
+            log.error("批量拉黑/解封报修人失败，IDs：{}", ids, e);
+            return BasicDataResult.build(500, "批量操作失败：" + e.getMessage(), null);
+        }
+    }
+    
+    // 新增：供拦截器调用的检查拉黑状态接口
+    @GetMapping("/wxReporter/checkBlocked")
+    @ResponseBody
+    public BasicDataResult checkBlocked(@RequestParam String openId) {
+        try {
+            boolean isBlocked = wxReporterService.isOpenidBlocked(openId);
+            return BasicDataResult.build(200, "查询成功", isBlocked);
+        } catch (Exception e) {
+            log.error("检查报修人拉黑状态失败，openId：{}", openId, e);
+            return BasicDataResult.build(500, "查询失败：" + e.getMessage(), null);
+        }
+    }
 }
