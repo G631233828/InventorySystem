@@ -90,6 +90,15 @@ public class SignInController {
 				model.addAttribute("userInfo", userInfo);
 			}
 			model.addAttribute("openId", openId);
+			
+			AttendanceManagement todayRecord = attendanceManagementService.getTodaySignRecord(openId);
+
+			// 如果不为null → 今天已签到
+			if (todayRecord != null) {
+			    // 直接回显历史问题
+			    model.addAttribute("problems", todayRecord.getProblems());
+			    return "lihua/signSuccess";
+			}
 
 			// ======================================
 			// 1. 先查：是否有【有效签到任务】
@@ -103,14 +112,7 @@ public class SignInController {
 			// 2. 再查：今日是否已签到
 			// ======================================
 			// 今日签到记录（只查一次数据库）
-			AttendanceManagement todayRecord = attendanceManagementService.getTodaySignRecord(openId);
-
-			// 如果不为null → 今天已签到
-			if (todayRecord != null) {
-			    // 直接回显历史问题
-			    model.addAttribute("problems", todayRecord.getProblems());
-			    return "lihua/signSuccess";
-			}
+			
 
 		} catch (WxErrorException | java.io.UnsupportedEncodingException e) {
 			if (e instanceof WxErrorException

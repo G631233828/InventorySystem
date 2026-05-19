@@ -18,7 +18,7 @@ public class ScheduleTask {
 	private MonthEndStatisticsService monthEndStatisticsService;
 
 //	@Scheduled(cron = "0 */2 * * * ?")//测试 2分钟执行一次
-	@Scheduled(cron = "0 59 23 28-31 * ?")
+	@Scheduled(cron = "0 0 23 28-31 * ?")
 	public void todoSchedule() {
 		final Calendar c = Calendar.getInstance();
 		System.out.println("执行库存月末统计，判断是否最后一天");

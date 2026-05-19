@@ -718,6 +718,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	                    in.put("t11", Common.isEmpty(st.getPname()) ? "" : st.getPname().getName());
 	                    in.put("t12", st.getDescription());
 	                    in.put("t13", Common.isEmpty(st.getUser()) ? "" : st.getUser().getUserName());
+	                    in.put("t14", Common.isEmpty(st.getPublisher()) ? "" : st.getPublisher().getUserName());
 	                    inlist.add(in);
 	                } else {
 	                    // ========== 出库逻辑：核心修改 - 分当月/历史月份取单价 ==========
@@ -772,6 +773,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	                    out.put("t13", st.getDescription());
 	                    out.put("t14", Common.isEmpty(st.getSign()) ? "未签名" : "已签名");
 	                    out.put("t15", Common.isEmpty(st.getOthersign()) ? "未签名" : "已签名");
+	                    out.put("t16", Common.isEmpty(st.getPublisher()) ? "" : st.getPublisher().getUserName());
 	                    outlist.add(out);
 	                }
 	            }
@@ -3271,6 +3273,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 			in.put("t12", Common.isNotEmpty(st.getAccepter()) ? st.getAccepter() : "");
 			in.put("t13", Common.isNotEmpty(st.getPname()) ? st.getPname().getAssistant() : "");
 			in.put("t14", Common.isNotEmpty(st.getUser()) ? st.getUser().getUserName() : "");
+			in.put("t15", Common.isNotEmpty(st.getPublisher()) ? st.getPublisher().getUserName() : "");
 			inlist.add(in);
 		}
 
@@ -3499,45 +3502,119 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 //    }
 //	
 
-	// 修复后的平均单价计算方法
-	public BigDecimal calculateAveragePriceByStockId(String stockId, TimeRangeType t,String date) {
-		List<StockStatistics> stockStatsList = findStockStatisByStockId(stockId, t,date);
+	public BigDecimal calculateAveragePriceByStockId(String stockId, TimeRangeType t, String date) {
+	    List<StockStatistics> stockStatsList = findStockStatisByStockId(stockId, t, date);
 
-		BigDecimal totalPriceNum = BigDecimal.ZERO; // price*num 的总和
-		int totalNum = 0; // num 的总和
+	    BigDecimal totalPriceNum = BigDecimal.ZERO; // price*num 的总和
+	    int totalNum = 0; // num 的总和
 
-		for (StockStatistics stats : stockStatsList) {
-			// 1. 先校验核心字段非空且数量有效
-			if (stats == null || stats.getPrice() == null || stats.getNum() == null || stats.getNum() <= 0) {
-				continue;
-			}
+	    for (StockStatistics stats : stockStatsList) {
+	        // 1. 先校验核心字段非空且数量有效
+	        if (stats == null || stats.getPrice() == null || stats.getNum() == null || stats.getNum() <= 0) {
+	            continue;
+	        }
 
-			try {
-				// 2. 统一转换为BigDecimal，兼容Double/Integer/BigDecimal类型
-				BigDecimal priceBigDecimal = convertToBigDecimal(stats.getPrice());
-				BigDecimal numBigDecimal = BigDecimal.valueOf(stats.getNum());
+	        try {
+	            // 2. 统一转换为BigDecimal，兼容 String/Double/Integer/BigDecimal
+	            BigDecimal priceBigDecimal = convertToBigDecimal(stats.getPrice());
+	            BigDecimal numBigDecimal = BigDecimal.valueOf(stats.getNum());
 
-				// 3. 安全计算 price*num 并累加
-				BigDecimal currentPriceNum = priceBigDecimal.multiply(numBigDecimal);
-				totalPriceNum = totalPriceNum.add(currentPriceNum);
-				totalNum += stats.getNum();
+	            // 3. 安全计算 price*num 并累加
+	            BigDecimal currentPriceNum = priceBigDecimal.multiply(numBigDecimal);
+	            totalPriceNum = totalPriceNum.add(currentPriceNum);
+	            totalNum += stats.getNum();
 
-			} catch (Exception e) {
-				// 捕获类型转换/计算异常，跳过这条无效数据
-				System.err.println("处理数据异常，跳过：" + e.getMessage());
-				continue;
-			}
-		}
+	        } catch (Exception e) {
+	            // 捕获类型转换/计算异常，跳过这条无效数据
+	            System.err.println("处理数据异常，跳过：" + e.getMessage());
+	            continue;
+	        }
+	    }
 
-		// 防止除数为0
-		if (totalNum == 0) {
-			return BigDecimal.ZERO;
-		}
+	    // 防止除数为0
+	    if (totalNum == 0) {
+	        return BigDecimal.ZERO;
+	    }
 
-		// 保留2位小数，四舍五入
-//		return totalPriceNum.divide(BigDecimal.valueOf(totalNum));
-		return totalPriceNum.divide(BigDecimal.valueOf(totalNum), 2, RoundingMode.HALF_UP);
+	    // 保留2位小数，四舍五入
+	    return totalPriceNum.divide(BigDecimal.valueOf(totalNum), 2, RoundingMode.HALF_UP);
 	}
+
+	/**
+	 * 修复：支持 String 类型价格，彻底解决 "不支持的价格类型：java.lang.String"
+	 */
+	private BigDecimal convertToBigDecimal(Object price) {
+	    if (price == null) {
+	        return BigDecimal.ZERO;
+	    }
+
+	    // 支持 String 类型（修复核心）
+	    if (price instanceof String) {
+	        String str = ((String) price).trim();
+	        if (str.isEmpty()) {
+	            return BigDecimal.ZERO;
+	        }
+	        try {
+	            return new BigDecimal(str);
+	        } catch (NumberFormatException e) {
+	            return BigDecimal.ZERO;
+	        }
+	    }
+
+	    if (price instanceof BigDecimal) {
+	        return (BigDecimal) price;
+	    }
+	    if (price instanceof Double) {
+	        return BigDecimal.valueOf((Double) price);
+	    }
+	    if (price instanceof Integer || price instanceof Long) {
+	        return new BigDecimal(price.toString());
+	    }
+
+	    throw new IllegalArgumentException("不支持的价格类型：" + price.getClass().getName());
+	}
+	
+	
+	
+	// 修复后的平均单价计算方法
+//	public BigDecimal calculateAveragePriceByStockId(String stockId, TimeRangeType t,String date) {
+//		List<StockStatistics> stockStatsList = findStockStatisByStockId(stockId, t,date);
+//
+//		BigDecimal totalPriceNum = BigDecimal.ZERO; // price*num 的总和
+//		int totalNum = 0; // num 的总和
+//
+//		for (StockStatistics stats : stockStatsList) {
+//			// 1. 先校验核心字段非空且数量有效
+//			if (stats == null || stats.getPrice() == null || stats.getNum() == null || stats.getNum() <= 0) {
+//				continue;
+//			}
+//
+//			try {
+//				// 2. 统一转换为BigDecimal，兼容Double/Integer/BigDecimal类型
+//				BigDecimal priceBigDecimal = convertToBigDecimal(stats.getPrice());
+//				BigDecimal numBigDecimal = BigDecimal.valueOf(stats.getNum());
+//
+//				// 3. 安全计算 price*num 并累加
+//				BigDecimal currentPriceNum = priceBigDecimal.multiply(numBigDecimal);
+//				totalPriceNum = totalPriceNum.add(currentPriceNum);
+//				totalNum += stats.getNum();
+//
+//			} catch (Exception e) {
+//				// 捕获类型转换/计算异常，跳过这条无效数据
+//				System.err.println("处理数据异常，跳过：" + e.getMessage());
+//				continue;
+//			}
+//		}
+//
+//		// 防止除数为0
+//		if (totalNum == 0) {
+//			return BigDecimal.ZERO;
+//		}
+//
+//		// 保留2位小数，四舍五入
+////		return totalPriceNum.divide(BigDecimal.valueOf(totalNum));
+//		return totalPriceNum.divide(BigDecimal.valueOf(totalNum), 2, RoundingMode.HALF_UP);
+//	}
 	
 	/**
 	 * 获取指定设备当月的入库数量（复用原有查询逻辑）
@@ -3683,30 +3760,7 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	}
 
 
-	// 新增：通用类型转换方法，将任意数值类型转为BigDecimal
-	private BigDecimal convertToBigDecimal(Object value) {
-		if (value == null) {
-			return BigDecimal.ZERO;
-		}
-		if (value instanceof BigDecimal) {
-			return (BigDecimal) value;
-		} else if (value instanceof Double) {
-			return BigDecimal.valueOf((Double) value);
-		} else if (value instanceof Integer) {
-			return BigDecimal.valueOf((Integer) value);
-		} else if (value instanceof Float) {
-			return BigDecimal.valueOf((Float) value);
-		} else if (value instanceof Long) {
-			return BigDecimal.valueOf((Long) value);
-		} else {
-			// 尝试将字符串转为数值（如果price是字符串类型）
-			try {
-				return new BigDecimal(value.toString());
-			} catch (Exception e) {
-				throw new IllegalArgumentException("不支持的价格类型：" + value.getClass().getName());
-			}
-		}
-	}
+	
 
 	/**
 	 * 计算期初+当月的综合平均单价
