@@ -1,5 +1,6 @@
 package zhongchiedu.controller.repair;
 
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
@@ -10,6 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
@@ -24,9 +26,12 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.alibaba.excel.EasyExcel;
 
@@ -34,10 +39,12 @@ import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.error.WxErrorException;
 import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.Common;
+import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.common.utils.enums.PersonJoinAuditStatusEnum;
 import zhongchiedu.common.utils.enums.PersonnelType;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.inventory.Dto.WxRepairExportDTO;
+import zhongchiedu.inventory.Dto.WxRepairImportDTO;
 import zhongchiedu.inventory.pojo.AfterSalesProjects;
 import zhongchiedu.inventory.pojo.WxBinding;
 import zhongchiedu.inventory.pojo.WxRepair;
@@ -612,7 +619,73 @@ public class WxRepairController {
     		return BasicDataResult.build(500, "系统异常", null);
     	}
     }
+    @RequestMapping("/wxRepair/import")
+    @ResponseBody
+    // @RequiresPermissions("wxRepair:import")
+    @SystemControllerLog(description = "导入报修单")
+    public ModelAndView importExcel(HttpServletRequest request, HttpSession session, RedirectAttributes attr) {
+        log.info("开始上传报修单Excel文件");
+        ModelAndView modelAndView = new ModelAndView();
+        modelAndView.setViewName("redirect:/wxRepairs");
+        String error = wxRepairService.upload(request, session);
+        attr.addFlashAttribute("errorImport", error);
+        return modelAndView;
+    }
     
+    /**
+     * 下载报修单导入模板
+     */
+    @GetMapping("/wxRepair/downloadTemplate")
+    @SystemControllerLog(description = "下载报修单导入模板")
+//    @RequiresPermissions("wxRepair:import")
+    public ModelAndView downloadTemplate(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        String storeName = "报修单导入模版.xlsx";
+        String contentType = "application/octet-stream";
+        String UPLOAD = "Templates/";
+        FileOperateUtil.download(request, response, storeName, contentType, UPLOAD);
+        return null;
+    }
+
+    /**
+     * 获取导入进度
+     */
+    @GetMapping("/wxRepair/uploadprocess")
+    @ResponseBody
+    public Object uploadprocess(HttpServletRequest request) {
+        return wxRepairService.findproInfo(request);
+    }
+    
+    /**
+     * 单独修改维修备注（双击备注模态框提交）
+     */
+    @PostMapping("/wxRepair/updateRepairRemark")
+//    @RequiresPermissions(value = "wxRepair:edit")
+    @SystemControllerLog(description = "修改维修备注")
+    @ResponseBody
+    public BasicDataResult updateRepairRemark(
+            @RequestParam("repairId") String repairId,
+            @RequestParam(value = "remark", required = false) String remark) {
+        try {
+            if (Common.isEmpty(repairId)) {
+                return BasicDataResult.build(500, "报修单ID不能为空", null);
+            }
+
+            WxRepair repair = wxRepairService.findOneById(repairId, WxRepair.class);
+            if (repair == null) {
+                return BasicDataResult.build(500, "报修单不存在", null);
+            }
+
+            // 设置备注
+            repair.setRemark(remark);
+            wxRepairService.save(repair);
+
+            return BasicDataResult.build(200, "备注保存成功", repair);
+
+        } catch (Exception e) {
+            log.error("修改维修备注失败：", e);
+            return BasicDataResult.build(500, "保存失败：" + e.getMessage(), null);
+        }
+    }
     
 
 }

@@ -948,6 +948,32 @@
 
 			</div>
 		</div>
+		
+		<!-- 导出区域选择模态框 -->
+<div class="modal fade" id="exportAreaModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">选择导出区域</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body" style="padding:20px;">
+        <label style="font-size:16px; margin-right:20px;">
+          <input type="checkbox" value="浦东" id="exportArea_pudong"> 浦东
+        </label>
+        <label style="font-size:16px;">
+          <input type="checkbox" value="奉贤" id="exportArea_fengxian"> 奉贤
+        </label>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-primary" onclick="doExport()">确认导出</button>
+      </div>
+    </div>
+  </div>
+</div>
+		
+		
 
 		<div th:replace="public/public::myModal"></div>
 		<div th:replace="admin/stockStatistics/column::mycolumn"></div>

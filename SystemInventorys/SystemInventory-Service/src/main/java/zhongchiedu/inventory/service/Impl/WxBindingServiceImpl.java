@@ -140,4 +140,13 @@ public class WxBindingServiceImpl extends GeneralServiceImpl<WxBinding> implemen
 	    return true;
 	}
 
+    @Override
+    public WxBinding findByName(String name) {
+        Query query = new Query();
+        query.addCriteria(Criteria.where("name").is(name));
+        query.addCriteria(Criteria.where("isDelete").is(false));
+        query.addCriteria(Criteria.where("auditStatus").is(2));
+        return this.findOneByQuery(query, WxBinding.class);
+    }
+
 }

@@ -55,7 +55,11 @@ public class WxRepair extends GeneralBean<WxRepair> {
 	
 	private String findReadTime;//第一次打开时间
 	
+
+	@DBRef
+	private List<MultiMedia> triplicatePhotos; // 保修单上传照片
 	
+	private String remark;//备注
 	
 	
 	

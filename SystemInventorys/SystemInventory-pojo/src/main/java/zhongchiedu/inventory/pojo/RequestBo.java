@@ -57,6 +57,10 @@ public class RequestBo {
     private String othersign;//复核签名1.已签名 2未签名
 
     private String accepter;//领料人
+    
+ // 导出选择的区域：浦东/奉贤，多个用逗号分隔
+    private String exportAreas;
+    
     public  boolean isNotEmpty(Object s) {
         if (null == s || "".equals(s) || "".equals(String.valueOf(s).trim())
                 || "null".equalsIgnoreCase(String.valueOf(s))) {

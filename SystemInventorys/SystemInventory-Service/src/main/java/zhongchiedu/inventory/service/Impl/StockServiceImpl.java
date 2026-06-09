@@ -618,7 +618,28 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				}
 				importStock.setUnit(unit);
 				String entryName = resultexcel[i][j + 7].trim();
-				importStock.setEntryName(entryName);// 项目名称
+//				importStock.setEntryName(entryName);// 项目名称
+				//用到新项目管理 去匹配项目名称
+				Pname pname = null;
+				if (Common.isNotEmpty(entryName)) {
+					// 根据供应商名称查找，看供应商是否存在
+					 pname = pnameService.findByName(entryName);
+					if (Common.isEmpty(pname)) {
+						error += "<span class='entypo-attention'></span>导入文件过程中出现不存在的项目名称<b>&nbsp;&nbsp;" + entryName
+								+ "&nbsp;&nbsp;</b>，请先添加项目能吃，第<b>&nbsp&nbsp" + (i + 1)
+								+ "行请手动去修改该条信息！&nbsp&nbsp</b></br>";
+						continue;
+					}
+				} /*
+					 * else { error +=
+					 * "<span class='entypo-attention'></span>导入文件过程中出现项目名称为空<b>&nbsp;&nbsp;" +
+					 * entryName + "&nbsp;&nbsp;</b>，请添加项目名称，第<b>&nbsp&nbsp" + (i + 1) +
+					 * "行请手动去修改该条信息！&nbsp&nbsp</b></br>"; continue; }
+					 */
+				importStock.setPname(pname);
+
+				
+				
 				importStock.setItemNo(resultexcel[i][j + 8].trim());// 项目编号
 				String supplierName = resultexcel[i][j + 9].trim();// 供应商名称
 
@@ -719,6 +740,7 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 		}
 
 		if (error == "") {
+			User user = (User) session.getAttribute(Contents.USER_SESSION);
 			// 逆序
 			Collections.reverse(list);
 			list.forEach(p -> {
@@ -727,7 +749,6 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 						p.getSupplier().getName());
 				if (Common.isNotEmpty(stock)) {
 					stockStatistics.setStock(stock);//
-					// 对于已经存在设备执行入库操作
 //				 设备已存在
 //				error += "<span class='entypo-attention'></span>导入文件过程中<b>&nbsp&nbsp设备已经存在，设备名称<b>&nbsp;&nbsp;" + stock.getName() + "&nbsp;&nbsp;</b>无需再次导入！&nbsp&nbsp</b></br>";
 				} else {
@@ -736,12 +757,15 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 				}
 
 				if (p.getStocknum() > 0) {
-					
+					stockStatistics.setPrice(p.getPrice());
+		                // 2. 设置发布人
+		            stockStatistics.setPublisher(user);
+		            stockStatistics.setPname(p.getPname());
 					stockStatistics.setNum(p.getStocknum());//
 					stockStatistics.setInOrOut(true);// true为入库//
 					
 					// 读取session中的用户
-					User user = (User) session.getAttribute(Contents.USER_SESSION);
+				
 					this.stockStatisticsService.inOrOutstockStatistics(stockStatistics, user);
 				}
 

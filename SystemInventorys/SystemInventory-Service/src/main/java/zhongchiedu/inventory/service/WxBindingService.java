@@ -24,7 +24,7 @@ public interface WxBindingService extends GeneralService<WxBinding> {
 	public boolean auditWxBinding(String id, Integer status);
 	
 	
-	
+	 WxBinding findByName(String name);
 	
 	
 	

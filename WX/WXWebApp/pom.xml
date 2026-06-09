@@ -79,7 +79,6 @@
 			<artifactId>DingLogin</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		
 	</dependencies>
 
 

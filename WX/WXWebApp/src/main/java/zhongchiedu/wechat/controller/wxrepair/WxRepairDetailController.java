@@ -14,13 +14,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import lombok.extern.slf4j.Slf4j;
 import me.chanjar.weixin.common.bean.oauth2.WxOAuth2AccessToken;
 import me.chanjar.weixin.common.service.WxOAuth2Service;
 import me.chanjar.weixin.mp.api.WxMpService;
+import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.common.utils.Common;
 import zhongchiedu.common.utils.enums.PersonJoinAuditStatusEnum;
 import zhongchiedu.common.utils.enums.PersonnelType;
@@ -277,5 +280,41 @@ public class WxRepairDetailController {
 			return "error";
 		}
 	}
+	
+	/**
+	 * 维修备注保存接口
+	 */
+	@PostMapping("/saveRepairRemark")
+	@ResponseBody
+	public BasicDataResult saveRepairRemark(
+	        @RequestParam("repairId") String repairId,
+	        @RequestParam("remark") String remark) {
 
+	    try {
+	        // 1. 参数校验
+	        if (Common.isEmpty(repairId)) {
+	            return BasicDataResult.build(500, "报修单ID不能为空", null);
+	        }
+	        if (Common.isEmpty(remark)) {
+	            return BasicDataResult.build(500, "备注内容不能为空", null);
+	        }
+
+	        // 2. 查询报修单
+	        WxRepair repair = this.wxRepairService.findOneById(repairId, WxRepair.class);
+	        if (repair == null) {
+	            return BasicDataResult.build(500, "报修单不存在", null);
+	        }
+
+	        // 3. 保存备注
+	        repair.setRemark(remark);
+	        this.wxRepairService.save(repair);
+
+	        // 4. 返回你项目标准格式
+	        return BasicDataResult.build(200, "备注保存成功", null);
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return BasicDataResult.build(500, "保存失败：" + e.getMessage(), null);
+	    }
+	}
 }

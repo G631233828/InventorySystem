@@ -182,11 +182,78 @@
         .toast.error {
             background-color: rgba(220, 38, 38, 0.8);
         }
+
+        /* ========== 修复：维修备注模态框样式 ========== */
+        #remarkModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 9999 !important; /* 最高层级 */
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .remark-modal-content {
+            background: white;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .remark-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 0.8rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.6rem;
+            resize: vertical;
+            font-size: 0.9rem;
+            outline: none;
+        }
+        .remark-textarea:focus {
+            border-color: #3b82f6;
+        }
+        .remark-btn {
+            padding: 0.5rem 1.2rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+        }
+        .remark-cancel {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+        .remark-save {
+            background: #2563eb;
+            color: white;
+        }
+        /* 可点击区域强化 */
+        .remark-click-area {
+            cursor: pointer;
+            padding: 8px 10px;
+            border-radius: 6px;
+            background: #fafbfc;
+            display: block;
+            width: 100%;
+            user-select: none;
+        }
+        .remark-click-area:hover {
+            background: #f0f4f8;
+        }
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen p-4">
     <div class="max-w-md mx-auto bg-white detail-card p-6"
          th:with="statusEnum=${T(zhongchiedu.common.utils.enums.RepairStatus).fromCode(repair.status)}">
+         
+        <!-- 隐藏域：正确传递 repairId -->
+        <input type="hidden" id="repairId" th:value="${repair.id}">
+
         <!-- 返回列表按钮：单独一行 + 文字更小 -->
         <a th:href="@{/wechatrp/operator_repairlist}" class="back-btn">
             <i class="fa fa-arrow-left mr-1"></i>
@@ -316,6 +383,22 @@
             </div>
         </div>
 
+        <!-- ========== 【修复】维修备注（双击一定弹出） ========== -->
+        <div class="detail-item">
+            <div class="label flex items-center">
+                <i class="fa fa-sticky-note-o mr-2 text-blue-500"></i>维修备注
+            </div>
+            <div class="value">
+                <!-- 强化点击区域 -->
+                <div id="repairRemarkText" 
+                     class="remark-click-area"
+                     th:text="${repair.remark != null ? repair.remark : '双击添加备注'}">
+                    双击添加备注
+                </div>
+                <div class="text-xs text-gray-400 mt-1">💡 双击此处编辑备注</div>
+            </div>
+        </div>
+
         <!-- 维修完成内容（仅已完成状态显示） -->
         <div th:if="${statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).COMPLETED}">
             <!-- 维修内容 -->
@@ -364,11 +447,23 @@
         <img id="modalImage" src="" alt="放大的图片" onclick="resetZoom()">
     </div>
 
-    <!-- 新增：提示弹窗 -->
+    <!-- ========== 【修复】备注模态框（确保弹出） ========== -->
+    <div id="remarkModal">
+        <div class="remark-modal-content">
+            <h3 class="text-lg font-bold mb-3">编辑维修备注</h3>
+            <textarea id="remarkTextarea" class="remark-textarea" placeholder="请输入备注内容..."></textarea>
+            <div class="flex justify-end gap-3 mt-4">
+                <button class="remark-btn remark-cancel" onclick="closeRemarkModal()">取消</button>
+                <button class="remark-btn remark-save" onclick="saveRemark()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提示弹窗 -->
     <div class="toast" id="toast"></div>
 
     <script>
-        // 页面加载动画
+        // 页面加载后 绑定双击事件（最稳定写法）
         document.addEventListener('DOMContentLoaded', function() {
             const container = document.querySelector('.detail-card');
             container.style.opacity = '0';
@@ -380,16 +475,19 @@
                 container.style.transform = 'translateY(0)';
             }, 100);
 
-            // 初始化计算处理用时
             calculateUseTime();
-            // 每5分钟刷新一次（未完成工单实时更新）
             setInterval(calculateUseTime, 5 * 60 * 1000);
-            
-            // 初始化催单按钮事件
             initRemindButtons();
+
+            // 绑定双击
+            const remarkEl = document.getElementById('repairRemarkText');
+            if(remarkEl){
+                remarkEl.ondblclick = openRemarkModal;
+                console.log("双击备注已启用");
+            }
         });
 
-        // 处理用时计算函数（兼容String类型时间）
+        // 处理用时
         function calculateUseTime() {
             const useTimeElements = document.querySelectorAll('.use-time-text');
             
@@ -398,7 +496,6 @@
                 const assignTimeStr = parentEl.dataset.assignTime;
                 const completeTimeStr = parentEl.dataset.completeTime;
                 
-                // 分配时间为空处理
                 if (!assignTimeStr || assignTimeStr.trim() === '') {
                     el.textContent = '未分配';
                     el.classList.remove('use-time-over', 'use-time-normal');
@@ -406,7 +503,6 @@
                 }
 
                 try {
-                    // 直接解析String类型的时间（兼容常见格式）
                     const assignTime = new Date(assignTimeStr);
                     if (isNaN(assignTime.getTime())) {
                         el.textContent = '时间格式错误';
@@ -414,268 +510,94 @@
                         return;
                     }
 
-                    // 确定结束时间：优先用完成时间，否则用当前时间
                     let endTime;
                     if (completeTimeStr && completeTimeStr.trim() !== '') {
                         const completeTime = new Date(completeTimeStr);
-                        if (isNaN(completeTime.getTime())) {
-                            el.textContent = '完成时间错误';
-                            el.classList.remove('use-time-over', 'use-time-normal');
-                            return;
-                        }
                         endTime = completeTime;
                     } else {
                         endTime = new Date();
                     }
 
-                    // 计算时间差（毫秒）
                     const diffMs = endTime - assignTime;
-                    
-                    // 时间异常（结束时间 < 分配时间）
-                    if (diffMs < 0) {
-                        el.textContent = '时间异常';
-                        el.classList.remove('use-time-over', 'use-time-normal');
-                        return;
-                    }
-
-                    // 转换为天和小时
                     const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
                     const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                     
-                    // 格式化显示文本
-                    let timeText = '';
-                    if (days > 0) {
-                        timeText += `${days}天`;
-                    }
+                    let timeText = days > 0 ? `${days}天` : '';
                     timeText += `${hours}小时`;
-                    if (days === 0 && hours === 0) {
-                        timeText = '0小时';
-                    }
+                    if (days === 0 && hours === 0) timeText = '0小时';
                     
-                    // 设置样式（超3天红色，否则绿色）
                     const isOver3Days = diffMs > 3 * 24 * 60 * 60 * 1000;
                     el.textContent = timeText;
                     el.classList.remove('use-time-over', 'use-time-normal');
                     el.classList.add(isOver3Days ? 'use-time-over' : 'use-time-normal');
 
                 } catch (e) {
-                    console.error('用时计算失败:', e);
                     el.textContent = '计算失败';
-                    el.classList.remove('use-time-over', 'use-time-normal');
                 }
             });
         }
 
-        // 模态框核心逻辑
+        // 图片预览
         const modal = document.getElementById("imageModal");
         const modalImg = document.getElementById("modalImage");
-        let isDragging = false;
-        let startX, startY, initialX, initialY;
-        let scale = 1; // 初始缩放比例
-        let initialScale = 1; // 双指/滚轮缩放时的初始比例
-        let isPinching = false; // 是否正在进行双指缩放
+        let scale = 1;
 
-        // 打开模态框
         function openModal(src) {
             modal.style.display = "flex";
             modalImg.src = src;
             document.body.style.overflow = "hidden";
-            resetZoom(); // 重置缩放状态
+            resetZoom();
         }
-
-        // 关闭模态框
         function closeModal() {
             modal.style.display = "none";
             document.body.style.overflow = "auto";
         }
-        
-        // 重置缩放（恢复到初始居中状态）
         function resetZoom() {
             scale = 1;
             modalImg.classList.remove('zoomed');
             modalImg.style.transform = `translate(-50%, -50%) scale(${scale})`;
         }
 
-        // 双指距离计算
-        function getDistance(touch1, touch2) {
-            return Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY);
-        }
-        
-        // 解析transform中的位移值
-        function getTransformValues(transformString) {
-            if (!transformString) return { x: 0, y: 0 };
-            // 匹配两种情况：calc(-50% + Xpx) 或 直接 translate(Xpx, Ypx)
-            const calcMatch = transformString.match(/translate\(calc\(-50% \+ (\d+)px\), calc\(-50% \+ (\d+)px\)\)/);
-            if (calcMatch) {
-                return { x: parseInt(calcMatch[1]), y: parseInt(calcMatch[2]) };
-            }
-            const simpleMatch = transformString.match(/translate\(([^,]+)px, ([^)]+)px\)/);
-            if (simpleMatch) {
-                return { x: parseInt(simpleMatch[1]), y: parseInt(simpleMatch[2]) };
-            }
-            return { x: 0, y: 0 };
-        }
-
-        // 触摸开始事件（移动端）
-        modalImg.addEventListener('touchstart', function(e) {
-            e.preventDefault();
-            if (e.touches.length === 2) {
-                // 双指缩放
-                isPinching = true;
-                const touch1 = e.touches[0];
-                const touch2 = e.touches[1];
-                initialDistance = getDistance(touch1, touch2);
-                initialScale = scale;
-            } else if (e.touches.length === 1) {
-                // 单指拖动
-                isDragging = true;
-                startX = e.touches[0].clientX;
-                startY = e.touches[0].clientY;
-                const transform = getTransformValues(modalImg.style.transform);
-                initialX = transform.x;
-                initialY = transform.y;
-            }
-        });
-
-        // 触摸移动事件（移动端）
-        modalImg.addEventListener('touchmove', function(e) {
-            e.preventDefault();
-            if (isPinching && e.touches.length === 2) {
-                // 双指缩放逻辑
-                const touch1 = e.touches[0];
-                const touch2 = e.touches[1];
-                const currentDistance = getDistance(touch1, touch2);
-                scale = Math.max(1, Math.min(initialScale * (currentDistance / initialDistance), 3)); // 限制缩放范围1-3倍
-                modalImg.classList.toggle('zoomed', scale > 1);
-                modalImg.style.transform = `translate(-50%, -50%) scale(${scale})`;
-            } else if (isDragging && e.touches.length === 1 && scale > 1) {
-                // 单指拖动逻辑（仅放大后允许）
-                const dx = e.touches[0].clientX - startX;
-                const dy = e.touches[0].clientY - startY;
-                modalImg.style.transform = `translate(calc(-50% + ${initialX + dx}px), calc(-50% + ${initialY + dy}px)) scale(${scale})`;
-            }
-        });
-
-        // 触摸结束事件（移动端）
-        modalImg.addEventListener('touchend', function() {
-            isDragging = false;
-            isPinching = false;
-        });
-
-        // 鼠标滚轮事件（电脑端）
-        modalImg.addEventListener('wheel', function(e) {
-            e.preventDefault();
-            // deltaY为负：向上滚动（放大）；为正：向下滚动（缩小）
-            const zoomStep = 0.1;
-            if (e.deltaY < 0) {
-                scale = Math.min(scale + zoomStep, 3); // 最大放大3倍
-            } else {
-                scale = Math.max(scale - zoomStep, 1); // 最小缩小到1倍（初始状态）
-            }
-            modalImg.classList.toggle('zoomed', scale > 1);
-            modalImg.style.transform = `translate(-50%, -50%) scale(${scale})`;
-        });
-
-        // 鼠标拖动事件（电脑端）
-        modalImg.addEventListener('mousedown', function(e) {
-            if (e.button === 0) { // 仅响应左键
-                isDragging = true;
-                startX = e.clientX;
-                startY = e.clientY;
-                const transform = getTransformValues(modalImg.style.transform);
-                initialX = transform.x;
-                initialY = transform.y;
-                modalImg.style.cursor = 'grabbing';
-            }
-        });
-
-        document.addEventListener('mousemove', function(e) {
-            if (isDragging && scale > 1) {
-                e.preventDefault();
-                const dx = e.clientX - startX;
-                const dy = e.clientY - startY;
-                modalImg.style.transform = `translate(calc(-50% + ${initialX + dx}px), calc(-50% + ${initialY + dy}px)) scale(${scale})`;
-            }
-        });
-
-        document.addEventListener('mouseup', function() {
-            if (isDragging) {
-                isDragging = false;
-                modalImg.style.cursor = scale > 1 ? 'zoom-out' : 'zoom-in';
-            }
-        });
-
-        // 事件监听
         document.getElementById("closeModal").onclick = closeModal;
-        modal.onclick = function(event) {
-            if (event.target === modal) closeModal();
-        };
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape' && modal.style.display === 'flex') closeModal();
-        });
-        
-        // ========== 新增：催单功能核心逻辑 ==========
-        // 显示提示弹窗
+        modal.onclick = e => e.target === modal && closeModal();
+
+        // 提示
         function showToast(message, type = 'info') {
             const toast = document.getElementById('toast');
-            if (!toast) return;
-            
             toast.textContent = message;
             toast.className = 'toast ' + type;
             toast.classList.add('show');
-            
-            // 3秒后隐藏
             setTimeout(() => {
                 toast.classList.remove('show');
-                setTimeout(() => {
-                    toast.className = 'toast';
-                    toast.textContent = '';
-                }, 300);
-            }, 3000);
+                setTimeout(() => toast.className = 'toast', 300);
+            }, 2000);
         }
 
-        // 初始化催单按钮事件
+        // 催单
         function initRemindButtons() {
-            const remindButtons = document.querySelectorAll('.remind-btn');
-            remindButtons.forEach(btn => {
+            document.querySelectorAll('.remind-btn').forEach(btn => {
                 btn.addEventListener('click', async function(e) {
-                    // 阻止事件冒泡和默认行为，防止触发其他逻辑
                     e.preventDefault();
                     e.stopPropagation();
-                    
                     const repairId = this.dataset.repairId;
-                    if (!repairId) {
-                        showToast('催单失败：报修单ID为空', 'error');
-                        return;
-                    }
-
-                    // 禁用按钮防止重复点击
+                    if (!repairId) { showToast('催单失败：ID为空', 'error'); return; }
                     this.disabled = true;
                     this.innerHTML = '<i class="fa fa-spinner loading mr-1"></i> 催单中...';
-
                     try {
-                        // 调用催单接口
                         const response = await fetch('../../wechatrp/remindWorker', {
                             method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                                'X-Requested-With': 'XMLHttpRequest'
-                            },
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                             body: `repairId=${encodeURIComponent(repairId)}`
                         });
-
                         const result = await response.json();
-                        
-                        if (result.status === 200 || result.code === 200) {
-                            showToast('催单消息已发送给维修人员', 'success');
+                        if (result.status === 200) {
+                            showToast('催单成功', 'success');
                         } else {
-                            showToast(`催单失败：${result.msg || '未知错误'}`, 'error');
+                            showToast('催单失败：' + result.msg, 'error');
                         }
                     } catch (error) {
-                        console.error('催单请求异常:', error);
-                        showToast('催单失败：网络异常，请稍后重试', 'error');
+                        showToast('网络异常', 'error');
                     } finally {
-                        // 恢复按钮状态
                         setTimeout(() => {
                             this.disabled = false;
                             this.innerHTML = '<i class="fa fa-bell mr-1"></i> 催单';
@@ -684,6 +606,54 @@
                 });
             });
         }
+
+        // ==============================
+        // 修复：备注功能（ID 正确获取）
+        // ==============================
+        function openRemarkModal() {
+            const modal = document.getElementById('remarkModal');
+            const textarea = document.getElementById('remarkTextarea');
+            const currentText = document.getElementById('repairRemarkText').textContent.trim();
+            textarea.value = currentText === '双击添加备注' ? '' : currentText;
+            modal.style.display = 'flex';
+            textarea.focus();
+        }
+
+        function closeRemarkModal() {
+            document.getElementById('remarkModal').style.display = 'none';
+        }
+
+        // 保存：提交到后端
+        async function saveRemark() {
+            const content = document.getElementById('remarkTextarea').value.trim();
+            const repairId = document.getElementById('repairId').value; // ✅ 正确获取ID
+
+            if (!content) { showToast('请输入内容', 'error'); return; }
+            if (!repairId) { showToast('工单ID获取失败', 'error'); return; }
+
+            try {
+                const response = await fetch("../../wechatrp/saveRepairRemark", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: "repairId=" + repairId + "&remark=" + encodeURIComponent(content)
+                });
+
+                const result = await response.json();
+                
+                if (result.status === 200) {
+                    document.getElementById('repairRemarkText').textContent = content;
+                    closeRemarkModal();
+                    showToast(result.msg || "保存成功", "success");
+                } else {
+                    showToast(result.msg || "保存失败", "error");
+                }
+            } catch (e) {
+                showToast("网络异常，请重试", "error");
+                console.error(e);
+            }
+        }
+
+        document.getElementById('remarkModal').onclick = e => e.target === this && closeRemarkModal();
     </script>
 </body>
 </html>

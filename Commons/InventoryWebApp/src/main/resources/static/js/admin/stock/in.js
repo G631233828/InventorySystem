@@ -65,6 +65,12 @@ $().ready(function() {
 					number : true,
 					//digits : true
 					decimalMaxTwo : true
+					},
+				price : {
+					required : true,
+					number : true,
+					//digits : true
+					decimalMaxTwo : true
 					}
 			},
 			messages : {
@@ -72,6 +78,11 @@ $().ready(function() {
 					required : a + "请输入入库数量！",
 					number : a + "请输入一个合法的数字！",
 					//digits : a + "请输入整数！"
+					decimalMaxTwo : a + "小数点后面最多只能输入2位"
+				},
+				price : {
+					required : a + "请输入单价！",
+					number : a + "请输入一个合法的数字！",
 					decimalMaxTwo : a + "小数点后面最多只能输入2位"
 				}
 			}

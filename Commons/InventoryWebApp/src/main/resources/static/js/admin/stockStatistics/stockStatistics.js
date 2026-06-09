@@ -147,48 +147,72 @@ function searchVal() {
 // }
 
 
+// 点击导出按钮 → 弹出选择框
 function toExport() {
+    // 先检查时间
+    var start = $("#start").val();
+    var end = $("#end").val();
+    if (start == "" || end == "") {
+        jqueryAlert({
+            'icon': getRootPath() + '/plugs/alert/img/error.png',
+            'content': "导出时间段不能为空",
+            'closeTime': 2000
+        });
+        return;
+    }
 
+    // 弹出区域选择模态框
+    $("#exportAreaModal").modal("show");
+}
 
-	var area = $("#searchArea").val();
-	var name = $('[name="name"]').val();
-	var model = $('[name="model"]').val();
-	var supplier = $('[name="supplier"]').val();
-	//var entryName = $("#pnames").val();
-	var pnames = $("#pnames").val();
-	var itemNo = $('[name="itemNo"]').val();
-	var purchaseInvoiceNo = $('[name="purchaseInvoiceNo"]').val();
-	var purchaseInvoiceDate = $('[name="purchaseInvoiceDate"]').val();
-	var paymentOrderNo = $('[name="paymentOrderNo"]').val();
-	var ssC = $("#searchssC").val();
-	var start = $("#start").val();
-	var end = $("#end").val();
-	var type = $('[name="type"]').val();
-	var revoke = $('[name="revoke"]').val();
-	var confirm = $('[name="confirm"]').val();
-	var projectName = $('[name="projectName"]').val();
-	var customer = $('[name="customer"]').val();
-	if (start == "" || end == "") {
-		jqueryAlert({
-			'icon': getRootPath() + '/plugs/alert/img/error.png',
-			'content': "导入的时间段不能为空",
-			'closeTime': 2000,
-		})
-		return;
-	}
-	jqueryAlert({
-		'icon': getRootPath() + '/plugs/alert/img/right.png',
-		'content': "正在导出请稍等...",
-		'closeTime': 5000,
-	})
-	// window.location.href = "stockStatistics/export?&searchArea=" + area + "&type="
-	// 	+ type + "&start=" + start + "&end=" + end + "&revoke=" + revoke + "&confirm=" + confirm + "&userId=&ssC=" + ssC
-	// 	+ "&name=" + name + "&model=" + model + "&supplier=" + supplier +  + "&itemNo=" + itemNo +
-	// 	"&purchaseInvoiceNo=" + purchaseInvoiceNo + "&purchaseInvoiceDate=" + purchaseInvoiceDate + "&paymentOrderNo=" + paymentOrderNo
-	// 	+ "&customer=" + customer + "&projectName=" + projectName+ "&pname=" + pnames;
-	var url = `stockStatistics/export?searchArea=${encodeURIComponent(area)}&type=${encodeURIComponent(type)}&start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}&revoke=${encodeURIComponent(revoke)}&confirm=${encodeURIComponent(confirm)}&userId=&ssC=${encodeURIComponent(ssC)}&name=${encodeURIComponent(name)}&model=${encodeURIComponent(model)}&supplier=${encodeURIComponent(supplier)}&itemNo=${encodeURIComponent(itemNo)}&purchaseInvoiceNo=${encodeURIComponent(purchaseInvoiceNo)}&purchaseInvoiceDate=${encodeURIComponent(purchaseInvoiceDate)}&paymentOrderNo=${encodeURIComponent(paymentOrderNo)}&customer=${encodeURIComponent(customer)}&projectName=${encodeURIComponent(projectName)}&pname=${encodeURIComponent(pnames)}`;
-	window.location.href = url;
+// 真正执行导出（点击模态框确认后才走这里）
+function doExport() {
+    // 获取选中的区域
+    var areaList = [];
+    if ($("#exportArea_pudong").is(":checked")) areaList.push("浦东");
+    if ($("#exportArea_fengxian").is(":checked")) areaList.push("奉贤");
 
+    if (areaList.length === 0) {
+        jqueryAlert({
+            'content': "请至少选择一个区域！",
+            'closeTime': 2000
+        });
+        return;
+    }
+
+    // 关闭模态框
+    $("#exportAreaModal").modal("hide");
+
+    // 你的原有参数
+    var area = $("#searchArea").val();
+    var name = $('[name="name"]').val();
+    var model = $('[name="model"]').val();
+    var supplier = $('[name="supplier"]').val();
+    var pnames = $("#pnames").val();
+    var itemNo = $('[name="itemNo"]').val();
+    var purchaseInvoiceNo = $('[name="purchaseInvoiceNo"]').val();
+    var purchaseInvoiceDate = $('[name="purchaseInvoiceDate"]').val();
+    var paymentOrderNo = $('[name="paymentOrderNo"]').val();
+    var ssC = $("#searchssC").val();
+    var start = $("#start").val();
+    var end = $("#end").val();
+    var type = $('[name="type"]').val();
+    var revoke = $('[name="revoke"]').val();
+    var confirm = $('[name="confirm"]').val();
+    var projectName = $('[name="projectName"]').val();
+    var customer = $('[name="customer"]').val();
+
+    // 提示导出中
+    jqueryAlert({
+        'icon': getRootPath() + '/plugs/alert/img/right.png',
+        'content': "正在导出请稍等...",
+        'closeTime': 4000
+    });
+
+    // 拼接导出地址
+    var url = `stockStatistics/export?searchArea=${encodeURIComponent(area)}&type=${encodeURIComponent(type)}&start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}&revoke=${encodeURIComponent(revoke)}&confirm=${encodeURIComponent(confirm)}&userId=&ssC=${encodeURIComponent(ssC)}&name=${encodeURIComponent(name)}&model=${encodeURIComponent(model)}&supplier=${encodeURIComponent(supplier)}&itemNo=${encodeURIComponent(itemNo)}&purchaseInvoiceNo=${encodeURIComponent(purchaseInvoiceNo)}&purchaseInvoiceDate=${encodeURIComponent(purchaseInvoiceDate)}&paymentOrderNo=${encodeURIComponent(paymentOrderNo)}&customer=${encodeURIComponent(customer)}&projectName=${encodeURIComponent(projectName)}&pname=${encodeURIComponent(pnames)}&exportAreas=${encodeURIComponent(areaList.join(','))}`;
+
+    window.location.href = url;
 }
 
 function toJD() {

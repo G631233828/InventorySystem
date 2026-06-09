@@ -75,6 +75,8 @@ public class Stock extends GeneralBean<Stock> {
 	private boolean agent;// 是否代理商品 false 非代理商品 true代理商品
 	@Transient
 	private Double stocknum;// 导入库存数量 不会将这个数据放入数据库
+	@Transient
+	private Pname pname;
 
 	@Override
 	public boolean equals(Object o) {
