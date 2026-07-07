@@ -24,6 +24,10 @@ import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import lombok.extern.slf4j.Slf4j;
+
+
+@Slf4j
 @Repository
 public class FileOperateUtil {
 	
@@ -41,8 +45,8 @@ public class FileOperateUtil {
 	/***
 	 * 将上传的文件进行重命名
 	 * 
-	 * @param name
-	 * @return
+	 * @param name 原始文件名
+	 * @return 生成唯一文件名
 	 */
 	private static String rname(String name) {
 		Long now = Long.parseLong(new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()));
@@ -50,18 +54,53 @@ public class FileOperateUtil {
 		String fileName = now + "" + random;
 
 		if (name.indexOf(".") != -1) {
-			fileName += name.substring(0, name.lastIndexOf(".")) + name.substring(name.lastIndexOf("."));
+			fileName += name.substring(name.lastIndexOf("."));
 		}
 		return fileName;
-
 	}
-	
-	
-	
-	
+
+    /**
+     * 【新增核心方法】字节数组写入文件，完全不依赖Tomcat临时tmp文件，根治FileNotFoundException
+     * @param fileBytes 文件二进制字节数组
+     * @param savePath 目标文件夹绝对路径
+     * @param originalName 原始文件名（用于提取后缀、生成新名称）
+     * @return Map 字段与原有upload方法完全兼容：SAVEPATH、FILENAME、ERROR、UPLOADDIR、SUFFIXNAME
+     */
+    public static Map<String,Object> uploadByBytes(byte[] fileBytes,String savePath, String originalName){
+        Map<String,Object> map = new HashMap<>();
+        if(fileBytes == null || fileBytes.length == 0){
+            map.put(Contents.ERROR, true);
+            log.error("文件字节数组为空，上传失败，原文件名：{}",originalName);
+            return map;
+        }
+        // 生成唯一文件名
+        String newFileName = rname(originalName);
+        String fullRealPath = savePath + "/" + newFileName;
+        File dest = new File(fullRealPath);
+        // 创建父目录
+        if(!dest.getParentFile().exists()){
+            dest.getParentFile().mkdirs();
+        }
+        try(FileOutputStream fos = new FileOutputStream(dest)){
+            fos.write(fileBytes);
+            fos.flush();
+            // 返回参数与原upload结构保持一致，上层业务无需改动取值代码
+            map.put(Contents.SAVEPATH, fullRealPath);
+            map.put(Contents.FILENAME, newFileName);
+            map.put(Contents.ERROR, false);
+            map.put(Contents.UPLOADDIR, savePath);
+            String suffix = Common.getSuffix(originalName);
+            map.put(Contents.SUFFIXNAME, suffix);
+        }catch (IOException e){
+            map.put(Contents.ERROR, true);
+            log.error("字节数组写入磁盘失败，路径={}，原文件名={}",fullRealPath,originalName,e);
+        }
+        return map;
+    }
 	
 	
 	/**
+     * 原有MultipartFile上传方法（保留兼容旧业务，底层transferTo会产生tomcat临时文件，新业务不要使用）
     *
     * @param file 文件
     * @param path 文件存放路径
@@ -71,8 +110,6 @@ public class FileOperateUtil {
    public static Map<String,Object> upload(MultipartFile file,String path, String fileName){
 	   Map<String,Object> map = new HashMap<>();
        // 生成新的文件名
-       //String realPath = path + "/" + FileNameUtils.getFileName(fileName);
-       //使用文件名
        String rname = rname(fileName);
 	   String realPath = path + "/" + rname;
        
@@ -82,7 +119,7 @@ public class FileOperateUtil {
            dest.getParentFile().mkdirs();
        }
        try {
-           //保存文件
+           // transferTo 会在tomcat/work生成临时tmp文件，长业务易丢失
            file.transferTo(dest);
            map.put(Contents.SAVEPATH, realPath);
            map.put(Contents.FILENAME, rname);
@@ -91,16 +128,14 @@ public class FileOperateUtil {
            map.put(Contents.SUFFIXNAME,Common.getSuffix(file.getOriginalFilename()));
            return map;
        } catch (IllegalStateException e) {
-           // TODO Auto-generated catch block
            e.printStackTrace();
+           log.error("MultipartFile transferTo 状态异常",e);
        } catch (IOException e) {
-           // TODO Auto-generated catch block
            e.printStackTrace();
+           log.error("MultipartFile transferTo IO异常",e);
        }
        map.put(Contents.ERROR, true);
        return map;
-       
-       
    }
 	
    
@@ -114,7 +149,7 @@ public class FileOperateUtil {
 	 * @param response
 	 * @param storeName
 	 * @param contentType
-	 * @param realName
+	 * @param UPLOADDIR
 	 * @throws Exception
 	 */
 	public static void download(HttpServletRequest request, HttpServletResponse response, String storeName,
@@ -156,12 +191,7 @@ public class FileOperateUtil {
    
    
 	/**
-	 * 文件上传
-	 * 
-	 * // 固定参数值对 // .put(FileOperateUtil.STORENAME, zipName(storeName)); //
-	 * map.put(FileOperateUtil.SIZE, new File(zipName).length()); //
-	 * map.put(FileOperateUtil.SUFFIX, "zip");
-	 * 
+	 * 文件上传（request批量上传，原有逻辑保留，用于Excel导入）
 	 * @param request
 	 *            httpservletRequest
 	 * @param UPLOADDIR
@@ -239,7 +269,7 @@ public class FileOperateUtil {
 				// 对上传文件进行重命名
 				rname = rname(fileName);
 				map.put(FileOperateUtil.RENAME, rname);
-				path = file + "/" + rname;// 存放位置\
+				path = file + "/" + rname;// 存放位置
 				destFile = new File(path);
 			}
 
@@ -276,10 +306,6 @@ public class FileOperateUtil {
 
 		BufferedOutputStream bos = null;
 		
-		//String ctxPath =request.getServletContext().getRealPath("/WEB-INF/") + UPLOADDIR;
-		
-		//String downLoadPath = ctxPath + storeName;
-
 		long fileLength = downLoadPath.length();
 
 		response.setContentType(contentType);
@@ -303,12 +329,5 @@ public class FileOperateUtil {
 		bis.close();
 		bos.close();
 	}
-
-   
-	
-   
-   
-   
-	
 
 }

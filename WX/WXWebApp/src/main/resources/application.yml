@@ -19,7 +19,11 @@ logging:
     me.chanjar.weixin: DEBUG
 
 #激活mongodb配置
-spring:  profiles:    active:    - mongodb
+
+spring:
+  profiles:
+    active:
+      - mongodb
 
 qrcode:
   height: 300
@@ -49,7 +53,4 @@ templateId5: y5kwcslXvc-cG-c-rEuj_yO4_wo10PScim6sBa1qt2c
 templateId6: z5pkfZs_y4qFX1Z1EpRPbbUuAHSeqBIhAbqly-Qs5t8
 #维修完成通知
 templateId7: vEq7MuWEONNo7vBwI-6fibuEFUMwuPHPUAzQmmbEE64
-
-
-
 

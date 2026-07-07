@@ -45,22 +45,22 @@
             gap: 0.25rem;
         }
         
-        /* 新增：返回按钮样式（文字更小+独立行） */
+        /* 返回按钮样式 */
         .back-btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
             background-color: #eff6ff;
             color: #2563eb;
-            padding: 0.4rem 0.8rem; /* 缩小内边距 */
+            padding: 0.4rem 0.8rem;
             border-radius: 0.75rem;
             font-weight: 500;
-            font-size: 0.875rem; /* 缩小文字（14px） */
+            font-size: 0.875rem;
             transition: all 0.3s ease;
             border: none;
             cursor: pointer;
-            text-decoration: none; /* 去除a标签下划线 */
-            margin-bottom: 0.8rem; /* 与标题保持间距 */
+            text-decoration: none;
+            margin-bottom: 0.8rem;
         }
         .back-btn:hover {
             background-color: #dbeafe;
@@ -68,7 +68,7 @@
             box-shadow: 0 2px 4px rgba(37, 99, 235, 0.1);
         }
         
-        /* 新增：催单按钮样式 */
+        /* 催单按钮样式 */
         .remind-btn {
             display: inline-flex;
             align-items: center;
@@ -105,7 +105,7 @@
             100% { transform: rotate(360deg); }
         }
         
-        /* 模态框样式 */
+        /* 图片模态框 */
         #imageModal {
             position: fixed;
             top: 0;
@@ -117,27 +117,22 @@
             display: none;
             align-items: center;
             justify-content: center;
-            touch-action: none;
         }
 
-        /* 大图样式 */
         #modalImage {
             max-width: 90%;
             max-height: 90%;
             object-fit: contain;
-            transition: transform 0.2s ease-out;
-            touch-action: none;
-            position: absolute;
-            top: 50%;
-            left: 50%;
+            transition: transform 0.15s ease-out;
+            position: relative;
             transform-origin: center center;
-            cursor: zoom-in; /* 鼠标悬停提示可缩放 */
+            cursor: zoom-in;
         }
         #modalImage.zoomed {
-            cursor: zoom-out; /* 放大后提示可缩小 */
+            cursor: grab;
         }
 
-        /* 维修完成提示样式 */
+        /* 维修完成提示 */
         .completed-tip {
             text-align: center;
             padding: 1rem;
@@ -146,17 +141,17 @@
             margin-top: 1rem;
         }
 
-        /* 用时样式：超3天红色，否则绿色 */
+        /* 用时颜色 */
         .use-time-over { 
-            color: #dc2626 !important; /* 红色 */
+            color: #dc2626 !important;
             font-weight: 500;
         }
         .use-time-normal { 
-            color: #059669 !important; /* 绿色 */
+            color: #059669 !important;
             font-weight: 500;
         }
         
-        /* 新增：提示弹窗样式 */
+        /* 提示弹窗 */
         .toast {
             position: fixed;
             top: 50%;
@@ -183,7 +178,7 @@
             background-color: rgba(220, 38, 38, 0.8);
         }
 
-        /* ========== 修复：维修备注模态框样式 ========== */
+        /* 备注弹窗 */
         #remarkModal {
             position: fixed;
             top: 0;
@@ -191,7 +186,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0,0,0,0.7);
-            z-index: 9999 !important; /* 最高层级 */
+            z-index: 9999 !important;
             display: none;
             align-items: center;
             justify-content: center;
@@ -232,7 +227,6 @@
             background: #2563eb;
             color: white;
         }
-        /* 可点击区域强化 */
         .remark-click-area {
             cursor: pointer;
             padding: 8px 10px;
@@ -251,16 +245,13 @@
     <div class="max-w-md mx-auto bg-white detail-card p-6"
          th:with="statusEnum=${T(zhongchiedu.common.utils.enums.RepairStatus).fromCode(repair.status)}">
          
-        <!-- 隐藏域：正确传递 repairId -->
         <input type="hidden" id="repairId" th:value="${repair.id}">
 
-        <!-- 返回列表按钮：单独一行 + 文字更小 -->
         <a th:href="@{/wechatrp/operator_repairlist}" class="back-btn">
             <i class="fa fa-arrow-left mr-1"></i>
             <span>返回列表</span>
         </a>
 
-        <!-- 标题+状态标签行 -->
         <div class="flex justify-between items-start mb-6">
             <h1 class="text-xl font-bold text-gray-800">报修单详情</h1>
             <span class="status-badge"
@@ -331,7 +322,6 @@
             <div class="value" th:text="${#dates.format(repair.createTime, 'yyyy-MM-dd HH:mm:ss')}"></div>
         </div>
 
-        <!-- 分配时间：仅分配后显示 -->
         <div th:if="${repair.assignTime != null and repair.assignTime != ''}" class="detail-item">
             <div class="label flex items-center">
                 <i class="fa fa-calendar-check-o mr-2 text-purple-500"></i>分配时间
@@ -339,7 +329,6 @@
             <div class="value" th:text="${repair.assignTime}"></div>
         </div>
 
-        <!-- 新增：完成时间 → 仅工单完成且有完成时间时显示 -->
         <div th:if="${repair.completeTime != null and repair.completeTime != ''}" class="detail-item">
             <div class="label flex items-center">
                 <i class="fa fa-calendar-check mr-2 text-green-500"></i>完成时间
@@ -347,19 +336,16 @@
             <div class="value" th:text="${repair.completeTime}"></div>
         </div>
 
-        <!-- 处理用时：仅分配后显示 + 催单按钮 -->
         <div th:if="${repair.assignTime != null and repair.assignTime != ''}" class="detail-item">
             <div class="label flex items-center">
                 <i class="fa fa-hourglass-half mr-2 text-orange-500"></i>处理用时
             </div>
-            <!-- 关键修改：flex布局让用时和按钮同行显示 -->
             <div class="flex items-center">
                 <div class="value" 
                      th:data-assign-time="${repair.assignTime}" 
                      th:data-complete-time="${repair.completeTime != null ? repair.completeTime : ''}">
                     <span class="use-time-text">计算中...</span>
                 </div>
-                <!-- 催单按钮：仅已分配/处理中状态显示 -->
                 <button th:if="${repair.status == 2 or repair.status == 3}" 
                         class="remind-btn" 
                         th:data-repair-id="${repair.id}"
@@ -369,27 +355,24 @@
             </div>
         </div>
 
-        <!-- 故障图片展示 -->
         <div th:if="${repair.photos != null and repair.photos.size() > 0}" class="detail-item">
             <div class="label flex items-center">
                 <i class="fa fa-picture-o mr-2 text-blue-500"></i>故障图片
             </div>
             <div class="value grid grid-cols-3 gap-2 mt-2">
-                <img th:each="photo : ${repair.photos}" 
+                <img th:each="photo, stat : ${repair.photos}" 
                      th:src="|@{/}${photo?.savePath}/comp_${photo?.generateName}|" 
-                     th:alt="'故障图片 ' + ${photoStat.index + 1}" 
+                     th:alt="'故障图片 ' + ${stat.index + 1}" 
                      class="w-full h-24 object-cover rounded-md cursor-pointer hover:opacity-90 transition-opacity"
                      th:onclick="|openModal('@{/}${photo.savePath}/${photo.generateName}')|">
             </div>
         </div>
 
-        <!-- ========== 【修复】维修备注（双击一定弹出） ========== -->
         <div class="detail-item">
             <div class="label flex items-center">
                 <i class="fa fa-sticky-note-o mr-2 text-blue-500"></i>维修备注
             </div>
             <div class="value">
-                <!-- 强化点击区域 -->
                 <div id="repairRemarkText" 
                      class="remark-click-area"
                      th:text="${repair.remark != null ? repair.remark : '双击添加备注'}">
@@ -399,9 +382,7 @@
             </div>
         </div>
 
-        <!-- 维修完成内容（仅已完成状态显示） -->
         <div th:if="${statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).COMPLETED}">
-            <!-- 维修内容 -->
             <div class="detail-item" th:if="${repair.repairContent != null and repair.repairContent != ''}">
                 <div class="label flex items-center">
                     <i class="fa fa-file-text mr-2 text-green-500"></i>维修内容
@@ -409,28 +390,38 @@
                 <div class="value" th:text="${repair.repairContent}"></div>
             </div>
 
-            <!-- 维修完成图片 -->
-            <div th:if="${repair.repairPhotos != null and repair.repairPhotos.size() > 0}" class="detail-item">
+            <div th:if="${repair.triplicatePhotos != null and repair.triplicatePhotos.size() > 0}" class="detail-item">
                 <div class="label flex items-center">
-                    <i class="fa fa-picture-o mr-2 text-green-500"></i>维修完成图片
+                    <i class="fa fa-file-image-o mr-2 text-indigo-500"></i>报修单照片
                 </div>
                 <div class="value grid grid-cols-3 gap-2 mt-2">
-                    <img th:each="photo : ${repair.repairPhotos}" 
+                    <img th:each="photo, stat : ${repair.triplicatePhotos}" 
                          th:src="|@{/}${photo.savePath}/${photo.generateName}|" 
-                         th:alt="'维修图片 ' + ${photoStat.index + 1}" 
+                         th:alt="'报修单图片 ' + ${stat.index + 1}" 
                          class="w-full h-24 object-cover rounded-md cursor-pointer hover:opacity-90 transition-opacity"
                          th:onclick="|openModal('@{/}${photo.savePath}/${photo.generateName}')|">
                 </div>
             </div>
 
-            <!-- 维修已完成提示 -->
+            <div th:if="${repair.repairPhotos != null and repair.repairPhotos.size() > 0}" class="detail-item">
+                <div class="label flex items-center">
+                    <i class="fa fa-picture-o mr-2 text-green-500"></i>维修完成图片
+                </div>
+                <div class="value grid grid-cols-3 gap-2 mt-2">
+                    <img th:each="photo, stat : ${repair.repairPhotos}" 
+                         th:src="|@{/}${photo.savePath}/${photo.generateName}|" 
+                         th:alt="'维修图片 ' + ${stat.index + 1}" 
+                         class="w-full h-24 object-cover rounded-md cursor-pointer hover:opacity-90 transition-opacity"
+                         th:onclick="|openModal('@{/}${photo.savePath}/${photo.generateName}')|">
+                </div>
+            </div>
+
             <div class="completed-tip">
                 <i class="fa fa-check-circle text-green-500 mr-2"></i>
                 <span class="text-green-700 font-medium">维修已完成</span>
             </div>
         </div>
 
-        <!-- 分配处理按钮（仅待处理状态显示） -->
         <a th:if="${statusEnum == T(zhongchiedu.common.utils.enums.RepairStatus).PENDING}"
            th:href="@{/wechatrp/getSGD(repairId=${repair.id})}"
            class="inline-flex items-center justify-center bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-all duration-200 mt-4 w-full">
@@ -438,16 +429,12 @@
         </a>
     </div>
 
-    <!-- 图片放大模态框 -->
+    <!-- 图片弹窗 -->
     <div id="imageModal">
         <span id="closeModal" class="absolute top-4 right-4 text-white text-4xl cursor-pointer hover:text-gray-300 transition-colors">&times;</span>
-        <div class="absolute bottom-5 left-0 right-0 text-center text-white text-sm opacity-70">
-            鼠标滚轮/双指缩放 | 单指拖动 | 点击图片重置
-        </div>
-        <img id="modalImage" src="" alt="放大的图片" onclick="resetZoom()">
+        <img id="modalImage" src="" alt="放大的图片">
     </div>
 
-    <!-- ========== 【修复】备注模态框（确保弹出） ========== -->
     <div id="remarkModal">
         <div class="remark-modal-content">
             <h3 class="text-lg font-bold mb-3">编辑维修备注</h3>
@@ -459,11 +446,20 @@
         </div>
     </div>
 
-    <!-- 提示弹窗 -->
     <div class="toast" id="toast"></div>
 
     <script>
-        // 页面加载后 绑定双击事件（最稳定写法）
+        const modal = document.getElementById("imageModal");
+        const modalImg = document.getElementById("modalImage");
+
+        // 缩放、位移变量
+        let scale = 1;
+        let translateX = 0;
+        let translateY = 0;
+        let isDragging = false;
+        let startPoint = { x: 0, y: 0 };
+        let startDistance = 0;
+
         document.addEventListener('DOMContentLoaded', function() {
             const container = document.querySelector('.detail-card');
             container.style.opacity = '0';
@@ -479,15 +475,122 @@
             setInterval(calculateUseTime, 5 * 60 * 1000);
             initRemindButtons();
 
-            // 绑定双击
             const remarkEl = document.getElementById('repairRemarkText');
             if(remarkEl){
                 remarkEl.ondblclick = openRemarkModal;
-                console.log("双击备注已启用");
             }
+
+            initImageGesture();
         });
 
-        // 处理用时
+        // 更新样式
+        function applyTransform() {
+            modalImg.style.transform = `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+            if (scale > 1) {
+                modalImg.classList.add('zoomed');
+            } else {
+                modalImg.classList.remove('zoomed');
+            }
+        }
+
+        // 计算双指距离
+        function getDistance(touch1, touch2) {
+            const dx = touch2.clientX - touch1.clientX;
+            const dy = touch2.clientY - touch1.clientY;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        // 图片手势核心
+        function initImageGesture() {
+            // 点击图片还原
+            modalImg.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (scale > 1) {
+                    resetZoom();
+                }
+            });
+
+            // 鼠标滚轮缩放
+            modalImg.addEventListener('wheel', e => {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                scale = Math.max(1, Math.min(scale + delta, 3));
+                applyTransform();
+            });
+
+            // 触屏开始
+            modalImg.addEventListener('touchstart', e => {
+                const touches = e.touches;
+                // 双指：记录初始距离
+                if (touches.length === 2) {
+                    startDistance = getDistance(touches[0], touches[1]);
+                }
+                // 单指：记录拖动起点
+                else if (touches.length === 1 && scale > 1) {
+                    isDragging = true;
+                    startPoint.x = touches[0].clientX - translateX;
+                    startPoint.y = touches[0].clientY - translateY;
+                }
+            });
+
+            // 触屏移动
+            modalImg.addEventListener('touchmove', e => {
+                e.preventDefault();
+                const touches = e.touches;
+
+                // 双指缩放
+                if (touches.length === 2) {
+                    const currentDist = getDistance(touches[0], touches[1]);
+                    const ratio = currentDist / startDistance;
+                    scale = Math.max(1, Math.min(scale * ratio, 3));
+                    startDistance = currentDist;
+                    applyTransform();
+                }
+                // 单指拖动
+                else if (touches.length === 1 && isDragging && scale > 1) {
+                    translateX = touches[0].clientX - startPoint.x;
+                    translateY = touches[0].clientY - startPoint.y;
+                    applyTransform();
+                }
+            });
+
+            // 触屏结束
+            modalImg.addEventListener('touchend', () => {
+                isDragging = false;
+            });
+
+            // 鼠标按下
+            modalImg.addEventListener('mousedown', e => {
+                if (scale <= 1) return;
+                isDragging = true;
+                startPoint.x = e.clientX - translateX;
+                startPoint.y = e.clientY - translateY;
+                modalImg.style.cursor = 'grabbing';
+            });
+
+            // 鼠标移动
+            document.addEventListener('mousemove', e => {
+                if (!isDragging || scale <= 1) return;
+                translateX = e.clientX - startPoint.x;
+                translateY = e.clientY - startPoint.y;
+                applyTransform();
+            });
+
+            // 鼠标抬起
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+                modalImg.style.cursor = scale > 1 ? 'grab' : '';
+            });
+        }
+
+        // 重置缩放和位置
+        function resetZoom() {
+            scale = 1;
+            translateX = 0;
+            translateY = 0;
+            applyTransform();
+        }
+
         function calculateUseTime() {
             const useTimeElements = document.querySelectorAll('.use-time-text');
             
@@ -537,11 +640,6 @@
             });
         }
 
-        // 图片预览
-        const modal = document.getElementById("imageModal");
-        const modalImg = document.getElementById("modalImage");
-        let scale = 1;
-
         function openModal(src) {
             modal.style.display = "flex";
             modalImg.src = src;
@@ -552,16 +650,10 @@
             modal.style.display = "none";
             document.body.style.overflow = "auto";
         }
-        function resetZoom() {
-            scale = 1;
-            modalImg.classList.remove('zoomed');
-            modalImg.style.transform = `translate(-50%, -50%) scale(${scale})`;
-        }
 
         document.getElementById("closeModal").onclick = closeModal;
         modal.onclick = e => e.target === modal && closeModal();
 
-        // 提示
         function showToast(message, type = 'info') {
             const toast = document.getElementById('toast');
             toast.textContent = message;
@@ -573,7 +665,6 @@
             }, 2000);
         }
 
-        // 催单
         function initRemindButtons() {
             document.querySelectorAll('.remind-btn').forEach(btn => {
                 btn.addEventListener('click', async function(e) {
@@ -607,9 +698,6 @@
             });
         }
 
-        // ==============================
-        // 修复：备注功能（ID 正确获取）
-        // ==============================
         function openRemarkModal() {
             const modal = document.getElementById('remarkModal');
             const textarea = document.getElementById('remarkTextarea');
@@ -623,10 +711,9 @@
             document.getElementById('remarkModal').style.display = 'none';
         }
 
-        // 保存：提交到后端
         async function saveRemark() {
             const content = document.getElementById('remarkTextarea').value.trim();
-            const repairId = document.getElementById('repairId').value; // ✅ 正确获取ID
+            const repairId = document.getElementById('repairId').value;
 
             if (!content) { showToast('请输入内容', 'error'); return; }
             if (!repairId) { showToast('工单ID获取失败', 'error'); return; }

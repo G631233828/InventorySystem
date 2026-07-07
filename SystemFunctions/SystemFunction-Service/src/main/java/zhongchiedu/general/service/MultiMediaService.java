@@ -26,5 +26,5 @@ public interface MultiMediaService extends GeneralService<MultiMedia> {
 	
 	 Pagination<MultiMedia> findMultiMediaPagination(Integer pageNo, Integer pageSize, String fileType);
 	
-	
+	 public MultiMedia uploadVideo(MultipartFile m, String dir, String path, String belong);
 }

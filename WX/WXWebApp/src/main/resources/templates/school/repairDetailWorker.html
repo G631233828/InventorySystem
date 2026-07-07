@@ -224,6 +224,12 @@
         .complete-repair-btn:hover {
             background-color: #1d4ed8;
         }
+        #triplicateUploadArea {
+   			 position: relative;
+		}
+		#triplicateLoadingMask {
+			 z-index: 10;
+			}
     </style>
 </head>
 <body class="bg-gray-50 min-h-screen p-4">
@@ -401,12 +407,18 @@
             <div class="label mb-2 text-blue-600 font-bold">
                 <i class="fa fa-file-text-o mr-1"></i>报修单上传（必须上传）
             </div>
-            <div class="upload-area border-blue-200" id="triplicateUploadArea" onclick="document.getElementById('triplicateFileInput').click()">
-                <input type="file" id="triplicateFileInput" accept="image/*" style="display: none;" onchange="handleTriplicateSelect(event)">
-                <i class="fa fa-file-pdf-o text-3xl text-blue-400 mb-2"></i>
-                <p class="text-gray-600">点击上传报修单</p>
-                <p class="text-xs text-blue-500 mt-1">系统将自动识别是否为报修单</p>
-            </div>
+         <div class="upload-area border-blue-200 relative" id="triplicateUploadArea" onclick="document.getElementById('triplicateFileInput').click()">
+    <input type="file" id="triplicateFileInput" accept="image/*" style="display: none;" onchange="handleTriplicateSelect(event)">
+    <i class="fa fa-file-pdf-o text-3xl text-blue-400 mb-2"></i>
+    <p class="text-gray-600">点击上传报修单</p>
+    <p class="text-xs text-blue-500 mt-1">系统将自动识别是否为报修单</p>
+    <!-- 新增：OCR校验加载遮罩 -->
+    <div id="triplicateLoadingMask" class="absolute inset-0 bg-white/80 hidden flex flex-col items-center justify-center rounded-lg">
+        <i class="fa fa-spinner fa-spin text-3xl text-blue-500 mb-2"></i>
+        <span class="text-blue-600 font-medium">正在校验报修单图片，请稍等...</span>
+    </div>
+</div>
+            
             <div class="preview-container" id="triplicatePreviewContainer"></div>
             <p id="triplicateTip" class="text-red-500 text-sm mt-1 hidden">请上传有效的报修单照片</p>
             <p id="triplicateError" class="text-red-500 text-sm mt-1 hidden">未检测到报修单，请重新上传</p>
@@ -428,9 +440,9 @@
     </div>
 
 <script>
-
 let triplicateFiles = [];
-let triplicateValid = false; // 新增：报修单是否通过OCR校验
+let triplicateValid = false;
+let triplicateChecking = false; // 新增：报修单是否正在校验
 const TRIPLICATE_KEY_WORDS = ["设备维修", "客户名称", "地址", "电话", "报修日期","报修人", "设备名称", "故障现象", "客户", "供应商"];
 let repairId = null;
 const uploadedFiles = [];
@@ -439,20 +451,85 @@ const submitBtn = document.getElementById('submitCompleteBtn');
 const uploadTip = document.getElementById('uploadTip');
 const completeModal = document.getElementById('completeModal');
 const triplicatePreview = document.getElementById('triplicatePreviewContainer');
+const triplicateLoadingMask = document.getElementById('triplicateLoadingMask'); // 加载遮罩
 
-// 报修单相关
+// ===================== 图片压缩工具（新增核心） =====================
+/**
+ * canvas压缩图片
+ * @param file 原图File
+ * @param maxWidth 最大宽
+ * @param maxHeight 最大高
+ * @param quality 画质0-1
+ * @returns Promise<File> 压缩后文件
+ */
+function compressImage(file, maxWidth = 1200, maxHeight = 1200, quality = 0.65) {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function (e) {
+            const img = new Image();
+            img.src = e.target.result;
+            img.onload = function () {
+                let width = img.width;
+                let height = img.height;
+                // 等比例缩小
+                if (width > maxWidth) {
+                    height = (maxWidth / width) * height;
+                    width = maxWidth;
+                }
+                if (height > maxHeight) {
+                    width = (maxHeight / height) * width;
+                    height = maxHeight;
+                }
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                // 转blob
+                canvas.toBlob(
+                    (blob) => {
+                        const newFile = new File([blob], file.name, { type: 'image/jpeg' });
+                        resolve(newFile);
+                    },
+                    'image/jpeg',
+                    quality
+                );
+            };
+        };
+    });
+}
+
+// 释放预览blob内存，防页面卡顿
+function clearBlobMemory() {
+    document.querySelectorAll('.preview-item img').forEach(img => {
+        URL.revokeObjectURL(img.src);
+    });
+}
+
+// ===================== 报修单上传 & OCR（压缩后再请求 + 加载动画） =====================
 async function handleTriplicateSelect(e) {
     const file = e.target.files[0];
     if (!file) return;
-    
-    triplicateFiles = [file];
+    // 先压缩报修单图片
+    const compressFile = await compressImage(file, 1080, 1920, 0.7);
+    triplicateFiles = [compressFile];
     showTriplicatePreview(file);
-    
-    // 新增：立即调用后端OCR校验
-    await checkTriplicateOcr(file);
+
+    // 显示加载遮罩、标记正在校验
+    triplicateChecking = true;
+    triplicateLoadingMask.classList.remove('hidden');
+
+    await checkTriplicateOcr(compressFile);
+
+    // 校验完成，隐藏加载遮罩 + 立刻重置状态变量并刷新按钮
+    triplicateChecking = false;
+    triplicateLoadingMask.classList.add('hidden');
+    checkAllSubmitReady();
 }
 
 function showTriplicatePreview(file) {
+    clearBlobMemory();
     triplicatePreview.innerHTML = '';
     const item = document.createElement('div');
     item.className = 'preview-item';
@@ -463,7 +540,7 @@ function showTriplicatePreview(file) {
     del.innerHTML = '×';
     del.onclick = () => {
         triplicateFiles = [];
-        triplicateValid = false; // 删除后重置校验状态
+        triplicateValid = false;
         triplicatePreview.innerHTML = '';
         checkAllSubmitReady();
     };
@@ -473,55 +550,89 @@ function showTriplicatePreview(file) {
     checkAllSubmitReady();
 }
 
-// 新增：调用后端OCR实时校验报修单
 async function checkTriplicateOcr(file) {
     const formData = new FormData();
     formData.append("triplicatePhoto", file);
-
     const errorTip = document.getElementById('triplicateError');
     errorTip.classList.add('hidden');
     triplicateValid = false;
-
     try {
         let res = await fetch("../../wechatrp/checkTriplicateOcr", {
             method: "POST",
             body: formData
         });
-
         let result = await res.json();
-
         if (result.status === 200) {
-            // 校验通过
             triplicateValid = true;
             errorTip.classList.add('hidden');
         } else {
-            // 校验不通过
             triplicateValid = false;
             errorTip.textContent = result.msg || "上传的不是有效报修单，请重新上传";
             errorTip.classList.remove('hidden');
         }
-
     } catch (e) {
         console.error("OCR校验异常", e);
         triplicateValid = false;
         errorTip.textContent = "报修单识别失败，请重试";
         errorTip.classList.remove('hidden');
     }
-
     checkAllSubmitReady();
 }
 
-// 统一检查是否可提交
+// 统一校验提交按钮
 function checkAllSubmitReady() {
     const repairOk = uploadedFiles.length >= 3;
-    const triplicateOk = triplicateFiles.length >= 1 && triplicateValid; // 必须通过OCR
-    submitBtn.disabled = !(repairOk && triplicateOk);
+    const triplicateOk = triplicateFiles.length >= 1 && triplicateValid;
+    // 正在校验报修单时，禁用提交按钮
+    submitBtn.disabled = !(repairOk && triplicateOk) || triplicateChecking;
     uploadTip.classList.toggle('hidden', repairOk);
     document.getElementById('triplicateTip').classList.toggle('hidden', triplicateFiles.length >= 1);
 }
 
-// 页面加载动画及事件绑定
-document.addEventListener('DOMContentLoaded', function() {
+// ===================== 维修图片选择（自动压缩） =====================
+async function handleFileSelect(event) {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+    submitBtn.disabled = true;
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (!file.type.startsWith('image/')) continue;
+        const isDuplicate = uploadedFiles.some(item => item.name === file.name && item.size === file.size);
+        if (isDuplicate) continue;
+        // 压缩后存入数组
+        const compressFile = await compressImage(file);
+        uploadedFiles.push(compressFile);
+    }
+    updatePreviews();
+    document.getElementById('fileInput').value = '';
+}
+
+function updatePreviews() {
+    clearBlobMemory();
+    previewContainer.innerHTML = '';
+    uploadedFiles.forEach((file, index) => {
+        const previewItem = document.createElement('div');
+        previewItem.className = 'preview-item';
+        previewItem.dataset.index = index;
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(file);
+        const removeBtn = document.createElement('span');
+        removeBtn.className = 'preview-remove';
+        removeBtn.innerHTML = '&times;';
+        removeBtn.onclick = function () {
+            const idx = parseInt(this.parentElement.dataset.index);
+            uploadedFiles.splice(idx, 1);
+            updatePreviews();
+        };
+        previewItem.appendChild(img);
+        previewItem.appendChild(removeBtn);
+        previewContainer.appendChild(previewItem);
+    });
+    checkAllSubmitReady();
+}
+
+// ===================== 页面加载、按钮事件（修复确认按钮无响应核心） =====================
+document.addEventListener('DOMContentLoaded', function () {
     const container = document.querySelector('.detail-card');
     container.style.opacity = '0';
     container.style.transform = 'translateY(20px)';
@@ -531,22 +642,25 @@ document.addEventListener('DOMContentLoaded', function() {
         container.style.transform = 'translateY(0)';
     }, 100);
 
-    const confirmBtn = document.getElementById('confirmRepairBtn');
-    if (confirmBtn) {
-        confirmBtn.addEventListener('click', function() {
-            confirmRepair(this);
-        });
-    }
-    const completeBtn = document.getElementById('completeRepairBtn');
-    if (completeBtn) {
-        completeBtn.addEventListener('click', function() {
-            const rid = this.getAttribute('data-repair-id');
+    // 修复1：直接onclick内联失效，改用捕获绑定，增加阻止默认事件
+    document.body.addEventListener('click', function(e){
+        // 确认开始维修按钮
+        if(e.target.closest('#confirmRepairBtn')){
+            e.preventDefault();
+            const btn = e.target.closest('#confirmRepairBtn');
+            confirmRepair(btn);
+        }
+        // 打开维修弹窗按钮
+        if(e.target.closest('#completeRepairBtn')){
+            e.preventDefault();
+            const btn = e.target.closest('#completeRepairBtn');
+            const rid = btn.getAttribute('data-repair-id');
             openCompleteModal(rid);
-        });
-    }
+        }
+    })
 });
 
-// 图片放大模态框核心逻辑
+// 图片放大弹窗逻辑（不变）
 const modal = document.getElementById("imageModal");
 const modalImg = document.getElementById("modalImage");
 let isDragging = false;
@@ -555,7 +669,6 @@ let scale = 1;
 let initialScale = 1;
 let isPinching = false;
 let initialDistance = 0;
-
 function openModal(src) {
     modal.style.display = "flex";
     modalImg.src = src;
@@ -582,8 +695,7 @@ function getTransformValues(transformString) {
     if (simpleMatch) return { x: parseInt(simpleMatch[1]), y: parseInt(simpleMatch[2]) };
     return { x: 0, y: 0 };
 }
-
-modalImg.addEventListener('touchstart', function(e) {
+modalImg.addEventListener('touchstart', function (e) {
     e.preventDefault();
     if (e.touches.length === 2) {
         isPinching = true;
@@ -600,7 +712,7 @@ modalImg.addEventListener('touchstart', function(e) {
         initialY = transform.y;
     }
 });
-modalImg.addEventListener('touchmove', function(e) {
+modalImg.addEventListener('touchmove', function (e) {
     e.preventDefault();
     if (isPinching && e.touches.length === 2) {
         const touch1 = e.touches[0];
@@ -615,11 +727,11 @@ modalImg.addEventListener('touchmove', function(e) {
         modalImg.style.transform = `translate(calc(-50% + ${initialX + dx}px), calc(-50% + ${initialY + dy}px)) scale(${scale})`;
     }
 });
-modalImg.addEventListener('touchend', function() {
+modalImg.addEventListener('touchend', function () {
     isDragging = false;
     isPinching = false;
 });
-modalImg.addEventListener('wheel', function(e) {
+modalImg.addEventListener('wheel', function (e) {
     e.preventDefault();
     const zoomStep = 0.1;
     if (e.deltaY < 0) scale = Math.min(scale + zoomStep, 3);
@@ -627,7 +739,7 @@ modalImg.addEventListener('wheel', function(e) {
     modalImg.classList.toggle('zoomed', scale > 1);
     modalImg.style.transform = `translate(-50%, -50%) scale(${scale})`;
 });
-modalImg.addEventListener('mousedown', function(e) {
+modalImg.addEventListener('mousedown', function (e) {
     if (e.button === 0) {
         isDragging = true;
         startX = e.clientX;
@@ -638,7 +750,7 @@ modalImg.addEventListener('mousedown', function(e) {
         modalImg.style.cursor = 'grabbing';
     }
 });
-document.addEventListener('mousemove', function(e) {
+document.addEventListener('mousemove', function (e) {
     if (isDragging && scale > 1) {
         e.preventDefault();
         const dx = e.clientX - startX;
@@ -646,63 +758,62 @@ document.addEventListener('mousemove', function(e) {
         modalImg.style.transform = `translate(calc(-50% + ${initialX + dx}px), calc(-50% + ${initialY + dy}px)) scale(${scale})`;
     }
 });
-document.addEventListener('mouseup', function() {
+document.addEventListener('mouseup', function () {
     if (isDragging) {
         isDragging = false;
         modalImg.style.cursor = scale > 1 ? 'zoom-out' : 'zoom-in';
     }
 });
 document.getElementById("closeModal").onclick = closeModal;
-modal.onclick = function(event) {
+modal.onclick = function (event) {
     if (event.target === modal) closeModal();
 };
-document.addEventListener('keydown', function(event) {
+document.addEventListener('keydown', function (event) {
     if (event.key === 'Escape' && modal.style.display === 'flex') closeModal();
 });
 
-// 确认开始维修功能
+// 确认开始维修（修复2：移除cors，微信内置浏览器冲突）
 function confirmRepair(btn) {
     const rid = btn.getAttribute('data-repair-id');
     const openId = document.getElementById('openId').value;
-    if (confirm('确认开始处理该报修单吗？\n处理后状态将变为"处理中"')) {
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>处理中...';
-        const formData = new URLSearchParams();
-        formData.append('repairId', rid);
-        formData.append('openId', openId);
-        fetch('../../wechatrp/confirmRepair', {
-            method: 'POST',
-            mode: 'cors',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            credentials: 'include',
-            body: formData
-        })
-        .then(response => {
-            if (!response.ok) throw new Error(`服务器响应错误：${response.status} ${response.statusText}`);
-            return response.json();
-        })
-        .then(result => {
-            console.log('后端返回结果：', result);
-            if (result.status === 200 || result.success) {
-                alert('确认成功！已开始维修');
-                window.location.reload();
-            } else {
-                throw new Error(result.msg || '操作失败，请重试');
-            }
-        })
-        .catch(error => {
-            console.error('请求异常详情：', error);
-            alert(`提交失败：${error.message}\n请稍后重试或联系管理员`);
-            btn.disabled = false;
-            btn.innerHTML = '<i class="fa fa-play-circle mr-2"></i>确认开始维修';
-        });
-    }
+    if (!confirm('确认开始处理该报修单吗？\n处理后状态将变为"处理中"')) return;
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>处理中...';
+    const formData = new URLSearchParams();
+    formData.append('repairId', rid);
+    formData.append('openId', openId);
+    fetch('../../wechatrp/confirmRepair', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        credentials: 'include',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) throw new Error(`服务器响应错误：${response.status} ${response.statusText}`);
+        return response.json();
+    })
+    .then(result => {
+        console.log('后端返回结果：', result);
+        if (result.status === 200 || result.success) {
+            alert('确认成功！已开始维修');
+            window.location.reload();
+        } else {
+            throw new Error(result.msg || '操作失败，请重试');
+        }
+    })
+    .catch(error => {
+        console.error('请求异常详情：', error);
+        alert(`提交失败：${error.message}\n请稍后重试或联系管理员`);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa fa-play-circle mr-2"></i>确认开始维修';
+    });
 }
 
-// 维修完成弹窗相关
+// 维修弹窗开关
 function openCompleteModal(id) {
     if (!id) {
         console.error('报修单ID为空');
@@ -710,9 +821,11 @@ function openCompleteModal(id) {
         return;
     }
     repairId = id;
+    clearBlobMemory();
     uploadedFiles.length = 0;
     triplicateFiles = [];
-    triplicateValid = false; // 重置OCR状态
+    triplicateValid = false;
+    triplicateChecking = false; // 弹窗打开强制重置校验标记
     previewContainer.innerHTML = '';
     triplicatePreview.innerHTML = '';
     document.getElementById('repairContent').value = '';
@@ -720,50 +833,40 @@ function openCompleteModal(id) {
     uploadTip.classList.add('hidden');
     document.getElementById('triplicateTip').classList.add('hidden');
     document.getElementById('triplicateError').classList.add('hidden');
+    triplicateLoadingMask.classList.add('hidden');
     completeModal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
 }
 function closeCompleteModal() {
+    clearBlobMemory();
     completeModal.style.display = 'none';
     document.body.style.overflow = 'auto';
 }
-function handleFileSelect(event) {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
-    for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        if (!file.type.startsWith('image/')) continue;
-        const isDuplicate = uploadedFiles.some(item => item.name === file.name && item.size === file.size);
-        if (isDuplicate) continue;
-        uploadedFiles.push(file);
-    }
-    updatePreviews();
-    document.getElementById('fileInput').value = '';
-}
-function updatePreviews() {
-    previewContainer.innerHTML = '';
-    uploadedFiles.forEach((file, index) => {
-        const previewItem = document.createElement('div');
-        previewItem.className = 'preview-item';
-        previewItem.dataset.index = index;
-        const img = document.createElement('img');
-        img.src = URL.createObjectURL(file);
-        const removeBtn = document.createElement('span');
-        removeBtn.className = 'preview-remove';
-        removeBtn.innerHTML = '&times;';
-        removeBtn.onclick = function() {
-            const idx = parseInt(this.parentElement.dataset.index);
-            uploadedFiles.splice(idx, 1);
-            updatePreviews();
-        };
-        previewItem.appendChild(img);
-        previewItem.appendChild(removeBtn);
-        previewContainer.appendChild(previewItem);
-    });
-    checkAllSubmitReady();
-}
 
-// 提交维修完成
+// 拖拽上传绑定
+const uploadArea = document.getElementById('uploadArea');
+uploadArea.addEventListener('dragover', function (e) {
+    e.preventDefault();
+    uploadArea.style.borderColor = '#48bb78';
+    uploadArea.style.backgroundColor = '#f8fff9';
+});
+uploadArea.addEventListener('dragleave', function () {
+    uploadArea.style.borderColor = '#ddd';
+    uploadArea.style.backgroundColor = 'transparent';
+});
+uploadArea.addEventListener('drop', function (e) {
+    e.preventDefault();
+    uploadArea.style.borderColor = '#ddd';
+    uploadArea.style.backgroundColor = 'transparent';
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+        const event = new Event('change');
+        Object.defineProperty(event, 'target', { value: { files: files } });
+        handleFileSelect(event);
+    }
+});
+
+// ===================== 提交维修完成（优化：增加进度提示） =====================
 function submitRepairComplete() {
     if (uploadedFiles.length < 3) {
         uploadTip.classList.remove('hidden');
@@ -779,65 +882,65 @@ function submitRepairComplete() {
     formData.append('repairId', repairId);
     formData.append('repairContent', repairContent);
     formData.append('openId', openId);
-    uploadedFiles.forEach(file=>formData.append("repairPhotos",file));
-    triplicateFiles.forEach(file=>formData.append("triplicatePhotos",file));
+    uploadedFiles.forEach(file => formData.append("repairPhotos", file));
+    triplicateFiles.forEach(file => formData.append("triplicatePhotos", file));
 
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>提交中...';
-    fetch('../../wechatrp/completeRepair', {
-        method: 'POST',
-        mode: 'cors',
-        credentials: 'include',
-        body: formData
-    })
-    .then(response => {
-        if (!response.ok) throw new Error(`服务器响应错误：${response.status} ${response.statusText}`);
-        return response.json();
-    })
-    .then(result => {
-        if (result.status === 200 || result.success) {
-            alert('维修完成提交成功！');
-            window.location.reload();
-        } else {
-            throw new Error(result.msg || '提交失败，请重试');
+    submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>上传图片中...';
+
+    // 原生xhr支持上传进度（fetch无进度）
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '../../wechatrp/completeRepair');
+    xhr.withCredentials = true;
+
+    // 上传进度
+    xhr.upload.onprogress = function (e) {
+        if (e.lengthComputable) {
+            const percent = Math.round((e.loaded / e.total) * 100);
+            submitBtn.innerHTML = `<i class="fa fa-spinner fa-spin mr-2"></i>上传 ${percent}%`;
         }
-    })
-    .catch(error => {
-        console.error('提交异常详情：', error);
-        alert(`提交失败：${error.message}\n请稍后重试或联系管理员`);
+    };
+
+    xhr.onload = function () {
+        submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin mr-2"></i>处理中...';
+        if (xhr.status >= 200 && xhr.status < 300) {
+            let result;
+            try {
+                result = JSON.parse(xhr.responseText);
+            } catch (err) {
+                alert('服务器返回数据异常');
+                resetSubmitBtn();
+                return;
+            }
+            if (result.status === 200 || result.success) {
+                alert('维修完成提交成功！');
+                window.location.reload();
+            } else {
+                throw new Error(result.msg || '提交失败，请重试');
+            }
+        } else {
+            throw new Error(`服务器错误：${xhr.status}`);
+        }
+    };
+
+    xhr.onerror = function () {
+        alert('网络异常，上传失败，请检查网络重试');
+        resetSubmitBtn();
+    };
+    xhr.send(formData);
+
+    function resetSubmitBtn() {
         submitBtn.disabled = false;
         submitBtn.innerHTML = '<i class="fa fa-paper-plane mr-2"></i>提交维修完成';
-    });
+    }
 }
 
-// 拖拽上传
-const uploadArea = document.getElementById('uploadArea');
-uploadArea.addEventListener('dragover', function(e) {
-    e.preventDefault();
-    uploadArea.style.borderColor = '#48bb78';
-    uploadArea.style.backgroundColor = '#f8fff9';
-});
-uploadArea.addEventListener('dragleave', function() {
-    uploadArea.style.borderColor = '#ddd';
-    uploadArea.style.backgroundColor = 'transparent';
-});
-uploadArea.addEventListener('drop', function(e) {
-    e.preventDefault();
-    uploadArea.style.borderColor = '#ddd';
-    uploadArea.style.backgroundColor = 'transparent';
-    const files = e.dataTransfer.files;
-    if (files && files.length > 0) {
-        const event = new Event('change');
-        Object.defineProperty(event, 'target', {value: { files: files }});
-        handleFileSelect(event);
-    }
-});
-document.addEventListener('keydown', function(event) {
+document.addEventListener('keydown', function (event) {
     if (event.key === 'Escape' && completeModal && completeModal.style.display === 'flex') {
         closeCompleteModal();
     }
 });
-completeModal.addEventListener('click', function(event) {
+completeModal.addEventListener('click', function (event) {
     if (event.target === this) {
         closeCompleteModal();
     }
