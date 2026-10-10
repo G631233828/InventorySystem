@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.TimeZone;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -3401,35 +3402,34 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	 */
 	@Override
 	public List<StockStatistics> findStockStatisticsToCreateQrcode(Pname pname, NewCustomer newcustomer,
-			String accepter, String depotTime) {
+	                                                               String accepter, String depotTime) {
 
-		Query query = new Query();
-		query.addCriteria(Criteria.where("revoke").is(false));
-		query.addCriteria(Criteria.where("isDelete").is(false));
-		query.addCriteria(Criteria.where("isDisable").is(false));
-		if (Common.isNotEmpty(pname)) {
-			query.addCriteria(Criteria.where("pname.$id").is(new ObjectId(pname.getId())));
-		}
-		if (Common.isNotEmpty(newcustomer)) {
-			query.addCriteria(Criteria.where("newCustomer.$id").is(new ObjectId(newcustomer.getId())));
-		}
-		if (Common.isNotEmpty(accepter)) {
-			query.addCriteria(Criteria.where("accepter").is(accepter));
-		}
-		if (Common.isNotEmpty(depotTime)) {
-//			try {
-//				String dateYMD = Common.getDateYMD(depotTime);
-//				query.addCriteria(Criteria.where("depotTime").regex(dateYMD));
-//			} catch (ParseException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-			query.addCriteria(Criteria.where("depotTime").is(depotTime));
+	    Query query = new Query();
+	    query.addCriteria(Criteria.where("revoke").is(false));
+	    query.addCriteria(Criteria.where("isDelete").is(false));
+	    query.addCriteria(Criteria.where("isDisable").is(false));
+	    if (Common.isNotEmpty(pname)) {
+	        query.addCriteria(Criteria.where("pname.$id").is(new ObjectId(pname.getId())));
+	    }
+	    if (Common.isNotEmpty(newcustomer)) {
+	        query.addCriteria(Criteria.where("newCustomer.$id").is(new ObjectId(newcustomer.getId())));
+	    }
+	    if (Common.isNotEmpty(accepter)) {
+	        query.addCriteria(Criteria.where("accepter").is(accepter));
+	    }
+	    if (Common.isNotEmpty(depotTime)) {
+	        // 原始格式 yyyy‑MM‑dd HH:mm:ss，截取前10位得到 yyyy‑MM‑dd
+	        if(depotTime.length() >= 10){
+	            depotTime = depotTime.substring(0, 10);
+	        }
+	        // 匹配以 yyyy‑MM‑dd 开头（Mongo字符串字段）
+	        query.addCriteria(Criteria.where("depotTime").regex(depotTime));
+	    }
 
-		}
-
-		return this.find(query, StockStatistics.class);
+	    return this.find(query, StockStatistics.class);
 	}
+	
+	
 
 	public Workbook exportStockStatistics(HttpServletRequest request, String start, String end) {
 		// List<Stock> listStock = this.findStocksBySearch(search, areaId, searchAgent);
@@ -4014,5 +4014,15 @@ public class StockStatisticsServiceImpl extends GeneralServiceImpl<StockStatisti
 	    return totalPrice.divide(totalNum, 2, RoundingMode.HALF_UP);
 	}
 
+	public static void main(String[] args) {
+		
+		
+		String depotTime ="2026-08-23 10:10:11";
+		 Pattern pattern = Pattern.compile("^" + Pattern.quote(depotTime));
+	       System.out.println(pattern);
+
+	}
+	
+	
 
 }

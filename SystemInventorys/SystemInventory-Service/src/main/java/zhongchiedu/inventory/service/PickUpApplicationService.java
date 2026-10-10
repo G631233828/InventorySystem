@@ -13,6 +13,7 @@ import zhongchiedu.common.utils.BasicDataResult;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.framework.service.GeneralService;
 import zhongchiedu.inventory.pojo.PickUpApplication;
+import zhongchiedu.inventory.pojo.Pname;
 import zhongchiedu.inventory.pojo.ProcessInfo;
 
 public interface PickUpApplicationService extends GeneralService<PickUpApplication> {
@@ -40,5 +41,7 @@ public interface PickUpApplicationService extends GeneralService<PickUpApplicati
 	public List<PickUpApplication> getbatchByids(List ids);
 
 	public Workbook export(HttpServletRequest request) throws ParseException;
+
+	public List<Pname> findDistinctPnameByPickIds(List<String> idList);
 	
 }

@@ -10,8 +10,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -547,6 +549,20 @@ public class PickUpApplicationServiceImpl extends GeneralServiceImpl<PickUpAppli
 		}
 
 		return doc;
+	}
+
+	@Override
+	public List<Pname> findDistinctPnameByPickIds(List<String> ids) {
+	    List<ObjectId> objIds = ids.stream().map(ObjectId::new).collect(Collectors.toList());
+	    Query query = Query.query(Criteria.where("_id").in(objIds));
+	    // 查询选中记录
+	    List<PickUpApplication> list = this.find(query,PickUpApplication.class);
+	    // 提取pname、去重、过滤null
+	    return list.stream()
+	            .map(PickUpApplication::getPname)
+	            .filter(Objects::nonNull)
+	            .distinct()
+	            .collect(Collectors.toList());
 	}
 
 

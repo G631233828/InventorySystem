@@ -841,22 +841,27 @@ public class PickUpApplicationController {
 	@RequestMapping(value = "/pickUpApplication/batchEdit", method = RequestMethod.POST)
 	@ResponseBody
 	public BasicDataResult batchPaymentOrderNo(HttpSession session,
-											   @RequestParam(value = "stockid", defaultValue = "") String stockid,
-											   @RequestParam(value = "description",required = false,defaultValue = "")String description
+	                                           @RequestParam(value = "stockid", defaultValue = "") String stockid,
+	                                           @RequestParam(value = "description",required = false,defaultValue = "")String description,
+	                                           // =========新增接收项目经理参数=========
+	                                           @RequestParam(value = "personInCharge",required = false,defaultValue = "") String personInCharge
 	) {
-		List<String> array = Arrays.asList(stockid.split(","));
-		for (String id : array) {
-			PickUpApplication pickUpApplication = this.pickUpApplicationService.findOneById(id, PickUpApplication.class);
-			
-			
-			PickUpApplication p = new PickUpApplication();
-			BeanUtils.copyProperties(pickUpApplication, p);
-			p.setDescription(description);
-			this.pickUpApplicationService.saveOrUpdate(p);
-		}
-		
-		return new BasicDataResult(200, "修改数据成功", "");
-
+	    List<String> array = Arrays.asList(stockid.split(","));
+	    for (String id : array) {
+	        PickUpApplication pickUpApplication = this.pickUpApplicationService.findOneById(id, PickUpApplication.class);
+	        PickUpApplication p = new PickUpApplication();
+	        BeanUtils.copyProperties(pickUpApplication, p);
+	        // 原有备注赋值
+	        if(Common.isNotEmpty(description)){
+	            p.setDescription(description);
+	        }
+	        // =========新增：项目经理赋值=========
+	        if(Common.isNotEmpty(personInCharge)){
+	            p.setPersonInCharge(personInCharge);
+	        }
+	        this.pickUpApplicationService.saveOrUpdate(p);
+	    }
+	    return new BasicDataResult(200, "修改数据成功", "");
 	}
 
 
@@ -880,7 +885,17 @@ public class PickUpApplicationController {
 	
 	
 	
-	
+	/**
+	 * 根据选中pickUpApplication ids 查询关联不重复项目（用于获取项目经理）
+	 */
+	@RequestMapping(value = "/pickUpApplication/getPnameByIds", method = RequestMethod.POST)
+	@ResponseBody
+	public BasicDataResult getPnameByIds(@RequestParam String ids){
+	    List<String> idList = Arrays.asList(ids.split(","));
+	    // service方法：根据id列表查询PickUpApplication，提取pname，去重返回
+	    List<Pname> pnameList = pickUpApplicationService.findDistinctPnameByPickIds(idList);
+	    return new BasicDataResult().build(200,"success",pnameList);
+	}
 	
 	
 	

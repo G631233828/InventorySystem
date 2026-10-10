@@ -25,6 +25,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import lombok.extern.slf4j.Slf4j;
 import zhongchiedu.common.utils.BasicDataResult;
+import zhongchiedu.common.utils.Common;
 import zhongchiedu.common.utils.FileOperateUtil;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.inventory.pojo.NewCustomer;
@@ -136,6 +137,11 @@ public class PnameController {
 	@RequestMapping(value = "/pName/ajaxgetPname", method = RequestMethod.POST)
 	@ResponseBody
 	public BasicDataResult ajaxgetPname(@RequestParam(value = "id", defaultValue = "") String id) {
+		
+		// 增加空值 + ObjectId合法性校验
+	    if (Common.isEmpty(id) || !org.bson.types.ObjectId.isValid(id)) {
+	        return new BasicDataResult(400, "无效的项目ID", null);
+	    }
 		Pname pname = this.pnameService.findPnameById(id);
 		return pname !=null ?new BasicDataResult(200, "获取成功", pname):new BasicDataResult(400, "获取失败", null);
 		

@@ -372,34 +372,63 @@ function getitem(o) {
 
 
 function batchedit() {
+    var a = $("input[name='ids']:checked").length;
+    if (a == 0) {
+        swal({
+            type: "warning",
+            title: "",
+            text: "批量修改库存统计信息至少选择一项!!",
+        });
+        return;
+    }
+    var batchids = "";
+    var id = $("input[name='ids']:checked");
+    var str = "";
+    $(id).each(function() {
+        str += this.value + ",";
+    });
+    if (str != "") {
+        batchids = str.substring(0, str.length - 1);
+    }
+    $("#stockid").val(batchids);
 
-	var a = $("input[name='ids']:checked").length;
-	if (a == 0) {
-		swal({
-			type: "warning",
-			title: "",
-			text: "批量修改库存统计信息至少选择一项!!",
-		});
+    $.ajax({
+        type:"POST",
+        url:getRootPath()+"/pickUpApplication/getPnameByIds",
+        data:{ids:batchids},
+        dataType:"json",
+        success:function(res){
+            if(res.status == 200){
+                var pnameList = res.data;
+                // 用于存放所有项目经理，自动去重
+                let pmSet = new Set();
 
-	} else {
+                $.each(pnameList,function(i,item){
+                    if(item.pm){
+                        // 按 / 分割
+                        let pmArr = item.pm.split("/");
+                        pmArr.forEach(name=>{
+                            let trimName = name.trim();
+                            if(trimName){
+                                pmSet.add(trimName);
+                            }
+                        })
+                    }
+                });
 
-		$("#editForm").modal('show');
-
-		var batchids = "";
-		var id = $("input[name='ids']:checked");
-		var str = "";
-		$(id).each(function() {
-			str += this.value + ",";
-		});
-		if (str != "") {
-			batchids = str.substring(0, str.length - 1);
-		}
-		$("#stockid").val(batchids);
-	}
-
+                var optionHtml = '<option value="">--请选择项目经理--</option>';
+                // Set转数组循环渲染下拉
+                Array.from(pmSet).forEach(pmName=>{
+                    optionHtml += `<option value="${pmName}">${pmName}</option>`;
+                });
+                $("#_it8").html(optionHtml);
+            }else{
+                $("#_it8").html('<option value="">暂无项目信息</option>');
+            }
+            $("#editForm").modal('show');
+        }
+    })
 }
-
-
 
 
 function batchEditForm() {
@@ -410,10 +439,19 @@ function batchEditForm() {
 			title: "",
 			text: "批量修改预库存信息至少选择一项!!",
 		});
-
+		return;
 	}
-	 var description = 	$("#_it7").val();//备注
-	// alert(newItemNo)
+    // 新增校验：勾选项目经理时不能选空
+    if($("input[name='item'][value='personInCharge']").prop("checked")){
+        if(!$("#_it8").val()){
+            swal({type:"warning",text:"请选择项目经理"});
+            return;
+        }
+    }
+
+	var description = 	$("#_it7").val();
+    var personInCharge = $("#_it8").val();
+
 	$.ajax({
 		dataType: "json",
 		type: "POST",
@@ -424,10 +462,12 @@ function batchEditForm() {
 				var batchids = "";
 				var id = $("input[name='ids']:checked");
 				$(id).each(function() {
-		
-					 if(description!=""){
+					if(description!=""){
 					 	$("#description_"+this.value).text(description);
 					}
+                    if(personInCharge){
+                        $(`#${this.value}`).closest("tr").find("td:eq(7)").text(personInCharge);
+                    }
 				});
 
 				jqueryAlert({
@@ -436,26 +476,16 @@ function batchEditForm() {
 					'closeTime': 2000,
 				})
 				$("#editForm").modal('hide');
-
-
 			}else{
 				jqueryAlert({
 					'icon': getRootPath() + '/plugs/alert/img/error.png',
 					'content': data.msg,
 					'closeTime': 2000,
 				})
-
 			}
-
-
 		}
 	});
-
-
 }
-
-
-
 
 
 
