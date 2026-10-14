@@ -1345,7 +1345,9 @@ public class StockServiceImpl extends GeneralServiceImpl<Stock> implements Stock
 //			// 实际入库>预入库
 //			preStock.setStatus(4);// 超量入库
 //		}
-		if (estimatedInventoryQuantity - actualReceiptQuantity == 0) {
+		// 入满判定改为容差比较，避免浮点误差(如0.1+0.2≠0.3)导致记录永远卡在待入库
+		if (estimatedInventoryQuantity - actualReceiptQuantity <= 1e-9) {
+			// 实际入库量≥预计量(含少量超收)即视为入库完成
 			preStock.setStatus(2);
 		}
 		preStock.setActualReceiptQuantity(actualReceiptQuantity);

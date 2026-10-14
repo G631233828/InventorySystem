@@ -44,7 +44,6 @@ import zhongchiedu.common.utils.enums.PersonJoinAuditStatusEnum;
 import zhongchiedu.common.utils.enums.PersonnelType;
 import zhongchiedu.framework.pagination.Pagination;
 import zhongchiedu.inventory.Dto.WxRepairExportDTO;
-import zhongchiedu.inventory.Dto.WxRepairImportDTO;
 import zhongchiedu.inventory.pojo.AfterSalesProjects;
 import zhongchiedu.inventory.pojo.WxBinding;
 import zhongchiedu.inventory.pojo.WxRepair;

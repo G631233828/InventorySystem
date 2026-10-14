@@ -584,6 +584,7 @@ public class PreStockController {
 
 	@RequestMapping(value = "/prestock/batchOut", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
 	@ResponseBody
+	@RequiresPermissions(value = "preStock:in")
 	@SystemControllerLog(description = "批量入库")
 	public BasicDataResult batchOut(String batchid, String batchnum, HttpSession session) {
 		String[] ids = batchid.split(",");
@@ -591,19 +592,33 @@ public class PreStockController {
 		List<String> batchidList = Arrays.asList(ids);
 		List<String> batchnumList = Arrays.asList(nums);
 		if (batchidList.size() != batchnumList.size()) {
-			return new BasicDataResult(400, "出库商品与id不匹配", "");
+			return new BasicDataResult(400, "入库商品与id不匹配", "");
 		}
 		User user = (User) session.getAttribute(Contents.USER_SESSION);
 		List<Object> list = new ArrayList<>();
 		for (int i = 0; i < batchidList.size(); i++) {
 			PreStock preStock = this.preStockService.findOneById(batchidList.get(i), PreStock.class);
+			// 已处理防重：状态非待入库(1)的记录直接跳过，避免重复入库虚增库存
+			if (preStock.getStatus() != 1) {
+				continue;
+			}
+			// 数量校验：空/非数字/<=0 直接报错，避免 Double.valueOf 抛异常导致 500
+			double batchNum;
+			try {
+				batchNum = Double.parseDouble(batchnumList.get(i).trim());
+			} catch (NumberFormatException e) {
+				return new BasicDataResult(400, "第" + (i + 1) + "条入库数量不是合法数字", "");
+			}
+			if (batchNum <= 0) {
+				return new BasicDataResult(400, "第" + (i + 1) + "条入库数量必须大于0", "");
+			}
 			preStock.setHandler(user);
 			PreStock stock = new PreStock();
 			stock.setId(preStock.getId());
 			stock.setEstimatedInventoryQuantity(preStock.getEstimatedInventoryQuantity());
 			Double actnum = preStock.getActualReceiptQuantity();// 之前入库的数量
-			stock.setActualReceiptQuantity(actnum + Double.valueOf(batchnumList.get(i)));
-			preStock.setActualReceiptQuantity(Double.valueOf(batchnumList.get(i)));
+			stock.setActualReceiptQuantity(actnum + batchNum);
+			preStock.setActualReceiptQuantity(batchNum);
 			this.stockService.preStockToStock(preStock, actnum);
 			list.add(stock);
 		}
